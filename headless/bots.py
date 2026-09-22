@@ -11,10 +11,12 @@ every run detects Prism, Java 21 and this folder, and rewrites each rig's Headle
   bots.py gui <bot>                     what's on the bot's screen (buttons, text)
   bots.py send <bot> <command...>       any hmc-specifics console command (click, msg, / ...)
   bots.py team-key                      show the shared team key (for your own client's config)
+  bots.py play "<world>" [bots...]      bots to standby + your Prism game straight into that world
   bots.py stop                          stop headless bots only — never your Prism client
 
 Overrides, if detection picks the wrong thing:
   BOTS_JAVA=<path to java 21 executable>    PRISM_DIR=<PrismLauncher data folder>
+  PRISM_BIN=<the prismlauncher program>      PRISM_INSTANCE=<instance folder name, for play>
   or put the Prism path in headless/prism-dir.txt
 """
 import glob
@@ -544,6 +546,48 @@ def cmd_connect(bot, addr, wait=False, wait_secs=900):
     return _await_verdict(bot, name, c["log"], f"{host}:{port}", offset, timeout=180)
 
 
+def prism_bin():
+    """The Prism Launcher program (not its data folder)."""
+    if os.environ.get("PRISM_BIN"):
+        return os.environ["PRISM_BIN"]
+    if IS_MAC:
+        cands = ["/Applications/Prism Launcher.app/Contents/MacOS/prismlauncher",
+                 os.path.expanduser("~/Applications/Prism Launcher.app/Contents/MacOS/prismlauncher")]
+    elif IS_WIN:
+        cands = [os.path.expandvars(r"%LOCALAPPDATA%\Programs\PrismLauncher\prismlauncher.exe"),
+                 os.path.expandvars(r"%ProgramFiles%\PrismLauncher\prismlauncher.exe")]
+    else:
+        cands = [shutil.which("prismlauncher") or ""]
+    for c in cands:
+        if c and os.path.exists(c):
+            return c
+    sys.exit("Can't find the Prism Launcher program. Set PRISM_BIN to it.")
+
+
+def cmd_play(world, bots):
+    """Bots to standby (in the background) and your own game straight into a world. The rest is
+    Zymbot on your client, set once in game: /zbot lan auto on (the world opens to LAN by itself)
+    and /zbot summon auto on (waiting bots are called in, repeatedly for 5 minutes)."""
+    instance = os.environ.get("PRISM_INSTANCE")
+    if not instance:
+        src = os.path.join(HERE, (bots or ["bot1"])[0], ".source")
+        instance = open(src).read().strip() if os.path.exists(src) else None
+    if not instance:
+        sys.exit("Which Prism instance? Set PRISM_INSTANCE to its folder name.")
+    for bot in bots or ["bot1"]:
+        if _console(bot):
+            print(f"[{bot}] already running")
+            continue
+        subprocess.Popen([sys.executable, "-u", os.path.abspath(__file__), "standby", bot],
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        print(f"[{bot}] starting in standby (about a minute)")
+    subprocess.Popen([prism_bin(), "-l", instance, "-w", world],
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+    print(f"[you] launching '{instance}' straight into '{world}'")
+    print("      With /zbot lan auto on + /zbot summon auto on set in that world, the rest is automatic.")
+    return 0
+
+
 def main(argv):
     if not argv or argv[0] in ("-h", "--help", "help"):
         print(__doc__); return 0
@@ -577,6 +621,10 @@ def main(argv):
         return cmd_team_key()
     if cmd == "_relay":
         _relay_main(*rest[:4]); return 0
+    if cmd == "play":
+        if not rest:
+            sys.exit('usage: bots.py play "<world name>" [bot1 bot3 ...]')
+        return cmd_play(rest[0], rest[1:])
     if cmd == "stop":
         cmd_stop(); return 0
     sys.exit(f"unknown command '{cmd}' — try: setup, sync, run, stop")

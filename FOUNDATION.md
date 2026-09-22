@@ -414,6 +414,7 @@ share_coords_with_humans: "relative",   // off | relative | exact
 ## Later phases
 
 1. **Body** — walk (Baritone), look, eat, inventory, chat in/out, survival interrupts.
+   Scoped in [PHASE1.md](PHASE1.md).
 2. **Discovery and regroup** — whitelist autostart, civilization assessment, `/msg` probe,
    roster, local bus, world spawn as the fallback meeting point.
 3. **Early game** — M0–M5 (wood, tools, food, wooden hoe, bed).

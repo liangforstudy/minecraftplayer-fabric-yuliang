@@ -16,17 +16,18 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
 
 /**
- * Zymbot settings (via Mod Menu), three tabs:
+ * Zymbot settings (via Mod Menu), four tabs:
  * <ul>
  *   <li><b>Team key</b> — paste your bots' key, compare fingerprints, save. Hidden unless shown.</li>
  *   <li><b>Accounts</b> — which accounts are a Bot (the bot plays it) or a Teammate (you play; it announces).</li>
  *   <li><b>Servers</b> — where Zymbot is active at all.</li>
+ *   <li><b>Body</b> — leash, when to eat, what counts as critical health (PHASE1.md).</li>
  * </ul>
  * Everything applies immediately, except that giving an account the Bot role never grabs the
  * controls from a menu — it takes effect on the next join (or /zbot start).
  */
 final class ZymbotSettingsScreen extends Screen {
-    private enum Tab { KEY, ACCOUNTS, SERVERS }
+    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY }
 
     private static final int GREY = 0xA0A0A0, WHITE = 0xFFFFFF, RED = 0xFF6060, GREEN = 0x70E070;
     private static final int ROW_H = 22, MAX_ROWS = 6;
@@ -39,6 +40,8 @@ final class ZymbotSettingsScreen extends Screen {
     private String message = "";
     private int messageColor = GREY;
     private final List<RowLabel> labels = new ArrayList<>();
+    private final java.util.Map<String, EditBox> tunableBoxes = new java.util.LinkedHashMap<>();
+    private final java.util.Map<String, String> tunableDrafts = new java.util.HashMap<>();
     private int contentBottom;                             // lowest y used by this tab's controls
 
     /** Space-aware layout: how many list rows fit above the add-controls and the Done button. */
@@ -64,16 +67,19 @@ final class ZymbotSettingsScreen extends Screen {
         keepDrafts();                                      // survives resizes and tab switches
         keyBox = null;
         serverBox = null;
+        tunableBoxes.clear();
         labels.clear();
         int cx = width / 2;
         tabButton("Team key", Tab.KEY, cx - 153, 36);
-        tabButton("Accounts", Tab.ACCOUNTS, cx - 50, 36);
-        tabButton("Servers", Tab.SERVERS, cx + 53, 36);
+        tabButton("Accounts", Tab.ACCOUNTS, cx - 76, 36);
+        tabButton("Servers", Tab.SERVERS, cx + 1, 36);
+        tabButton("Body", Tab.BODY, cx + 78, 36);
         int top = 68;
         switch (tab) {
             case KEY -> initKey(cx, top);
             case ACCOUNTS -> initAccounts(cx, top);
             case SERVERS -> initServers(cx, top);
+            case BODY -> initBody(cx, top);
         }
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
                 .bounds(cx - 50, height - 28, 100, 20).build());
@@ -85,13 +91,14 @@ final class ZymbotSettingsScreen extends Screen {
             tab = t;
             message = "";
             rebuildWidgets();
-        }).bounds(x, y, 100, 20).build());
+        }).bounds(x, y, 74, 20).build());
         b.active = tab != t;                               // the current tab shows as pressed
     }
 
     private void keepDrafts() {
         if (keyBox != null) keyDraft = keyBox.getValue();
         if (serverBox != null) serverDraft = serverBox.getValue();
+        tunableBoxes.forEach((k, box) -> tunableDrafts.put(k, box.getValue()));
     }
 
     // ------------------------------------------------------------------ team key
@@ -242,6 +249,57 @@ final class ZymbotSettingsScreen extends Screen {
         say("added " + key, GREEN);
     }
 
+    // ------------------------------------------------------------------ body
+
+    private static final String[][] TUNABLE_ROWS = {
+            {"leash", "Leash — max blocks from a human while working"},
+            {"eat", "Eat when hunger is at or below (of 20)"},
+            {"critical", "Critical health — heal or retreat (of 20)"}};
+
+    private void initBody(int cx, int top) {
+        int y = top;
+        for (String[] row : TUNABLE_ROWS) {
+            String key = row[0];
+            int[] range = ZymbotConfig.TUNABLES.get(key);
+            label(row[1], cx - 150, y + 6, WHITE);
+            EditBox box = new EditBox(font, cx + 60, y, 44, 20, Component.literal(row[1]));
+            box.setMaxLength(4);
+            box.setFilter(t -> t.chars().allMatch(Character::isDigit));
+            box.setValue(tunableDrafts.getOrDefault(key, String.valueOf(cfg().tunable(key))));
+            addRenderableWidget(box);
+            tunableBoxes.put(key, box);
+            label(range[0] + "–" + range[1], cx + 110, y + 6, GREY);
+            y += ROW_H;
+        }
+        y += 6;
+        addRenderableWidget(Button.builder(Component.literal("Save"), b -> saveTunables()).bounds(cx - 50, y, 100, 20).build());
+        contentBottom = y + 20;
+    }
+
+    private void saveTunables() {
+        Bot bot = ZymbotClient.get().bot();
+        List<String> saved = new ArrayList<>();
+        for (var e : tunableBoxes.entrySet()) {
+            String text = e.getValue().getValue();
+            if (text.isEmpty()) { say(e.getKey() + ": type a number", RED); return; }
+            int v = Integer.parseInt(text);
+            if (v == cfg().tunable(e.getKey())) continue;
+            String problem;
+            if (bot != null) {                               // saves and logs it
+                String r = bot.set(e.getKey(), v);
+                problem = r.equals(e.getKey() + " = " + v) ? null : r;
+            } else {
+                problem = cfg().setTunable(e.getKey(), v);
+            }
+            if (problem != null) { say(problem, RED); return; }
+            saved.add(e.getKey() + " " + v);
+        }
+        if (bot == null) ZymbotClient.get().settingsEdited();
+        tunableDrafts.clear();
+        say(saved.isEmpty() ? "nothing changed" : "saved — " + String.join(", ", saved) + " (in use now)", GREEN);
+        rebuildWidgets();
+    }
+
     // ------------------------------------------------------------------ drawing
 
     private void label(String text, int x, int y, int color) {
@@ -275,6 +333,10 @@ final class ZymbotSettingsScreen extends Screen {
             case SERVERS -> new String[] {
                     "Zymbot is only active on these servers — silent everywhere else.",
                     "Add \"singleplayer\" to include your own worlds."};
+            case BODY -> new String[] {
+                    "No natural regeneration here: only healing food brings health back.",
+                    "The leash never applies to your direct orders, or to an idle bot.",
+                    "Also: /" + cfg().commandRoot + " set leash|eat|critical <n>"};
         };
         // help and the status message go between the controls and Done — only as much as fits
         int floor = height - 32;

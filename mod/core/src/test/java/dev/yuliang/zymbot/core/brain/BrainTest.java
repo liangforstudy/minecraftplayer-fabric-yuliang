@@ -17,7 +17,7 @@ class BrainTest {
         final String what;
         boolean cancelled;
         Forever(String what) { this.what = what; }
-        public Status tick() { return cancelled ? Status.DONE : Status.RUNNING; }
+        public Status tick(WorldView w) { return cancelled ? Status.DONE : Status.RUNNING; }
         public void cancel() { cancelled = true; }
         public String describe() { return what; }
     }
@@ -65,15 +65,18 @@ class BrainTest {
     @Test
     void failedTaskIsLoggedWithReason() {
         FakeWorld w = new FakeWorld("Bot1");
+        w.paths.available = false;                          // no Baritone installed
         DecisionLog log = new DecisionLog(10, new FakeClock());
         Objective walk = new Objective() {
             public String name() { return "walk"; }
-            public Task start(WorldView wv, Hands h) { return h.walkTo(new dev.yuliang.zymbot.core.api.BlockPos(1, 2, 3)); }
+            public Task start(WorldView wv, Hands h) {
+                return new dev.yuliang.zymbot.core.task.WalkTask(h.paths(), new dev.yuliang.zymbot.core.api.BlockPos(1, 2, 3), false, 0);
+            }
             public String why() { return "test"; }
         };
         Brain brain = new Brain(List.of(), world -> Optional.of(walk), log);
         brain.tick(w, w);
         brain.tick(w, w);
-        assertTrue(log.latest(10).stream().anyMatch(e -> e.why().contains("no pathfinder yet")));
+        assertTrue(log.latest(10).stream().anyMatch(e -> e.why().contains("install Baritone")));
     }
 }

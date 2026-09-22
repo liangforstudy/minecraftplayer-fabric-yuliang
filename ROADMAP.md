@@ -173,6 +173,7 @@ Roughly in order; nothing here is committed.
 4. **Other modpacks.** Extractor → packs → profile.
 5. **User rule system** as above.
 6. **Ports** — more MC versions, then maybe Forge/NeoForge, via new adapters.
+7. ~~`/zbot summon`~~ — **built in 0.1.5**, see headless/README.md → "Summon from the game".
 
 ### On "it's vibecoded"
 

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * so a missing or partial file still works; {@link #normalize()} repairs bad values.
  */
 public final class ZymbotConfig {
-    public static final int SCHEMA_VERSION = 2;   // 2: accounts + roles
+    public static final int SCHEMA_VERSION = 3;   // 2: accounts + roles; 3: body thresholds
     private static final Pattern COMMAND = Pattern.compile("[a-z0-9_]{1,16}");
 
     public int schemaVersion = SCHEMA_VERSION;
@@ -89,8 +89,73 @@ public final class ZymbotConfig {
     /** Seconds the bot stays paused after a human touches the movement keys. */
     public int humanPauseSeconds = 10;
 
+    /** Opening your world to LAN summons your bots (as if you'd run /zbot summon). */
+    public boolean autoSummonOnLan = false;
+
+    /**
+     * Singleplayer worlds (by name) that open to LAN by themselves once loaded — on
+     * {@link #lanPort}, with online mode off so offline bot accounts can join.
+     */
+    public List<String> autoOpenLanWorlds = new ArrayList<>();
+    public int lanPort = 25565;
+
+    /**
+     * Press "I know what I'm doing!" on Minecraft's "Worlds using Experimental Settings are not
+     * supported" prompt, so a world can load unattended (play.sh). Only that prompt — never the
+     * backup questions for older or customised worlds.
+     */
+    public boolean skipExperimentalWorldWarning = true;
+
     /** Press Respawn automatically when the bot is running (or always, on a headless client). */
     public boolean autoRespawn = true;
+
+    // ------------------------------------------------------------------ body (PHASE1.md)
+
+    /** While working on its own objective, stay within this many blocks of the nearest human (R2). */
+    public int leashBlocks = 100;
+    /** Eat when hunger falls to this (of 20). */
+    public int eatBelowHunger = 14;
+    /** Health (of 20) at or below which the bot heals or retreats. */
+    public int criticalHealth = 8;
+    /**
+     * Never eaten, on top of anything with a harmful effect. Dried kelp: the server adds a 10%
+     * Poison II chance; chorus fruit teleports (SURVIVAL_EARLY_GAME §1.4).
+     */
+    public List<String> neverEat = new ArrayList<>(List.of(
+            "minecraft:dried_kelp", "minecraft:chorus_fruit", "minecraft:rotten_flesh", "minecraft:spider_eye",
+            "minecraft:pufferfish", "minecraft:poisonous_potato", "farm_and_charm:rotten_tomato", "vinery:rotten_cherry"));
+
+    /**
+     * Knocked out with no medic bot near: how long to give a human within 64 blocks to start a
+     * revive before giving up (0 = give up at once). Bleeding out takes 60 s anyway.
+     */
+    public int downedWaitForHumansSeconds = 15;
+
+    /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
+    public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
+            "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19});
+
+    public int tunable(String name) {
+        return switch (name) {
+            case "leash" -> leashBlocks;
+            case "eat" -> eatBelowHunger;
+            case "critical" -> criticalHealth;
+            default -> throw new IllegalArgumentException(name);
+        };
+    }
+
+    /** Null when set, otherwise why not. */
+    public String setTunable(String name, int value) {
+        int[] range = TUNABLES.get(name);
+        if (range == null) return "unknown setting '" + name + "' — leash, eat or critical";
+        if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
+        switch (name) {
+            case "leash" -> leashBlocks = value;
+            case "eat" -> eatBelowHunger = value;
+            default -> criticalHealth = value;
+        }
+        return null;
+    }
 
     public static final class Transports {
         public boolean localBus = true;   // UDP multicast: this machine + LAN
@@ -164,6 +229,20 @@ public final class ZymbotConfig {
         if (teamKey == null) teamKey = "";
         if (transports == null) transports = new Transports();
         if (humanPauseSeconds < 1) humanPauseSeconds = 10;
+        for (var t : TUNABLES.entrySet()) {
+            int v = tunable(t.getKey()), lo = t.getValue()[0], hi = t.getValue()[1];
+            if (v < lo || v > hi) {
+                int fixed = Math.max(lo, Math.min(hi, v));
+                warnings.add(t.getKey() + " " + v + " out of range " + lo + "–" + hi + "; using " + fixed);
+                setTunable(t.getKey(), fixed);
+            }
+        }
+        if (neverEat == null) neverEat = new ArrayList<>();
+        if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();
+        if (lanPort < 1024 || lanPort > 65535) {
+            warnings.add("lan_port " + lanPort + " out of range; using 25565");
+            lanPort = 25565;
+        }
         return warnings;
     }
 }

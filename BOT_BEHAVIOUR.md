@@ -32,7 +32,9 @@ Evaluated in order, every tick. First match wins.
 
 | # | trigger | action | why |
 |---|---|---|---|
+| −1 | **knocked out** (civfabric dbno: "Bleeding Out" boss bar) | let go of everything; tell the team (bus `DOWNED`) and each human within 64 blocks (`/msg`); wait only while being revived, a medic bot is near, or a human is near (15 s, `downed_wait_for_humans_seconds`) — otherwise `/giveup` at once | bleeding out and giving up are the same death, so waiting only pays if someone can come — see BOT_DESIGN → Knocked out *(built 0.1.9; medic bots don't exist yet)* |
 | 0 | player pressed WASD / jump / inventory | → `SUSPENDED`, start resume countdown | R12 — the human always wins |
+| 1a | air ≤ ⅔ while in water | surface, swim for the nearest dry land (or tread water) | a player who presses nothing sinks; drowning has no attacker to run from |
 | 1 | health ≤ critical | eat a healing food; if none, break contact and retreat | no natural regen — damage is not self-correcting |
 | 2 | engaged in combat | hand control to the **combat state machine** (below); Baritone paused | Baritone is poor at combat |
 | 3 | blood moon imminent/active | move to shelter, stay until clear | forced surface spawns, PvP live, sleeping blocked |
@@ -462,6 +464,14 @@ the night safe to travel, night is exactly when the bot is free to go get them.
 Fast walkers (doduo, rattata ~0.40 walk speed) may drift off but won't flee once engaged.
 
 Hits-to-kill against a given weapon isn't in the data files and needs measuring in game.
+
+**Critical hits.** A hit while falling (jump, then swing on the way down, not sprinting, not in
+water) does 1.5× damage. The jump costs 0.05 exhaustion, and the attack 0.1 either way, so a crit is
+worth it whenever the target needs two or more normal hits: it saves at least one attack, and one
+more round of taking damage. `ENGAGE` should time jump-crits by default, weighed against hunger
+when food is short. A *faked* crit (sending movement packets that pretend to fall — the
+"Criticals" cheat) is **not built**: on the live server it's cheating, and anticheat flags it.
+Only if the server owner explicitly allows it.
 
 ### Threat table (roadmap)
 

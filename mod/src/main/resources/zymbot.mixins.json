@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.yuliang.zymbot.fabric.mixin",
+  "compatibilityLevel": "${java}",
+  "client": [
+    "BossHealthOverlayAccessor",
+    "MinecraftAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

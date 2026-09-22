@@ -120,7 +120,7 @@ A FOREST/BIRCH_FOREST border gives carrots at 100% as well.
 
 | item | hunger | effect | notes |
 |---|---|---|---|
-| `farm_and_charm:nettle_tea_cup` | 1 | **Instant Health** | wild nettle is forageable, 1/34 chunks |
+| `farm_and_charm:nettle_tea_cup` | 1 | ~~Instant Health~~ **suspected broken** — see note | wild nettle is forageable, 1/34 chunks |
 | `farm_and_charm:ribwort_tea_cup` | 1 | Regeneration 3s | wild ribwort forageable, 1/41 chunks |
 | `farmersdelight:fruit_salad` | 6 | Regeneration I, 5s | fruit + bowl — the cheapest real heal |
 | `farmersdelight:mixed_salad` | 6 | Regeneration I, 5s | vegetables + bowl |
@@ -128,6 +128,12 @@ A FOREST/BIRCH_FOREST border gives carrots at 100% as well.
 | `minecraft:golden_apple` | 4 | Regen II 5s + Absorption 2m | |
 | `cobblemon:vivichoke_dip` | 10 | Absorption 45s | always edible |
 | `farmersdelight:apple_cider` | — | Absorption 60s | always edible |
+
+**Nettle tea cup, tested 2026-09-22 (Bot1, 0.1.3):** drank two at health 5, still 5 afterwards.
+The item (Farm & Charm `EffectJugItem`) gives Instant Health with a **duration of 0**. Food effects
+are applied as ordinary timed effects, which act only while their duration lasts, so an instant
+effect with duration 0 never fires (potions heal through a separate instant path). Likely a
+Farm & Charm bug — confirm by hand, then report upstream. Until then the bot doesn't count on it.
 
 Two of these — **nettle and ribwort — grow wild and drop at 100%**. An agent that maps nettle
 and ribwort patches has a renewable healing supply from phase 1, which matters enormously

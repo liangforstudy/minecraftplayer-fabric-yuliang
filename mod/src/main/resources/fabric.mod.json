@@ -8,6 +8,7 @@
   "license": "All-Rights-Reserved",
   "icon": "assets/zymbot/icon.png",
   "environment": "client",
+  "mixins": ["zymbot.mixins.json"],
   "entrypoints": {
     "client": ["dev.yuliang.zymbot.fabric.ZymbotClient"],
     "modmenu": ["dev.yuliang.zymbot.fabric.ZymbotModMenu"]
@@ -22,6 +23,7 @@
     "fabric-message-api-v1": "*"
   },
   "suggests": {
-    "modmenu": "*"
+    "modmenu": "*",
+    "baritone": "*"
   }
 }

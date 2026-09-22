@@ -11,12 +11,22 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.BackupConfirmScreen;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.network.chat.ChatType;
+import dev.yuliang.zymbot.core.protocol.SummonTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +44,9 @@ public final class ZymbotClient implements ClientModInitializer {
     private Path configFile;
     private Bot bot;
     private FabricHands hands;
+    private boolean wasPublished;                              // our world was open to LAN last tick
+    private boolean lanAutoTried;                              // this world's auto-open, once per join
+    private boolean wasAutoSummon;                             // auto-summon was on last tick
 
     static ZymbotClient get() { return instance; }
     ZymbotConfig config() { return config; }
@@ -66,26 +79,77 @@ public final class ZymbotClient implements ClientModInitializer {
                 HEADLESS ? "headless" : "with a human at the keys");
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                ZymbotCommands.register(dispatcher, () -> bot, config.commandRoot, config.commandAliases));
+                ZymbotCommands.register(dispatcher, () -> bot, this::summon, () -> openLan(Minecraft.getInstance()),
+                        () -> levelName(Minecraft.getInstance()), config.commandRoot, config.commandAliases));
+        // the bot exists from the title screen on, so a summon can reach it before any world
+        ClientLifecycleEvents.CLIENT_STARTED.register(this::createBot);
         ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> onJoin(mc));
         ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+        ClientReceiveMessageEvents.CHAT.register((message, signed, sender, params, at) -> {
+            if (bot != null) bot.onChat(sender == null ? null : sender.getName(), message.getString(),
+                    params.chatType().is(ChatType.MSG_COMMAND_INCOMING));
+        });
+        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+            if (bot != null && !overlay) bot.onChat(null, message.getString(), false);
+        });
         ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> { if (bot != null) bot.shutdown(); });
     }
 
-    private void onJoin(Minecraft mc) {
-        if (bot == null) {
-            hands = new FabricHands(mc);
-            bot = new Bot(config, configFile, FabricLoader.getInstance().getGameDir().resolve("zymbot"),
-                    mc.getUser().getProfileId(), HEADLESS, System::currentTimeMillis);
-            if (config.transports.localBus) {
-                try {
-                    bot.attachTransport(new LocalBusTransport());
-                } catch (IOException e) {
-                    LOG.warn("[zymbot] local bus unavailable: {}", e.getMessage());
-                }
+    private void createBot(Minecraft mc) {
+        if (bot != null) return;
+        bot = new Bot(config, configFile, FabricLoader.getInstance().getGameDir().resolve("zymbot"),
+                mc.getUser().getProfileId(), HEADLESS, System::currentTimeMillis);
+        if (config.transports.localBus) {
+            try {
+                bot.attachTransport(new LocalBusTransport());
+            } catch (IOException e) {
+                LOG.warn("[zymbot] local bus unavailable: {}", e.getMessage());
             }
         }
+    }
+
+    /** /zbot summon: our LAN world if it's open, else the server we're on. */
+    private String summon(Bot b) {
+        Minecraft mc = Minecraft.getInstance();
+        IntegratedServer s = mc.getSingleplayerServer();
+        if (s != null) {
+            if (!s.isPublished()) return "open your world to LAN first (Esc → Open to LAN), then summon";
+            return b.summon(SummonTarget.lan(s.getPort(), SummonTarget.localIps()));
+        }
+        ServerData server = mc.getCurrentServer();
+        if (server != null) return b.summon(SummonTarget.server(server.ip));
+        return "not in a world";
+    }
+
+    /**
+     * Open our singleplayer world to LAN on config.lan_port, online mode off (bot accounts are
+     * offline accounts). Does what OfflineLAN's toggle does, so it doesn't depend on that toggle.
+     */
+    String openLan(Minecraft mc) {
+        IntegratedServer s = mc.getSingleplayerServer();
+        if (s == null) return "only in a singleplayer world";
+        if (s.isPublished()) {                                  // open already: at least call the bots in
+            return "already open to LAN on port " + s.getPort() + " — "
+                    + (bot == null ? "" : bot.summon(SummonTarget.lan(s.getPort(), SummonTarget.localIps())));
+        }
+        int port = config.lanPort;
+        if (!net.minecraft.util.HttpUtil.isPortAvailable(port)) return "port " + port + " is in use — close whatever holds it";
+        if (!s.publishServer(s.getDefaultGameType(), s.getWorldData().isAllowCommands(), port)) return "couldn't open to LAN on port " + port;
+        s.setUsesAuthentication(false);
+        return "opened to LAN on port " + port + " — online mode off, so the bots' offline accounts can join";
+    }
+
+    /** The world's name, as the auto-open list keys it; null outside singleplayer. */
+    static String levelName(Minecraft mc) {
+        IntegratedServer s = mc.getSingleplayerServer();
+        return s == null ? null : s.getWorldData().getLevelName();
+    }
+
+    private void onJoin(Minecraft mc) {
+        createBot(mc);
+        lanAutoTried = false;
+        if (hands == null) hands = new FabricHands(mc);
         String address, worldKey;
         ServerData server = mc.getCurrentServer();
         if (mc.hasSingleplayerServer() && mc.getSingleplayerServer() != null) {
@@ -99,11 +163,47 @@ public final class ZymbotClient implements ClientModInitializer {
     }
 
     private void onTick(Minecraft mc) {
-        if (bot == null || mc.player == null || mc.level == null) return;
-        if (!HEADLESS && humanIsMoving(mc.options)) bot.humanInput(hands);
-        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection()), hands);
+        if (config.skipExperimentalWorldWarning && mc.screen instanceof BackupConfirmScreen s) skipExperimentalWarning(s);
+        if (bot == null) return;
+        if (mc.player == null || mc.level == null) {
+            if (mc.screen instanceof ConnectScreen) return;     // already joining somewhere
+            bot.tickOutsideWorld();
+            bot.takeSummon().ifPresent(addr -> {
+                LOG.info("[zymbot] summoned — joining {}", addr);
+                ConnectScreen.startConnecting(mc.screen != null ? mc.screen : new TitleScreen(), mc,
+                        ServerAddress.parseString(addr), new ServerData("Summoned", addr, ServerData.Type.OTHER), false, null);
+            });
+            return;
+        }
+        IntegratedServer server = mc.getSingleplayerServer();
+        if (server != null && !lanAutoTried && server.isReady() && bot.autoOpensLan(levelName(mc))) {
+            lanAutoTried = true;
+            hands.notifyLocal(openLan(mc));
+        }
+        boolean published = server != null && server.isPublished();
+        boolean autoSummon = config.autoSummonOnLan;
+        // just opened — or auto-summon was switched on while already open: call the bots now
+        if (published && (!wasPublished || (autoSummon && !wasAutoSummon))) bot.lanOpened(server.getPort(), SummonTarget.localIps());
+        wasPublished = published;
+        wasAutoSummon = autoSummon;
+        if (!HEADLESS && !hands.holdingKeys() && humanIsMoving(mc.options)) bot.humanInput(hands);
+        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay()), hands);
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
+    }
+
+    /** Only the experimental-settings prompt: its title key, and its skip button, by key. */
+    private static void skipExperimentalWarning(BackupConfirmScreen s) {
+        if (!(s.getTitle().getContents() instanceof TranslatableContents t)
+                || !"selectWorld.backupQuestion.experimental".equals(t.getKey())) return;
+        for (var child : s.children()) {
+            if (child instanceof Button b && b.getMessage().getContents() instanceof TranslatableContents k
+                    && "selectWorld.backupJoinSkipButton".equals(k.getKey())) {
+                LOG.info("[zymbot] experimental-settings world: pressed \"I know what I'm doing!\" (skip_experimental_world_warning)");
+                b.onPress();
+                return;
+            }
+        }
     }
 
     private static boolean humanIsMoving(Options o) {

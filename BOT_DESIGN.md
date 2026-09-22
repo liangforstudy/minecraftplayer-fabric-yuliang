@@ -179,7 +179,8 @@ cannot share a human's.
 
 `civfabric` `grave/` drops your items into a grave block at the death site
 (`GRAVE_KEEPS_ALL_EXPERIENCE = false`) and respawns you at your spawn point with nothing.
-There's also a `dbno` (down-but-not-out) module — a downed state before true death.
+There's also a `dbno` (down-but-not-out) module — a downed state before true death. **Read in
+full 2026-09-22 (civfabric 0.4.2), see [§ Knocked out](#knocked-out--civfabric-dbno) below.**
 
 So death costs **the round trip**, not the items. Bed priority rising with distance from
 spawn is the correct model. Suggested shape:
@@ -659,6 +660,9 @@ Scouting is the bulk of the early game and the part where Baritone's cost model 
 against R19. A few hundred lines of terrain-following A* there may be less work than bending
 Baritone, and it keeps the long-range behaviour fully under your control.
 
+**Decided (Phase 1, [PHASE1.md](PHASE1.md)):** Baritone is an *optional*, separately installed
+jar behind `PathProvider`; Zymbot loads without it.
+
 **Suggested order:** wrap Baritone behind `PathProvider`, use it for everything at first, and
 only write the custom scout walker if `allowSprint=false` plus avoidance settings can't stop
 it swimming and sprinting across the map.
@@ -1094,3 +1098,58 @@ All constants above are extracted, not assumed — see `survival-data/server_rul
 sections `pacifism`, `bed_and_rest`, `death_and_graves`, `lunar_forecast`, plus
 `forced_gamerules` and `lunar_events`. Provenance and confidence notes are in
 `SURVIVAL_EARLY_GAME.md` §7.
+
+
+---
+
+## Knocked out — civfabric `dbno`
+
+Read from civfabric 0.4.2 bytecode on 2026-09-22 (all constants compiled in — no config file);
+first seen live when a provoked zombie downed Bot1. [R] = read in the code, [I] = inferred.
+
+**Going down.** Any hit that would kill you downs you instead, unless it overkills by 10+ HP
+(`/kill`, void). No damage type is exempt [R]. Downed health = `max(0.5, 10 + health after the
+hit)` [R]. You're *not* dead (no death screen) — you sit on an invisible, tiny armour stand and
+can't move, dismount, use or attack anything, break blocks or pick up items; you can look, chat and
+run commands [R/I]. Hunger doesn't drain while down [R].
+
+**Bleeding out.** 60 s (1200 ticks), counting on even while logged off [R]. Darkness pulses after
+10 s. **Any further lethal hit kills for real** [R] — that's what finished Bot1 three seconds after
+it went down. Bleeding out, `/giveup` (aliases `/suicide /die /rip /gg /d`) and the killing blow
+are real deaths: vanilla drops, and the class-XP death penalty (0.5, moon-adjusted) [R].
+`/giveup` is refused if a *player* downed you [R].
+
+**Revive.** A **MEDIC** (rank > 0 when the class system is active) right-clicks you within 7 blocks
+holding **Stitches** (`civfabric:stitches`, shapeless: 8 paper + 1 sugar cane), which opens a
+6-row "Reviving <name>" screen: click the 7 red **injury** items (custom data `civfabric:injury`),
+never the green **healthy organs** (a wrong click adds 3 injuries). You come back at
+`2 × medic rank` HP (max 5 ranks → 10 HP) [R]. `/revive` (self-revive) is **op-only** — Bot1 saw
+the `[Revive]` button only because it's an op in the LAN world; a real server bot won't have it.
+
+**Carry / leash / pat-down.** A Medic can carry a downed player on their shoulders (half speed,
+sneak to drop). Hunter rank ≥ 2 can leash them. Anyone can sneak-right-click to search their
+inventory and drop items out of it [R].
+
+**What a client can see** (no custom packets; all vanilla) [R/I]:
+
+| signal | meaning |
+|---|---|
+| boss bar **"Bleeding Out"** (red, 20 notches, progress = time left) | *I* am down — reliable |
+| boss bar **"Being Revived"** (green, progress = injuries treated) | someone is reviving me |
+| chat `[CivLabs] » You're knocked out.` / `You're back on your feet.` | down / up (literal text) |
+| my vehicle is an armour stand; health 0.5–10 | down |
+| another player riding a 0.01-scale invisible armour stand, blood-red dust | *a teammate* is down |
+
+**What it means for the bot** (design; not built):
+
+1. **Downed is the top interrupt**, above everything: stop pathing and all actions (they're
+   refused anyway), and shout — a bus `DOWNED x z secs` plus a `/msg` to nearby humans. **Give up
+   at once unless someone can come** (owner's call, 2026-09-22): being revived, a medic bot near,
+   or a human near for 15 s. Bleeding out is the same death, only a minute later. *Built in 0.1.9.*
+2. **A fleeing bot at critical health must get away *before* it's downed** — once down it can't
+   move, and the next lethal hit is a real death. That's why the reflex timing fix (FIXLIST #7)
+   matters so much.
+3. **Reviving is a bot skill worth having:** the minigame is trivially machine-readable (injury
+   items carry `civfabric:injury` custom data). A MEDIC bot carrying Stitches can answer a
+   `DOWNED` call within 60 s. Stitches are cheap (paper + sugar cane) — worth a milestone rung.
+4. `/revive` is op-only: the bot must never rely on it.

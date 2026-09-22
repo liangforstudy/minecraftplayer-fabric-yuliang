@@ -24,6 +24,9 @@ repositories {
 
 dependencies {
     modCompileOnly("com.terraformersmc:modmenu:${property("deps.modmenu")}") { isTransitive = false }
+    // Baritone — optional, installed by the user (LGPL-3.0; PHASE1.md P1-1). Compiled against, never
+    // bundled. The jar is the one headless/ downloads; not in git.
+    modCompileOnly(files(rootProject.file("../headless/baritone-api-fabric-${property("deps.baritone")}.jar")))
 
     // Only the Fabric API modules we actually use
     fun fapi(vararg modules: String) {
@@ -41,6 +44,7 @@ dependencies {
         "fabric-command-api-v2",        // client commands under a configurable root
         "fabric-message-api-v1",        // incoming chat (human syntax, bus over chat)
     )
+    compileOnly("com.google.code.findbugs:jsr305:3.0.2")   // Baritone's API annotations
 
     implementation(project(":core"))
     include(project(":core"))           // jar-in-jar: the brain ships inside the mod

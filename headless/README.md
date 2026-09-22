@@ -219,3 +219,36 @@ there to find something.
 - The launcher warns it isn't running from `headlessmc-launcher-wrapper`, so no plugin support
   or in-memory launching. Hasn't mattered so far.
 - The launcher is an interactive REPL; drive it with piped stdin (`printf 'cmd\nexit\n' | java -jar ...`).
+
+## Summon from the game (0.1.5)
+
+Instead of `connect`, pull waiting bots in from inside Minecraft:
+
+1. Start the bots with `./standby.sh bot1` — they sit at the title screen, listening.
+2. In your game: open to LAN (online mode off), then `/zbot summon`.
+3. Every bot with your team key that's waiting at its title screen joins you. On the same machine
+   it uses 127.0.0.1; from another PC, whichever of your addresses is on its subnet.
+
+`/zbot summon auto on` does step 2 by itself whenever you open to LAN. On a real server,
+`/zbot summon` sends your bots to that server's address instead.
+
+Only **Bot** accounts answer — a Teammate's client (a human) is never pulled anywhere, and a bot
+already in a world ignores it. The message is signed and encrypted with the team key, so nobody
+without it can summon your bots.
+
+## Fully automatic: `play` (0.1.6)
+
+```bash
+./play.sh "New World"
+```
+
+Starts the bots in standby (in the background) and launches your Prism instance straight into that
+world (Prism's `-l <instance> -w <world>`). Set these once, inside that world, on your own client:
+
+- `/zbot lan auto on` — this world opens to LAN by itself when it loads: port 25565 (`lan_port`),
+  online mode off. Zymbot does what OfflineLAN's toggle does, so it doesn't depend on that toggle.
+- `/zbot summon auto on` — opening to LAN summons your bots, and repeats the summon every 15 s for
+  5 minutes, so bots that are still booting join too.
+
+`/zbot lan` opens the current world by hand. The instance is the one `sync` mirrors (`bot1/.source`);
+override with `PRISM_INSTANCE`, and the program with `PRISM_BIN` if Prism isn't in Applications.

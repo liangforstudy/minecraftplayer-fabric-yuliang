@@ -10,6 +10,10 @@ public final class MessageTypes {
     public static final String CLAIM = "CLAIM";
     public static final String DONE = "DONE";
     public static final String ANSWERED = "ANSWERED";    // <msgId of the public request>
+    /** <sender name> <SummonTarget> — bots waiting at the title screen join the sender. */
+    public static final String SUMMON = "SUMMON";
+    /** <name> <seconds left> — knocked out at the envelope's x,z; a MEDIC with stitches can help. */
+    public static final String DOWNED = "DOWNED";
 
     private MessageTypes() {}
 }

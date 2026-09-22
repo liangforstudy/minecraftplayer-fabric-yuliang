@@ -1,9 +1,23 @@
 package dev.yuliang.zymbot.core;
 
+import dev.yuliang.zymbot.core.api.BlockPos;
+import dev.yuliang.zymbot.core.api.EntityView;
 import dev.yuliang.zymbot.core.api.Hands;
 import dev.yuliang.zymbot.core.api.WorldView;
+import dev.yuliang.zymbot.core.body.Body;
+import dev.yuliang.zymbot.core.body.ChatIn;
+import dev.yuliang.zymbot.core.body.ChatOut;
+import dev.yuliang.zymbot.core.body.CriticalHealthInterrupt;
+import dev.yuliang.zymbot.core.body.DownedInterrupt;
+import dev.yuliang.zymbot.core.task.DownedTask;
+import dev.yuliang.zymbot.core.body.DrowningInterrupt;
+import dev.yuliang.zymbot.core.body.FoodChooser;
+import dev.yuliang.zymbot.core.body.HungerInterrupt;
+import dev.yuliang.zymbot.core.body.HungerMeter;
+import dev.yuliang.zymbot.core.body.LeashInterrupt;
 import dev.yuliang.zymbot.core.brain.Brain;
 import dev.yuliang.zymbot.core.brain.DecisionLog;
+import dev.yuliang.zymbot.core.brain.Objective;
 import dev.yuliang.zymbot.core.brain.Phase;
 import dev.yuliang.zymbot.core.brain.Planner;
 import dev.yuliang.zymbot.core.config.AutostartPolicy;
@@ -12,9 +26,14 @@ import dev.yuliang.zymbot.core.config.ZymbotConfig;
 import dev.yuliang.zymbot.core.protocol.Bus;
 import dev.yuliang.zymbot.core.protocol.Envelope;
 import dev.yuliang.zymbot.core.protocol.MessageTypes;
+import dev.yuliang.zymbot.core.protocol.SummonTarget;
 import dev.yuliang.zymbot.core.protocol.Transport;
 import dev.yuliang.zymbot.core.store.BotMemory;
 import dev.yuliang.zymbot.core.store.VersionedStore;
+import dev.yuliang.zymbot.core.task.EatTask;
+import dev.yuliang.zymbot.core.task.FollowTask;
+import dev.yuliang.zymbot.core.task.Task;
+import dev.yuliang.zymbot.core.task.WalkTask;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -23,7 +42,10 @@ import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.UUID;
+import java.util.Locale;
 import java.util.function.LongSupplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * One bot: lifecycle, the brain, the bus, and memory. Pure Java — the Fabric adapter calls
@@ -38,6 +60,13 @@ public final class Bot {
     public static final long TAB_LIST_GRACE_MILLIS = 10_000;
     /** Silent this long, then heard again: logged as "back" even within one session. */
     public static final long AWAY_MILLIS = 5 * 60_000;
+    /** Unsaved memory is written at least this often — a killed process loses at most this much. */
+    public static final long SAVE_EVERY_MILLIS = 60_000;
+    public static final long HUNGER_LOG_EVERY_MILLIS = 5 * 60_000;
+    /** An auto-summon is repeated this often, for this long — bots still booting catch a later one. */
+    public static final long SUMMON_REPEAT_EVERY_MILLIS = 15_000;
+    public static final long SUMMON_REPEAT_FOR_MILLIS = 5 * 60_000;
+    private static final Logger LOG = LoggerFactory.getLogger("zymbot");
 
     private final ZymbotConfig config;
     private final Path configFile;
@@ -49,7 +78,12 @@ public final class Bot {
     private final Bus bus;
     private final Brain brain;
     private final VersionedStore<BotMemory> memoryStore =
-            new VersionedStore<>(ConfigIO.GSON, BotMemory.class, BotMemory.SCHEMA_VERSION);
+            new VersionedStore<>(ConfigIO.GSON, BotMemory.class, BotMemory.SCHEMA_VERSION)
+                    .migration(1, doc -> doc);                   // 1 → 2: recent_foods, empty by default
+    private final Body body;
+    private final HungerMeter hungerMeter = new HungerMeter();
+    private final ChatIn chatIn = new ChatIn();
+    private final ChatOut chatOut;
 
     private Phase phase = Phase.STOPPED;
     private String address;            // as joined, or "singleplayer"; null when not in a world
@@ -64,6 +98,16 @@ public final class Bot {
     private final List<Pending> pending = new ArrayList<>();
     private int notHere;
     private final java.util.Set<String> heardThisSession = new java.util.HashSet<>();
+    private boolean memoryDirty;
+    private long nextSave;
+    private long nextHungerLog;
+    private Hands hands;                                         // last tick's, for status
+    private String pendingSummon;                                // an address to join, from a SUMMON
+    private boolean saidIgnoringSummons;                         // "already in a world": once per world
+    private String knownLastDeath;                               // null until first seen in this world
+    private boolean sawDeath;                                    // saw ourselves dead (the slow way)
+    private SummonTarget repeatSummon;                           // auto-summon: say it again for a while
+    private long repeatSummonUntil, nextSummonRepeat;
 
     /** A message whose sender isn't in the tab list yet — they may have joined a moment ago. */
     private record Pending(Envelope envelope, long since) {}
@@ -77,7 +121,20 @@ public final class Bot {
         this.clock = clock;
         this.log = new DecisionLog(50, clock);
         this.bus = new Bus(selfId, config.teamKey, clock);
-        this.brain = new Brain(List.of(), Planner.EMPTY, log);
+        this.chatOut = new ChatOut(clock);
+        this.body = new Body(() -> memory.recentFoods, this::isKnownBot, clock, () -> memoryDirty = true);
+        body.onSwim(this::reportSwim);
+        // BOT_BEHAVIOUR.md interrupt table, phase 1 rows, in priority order
+        DownedTask.Help help = new DownedTask.Help() {
+            public void callForHelp(WorldView w, List<EntityView> humans) { announceDowned(w, humans); }
+            public boolean medicNear(WorldView w) { return false; }   // bots announce their class in a later phase
+        };
+        this.brain = new Brain(List.of(
+                new DownedInterrupt(config, body, help, log::record),
+                new DrowningInterrupt(),
+                new CriticalHealthInterrupt(config, body),
+                new LeashInterrupt(config, body, this::workingOnItsOwn),
+                new HungerInterrupt(config, body)), Planner.EMPTY, log);
         bus.subscribe(this::onEnvelope);
     }
 
@@ -101,7 +158,12 @@ public final class Bot {
         this.selfName = selfName;
         this.serverId = serverIdOf(worldKey);
         this.memory = memoryStore.load(memoryFile(), new BotMemory());
+        pendingSummon = null;
+        saidIgnoringSummons = false;
+        knownLastDeath = null;
+        sawDeath = false;
         heardThisSession.clear();
+        hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
         if (!onWhitelist()) {
             log.record("silent", where + " isn't on the server list — /" + config.commandRoot + " start to begin");
@@ -132,11 +194,13 @@ public final class Bot {
     }
 
     public void onLeave() {
+        brain.cancelOrder("left the world");
         if (phase.controlling()) brain.halt("left the world");
         if (phase != Phase.STOPPED) log.record("stopped", "left the world");
         phase = Phase.STOPPED;
-        if (address != null) memoryStore.save(memoryFile(), memory);
+        if (address != null) saveMemory();
         address = null;
+        repeatSummon = null;
     }
 
     /** The bot takes control. Works for any role when asked by hand. */
@@ -155,6 +219,7 @@ public final class Bot {
     public void stop(String why) {
         if (phase == Phase.STOPPED) return;
         if (phase.controlling()) {
+            brain.cancelOrder("stopped");
             brain.halt("stopped");
             if (role() == ZymbotConfig.Role.TEAMMATE && onWhitelist()) {
                 announce("stopped controlling — " + why);
@@ -184,14 +249,39 @@ public final class Bot {
     public void tick(WorldView world, Hands hands) {
         long now = clock.getAsLong();
         current = world;
+        this.hands = hands;
         retryPending(now);
         bus.drain();
+        if (memoryDirty && now >= nextSave) saveMemory();
+        if (repeatSummon != null && now >= nextSummonRepeat) {
+            if (now >= repeatSummonUntil || !config.autoSummonOnLan) repeatSummon = null;   // done, or switched off
+            else {
+                sendSummon(repeatSummon);
+                nextSummonRepeat = now + SUMMON_REPEAT_EVERY_MILLIS;
+            }
+        }
+
+        if (world.isDead()) {                                  // whatever it was doing died with it
+            if (!sawDeath) died(null);
+            sawDeath = true;
+        }
+        String lastDeath = world.lastDeath();
+        if (knownLastDeath == null) {
+            knownLastDeath = lastDeath;                          // baseline for this world
+        } else if (!lastDeath.equals(knownLastDeath)) {
+            knownLastDeath = lastDeath;
+            if (!sawDeath) died(lastDeath);                      // died and respawned between two ticks
+            sawDeath = false;
+        } else if (!world.isDead()) {
+            sawDeath = false;
+        }
 
         if (world.isDead() && config.autoRespawn && (phase.controlling() || headless)
                 && now - lastRespawn >= RESPAWN_RETRY_MILLIS) {
             lastRespawn = now;
             log.record("respawning", "died" + (!phase.controlling() ? " (headless: nobody to press the button)" : ""));
             hands.respawn();
+            hungerMeter.settle();
             return;
         }
         if (phase == Phase.STOPPED || world.isDead()) return;
@@ -213,7 +303,39 @@ public final class Bot {
         }
 
         maybeHello(world, now);
+        body.sense(world);
+        hungerMeter.sample(world);
+        if (now >= nextHungerLog) {
+            if (nextHungerLog != 0) LOG.info("[zymbot] hunger meter: {}", String.join("; ", hungerMeter.lines()));
+            nextHungerLog = now + HUNGER_LOG_EVERY_MILLIS;
+        }
         brain.tick(world, hands);
+        chatOut.flush(hands);
+    }
+
+    /** Orders die with the bot; so does the hunger meter's baseline (respawn resets food). */
+    private void died(String where) {
+        if (phase.controlling()) {
+            brain.cancelOrder("died");
+            brain.halt("died");
+        }
+        hungerMeter.settle();
+        if (where != null) log.record("died", "respawned at once — last death at " + where);
+    }
+
+    /** Knocked out: tell the team on the bus, and each human near us by /msg — once. */
+    private void announceDowned(WorldView world, List<EntityView> humans) {
+        var p = world.position();
+        int x = (int) Math.floor(p.x()), z = (int) Math.floor(p.z()), secs = world.downedSecondsLeft();
+        bus.publish(serverId, world.day(), x, z, MessageTypes.DOWNED, List.of(selfName, Integer.toString(secs)));
+        String wait = config.downedWaitForHumansSeconds > 0 ? "giving up in " + config.downedWaitForHumansSeconds + "s unless someone"
+                : "giving up now — next time, ";
+        for (EntityView h : humans) {
+            chatOut.whisper(h.name(), "I'm knocked out at " + x + " " + z + " (" + secs + "s left) — " + wait
+                    + " revives me with stitches.");
+        }
+        log.record("called for help", "knocked out; told the team" + (humans.isEmpty() ? "" : " and "
+                + humans.stream().map(EntityView::name).toList()));
     }
 
     private void maybeHello(WorldView world, long now) {
@@ -232,6 +354,10 @@ public final class Bot {
      * join by different addresses.) Unknown senders get a short grace period, then are dropped.
      */
     private void onEnvelope(Envelope e) {
+        if (MessageTypes.SUMMON.equals(e.type())) {          // for bots *not* on a server yet: no tab list
+            onSummon(e);
+            return;
+        }
         if (current == null || !current.onlinePlayers().contains(e.sender())) {
             pending.add(new Pending(e, clock.getAsLong()));
             return;
@@ -255,6 +381,10 @@ public final class Bot {
     }
 
     private void handle(Envelope e) {
+        if (MessageTypes.DOWNED.equals(e.type())) {
+            log.record(e.field(0) + " is knocked out", "at " + e.x() + ", " + e.z() + ", " + e.field(1) + "s to bleed out");
+            return;
+        }
         if (MessageTypes.HELLO.equals(e.type())) {
             String key = e.sender().toString();
             long now = clock.getAsLong();
@@ -262,11 +392,14 @@ public final class Bot {
             memory.roster.put(key, new BotMemory.RosterEntry(e.field(0), now, e.x(), e.z(), e.field(1)));
             boolean firstThisSession = heardThisSession.add(key);
             String what = e.field(0) + " (" + e.field(1) + ")";
+            memoryDirty = true;
             if (before == null) {
                 log.record("met " + what, "HELLO on the bus at " + e.x() + ", " + e.z());
+                saveMemory();
             } else if (firstThisSession || now - before.lastSeenMillis > AWAY_MILLIS) {
                 log.record(e.field(0) + " is back" + (before.name.equals(e.field(0)) ? "" : " (was " + before.name + ")")
                         + " — " + e.field(1), "last heard " + ago(now - before.lastSeenMillis) + ", now at " + e.x() + ", " + e.z());
+                saveMemory();
             }
         }
     }
@@ -286,6 +419,22 @@ public final class Bot {
                 ? " (headless, no accounts listed)" : ""));
         out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
                 + (onWhitelist() ? " (on the server list)" : " (not on the server list)")));
+        WorldView w = current;
+        if (w != null && address != null) {
+            out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — eats at ≤%d, critical ≤%d, leash %d",
+                    Math.round(w.health()), w.hunger(), w.saturation(), config.eatBelowHunger, config.criticalHealth, config.leashBlocks));
+        }
+        out.add("pathfinder: " + (hands == null ? "?" : hands.paths().name()));
+        if (w != null && address != null) {
+            java.util.Map<String, Integer> food = new java.util.TreeMap<>();
+            w.inventory().stream().filter(dev.yuliang.zymbot.core.api.ItemView::edible)
+                    .forEach(i -> food.merge(i.id().replace("minecraft:", ""), i.count(), Integer::sum));
+            out.add("food carried: " + (food.isEmpty() ? "none" : food.entrySet().stream()
+                    .map(e -> e.getValue() + " " + e.getKey()).collect(java.util.stream.Collectors.joining(", "))));
+        }
+        if (!memory.recentFoods.isEmpty()) out.add("recent foods: " + String.join(", ", memory.recentFoods));
+        List<String> meter = hungerMeter.lines();
+        if (!meter.isEmpty()) out.add("hunger meter: " + String.join("; ", meter));
         out.add("bus: " + String.join(", ", bus.transportNames())
                 + (config.teamKey.isEmpty() ? " — NO TEAM KEY (anyone on the network can read and fake messages)"
                                               : " — signed + encrypted, key " + ZymbotConfig.fingerprint(config.teamKey))
@@ -373,7 +522,189 @@ public final class Bot {
                 : config.autostartServers.stream().map(AutostartPolicy::normalize).toList();
     }
 
+    // ------------------------------------------------------------------ summon
+
+    /** Not in a world (title screen): still listen to the bus, so a summon can reach us. */
+    public void tickOutsideWorld() {
+        current = null;
+        bus.drain();
+    }
+
+    /** An address a summon asked us to join, once; empty if none. */
+    public java.util.Optional<String> takeSummon() {
+        String s = pendingSummon;
+        pendingSummon = null;
+        return java.util.Optional.ofNullable(s);
+    }
+
+    /** Ask the team's bots waiting at their title screens to join us there. */
+    public String summon(SummonTarget target) {
+        sendSummon(target);
+        log.record("summoned the team's bots", "to " + target.describe());
+        return "summoned — bots with your team key that are waiting at the title screen join you at "
+                + target.describe() + " (start them with standby)";
+    }
+
+    private void sendSummon(SummonTarget target) {
+        WorldView w = current;
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.SUMMON, List.of(selfName, target.encode()));
+    }
+
+    /**
+     * This client just opened its world to LAN. With auto-summon on, the summon is repeated for
+     * {@link #SUMMON_REPEAT_FOR_MILLIS}, so bots that are still booting when the world opens join too.
+     */
+    public void lanOpened(int port, List<String> ips) {
+        if (!config.autoSummonOnLan) return;
+        SummonTarget t = SummonTarget.lan(port, ips);
+        summon(t);
+        long now = clock.getAsLong();
+        repeatSummon = t;
+        repeatSummonUntil = now + SUMMON_REPEAT_FOR_MILLIS;
+        nextSummonRepeat = now + SUMMON_REPEAT_EVERY_MILLIS;
+    }
+
+    /** Whether this singleplayer world opens to LAN by itself. */
+    public boolean autoOpensLan(String levelName) {
+        return config.autoOpenLanWorlds.contains(levelName);
+    }
+
+    public String setAutoOpenLan(String levelName, boolean on) {
+        config.autoOpenLanWorlds.remove(levelName);
+        if (on) config.autoOpenLanWorlds.add(levelName);
+        ConfigIO.save(configFile, config);
+        return "'" + levelName + "' " + (on ? "opens to LAN by itself on port " + config.lanPort + " (online mode off)"
+                : "no longer opens to LAN by itself");
+    }
+
+    public String setAutoSummon(boolean on) {
+        config.autoSummonOnLan = on;
+        ConfigIO.save(configFile, config);
+        return "auto-summon when you open to LAN: " + (on ? "on" : "off");
+    }
+
+    private void onSummon(Envelope e) {
+        String who = e.field(0);
+        if (address != null) {                               // auto-summon repeats: say so once, not every 15 s
+            if (!saidIgnoringSummons) log.record("ignored a summon from " + who, "already in a world");
+            saidIgnoringSummons = true;
+            return;
+        }
+        if (role() != ZymbotConfig.Role.BOT) return;          // a human's client is never pulled anywhere
+        var target = SummonTarget.decode(e.field(1));
+        if (target.isEmpty()) {
+            log.record("ignored a summon from " + who, "unreadable target");
+            return;
+        }
+        pendingSummon = target.get().addressFrom(java.util.Set.copyOf(SummonTarget.localIps()));
+        log.record("summoned by " + who, "joining " + pendingSummon + " (" + target.get().describe() + ")");
+    }
+
+    // ------------------------------------------------------------------ orders (PHASE1.md test commands)
+
+    /** Walk to a block, or with {@code y == null} to any height in that column. */
+    public String goTo(int x, Integer y, int z) {
+        String no = needsControl();
+        if (no != null) return no;
+        BlockPos target = new BlockPos(x, y == null ? 0 : y, z);
+        String where = x + (y == null ? "" : " " + y) + " " + z;
+        brain.order(Objective.of("walk to " + where, "ordered by /" + config.commandRoot + " goto",
+                (world, h) -> new WalkTask(h.paths(), target, y == null, 0, this::reportSwim)));
+        return "walking to " + where + pathfinderWarning();
+    }
+
+    public String follow(String name) {
+        String no = needsControl();
+        if (no != null) return no;
+        brain.order(Objective.of("follow " + name, "ordered by /" + config.commandRoot + " follow",
+                (world, h) -> new FollowTask(h.paths(), name, this::reportSwim,
+                        why -> log.record("walking dry again", why))));
+        return "following " + name + " until /" + config.commandRoot + " cancel" + pathfinderWarning();
+    }
+
+    public String eat() {
+        String no = needsControl();
+        if (no != null) return no;
+        if (current != null && FoodChooser.best(current, memory.recentFoods, config.neverEat, false).isEmpty()) {
+            return current.hunger() >= 20 ? "not hungry — nothing here can be eaten at full hunger" : "no safe food in the inventory";
+        }
+        brain.order(Objective.of("eat", "ordered by /" + config.commandRoot + " eat",
+                (world, h) -> FoodChooser.best(world, memory.recentFoods, config.neverEat, false)
+                        .<Task>map(item -> new EatTask(h, item, body::ate))
+                        .orElseGet(() -> Task.failed("eat", "no safe food in the inventory"))));
+        return "eating the best food";
+    }
+
+    public String look(String name) {
+        String no = needsControl();
+        if (no != null) return no;
+        if (current == null || current.player(name).isEmpty()) return "can't see " + name;
+        brain.order(Objective.of("look at " + name, "ordered by /" + config.commandRoot + " look",
+                (world, h) -> world.player(name).<Task>map(p -> Task.once("looking at " + name, () -> h.lookAt(eyes(p))))
+                        .orElseGet(() -> Task.failed("look at " + name, "can't see " + name))));
+        return "looking at " + name;
+    }
+
+    /** Drop the current order; the bot stays running. */
+    public String cancel() {
+        if (!brain.hasOrder()) return "no order to cancel";
+        brain.cancelOrder("cancelled by /" + config.commandRoot + " cancel");
+        return "cancelled";
+    }
+
+    /** Change a body threshold (leash / eat / critical) and save it. */
+    public String set(String name, int value) {
+        String problem = config.setTunable(name.toLowerCase(Locale.ROOT), value);
+        if (problem != null) return problem;
+        ConfigIO.save(configFile, config);
+        log.record("set " + name + " = " + value, "changed by a player");
+        return name + " = " + value;
+    }
+
+    /** A line of chat reached this client. */
+    public void onChat(String sender, String text, boolean whisper) {
+        chatIn.heard(new ChatIn.Line(sender, text, whisper, clock.getAsLong()));
+    }
+
+    /** Swimming costs ~85× walking per block: always say when and why. */
+    private void reportSwim(String why) {
+        log.record("swimming", why);
+    }
+
+    private String needsControl() {
+        return phase.controlling() ? null : "the bot isn't running — /" + config.commandRoot + " start first";
+    }
+
+    private String pathfinderWarning() {
+        return hands != null && !hands.paths().available() ? " — but " + hands.paths().name() : "";
+    }
+
+    private static dev.yuliang.zymbot.core.api.Vec3 eyes(EntityView p) {
+        return new dev.yuliang.zymbot.core.api.Vec3(p.pos().x(), p.pos().y() + 1.62, p.pos().z());
+    }
+
+    private boolean workingOnItsOwn() { return brain.autonomous(); }
+
+    /** A player we've heard announce itself as a controlling bot. Everyone else is a human. */
+    private boolean isKnownBot(UUID id) {
+        BotMemory.RosterEntry r = memory.roster.get(id.toString());
+        return r != null && !Phase.TEAMMATE.name().equals(r.phase) && !Phase.STOPPED.name().equals(r.phase);
+    }
+
+    private void saveMemory() {
+        if (address == null) return;
+        memoryStore.save(memoryFile(), memory);
+        memoryDirty = false;
+        nextSave = clock.getAsLong() + SAVE_EVERY_MILLIS;
+    }
+
     // ------------------------------------------------------------------ accessors
+
+    public ChatIn chatIn() { return chatIn; }
+    public ChatOut chatOut() { return chatOut; }
+    public HungerMeter hungerMeter() { return hungerMeter; }
+    public boolean hasOrder() { return brain.hasOrder(); }
 
     public Phase phase() { return phase; }
     /** The bot is driving this player. */
