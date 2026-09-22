@@ -82,6 +82,18 @@ final class ZymbotCommands {
                         .executes(c -> withBot(c, bot, b -> List.of(b.look(StringArgumentType.getString(c, "player")))))))
                 .then(literal("eat").executes(c -> withBot(c, bot, b -> List.of(b.eat()))))
                 .then(literal("foods").executes(c -> withBot(c, bot, Bot::foods)))
+                .then(literal("grave").executes(c -> withBot(c, bot, b -> List.of(b.grave()))))
+                .then(literal("block").then(argument("coords", StringArgumentType.greedyString())
+                        .executes(c -> withBot(c, bot, b -> {
+                            String[] p = StringArgumentType.getString(c, "coords").trim().split("\\s+");
+                            if (p.length != 3) return List.of("block <x> <y> <z>  (~ works)");
+                            var at = c.getSource().getPosition();
+                            try {
+                                return List.of(b.block(coord(p[0], at.x), coord(p[1], at.y), coord(p[2], at.z)));
+                            } catch (NumberFormatException e) {
+                                return List.of("not a coordinate");
+                            }
+                        }))))
                 .then(literal("cancel").executes(c -> withBot(c, bot, b -> List.of(b.cancel()))))
                 .then(literal("set")
                         .executes(c -> withBot(c, bot, b -> ZymbotConfig.TUNABLES.keySet().stream().sorted()
@@ -128,6 +140,7 @@ final class ZymbotCommands {
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed <n> — body thresholds (also in Mod Menu)",
                 r + " foods — the food carried, with the game's live values",
+                r + " grave — walk to the nearest grave (16 blocks) and take our things back",
                 r + " summon — bots waiting at their title screen (standby) join you; " + r + " summon auto on|off",
                 r + " lan — open this world to LAN (port 25565, online mode off); " + r + " lan auto on|off — every time it loads",
                 "Settings (team key, accounts, servers): Mod Menu → Zymbot.",

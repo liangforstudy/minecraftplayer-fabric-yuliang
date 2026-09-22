@@ -120,6 +120,13 @@ public class RoutePlannerTest {
     }
 
     @Test
+    void aDryRoute_isOneLeg_forBaritoneToWalkWhole() {
+        String[] m = grid(130, 5, '.');
+        var r = plan(m, new BlockPos(0, 64, 2), new BlockPos(95, 64, 2), 85);
+        assertEquals(1, RoutePlanner.legs(r, Integer.MAX_VALUE).size());
+    }
+
+    @Test
     void longDryStretchesAreCutIntoLegs() {
         String[] m = grid(130, 5, '.');
         var r = plan(m, new BlockPos(0, 64, 2), new BlockPos(95, 64, 2), 85);   // within the 96-block view

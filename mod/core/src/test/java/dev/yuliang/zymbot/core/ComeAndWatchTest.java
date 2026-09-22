@@ -79,4 +79,25 @@ class ComeAndWatchTest {
         ticks(bot, w1, 80);
         assertTrue(w1.said.subList(before, w1.said.size()).stream().noneMatch(s -> s.contains("walking to 20")), w1.said.toString());
     }
+
+    @Test
+    void grave_walkOver_rightClickWithAnEmptyHand_untilItsGone() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.give(0, "minecraft:stick", 1, null);
+        BlockPos g = new BlockPos(10, 64, 0);
+        w.blocks.put(g, "civfabric:grave");
+        Bot b = running(w, new ZymbotConfig());
+        ticks(b, w, 1);
+        assertTrue(b.grave().startsWith("going to the grave at 10 64 0"));
+        ticks(b, w, 2);
+        assertEquals(g, w.paths.goal, "walks over");
+        w.pos = new Vec3(9.5, 64, 0.5);
+        ticks(b, w, 2);
+        assertEquals(java.util.List.of(g), w.used, "right-clicks it");
+        assertEquals(1, w.selected, "with an empty hand (slot 0 holds a stick)");
+        w.blocks.remove(g);                                     // the grave gives everything back and vanishes
+        ticks(b, w, 2);
+        assertFalse(b.hasOrder());
+        assertTrue(b.decisions().latest(5).stream().anyMatch(d -> d.toString().startsWith("done: pick up my grave")));
+    }
 }

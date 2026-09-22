@@ -45,6 +45,9 @@ public interface Hands {
 
     default void attack(int entityId) {}
 
+    /** Right-click a block with what's in hand (an empty hand for a grave). */
+    default void useOn(BlockPos block) {}
+
     /** Public chat. Callers go through ChatOut, which rate-limits. */
     default void chat(String message) {}
 

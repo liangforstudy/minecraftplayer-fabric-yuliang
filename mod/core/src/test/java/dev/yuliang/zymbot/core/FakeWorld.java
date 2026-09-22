@@ -41,6 +41,8 @@ public final class FakeWorld implements WorldView, Hands {
     public BlockPos dryLand;
     public boolean forwardHeld, jumpHeld;
     public String lastDeath = "";
+    public final java.util.Map<BlockPos, String> blocks = new java.util.HashMap<>();
+    public final List<BlockPos> used = new ArrayList<>();
     public dev.yuliang.zymbot.core.api.Terrain terrain = dev.yuliang.zymbot.core.api.Terrain.NONE;
     public int downed = -1;
     public boolean beingRevived;
@@ -110,6 +112,11 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public boolean headInWater() { return headInWater; }
     @Override public int air() { return air; }
     @Override public String lastDeath() { return lastDeath; }
+    @Override public String blockAt(BlockPos p) { return blocks.getOrDefault(p, "minecraft:air"); }
+    @Override public Optional<BlockPos> findBlock(String id, int radius) {
+        return blocks.entrySet().stream().filter(e -> e.getValue().equals(id)).map(java.util.Map.Entry::getKey).findFirst();
+    }
+    @Override public void useOn(BlockPos b) { used.add(b); }
     @Override public dev.yuliang.zymbot.core.api.Terrain terrain() { return terrain; }
     @Override public int downedSecondsLeft() { return downed; }
     @Override public boolean beingRevived() { return beingRevived; }

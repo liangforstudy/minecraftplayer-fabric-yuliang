@@ -647,6 +647,49 @@ public final class Bot {
         return "eating the best food";
     }
 
+    /**
+     * Take our things back from the grave: the nearest one if it's close, otherwise walk back to
+     * where we last died (the server tells us) and look there.
+     */
+    public String grave() {
+        String no = needsControl();
+        if (no != null) return no;
+        if (current == null) return "not in a world";
+        var at = current.findBlock(dev.yuliang.zymbot.core.task.GraveTask.GRAVE, dev.yuliang.zymbot.core.task.GraveTask.SEARCH_RADIUS);
+        if (at.isPresent()) {
+            BlockPos g = at.get();
+            brain.order(Objective.of("pick up my grave", "ordered by /" + config.commandRoot + " grave",
+                    (world, h) -> new dev.yuliang.zymbot.core.task.GraveTask(h, g)));
+            return "going to the grave at " + g.x() + " " + g.y() + " " + g.z();
+        }
+        var death = deathSpot(current.lastDeath());
+        if (death == null) return "no grave within " + dev.yuliang.zymbot.core.task.GraveTask.SEARCH_RADIUS + " blocks, and no death on record";
+        brain.order(Objective.of("walk back to where I died", "ordered by /" + config.commandRoot + " grave — then look for the grave",
+                (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), death, false, 3,
+                        config.routeRadius, config.swimCostBlocks, log::record, "walking back to where I died")));
+        return "no grave in sight — walking back to where I died (" + death.x() + " " + death.y() + " " + death.z()
+                + "); run it again there";
+    }
+
+    /** "minecraft:overworld -65, 66, -268" → the block; null if none or another dimension. */
+    static BlockPos deathSpot(String lastDeath) {
+        if (lastDeath == null || lastDeath.isEmpty()) return null;
+        String[] p = lastDeath.split(" ", 2);
+        if (p.length < 2) return null;
+        String[] xyz = p[1].split(",\\s*");
+        try {
+            return new BlockPos(Integer.parseInt(xyz[0].trim()), Integer.parseInt(xyz[1].trim()), Integer.parseInt(xyz[2].trim()));
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** Debug: what this client sees at a block. */
+    public String block(int x, int y, int z) {
+        if (current == null) return "not in a world";
+        return x + " " + y + " " + z + ": " + current.blockAt(new BlockPos(x, y, z));
+    }
+
     /** Walk to a player — to within {@link #COME_WITHIN} blocks: where we see them, else where they last announced. */
     public String come(String name) {
         String no = needsControl();
@@ -724,12 +767,12 @@ public final class Bot {
         }
         if (kinds.isEmpty()) return List.of("no food carried");
         List<String> out = new ArrayList<>();
-        out.add("food: hunger / saturation / now (after recent meals)");
+        out.add("food: hunger / saturation — the game's live values for this player (Spice of Fabric already applied)");
         for (var i : kinds.values()) {
             var f = i.food();
             boolean skipped = !FoodChooser.safe(i, config.neverEat);
-            out.add(String.format(Locale.ROOT, "  %d %s: %d / %.1f / %.2f%s%s%s%s", counts.get(i.id()), i.id().replace("minecraft:", ""),
-                    f.nutrition(), f.saturation(), FoodChooser.value(i, memory.recentFoods),
+            out.add(String.format(Locale.ROOT, "  %d %s: %d / %.1f%s%s%s%s", counts.get(i.id()), i.id().replace("minecraft:", ""),
+                    f.nutrition(), f.saturation(),
                     f.heals() ? ", heals (kept for emergencies)" : "", f.canAlwaysEat() ? ", always edible" : "",
                     f.harmful() ? ", HARMFUL" : "", skipped ? " — never eaten" : ""));
         }

@@ -17,21 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Walk somewhere far, choosing where to cross water ourselves (PHASE1.md → Water, Step B): plan
- * over the loaded ground with hunger as the cost, then hand Baritone one leg at a time — dry legs
- * with water banned, each crossing as its own shore-to-shore leg. Past the loaded area it walks to
- * the edge and plans again. Every crossing is logged with why it beat the dry way round.
- * <p>
- * The ground is copied on the game thread (quick); the search runs on {@link #PLANNER}, so a big
- * plan never freezes the game (a 1.9 s one did, in the first live test).
+ * Walk somewhere far: <b>Baritone walks the whole way</b> (it's good at long walks), with water
+ * banned; our planner only keeps a lookout (PHASE1.md → Water, Step B). Every {@link #LOOK_AHEAD_EVERY}
+ * blocks it checks the loaded ground ahead on its own thread; if the cheapest way (hunger as the
+ * cost) crosses water, it takes over for just that crossing — to the near shore, across, then hands
+ * the rest back to Baritone. Each crossing is logged with why it beat the dry way round. With no
+ * dry way at all, the walk's own fallback applies: swim, and say so.
  */
 public final class RouteTask implements Task {
     private static final Logger LOG = LoggerFactory.getLogger("zymbot");
-    static final int MAX_LAND_LEG = 48;
-    /** This close, Baritone walks the rest even if the planner can't reach the exact column (a puddle, a step). */
+    /** Check the ground ahead again after walking this far. */
+    static final int LOOK_AHEAD_EVERY = 64;
+    /** This close, don't bother looking ahead — just finish. */
     static final int FINISH_RANGE = 8;
-    /** Replans in a row that bring us no closer before giving up. */
-    static final int MAX_FRUITLESS_REPLANS = 3;
 
     /** Where plans are computed. Tests swap in a same-thread executor. */
     public static volatile Executor PLANNER = Executors.newSingleThreadExecutor(r -> {
@@ -51,12 +49,10 @@ public final class RouteTask implements Task {
     private final BiConsumer<String, String> log;
     private final String what;
     private CompletableFuture<Plan> planning;
-    private Deque<RoutePlanner.Leg> legs;
-    private boolean reachesGoal;
-    private Task walk;
-    private boolean finalApproach;
-    private double bestDistance = Double.MAX_VALUE;
-    private int fruitless;
+    private BlockPos lookedFrom;                 // where the last look-ahead started
+    private WalkTask cruise;                     // Baritone's own walk to the target
+    private Deque<RoutePlanner.Leg> crossing;    // a planned crossing, leg by leg
+    private WalkTask leg;
     private String failure = "";
 
     public RouteTask(PathProvider paths, BlockPos target, boolean ignoreY, int radius, double swimCost,
@@ -83,62 +79,39 @@ public final class RouteTask implements Task {
     @Override
     public Status tick(WorldView world) {
         if (!paths.available()) return fail("no pathfinder: " + paths.name());
-        if (within > 0 && horizontal(world) <= within) {       // close enough to the person
-            if (walk != null) walk.cancel();
+        if (within > 0 && horizontal(world, target) <= within) {    // close enough to the person
+            cancel();
             paths.stop();
             return Status.DONE;
         }
-        if (planning != null) {
-            if (!planning.isDone()) return Status.RUNNING;
+        if (planning != null && planning.isDone()) {
             Plan p = planning.join();
             planning = null;
-            if (!apply(p)) return Status.FAILED;
+            onPlan(p);
         }
-        if (walk == null && !startNext(world)) return planning != null ? Status.RUNNING : Status.FAILED;
-        if (walk == null) return Status.RUNNING;             // planning started
-        Status s = walk.tick(world);
-        if (s == Status.RUNNING) return Status.RUNNING;
-        String why = walk.failure();
-        walk = null;
-        if (s == Status.DONE) return finalApproach ? Status.DONE : Status.RUNNING;
-        if (finalApproach) return fail(why);
-        legs = null;                                          // a leg failed: plan again from here
-        return Status.RUNNING;
+        if (leg == null && planning == null && horizontal(world, target) > FINISH_RANGE
+                && (lookedFrom == null || horizontal(world, lookedFrom) >= LOOK_AHEAD_EVERY)) {
+            lookAhead(world);                                          // in the background; keep walking
+        }
+        if (leg != null) {
+            Status s = leg.tick(world);
+            if (s == Status.RUNNING) return Status.RUNNING;
+            leg = crossing != null && s == Status.DONE ? nextLeg() : null;
+            if (leg == null) {
+                crossing = null;
+                lookedFrom = null;                                     // across: look ahead again from here
+            }
+            return Status.RUNNING;
+        }
+        if (cruise == null) cruise = new WalkTask(paths, target, ignoreY, within, why -> log.accept("swimming", why));
+        Status s = cruise.tick(world);
+        if (s == Status.FAILED) return fail(cruise.failure());
+        return s;
     }
 
-    /** Start the next leg — or start planning if there's no plan, or the last one ran out at its edge. */
-    private boolean startNext(WorldView world) {
-        if (legs == null) return startPlanning(world);
-        if (!legs.isEmpty()) {
-            RoutePlanner.Leg leg = legs.poll();
-            WalkTask w = new WalkTask(paths, leg.end(), true, 1, why -> log.accept("swimming", why));
-            walk = leg.swim() ? w.swimFromStart() : w;
-            return true;
-        }
-        if (reachesGoal) {                                    // the last few blocks: the exact target
-            finalApproach = true;
-            walk = new WalkTask(paths, target, ignoreY, within, why -> log.accept("swimming", why));
-            return true;
-        }
-        legs = null;                                          // at the edge of what we could see
-        return startPlanning(world);
-    }
-
-    private boolean startPlanning(WorldView world) {
+    private void lookAhead(WorldView world) {
         BlockPos from = BlockPos.of(world.position());
-        double distance = Math.hypot(target.x() - from.x(), target.z() - from.z());
-        if (distance <= Math.max(FINISH_RANGE, within)) {    // nearly there: Baritone does the last bit
-            legs = new ArrayDeque<>();
-            reachesGoal = true;
-            return startNext(world);
-        }
-        if (distance < bestDistance - 1) {
-            bestDistance = distance;
-            fruitless = 0;
-        } else if (++fruitless > MAX_FRUITLESS_REPLANS) {
-            fail("no progress after " + MAX_FRUITLESS_REPLANS + " plans, " + Math.round(distance) + " blocks short");
-            return false;
-        }
+        lookedFrom = from;
         long t0 = System.nanoTime();
         Terrain ground = world.terrain().snapshot(from.x(), from.z(), radius);   // game thread: a quick copy
         long copyMs = (System.nanoTime() - t0) / 1_000_000;
@@ -156,36 +129,37 @@ public final class RouteTask implements Task {
                             r.waterBlocks(), r.reachesGoal() ? "" : " (to the edge of what's loaded)")).orElse("no plan"),
                     copyMs, p.ms);
         });
-        return true;
     }
 
-    /** A finished plan arrived: turn it into legs. False if it can't go on. */
-    private boolean apply(Plan p) {
-        if (p.route.isEmpty()) {                             // no terrain, or boxed in: let Baritone try
-            legs = new ArrayDeque<>();
-            reachesGoal = true;
-            return true;
-        }
+    /** A look-ahead came back. Dry: Baritone carries on. Water worth crossing: take over for the crossing. */
+    private void onPlan(Plan p) {
+        if (p.route.isEmpty() || p.route.get().waterBlocks() == 0) return;
         var r = p.route.get();
-        if (r.waterBlocks() > 0) {
-            String because = p.dry.isPresent()
-                    ? String.format(Locale.ROOT, "the dry way round is %d blocks longer (swim ≈%.2f food, walk round ≈%.2f)",
-                            Math.round(p.dry.get().length() - r.length()), r.food(), p.dry.get().food())
-                    : "there's no dry way within " + radius + " blocks";
-            log.accept(String.format(Locale.ROOT, "planning to swim %d blocks", Math.round(r.waterBlocks())), because);
-        }
-        legs = new ArrayDeque<>(RoutePlanner.legs(r, MAX_LAND_LEG));
-        reachesGoal = r.reachesGoal();
-        if (!reachesGoal && legs.isEmpty()) {
-            fail("can't get any closer from here");
-            return false;
-        }
-        return true;
+        var legs = RoutePlanner.legs(r, Integer.MAX_VALUE);
+        int lastSwim = -1;
+        for (int i = 0; i < legs.size(); i++) if (legs.get(i).swim()) lastSwim = i;
+        if (lastSwim < 0) return;
+        String because = p.dry.isPresent()
+                ? String.format(Locale.ROOT, "the dry way round is %d blocks longer (swim ≈%.2f food, walk round ≈%.2f)",
+                        Math.round(p.dry.get().length() - r.length()), r.food(), p.dry.get().food())
+                : "there's no dry way within " + radius + " blocks";
+        log.accept(String.format(Locale.ROOT, "planning to swim %d blocks", Math.round(r.waterBlocks())), because);
+        if (cruise != null) cruise.cancel();
+        cruise = null;                                                 // Baritone picks up again after
+        crossing = new ArrayDeque<>(legs.subList(0, lastSwim + 1));
+        leg = nextLeg();
     }
 
-    private double horizontal(WorldView world) {
+    private WalkTask nextLeg() {
+        RoutePlanner.Leg l = crossing.poll();
+        if (l == null) return null;
+        WalkTask w = new WalkTask(paths, l.end(), true, 1, why -> log.accept("swimming", why));
+        return l.swim() ? w.swimFromStart() : w;
+    }
+
+    private static double horizontal(WorldView world, BlockPos p) {
         BlockPos at = BlockPos.of(world.position());
-        return Math.hypot(at.x() - target.x(), at.z() - target.z());
+        return Math.hypot(at.x() - p.x(), at.z() - p.z());
     }
 
     private Status fail(String why) {
@@ -195,7 +169,8 @@ public final class RouteTask implements Task {
 
     @Override
     public void cancel() {
-        if (walk != null) walk.cancel();
+        if (leg != null) leg.cancel();
+        if (cruise != null) cruise.cancel();
         if (planning != null) planning.cancel(false);
     }
 
@@ -204,7 +179,7 @@ public final class RouteTask implements Task {
     @Override
     public String describe() {
         String where = what != null ? what : "walking to " + target.x() + (ignoreY ? "" : " " + target.y()) + " " + target.z();
-        String now = planning != null ? " (planning a route)" : walk != null && !finalApproach ? " (" + walk.describe() + ")" : "";
+        String now = leg != null ? " (crossing: " + leg.describe() + ")" : planning != null ? " (checking the way ahead)" : "";
         return where + now;
     }
 }

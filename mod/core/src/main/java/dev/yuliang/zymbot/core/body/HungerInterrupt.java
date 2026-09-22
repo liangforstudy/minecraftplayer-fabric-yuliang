@@ -11,6 +11,7 @@ import dev.yuliang.zymbot.core.task.Task;
 public final class HungerInterrupt implements Interrupt {
     private final ZymbotConfig config;
     private final Body body;
+    private String lastChoice = "";
 
     public HungerInterrupt(ZymbotConfig config, Body body) {
         this.config = config;
@@ -26,13 +27,14 @@ public final class HungerInterrupt implements Interrupt {
 
     @Override
     public Task respond(WorldView world, Hands hands) {
-        return FoodChooser.best(world, body.recentFoods(), config.neverEat, false)
-                .<Task>map(item -> new EatTask(hands, item, body::ate))
+        var pick = FoodChooser.best(world, body.recentFoods(), config.neverEat, false);
+        lastChoice = pick.map(item -> " (" + FoodChooser.explain(world, item, config.neverEat) + ")").orElse("");
+        return pick.<Task>map(item -> new EatTask(hands, item, body::ate))
                 .orElseGet(() -> Task.failed("eat", "no safe food in the inventory"));
     }
 
     @Override
     public String why(WorldView world) {
-        return "hunger " + world.hunger() + " ≤ " + config.eatBelowHunger;
+        return "hunger " + world.hunger() + " ≤ " + config.eatBelowHunger + lastChoice;
     }
 }

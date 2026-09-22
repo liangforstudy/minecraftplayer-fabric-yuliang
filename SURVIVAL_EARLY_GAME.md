@@ -51,8 +51,10 @@ history-length   = 11
 
 **Consequences for the agent:**
 
-- Maintain a rolling buffer of the last 11 eaten item IDs. Before eating, compute
-  `effective_hunger = nutrition * 0.7 ** count_in_buffer(item)` and pick the highest.
+- ~~Maintain a rolling buffer of the last 11 eaten item IDs and compute the decay yourself.~~
+  **Not needed — seen live 2026-09-22:** the server shows each player the *already-decayed* hunger
+  in the item itself (Bot1, a heavy bread eater, saw bread as **2**; Bot2 saw **5**; baked potato 1 vs
+  4). Read the live value and pick the highest; a memory of recent meals is only a tie-breaker.
 - **Diet breadth is worth more than food quality.** Eleven different 3-hunger vegetables
   beat one stack of 8-hunger steak. A forager with 12 rotating crops never loses value.
 - Eating the same food repeatedly also gets *slower* (`1.3^n`), which matters when eating

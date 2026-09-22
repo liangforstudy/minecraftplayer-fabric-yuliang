@@ -47,14 +47,18 @@ class BodyTest {
     // ------------------------------------------------------------------ food choice
 
     @Test
-    void spiceOfFabric_varietyBeatsRepeats() {
-        FakeWorld w = new FakeWorld("Bot1").give(0, "minecraft:bread", 5, FakeWorld.food(5))
+    void spiceOfFabric_theLiveValueDecides_memoryOnlyBreaksTies() {
+        // Spice already shows us the decayed value: bread eaten twice reads 2 (5 × 0.49 rounded)
+        FakeWorld w = new FakeWorld("Bot1").give(0, "minecraft:bread", 5, FakeWorld.food(2))
                 .give(1, "minecraft:carrot", 5, FakeWorld.food(3));
         w.hunger = 10;
-        assertEquals("minecraft:bread", FoodChooser.best(w, List.of(), List.of(), false).orElseThrow().id());
-        // bread twice in the last 11: 5 × 0.49 = 2.45 < carrot 3
-        assertEquals("minecraft:carrot",
-                FoodChooser.best(w, List.of("minecraft:bread", "minecraft:bread"), List.of(), false).orElseThrow().id());
+        assertEquals("minecraft:carrot", FoodChooser.best(w, List.of("minecraft:bread", "minecraft:bread"), List.of(), false)
+                .orElseThrow().id(), "no second decay on top of the game's own");
+        FakeWorld tie = new FakeWorld("Bot1").give(0, "minecraft:bread", 5, FakeWorld.food(3))
+                .give(1, "minecraft:carrot", 5, FakeWorld.food(3));
+        tie.hunger = 10;
+        assertEquals("minecraft:carrot", FoodChooser.best(tie, List.of("minecraft:bread"), List.of(), false).orElseThrow().id(),
+                "a tie goes to the one eaten less lately");
     }
 
     @Test
@@ -101,9 +105,12 @@ class BodyTest {
         ticks(b, w, 2);
         assertFalse(w.useHeld, "let go after the bite");
         assertEquals(List.of("minecraft:bread"), b.memory().recentFoods);
+        assertTrue(log(b).contains("eating minecraft:bread — because hunger 14 ≤ 14 (bread 5 · also carrot 3)"),
+                "the log shows what it chose from: " + log(b));
 
-        // bread once already (5 × 0.7 = 3.5) still beats carrot (3); twice (2.45) doesn't
-        b.memory().recentFoods.add("minecraft:bread");
+        // the server now shows bread decayed (Spice): 5 × 0.49 → 2, below carrot's 3
+        w.inventory.replaceAll(i -> i.id().equals("minecraft:bread")
+                ? new dev.yuliang.zymbot.core.api.ItemView(i.slot(), i.id(), i.count(), FakeWorld.food(2)) : i);
         w.hunger = 10;
         ticks(b, w, 25);                                   // past the repeat delay
         assertTrue(w.useHeld, log(b));
@@ -231,7 +238,7 @@ class BodyTest {
         b.goTo(30, 64, 30);
         ticks(b, w, 2);
         assertTrue(log(b).contains("planning to swim 5 blocks — because there's no dry way within 96 blocks"), log(b));
-        assertEquals(19, w.paths.goal.z(), "first leg: the near shore");
+        assertEquals(19, w.paths.goal.z(), "the crossing takes over: first the near shore");
         assertFalse(w.paths.swim, "dry leg: water banned");
         w.paths.arrive();
         ticks(b, w, 2);
@@ -278,11 +285,11 @@ class BodyTest {
             b.goTo(50, 64, 50);
             ticks(b, w, 5);
             assertEquals(1, queued.size(), "handed to the planner thread");
-            assertNull(w.paths.goal, "not walking yet");
-            assertTrue(b.status().get(1).contains("planning a route"), b.status().get(1));
-            queued.get(0).run();                                             // the planner finishes
+            assertEquals(new BlockPos(50, 64, 50), w.paths.goal, "Baritone is already walking the whole way meanwhile");
+            assertTrue(b.status().get(1).contains("checking the way ahead"), b.status().get(1));
+            queued.get(0).run();                                             // the look-ahead finishes: all dry
             ticks(b, w, 2);
-            assertNotNull(w.paths.goal, "walking the first leg");
+            assertEquals(new BlockPos(50, 64, 50), w.paths.goal, "dry: Baritone carries on to the target");
         } finally {
             dev.yuliang.zymbot.core.task.RouteTask.PLANNER = inline;
         }

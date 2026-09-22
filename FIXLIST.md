@@ -49,6 +49,16 @@ Known bugs, found in testing, not yet fixed. Remove an entry when its fix is com
   while duration ≥ 1, so a duration of 1 (or applying it directly, like a potion) would fix it.
   Ribwort tea (Regeneration, 60 ticks) is unaffected.
 
+## 8. Ate bread (2) when an apple (4) was there
+
+- **Seen:** 2026-09-22 23:1x, 0.1.20, hunger test with live values: chicken (6, right), then **bread**,
+  then apple… Live values at the start: chicken 6, apple 4, bread/beef/potato 2, carrot/tea 1.
+- **Not class-related:** civfabric's class food rules only cover 9 "meals" (cake needs FARMER 5);
+  bread and apple have none.
+- **Guess:** read mid-update — Spice of Fabric rewrites the values right after a bite.
+- **Next:** 0.1.21 logs each pick with the values it saw (`(bread 2 · also apple 4, …)`); repeat the
+  test and read that line.
+
 ## Fixed
 
 Fixed and verified (details in git history, commit "Zymbot 0.1.9"): #1 stale "last heard" after a

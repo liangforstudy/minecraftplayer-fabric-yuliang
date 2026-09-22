@@ -73,7 +73,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | 1a | air ≤ ⅔ while in water (added after a live drowning — FIXLIST #2) | stop the pathfinder, hold jump, swim straight for the nearest dry land within 24 blocks; tread water if there's none |
 | 1 | health ≤ `critical_health` | eat a healing food (SURVIVAL_EARLY_GAME §1.3); if none, **run** away from the attacker, toward the nearest human — the only sprinting the bot does (0.1.10: a walker can't outpace a zombie) |
 | 5 | nearest human > `leash_blocks` **while working** | pause the task, close the distance |
-| 6 | hunger ≤ `eat_below_hunger` | eat the best food by **Spice of Fabric** value: `nutrition × 0.7^(times in last 11)`, never a hazard food (§1.4) |
+| 6 | hunger ≤ `eat_below_hunger` | eat the food worth the most **right now** — the game's live value, which Spice of Fabric has already decayed for this player (0.1.18; before, the bot decayed it a second time); recent meals only break ties; never a hazard food (§1.4) |
 
 **Deferred:** #2 combat (the state machine is Phase 5; no hunting or self-defence yet),
 #3 blood-moon shelter (needs the forecast), #4 point of no return (needs a home).
@@ -87,6 +87,8 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot come <name>` | walk to a player — to within 4 blocks: where it sees them, else where they last announced (0.1.16) |
 | `/zbot watch <bot> [off]` | that bot `/msg`s you each decision for 30 min — over the team bus, so only teammates can ask (0.1.16) |
 | `/zbot eat` | eat the best food now |
+| `/zbot grave` | take our things back from civfabric's grave: the nearest within 16 blocks (walk up, empty hand, right-click, check it's gone), else walk back to where we last died first — **passed live 2026-09-22** (0.1.19–20) |
+| `/zbot block <x> <y> <z>` | debug: what this client sees at a block |
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
 | `/zbot look <name>` | face a player |
 | `/zbot set leash\|eat\|critical <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them |
@@ -155,9 +157,11 @@ further than it needs to.
    of flat walking (the hunger meter measured 3.8 food/min walking over hills vs ~0.6 on the flat).
    The ground is copied on the game thread and the search runs on its own thread (a 1.9 s plan froze
    the game in the first live walk); both times are logged (`[zymbot] route: … copied … planned …`).
-3. The route becomes legs of 32–64 blocks; each crossing is its own short leg, shore to shore.
-   Dry legs run with water banned; only crossing legs allow it.
-4. Long trips plan to the edge of the loaded area and re-plan as they go.
+3. **Baritone walks the whole trip** (water banned) — it's good at long walks. The planner only
+   keeps a lookout: every 64 blocks it checks the ground ahead in the background, and only if the
+   cheapest way crosses water does it take over for that crossing — near shore, across, then back to
+   Baritone for the rest (0.1.17; before, every trip was cut into 48-block legs).
+4. Beyond the loaded area there's nothing to check; the lookout just runs again 64 blocks on.
 5. *Not yet:* follow still uses Step A's "swim when stalled", and the leash walk is a plain walk.
 6. Each crossing is justified: `swimming 6 blocks — because the dry way round is 410 blocks`.
 7. When no dry route exists it always swims — the shortest gap — and reports it (your call:

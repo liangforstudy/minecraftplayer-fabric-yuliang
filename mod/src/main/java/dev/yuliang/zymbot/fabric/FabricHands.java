@@ -100,6 +100,16 @@ final class FabricHands implements Hands {
     }
 
     @Override
+    public void useOn(dev.yuliang.zymbot.core.api.BlockPos b) {
+        if (mc.player == null || mc.gameMode == null) return;
+        var pos = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
+        var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),
+                net.minecraft.core.Direction.UP, pos, false);
+        mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, hit);
+        mc.player.swing(InteractionHand.MAIN_HAND);
+    }
+
+    @Override
     public void chat(String message) {
         if (mc.getConnection() != null) mc.getConnection().sendChat(message);
     }
