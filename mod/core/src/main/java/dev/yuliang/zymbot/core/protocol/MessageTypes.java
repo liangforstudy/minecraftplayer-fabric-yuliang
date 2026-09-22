@@ -14,6 +14,8 @@ public final class MessageTypes {
     public static final String SUMMON = "SUMMON";
     /** <name> <seconds left> — knocked out at the envelope's x,z; a MEDIC with stitches can help. */
     public static final String DOWNED = "DOWNED";
+    /** <watcher> <bot> <on|off> — that bot /msg's its decisions to the watcher. */
+    public static final String WATCH = "WATCH";
 
     private MessageTypes() {}
 }

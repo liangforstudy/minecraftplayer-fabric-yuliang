@@ -131,6 +131,14 @@ public final class ZymbotConfig {
      */
     public int downedWaitForHumansSeconds = 45;
 
+    /**
+     * Route planning: what one block of water costs, in blocks of land. Swimming drains ~85× more
+     * hunger per block than walking (SURVIVAL_EARLY_GAME §4a) — tune from the hunger meter.
+     */
+    public int swimCostBlocks = 85;
+    /** How far around the bot the route planner looks (blocks; bounded by what's loaded). */
+    public int routeRadius = 96;
+
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
             "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19},
@@ -242,6 +250,8 @@ public final class ZymbotConfig {
         }
         if (neverEat == null) neverEat = new ArrayList<>();
         if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();
+        if (swimCostBlocks < 1) swimCostBlocks = 85;
+        if (routeRadius < 16 || routeRadius > 256) routeRadius = 96;
         if (lanPort < 1024 || lanPort > 65535) {
             warnings.add("lan_port " + lanPort + " out of range; using 25565");
             lanPort = 25565;

@@ -169,8 +169,10 @@ final class FabricWorldView implements WorldView {
         if (fp == null) return null;
         boolean harmful = fp.effects().stream()
                 .anyMatch(e -> e.effect().getEffect().value().getCategory() == MobEffectCategory.HARMFUL);
-        boolean heals = fp.effects().stream().anyMatch(e -> e.effect().is(MobEffects.HEAL)
-                || e.effect().is(MobEffects.REGENERATION) || e.effect().is(MobEffects.ABSORPTION));
+        // an instant effect from food only fires if its duration is at least 1 tick — Farm & Charm's
+        // nettle tea cup gives Instant Health for 0 ticks, which never heals (FIXLIST #5)
+        boolean heals = fp.effects().stream().anyMatch(e -> e.effect().getDuration() > 0
+                && (e.effect().is(MobEffects.HEAL) || e.effect().is(MobEffects.REGENERATION) || e.effect().is(MobEffects.ABSORPTION)));
         return new Food(fp.nutrition(), fp.saturation(), fp.canAlwaysEat(), harmful, heals);
     }
 
@@ -200,6 +202,41 @@ final class FabricWorldView implements WorldView {
         }
         return nearby;
     }
+
+    /**
+     * The surface from the client's heightmap (leaves ignored, so a forest reads as its floor):
+     * water on top → WATER; lava and the usual hurting blocks → BLOCKED; otherwise LAND.
+     */
+    @Override
+    public dev.yuliang.zymbot.core.api.Terrain terrain() {
+        return new dev.yuliang.zymbot.core.api.Terrain() {
+            private final net.minecraft.core.BlockPos.MutableBlockPos mp = new net.minecraft.core.BlockPos.MutableBlockPos();
+
+            public Kind kind(int x, int z) {
+                if (!level.hasChunk(x >> 4, z >> 4)) return Kind.UNLOADED;
+                int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                var top = level.getBlockState(mp.set(x, y - 1, z));
+                var fluid = top.getFluidState();
+                if (fluid.is(FluidTags.WATER)) return Kind.WATER;
+                if (fluid.is(FluidTags.LAVA) || HURTS.contains(top.getBlock())) return Kind.BLOCKED;
+                // fences, walls, panes, bars: taller than a block — can't be jumped, whatever the heightmap says
+                if (!top.getCollisionShape(level, mp).isEmpty()
+                        && top.getCollisionShape(level, mp).max(net.minecraft.core.Direction.Axis.Y) > 1.0) return Kind.BLOCKED;
+                return Kind.LAND;
+            }
+
+            public int height(int x, int z) {
+                return level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            }
+        };
+    }
+
+    private static final java.util.Set<net.minecraft.world.level.block.Block> HURTS = java.util.Set.of(
+            net.minecraft.world.level.block.Blocks.CACTUS, net.minecraft.world.level.block.Blocks.MAGMA_BLOCK,
+            net.minecraft.world.level.block.Blocks.FIRE, net.minecraft.world.level.block.Blocks.SOUL_FIRE,
+            net.minecraft.world.level.block.Blocks.CAMPFIRE, net.minecraft.world.level.block.Blocks.SOUL_CAMPFIRE,
+            net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH, net.minecraft.world.level.block.Blocks.POWDER_SNOW,
+            net.minecraft.world.level.block.Blocks.WITHER_ROSE, net.minecraft.world.level.block.Blocks.POINTED_DRIPSTONE);
 
     @Override
     public String blockAt(BlockPos p) {

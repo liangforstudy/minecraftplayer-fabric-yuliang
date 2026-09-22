@@ -12,14 +12,42 @@ Known bugs, found in testing, not yet fixed. Remove an entry when its fix is com
   log shows `Can't keep up! … 11074ms or 221 ticks behind` between the time-outs; once Bot1 even
   `logged in` and then timed out. Both games load the 90-mod pack on one Mac at once.
 - **Mitigated (0.1.6+):** auto-summon repeats every 15 s for 5 min, so a dropped join retries.
-- **Fix idea:** the host holds the auto-summon until its own server keeps up (smoothed tick time
-  under 50 ms for ~10 s), instead of summoning into the lag.
+- **Tried (0.1.12):** the host holds the auto-summon until its own server keeps up (under 50 ms/tick
+  for 5 s, 60 s at most). Live 21:37: it waited 40 s, then Bot1 still dropped **7 times** before
+  getting in at 21:40:17 — so host lag isn't the main cause.
+- **Now known:** every failed attempt logs `Received server config` (+ Visual Workbench config
+  reload) and then **nothing for ~18 s** until the host says `Timed out`; the host isn't lagging
+  then. Bot1's client stalls in the configuration phase.
+- **Thread dump 4 s into a stall (21:46):** the main thread is in `Blocks.rebuildCache()` —
+  recomputing every block state's shape cache after the server's registries arrive (huge with
+  Macaw's & co.); the network thread is idle. Retries get faster as the JIT warms up.
+- **Keep-alive theory — not confirmed:** vanilla 1.21.1 already answers keep-alives from the network
+  thread (`sendWhen(…, !RenderSystem.isFrozenAtPollEvents(), 1 min)`), so a busy main thread
+  shouldn't block them. 0.1.13 answers them unconditionally anyway and logs each one
+  (`[zymbot] keep-alive … thread, frozen-at-poll=…`); the next failed join will show whether one
+  arrived and how it was answered. 21:54: joined first try in 15 s — no keep-alive during it.
+- **Keep-alive log verdict (22:04):** in both failed joins *no* keep-alive reached the client's
+  handler at all — during the rebuild the client isn't reading the connection. So answering faster
+  can't help; the keep-alive mixin was removed again in 0.1.16.
+- **Warm-up tried and dropped (0.1.15):** running the rebuild twice at startup took **6.0 s and 6.1 s** —
+  no JIT gain, so it can't make a join's rebuild quicker. Removed in 0.1.16.
+- **So the real cause:** alone the rebuild is ~6 s; during joins it stalled ~20 s — the host game
+  running on the same Mac at the same time (the owner's guess, now measured). Joins with the
+  auto-summon's retries still get in. Expected to mostly vanish with bots on their own machine
+  (the real setup); re-check there. Left open until then.
 
 ## 5. Nettle tea cup doesn't heal — Farm & Charm, not Zymbot
 
 - **Seen:** 2026-09-22, drank two at health 5; health stayed 5.
 - **Suspected cause:** Instant Health with duration 0 in a food item — never applied (see
   SURVIVAL_EARLY_GAME §1.3 note). Upstream; report in your own words once confirmed by hand.
+- **Bot side (0.1.12):** a food's instant effect only counts as healing if its duration is ≥ 1
+  tick, so the bot no longer keeps nettle tea back as a heal (or reaches for it at critical health).
+- **For the report** (facts to put in your own words): Farm & Charm 1.1.23 on 1.21.1,
+  `farm_and_charm:nettle_tea_cup`; its `EffectJugItem` is registered with Instant Health, duration
+  0; drinking it at low health restores nothing. Instant effects applied through food only fire
+  while duration ≥ 1, so a duration of 1 (or applying it directly, like a potion) would fix it.
+  Ribwort tea (Regeneration, 60 ticks) is unaffected.
 
 ## Fixed
 

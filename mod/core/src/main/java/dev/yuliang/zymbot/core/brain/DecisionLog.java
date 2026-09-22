@@ -4,6 +4,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ public final class DecisionLog {
     private final Deque<Entry> recent = new ArrayDeque<>();
     private final int capacity;
     private final LongSupplier clock;
+    private final List<Consumer<Entry>> listeners = new ArrayList<>();
 
     public DecisionLog(int capacity, LongSupplier clock) {
         this.capacity = capacity;
@@ -32,6 +34,12 @@ public final class DecisionLog {
         if (recent.size() == capacity) recent.removeFirst();
         recent.addLast(e);
         LOG.info("[decision] {}", e);
+        for (Consumer<Entry> l : List.copyOf(listeners)) l.accept(e);
+    }
+
+    /** Hear every new decision (e.g. to /msg it to a teammate who's watching). */
+    public void onRecord(Consumer<Entry> listener) {
+        listeners.add(listener);
     }
 
     /** Newest last. */

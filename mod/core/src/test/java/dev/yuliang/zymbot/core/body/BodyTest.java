@@ -220,6 +220,75 @@ class BodyTest {
     }
 
     @Test
+    void goTo_plansItsOwnCrossing_andLogsWhy() {
+        String[] m = dev.yuliang.zymbot.core.route.RoutePlannerTest.grid(60, 60, '~');
+        dev.yuliang.zymbot.core.route.RoutePlannerTest.paint(m, 0, 0, 59, 19, '.');
+        dev.yuliang.zymbot.core.route.RoutePlannerTest.paint(m, 25, 25, 35, 35, '.');
+        FakeWorld w = new FakeWorld("Bot1");
+        w.terrain = dev.yuliang.zymbot.core.route.RoutePlannerTest.map(m);
+        w.pos = new Vec3(30.5, 64, 5.5);
+        Bot b = running(w, new ZymbotConfig(), true);
+        b.goTo(30, 64, 30);
+        ticks(b, w, 2);
+        assertTrue(log(b).contains("planning to swim 5 blocks — because there's no dry way within 96 blocks"), log(b));
+        assertEquals(19, w.paths.goal.z(), "first leg: the near shore");
+        assertFalse(w.paths.swim, "dry leg: water banned");
+        w.paths.arrive();
+        ticks(b, w, 2);
+        assertEquals(25, w.paths.goal.z(), "second leg: across to the island");
+        assertTrue(w.paths.swim, "the crossing leg may swim");
+        w.paths.arrive();
+        ticks(b, w, 2);
+        assertEquals(new BlockPos(30, 64, 30), w.paths.goal, "then the exact target");
+        assertFalse(w.paths.swim);
+        w.paths.arrive();
+        ticks(b, w, 2);
+        assertTrue(log(b).contains("done: walk to 30 64 30"), log(b));
+    }
+
+    @Test
+    void goTo_aGoalThePlannerCantStandOn_isFinishedByBaritone() {
+        String[] m = dev.yuliang.zymbot.core.route.RoutePlannerTest.grid(40, 40, '.');
+        dev.yuliang.zymbot.core.route.RoutePlannerTest.paint(m, 30, 30, 30, 30, '~');   // the goal is a one-block puddle
+        FakeWorld w = new FakeWorld("Bot1");
+        w.terrain = dev.yuliang.zymbot.core.route.RoutePlannerTest.map(m);
+        w.pos = new Vec3(5.5, 64, 5.5);
+        ZymbotConfig cfg = new ZymbotConfig();
+        cfg.swimCostBlocks = 1_000_000;                        // the planner will never pick the puddle
+        Bot b = running(w, cfg, true);
+        b.goTo(30, null, 30);
+        for (int leg = 0; leg < 6 && !new BlockPos(30, 0, 30).equals(w.paths.goal); leg++) {
+            ticks(b, w, 2);
+            if (w.paths.goal != null && !new BlockPos(30, 0, 30).equals(w.paths.goal)) w.paths.arrive();
+        }
+        assertEquals(new BlockPos(30, 0, 30), w.paths.goal, "Baritone gets the exact spot for the last bit: " + log(b));
+        assertFalse(log(b).contains("no progress"), log(b));
+    }
+
+    @Test
+    void planningHappensOffTheGameThread_andTheTickNeverWaits() {
+        java.util.List<Runnable> queued = new java.util.ArrayList<>();
+        var inline = dev.yuliang.zymbot.core.task.RouteTask.PLANNER;
+        dev.yuliang.zymbot.core.task.RouteTask.PLANNER = queued::add;       // a planner that hasn't finished yet
+        try {
+            FakeWorld w = new FakeWorld("Bot1");
+            w.terrain = dev.yuliang.zymbot.core.route.RoutePlannerTest.map(dev.yuliang.zymbot.core.route.RoutePlannerTest.grid(60, 60, '.'));
+            w.pos = new Vec3(5.5, 64, 5.5);
+            Bot b = running(w, new ZymbotConfig(), true);
+            b.goTo(50, 64, 50);
+            ticks(b, w, 5);
+            assertEquals(1, queued.size(), "handed to the planner thread");
+            assertNull(w.paths.goal, "not walking yet");
+            assertTrue(b.status().get(1).contains("planning a route"), b.status().get(1));
+            queued.get(0).run();                                             // the planner finishes
+            ticks(b, w, 2);
+            assertNotNull(w.paths.goal, "walking the first leg");
+        } finally {
+            dev.yuliang.zymbot.core.task.RouteTask.PLANNER = inline;
+        }
+    }
+
+    @Test
     void goTo_startingInWater_swimsAtOnce() {
         FakeWorld w = new FakeWorld("Bot1");
         w.inWater = true;

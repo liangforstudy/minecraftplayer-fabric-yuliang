@@ -95,6 +95,12 @@ public final class WalkTask implements Task {
     @Override public void cancel() { if (started) paths.stop(); }
     @Override public String failure() { return failure; }
 
+    /** A planned crossing: water allowed from the start (the route already said why). */
+    public WalkTask swimFromStart() {
+        this.swimming = true;
+        return this;
+    }
+
     /** Run instead of walk — only for getting away (RETREAT); it costs 10× the hunger. */
     public WalkTask sprinting() {
         this.sprint = true;

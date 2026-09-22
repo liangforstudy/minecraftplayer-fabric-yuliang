@@ -61,6 +61,19 @@ final class ZymbotCommands {
                             return sb.buildFuture();
                         })
                         .executes(c -> withBot(c, bot, b -> List.of(b.follow(StringArgumentType.getString(c, "player")))))))
+                .then(literal("come").then(argument("player", StringArgumentType.word())
+                        .suggests((c, sb) -> {
+                            c.getSource().getOnlinePlayerNames().forEach(sb::suggest);
+                            return sb.buildFuture();
+                        })
+                        .executes(c -> withBot(c, bot, b -> List.of(b.come(StringArgumentType.getString(c, "player")))))))
+                .then(literal("watch").then(argument("bot", StringArgumentType.word())
+                        .suggests((c, sb) -> {
+                            c.getSource().getOnlinePlayerNames().forEach(sb::suggest);
+                            return sb.buildFuture();
+                        })
+                        .executes(c -> withBot(c, bot, b -> List.of(b.watch(StringArgumentType.getString(c, "bot"), true))))
+                        .then(literal("off").executes(c -> withBot(c, bot, b -> List.of(b.watch(StringArgumentType.getString(c, "bot"), false)))))))
                 .then(literal("look").then(argument("player", StringArgumentType.word())
                         .suggests((c, sb) -> {
                             c.getSource().getOnlinePlayerNames().forEach(sb::suggest);
@@ -111,7 +124,8 @@ final class ZymbotCommands {
                 r + " role bot | teammate | none — what this account is (Bot: the bot plays it; Teammate: you play, it announces)",
                 r + " autostart add | remove | list — servers where Zymbot is active",
                 r + " goto <x> <z>  or  <x> <y> <z> — walk there (~ and ~10 work; needs Baritone)",
-                r + " follow <player> / look <player> / eat — orders; " + r + " cancel drops the order",
+                r + " follow <player> / come <player> / look <player> / eat — orders; " + r + " cancel drops the order",
+                r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed <n> — body thresholds (also in Mod Menu)",
                 r + " foods — the food carried, with the game's live values",
                 r + " summon — bots waiting at their title screen (standby) join you; " + r + " summon auto on|off",

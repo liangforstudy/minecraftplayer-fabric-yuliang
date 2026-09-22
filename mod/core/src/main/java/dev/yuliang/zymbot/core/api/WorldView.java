@@ -73,6 +73,9 @@ public interface WorldView {
                 .findFirst();
     }
 
+    /** The loaded ground around us, for route planning. {@link Terrain#NONE} if unknown. */
+    default Terrain terrain() { return Terrain.NONE; }
+
     /** Nearest known place with this tag ("bed", "village", ...). Empty until the map exists. */
     default Optional<BlockPos> nearest(String placeTag) { return Optional.empty(); }
 }

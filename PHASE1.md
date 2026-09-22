@@ -84,6 +84,8 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 |---|---|
 | `/zbot goto <x> <z>` or `<x> <y> <z>` | walk there (any height in that column, or that block); `~` / `~10` relative, like vanilla (0.1.11) |
 | `/zbot follow <name>` | follow a player until `/zbot cancel` |
+| `/zbot come <name>` | walk to a player — to within 4 blocks: where it sees them, else where they last announced (0.1.16) |
+| `/zbot watch <bot> [off]` | that bot `/msg`s you each decision for 30 min — over the team bus, so only teammates can ask (0.1.16) |
 | `/zbot eat` | eat the best food now |
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
 | `/zbot look <name>` | face a player |
@@ -143,16 +145,20 @@ patching its cost model from outside would break on every update.
 What Step A can't do: pick *where* to cross. Once water is allowed, Baritone's own path may swim
 further than it needs to.
 
-**Step B — scoped, not built: our own route planner.** In `core`, testable:
+**Step B — built in 0.1.12, first live walk 2026-09-22 (0.1.13–14), reworked in 0.1.16.** In `core`:
 
 1. A terrain sense: surface height and top block per column, from the loaded chunks.
-2. A search over a coarse surface grid (2×2 cells). Land costs 1 per block, water the swim ratio
-   (~85, a setting tuned from the hunger meter); cliffs taller than a jump, lava, fire and cactus
-   are blocked. It runs on a background thread over a snapshot, so the game doesn't stutter.
+2. A search over the surface, one column per node, 96 blocks around (`route_radius`). Land costs 1 per block, water the swim ratio
+   (`swim_cost_blocks`, 85, tuned from the hunger meter); climbs over 1 or drops over 3, lava, fire,
+   cactus, magma, berry bushes, powder snow, and anything taller than a block (fences, walls, panes —
+   the heightmap makes them look like a 1-block step) are blocked. Each block climbed costs 5 blocks
+   of flat walking (the hunger meter measured 3.8 food/min walking over hills vs ~0.6 on the flat).
+   The ground is copied on the game thread and the search runs on its own thread (a 1.9 s plan froze
+   the game in the first live walk); both times are logged (`[zymbot] route: … copied … planned …`).
 3. The route becomes legs of 32–64 blocks; each crossing is its own short leg, shore to shore.
    Dry legs run with water banned; only crossing legs allow it.
 4. Long trips plan to the edge of the loaded area and re-plan as they go.
-5. Follow uses it too, instead of Step A's "swim when stalled".
+5. *Not yet:* follow still uses Step A's "swim when stalled", and the leash walk is a plain walk.
 6. Each crossing is justified: `swimming 6 blocks — because the dry way round is 410 blocks`.
 7. When no dry route exists it always swims — the shortest gap — and reports it (your call:
    last resort, never refuse).

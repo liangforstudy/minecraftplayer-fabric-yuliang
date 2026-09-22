@@ -21,6 +21,10 @@ import java.util.UUID;
  * hands the Fabric adapter does, so the brain runs here in milliseconds with no game at all.
  */
 public final class FakeWorld implements WorldView, Hands {
+    static {
+        dev.yuliang.zymbot.core.task.RouteTask.PLANNER = Runnable::run;   // plans finish at once in tests
+    }
+
     public final UUID id;
     public final String name;
     public Vec3 pos = new Vec3(0, 64, 0);
@@ -37,6 +41,7 @@ public final class FakeWorld implements WorldView, Hands {
     public BlockPos dryLand;
     public boolean forwardHeld, jumpHeld;
     public String lastDeath = "";
+    public dev.yuliang.zymbot.core.api.Terrain terrain = dev.yuliang.zymbot.core.api.Terrain.NONE;
     public int downed = -1;
     public boolean beingRevived;
     public int selected;
@@ -105,6 +110,7 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public boolean headInWater() { return headInWater; }
     @Override public int air() { return air; }
     @Override public String lastDeath() { return lastDeath; }
+    @Override public dev.yuliang.zymbot.core.api.Terrain terrain() { return terrain; }
     @Override public int downedSecondsLeft() { return downed; }
     @Override public boolean beingRevived() { return beingRevived; }
     @Override public Optional<BlockPos> nearestDryLand(int radius) { return Optional.ofNullable(dryLand); }

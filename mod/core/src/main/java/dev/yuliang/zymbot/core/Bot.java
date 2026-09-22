@@ -66,6 +66,10 @@ public final class Bot {
     /** An auto-summon is repeated this often, for this long — bots still booting catch a later one. */
     public static final long SUMMON_REPEAT_EVERY_MILLIS = 15_000;
     public static final long SUMMON_REPEAT_FOR_MILLIS = 5 * 60_000;
+    /** /zbot come: this close to the person is there (not their exact block). */
+    public static final int COME_WITHIN = 4;
+    /** A watcher gets our decisions for this long unless they stop sooner. */
+    public static final long WATCH_FOR_MILLIS = 30 * 60_000;
     private static final Logger LOG = LoggerFactory.getLogger("zymbot");
 
     private final ZymbotConfig config;
@@ -106,6 +110,7 @@ public final class Bot {
     private boolean saidIgnoringSummons;                         // "already in a world": once per world
     private String knownLastDeath;                               // null until first seen in this world
     private boolean sawDeath;                                    // saw ourselves dead (the slow way)
+    private final java.util.Map<String, Long> watchers = new java.util.LinkedHashMap<>();   // name → until
     private SummonTarget repeatSummon;                           // auto-summon: say it again for a while
     private long repeatSummonUntil, nextSummonRepeat;
 
@@ -136,6 +141,7 @@ public final class Bot {
                 new LeashInterrupt(config, body, this::workingOnItsOwn),
                 new HungerInterrupt(config, body)), Planner.EMPTY, log);
         bus.subscribe(this::onEnvelope);
+        log.onRecord(this::toWatchers);
     }
 
     public void attachTransport(Transport t) {
@@ -381,6 +387,10 @@ public final class Bot {
     }
 
     private void handle(Envelope e) {
+        if (MessageTypes.WATCH.equals(e.type())) {
+            onWatch(e.field(0), e.field(1), "on".equals(e.field(2)));
+            return;
+        }
         if (MessageTypes.DOWNED.equals(e.type())) {
             log.record(e.field(0) + " is knocked out", "at " + e.x() + ", " + e.z() + ", " + e.field(1) + "s to bleed out");
             return;
@@ -610,7 +620,8 @@ public final class Bot {
         BlockPos target = new BlockPos(x, y == null ? 0 : y, z);
         String where = x + (y == null ? "" : " " + y) + " " + z;
         brain.order(Objective.of("walk to " + where, "ordered by /" + config.commandRoot + " goto",
-                (world, h) -> new WalkTask(h.paths(), target, y == null, 0, this::reportSwim)));
+                (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), target, y == null,
+                        config.routeRadius, config.swimCostBlocks, log::record)));
         return "walking to " + where + pathfinderWarning();
     }
 
@@ -634,6 +645,57 @@ public final class Bot {
                         .<Task>map(item -> new EatTask(h, item, body::ate))
                         .orElseGet(() -> Task.failed("eat", "no safe food in the inventory"))));
         return "eating the best food";
+    }
+
+    /** Walk to a player — to within {@link #COME_WITHIN} blocks: where we see them, else where they last announced. */
+    public String come(String name) {
+        String no = needsControl();
+        if (no != null) return no;
+        int x, z;
+        boolean seen = current != null && current.player(name).isPresent();
+        if (seen) {
+            var p = current.player(name).get().pos();
+            x = (int) Math.floor(p.x());
+            z = (int) Math.floor(p.z());
+        } else {
+            var heard = memory.roster.values().stream().filter(r -> r.name.equalsIgnoreCase(name)).findFirst();
+            if (heard.isEmpty()) return "don't know where " + name + " is — not in sight, and they haven't announced themselves";
+            x = heard.get().x;
+            z = heard.get().z;
+        }
+        BlockPos target = new BlockPos(x, 0, z);
+        brain.order(Objective.of("come to " + name, "ordered by /" + config.commandRoot + " come",
+                (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), target, true, COME_WITHIN,
+                        config.routeRadius, config.swimCostBlocks, log::record, "coming to " + name)));
+        return "coming to " + name + " at " + x + " " + z + (seen ? "" : " (where they last announced)") + pathfinderWarning();
+    }
+
+    /** Ask a bot (by name) to /msg us its decisions, or to stop. */
+    public String watch(String botName, boolean on) {
+        if (address == null) return "not in a world";
+        WorldView w = current;
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.WATCH, List.of(selfName, botName, on ? "on" : "off"));
+        return on ? "asked " + botName + " to /msg you its decisions (for 30 min; /" + config.commandRoot + " watch " + botName + " off to stop)"
+                  : "asked " + botName + " to stop";
+    }
+
+    private void onWatch(String watcher, String botName, boolean on) {
+        if (!botName.equalsIgnoreCase(selfName) || watcher.equalsIgnoreCase(selfName)) return;
+        if (on) {
+            boolean isNew = watchers.put(watcher, clock.getAsLong() + WATCH_FOR_MILLIS) == null;
+            if (isNew) chatOut.whisper(watcher, "watching — you'll get my decisions here for 30 min. /"
+                    + config.commandRoot + " watch " + selfName + " off to stop.");
+        } else if (watchers.remove(watcher) != null) {
+            chatOut.whisper(watcher, "stopped sending you my decisions.");
+        }
+    }
+
+    private void toWatchers(dev.yuliang.zymbot.core.brain.DecisionLog.Entry entry) {
+        if (watchers.isEmpty()) return;
+        long now = clock.getAsLong();
+        watchers.values().removeIf(until -> until < now);
+        for (String w : watchers.keySet()) chatOut.whisper(w, entry.toString());
     }
 
     public String look(String name) {

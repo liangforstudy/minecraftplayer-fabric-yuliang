@@ -47,6 +47,11 @@ public final class ZymbotClient implements ClientModInitializer {
     private boolean wasPublished;                              // our world was open to LAN last tick
     private boolean lanAutoTried;                              // this world's auto-open, once per join
     private boolean wasAutoSummon;                             // auto-summon was on last tick
+    /** Auto-summon waits for our own server to settle after the world loads (FIXLIST #3). */
+    static final float SETTLED_MS_PER_TICK = 50;
+    static final int SETTLED_FOR_TICKS = 5 * 20, SETTLE_AT_MOST_TICKS = 60 * 20;
+    private boolean summonHeld;
+    private int heldTicks, settledTicks;
 
     static ZymbotClient get() { return instance; }
     ZymbotConfig config() { return config; }
@@ -182,8 +187,28 @@ public final class ZymbotClient implements ClientModInitializer {
         }
         boolean published = server != null && server.isPublished();
         boolean autoSummon = config.autoSummonOnLan;
-        // just opened — or auto-summon was switched on while already open: call the bots now
-        if (published && (!wasPublished || (autoSummon && !wasAutoSummon))) bot.lanOpened(server.getPort(), SummonTarget.localIps());
+        // just opened — or auto-summon was switched on while already open: call the bots once our
+        // server keeps up. Right after a world loads it can run seconds behind, and every bot that
+        // joins then times out (FIXLIST #3).
+        if (published && autoSummon && (!wasPublished || !wasAutoSummon)) {
+            summonHeld = true;
+            heldTicks = settledTicks = 0;
+        }
+        if (summonHeld) {
+            if (!published || !autoSummon) summonHeld = false;
+            else {
+                float ms = server.getCurrentSmoothedTickTime();
+                settledTicks = ms < SETTLED_MS_PER_TICK ? settledTicks + 1 : 0;
+                if (++heldTicks == 1) LOG.info("[zymbot] auto-summon: waiting for the world to settle ({} ms/tick)", Math.round(ms));
+                if (settledTicks >= SETTLED_FOR_TICKS || heldTicks >= SETTLE_AT_MOST_TICKS) {
+                    summonHeld = false;
+                    bot.decisions().record("auto-summon", settledTicks >= SETTLED_FOR_TICKS
+                            ? "the world settled after " + heldTicks / 20 + "s (" + Math.round(ms) + " ms/tick)"
+                            : "waited " + SETTLE_AT_MOST_TICKS / 20 + "s and the world is still busy (" + Math.round(ms) + " ms/tick) — summoning anyway");
+                    bot.lanOpened(server.getPort(), SummonTarget.localIps());
+                }
+            }
+        }
         wasPublished = published;
         wasAutoSummon = autoSummon;
         if (!HEADLESS && !hands.holdingKeys() && humanIsMoving(mc.options)) bot.humanInput(hands);
