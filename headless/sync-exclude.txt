@@ -59,3 +59,7 @@ offlinelan        # host-only: lets the LAN world run with online mode off
 # --- libraries with no remaining dependents in the Full pack ---
 tenshilib
 placeholder-api
+
+# --- our own mods: each rig gets the fresh build from mod/, never the host copy ---
+zymbot
+headlessmc         # hmc-specifics (bot-only console remote)
