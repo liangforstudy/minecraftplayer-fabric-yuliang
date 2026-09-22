@@ -69,4 +69,18 @@ class ConfigTest {
         assertTrue(AutostartPolicy.shouldAutostart(List.of("127.0.0.1"), "127.0.0.1:25565"));
         assertFalse(AutostartPolicy.shouldAutostart(List.of("127.0.0.1"), "127.0.0.1:25566"));
     }
+
+    @Test
+    void theOldSwimCostIsUpgraded_aChosenOneIsKept() {
+        ZymbotConfig old = new ZymbotConfig();
+        old.schemaVersion = 3;
+        old.swimCostBlocks = 85;
+        old.normalize();
+        org.junit.jupiter.api.Assertions.assertEquals(3, old.swimCostBlocks);
+        ZymbotConfig chosen = new ZymbotConfig();
+        chosen.schemaVersion = 3;
+        chosen.swimCostBlocks = 10;
+        chosen.normalize();
+        org.junit.jupiter.api.Assertions.assertEquals(10, chosen.swimCostBlocks);
+    }
 }

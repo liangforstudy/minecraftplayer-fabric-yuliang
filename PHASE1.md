@@ -125,9 +125,12 @@ hunger + saturation, which the server sends the client; exhaustion itself isn't 
 
 ## Water
 
-Swimming costs about **85× walking per block** here (4.0 vs 0.1 drain per 10 s, at ~20 vs ~43
-blocks per 10 s — SURVIVAL_EARLY_GAME §4a; the hunger meter will confirm). A 10-block river
-crossing costs as much food as walking ~850 blocks round it.
+~~Swimming costs about 85× walking per block~~ — **wrong, corrected 2026-09-22:** civfabric's 4.0-per-10-s
+"swimming" drain only applies to the **sprint-swim pose** (`isSwimming`), which the bot never uses.
+Crossing water at a normal pace counts as walking for civfabric, just slower, plus vanilla's small
+in-water exhaustion: **about 3× walking per block** (`swim_cost_blocks` = 3). Measured live: a ~100-block
+crossing from an island cost about 1 food (1.16 food/min in water). Water is still slower, and a
+bot in it can drown — the drowning reflex covers that.
 
 Baritone has no *cost* setting for water, only a ban: water on its `blocksToAvoid` list makes it
 impassable (it's checked live, nothing cached). Its internals are obfuscated per build, so
@@ -151,7 +154,7 @@ further than it needs to.
 
 1. A terrain sense: surface height and top block per column, from the loaded chunks.
 2. A search over the surface, one column per node, 96 blocks around (`route_radius`). Land costs 1 per block, water the swim ratio
-   (`swim_cost_blocks`, 85, tuned from the hunger meter); climbs over 1 or drops over 3, lava, fire,
+   (`swim_cost_blocks`, 3 — was 85 until the live measurement); climbs over 1 or drops over 3, lava, fire,
    cactus, magma, berry bushes, powder snow, and anything taller than a block (fences, walls, panes —
    the heightmap makes them look like a 1-block step) are blocked. Each block climbed costs 5 blocks
    of flat walking (the hunger meter measured 3.8 food/min walking over hills vs ~0.6 on the flat).

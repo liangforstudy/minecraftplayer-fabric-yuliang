@@ -83,6 +83,17 @@ final class ZymbotCommands {
                 .then(literal("eat").executes(c -> withBot(c, bot, b -> List.of(b.eat()))))
                 .then(literal("foods").executes(c -> withBot(c, bot, Bot::foods)))
                 .then(literal("grave").executes(c -> withBot(c, bot, b -> List.of(b.grave()))))
+                .then(literal("terrain").then(argument("coords", StringArgumentType.greedyString())
+                        .executes(c -> withBot(c, bot, b -> {
+                            String[] p = StringArgumentType.getString(c, "coords").trim().split("\\s+");
+                            if (p.length != 2) return List.of("terrain <x> <z>  (~ works)");
+                            var at = c.getSource().getPosition();
+                            try {
+                                return List.of(b.terrain(coord(p[0], at.x), coord(p[1], at.z)));
+                            } catch (NumberFormatException e) {
+                                return List.of("not a coordinate");
+                            }
+                        }))))
                 .then(literal("block").then(argument("coords", StringArgumentType.greedyString())
                         .executes(c -> withBot(c, bot, b -> {
                             String[] p = StringArgumentType.getString(c, "coords").trim().split("\\s+");

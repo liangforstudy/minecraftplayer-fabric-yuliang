@@ -11,8 +11,8 @@ import java.util.PriorityQueue;
 
 /**
  * A* over the surface, one column per node, within a square around the start. Cost is hunger, not
- * time: a block of land costs 1, a block of water costs {@code swimCost} (~85 here — swimming drains
- * 40× walking per second at half the speed). Walls taller than a jump, big drops, lava and the like
+ * time: a block of land costs 1, a block of water costs {@code swimCost} (~3 here — see
+ * ZymbotConfig.swimCostBlocks). Walls taller than a jump, big drops, lava and the like
  * are impassable. Baritone still walks each leg; this only decides <em>where</em> (and whether) to
  * cross water (PHASE1.md → Water, Step B).
  * <p>
@@ -29,8 +29,11 @@ public final class RoutePlanner {
     public static final double CLIMB_COST = 5;
     /** Per land block: walking drains 0.1 per 10 s at ~43 blocks per 10 s. */
     public static final double FOOD_PER_LAND_BLOCK = 0.1 / 43.17;
-    /** Per water block: swimming drains 4.0 per 10 s at ~20 blocks per 10 s. */
-    public static final double FOOD_PER_WATER_BLOCK = 4.0 / 20;
+    /**
+     * Per water block, crossing at a normal pace (not sprint-swimming): walking's drain at about half
+     * the speed, plus vanilla's 0.01 exhaustion per metre in water (= 0.0025 food).
+     */
+    public static final double FOOD_PER_WATER_BLOCK = 0.1 / 20 + 0.0025;
 
     public record Step(int x, int y, int z, boolean water) {}
 

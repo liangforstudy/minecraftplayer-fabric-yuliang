@@ -684,6 +684,15 @@ public final class Bot {
         }
     }
 
+    /** Debug: what the route planner sees at a column. */
+    public String terrain(int x, int z) {
+        if (current == null) return "not in a world";
+        var t = current.terrain();
+        var k = t.kind(x, z);
+        return x + " " + z + ": " + k + (k == dev.yuliang.zymbot.core.api.Terrain.Kind.LAND || k == dev.yuliang.zymbot.core.api.Terrain.Kind.WATER
+                ? " at y " + t.height(x, z) : "");
+    }
+
     /** Debug: what this client sees at a block. */
     public String block(int x, int y, int z) {
         if (current == null) return "not in a world";

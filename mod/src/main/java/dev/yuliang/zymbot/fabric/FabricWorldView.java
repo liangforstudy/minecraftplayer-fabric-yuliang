@@ -204,17 +204,28 @@ final class FabricWorldView implements WorldView {
     }
 
     /**
-     * The surface from the client's heightmap (leaves ignored, so a forest reads as its floor):
-     * water on top → WATER; lava and the usual hurting blocks → BLOCKED; otherwise LAND.
+     * The surface, from the client's MOTION_BLOCKING heightmap — the only surface map the server
+     * sends clients (NO_LEAVES is server-only: on a client it's empty, and every column read as flat
+     * land at the bottom of the world until 0.1.22). Leaves are stepped down through, so a forest
+     * reads as its floor; a trunk stays a tall column. Water on top → WATER; lava, the usual hurting
+     * blocks and anything taller than a block → BLOCKED; otherwise LAND.
      */
     @Override
     public dev.yuliang.zymbot.core.api.Terrain terrain() {
         return new dev.yuliang.zymbot.core.api.Terrain() {
             private final net.minecraft.core.BlockPos.MutableBlockPos mp = new net.minecraft.core.BlockPos.MutableBlockPos();
 
+            /** Feet height on this column: the heightmap, then down through any leaves. */
+            private int surface(int x, int z) {
+                int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
+                int floor = level.getMinBuildHeight();
+                while (y > floor && level.getBlockState(mp.set(x, y - 1, z)).is(net.minecraft.tags.BlockTags.LEAVES)) y--;
+                return y;
+            }
+
             public Kind kind(int x, int z) {
                 if (!level.hasChunk(x >> 4, z >> 4)) return Kind.UNLOADED;
-                int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                int y = surface(x, z);
                 var top = level.getBlockState(mp.set(x, y - 1, z));
                 var fluid = top.getFluidState();
                 if (fluid.is(FluidTags.WATER)) return Kind.WATER;
@@ -226,7 +237,7 @@ final class FabricWorldView implements WorldView {
             }
 
             public int height(int x, int z) {
-                return level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+                return surface(x, z);
             }
         };
     }

@@ -57,6 +57,18 @@ public class RoutePlannerTest {
     }
 
     @Test
+    void atTheMeasuredSwimCost_aFarBridgeLoses_aNearOneWins() {
+        String[] m = grid(80, 40, '.');
+        paint(m, 0, 18, 79, 21, '~');                         // a 4-wide river
+        paint(m, 50, 18, 51, 21, '.');                        // bridge 40 blocks along: 80 extra blocks of walking
+        var far = plan(m, new BlockPos(10, 64, 5), new BlockPos(10, 64, 35), 3);
+        assertTrue(far.waterBlocks() > 0, "4 blocks of water at ×3 = 12 beats an 80-block detour");
+        paint(m, 12, 18, 13, 21, '.');                        // now a bridge right there
+        var near = plan(m, new BlockPos(10, 64, 5), new BlockPos(10, 64, 35), 3);
+        assertEquals(0, near.waterBlocks(), "a bridge a few blocks off still wins");
+    }
+
+    @Test
     void noBridge_crossesAtTheNarrowestPoint() {
         String[] m = grid(80, 40, '.');
         paint(m, 0, 14, 79, 25, '~');                         // 12 wide...

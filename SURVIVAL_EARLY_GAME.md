@@ -391,6 +391,11 @@ And movement drains hunger on its own timer (every 200 ticks), *on top of* vanil
 Sprinting costs 3.75× walking per tick, swimming 15× — and idling now drains 0.05 too. For the
 2000-block trek to a settle site, **walk**.
 
+**"Swimming" here means the sprint-swim pose** (civfabric checks `isSwimming`, 2026-09-22). Walking
+or paddling through water without sprinting counts as **walking** (0.1) — so crossing a river costs
+about 3× walking per block (slower, plus vanilla's 0.01/m), not 40×. Measured: ~1 food for a
+~100-block crossing. Just never sprint in water.
+
 Vanilla exhaustion still applies underneath (break block 0.005 · attack 0.1 · sprint 0.1/m ·
 jump 0.05 · swim 0.01/m; 4.0 exhaustion = 1 saturation). The vanilla `heal 6.0` drain never
 fires, since natural regeneration is off.

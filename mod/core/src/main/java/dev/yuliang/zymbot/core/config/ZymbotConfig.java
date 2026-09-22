@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * so a missing or partial file still works; {@link #normalize()} repairs bad values.
  */
 public final class ZymbotConfig {
-    public static final int SCHEMA_VERSION = 3;   // 2: accounts + roles; 3: body thresholds
+    public static final int SCHEMA_VERSION = 4;   // 2: accounts + roles; 3: body thresholds; 4: swim cost 85 → 3
     private static final Pattern COMMAND = Pattern.compile("[a-z0-9_]{1,16}");
 
     public int schemaVersion = SCHEMA_VERSION;
@@ -132,10 +132,13 @@ public final class ZymbotConfig {
     public int downedWaitForHumansSeconds = 45;
 
     /**
-     * Route planning: what one block of water costs, in blocks of land. Swimming drains ~85× more
-     * hunger per block than walking (SURVIVAL_EARLY_GAME §4a) — tune from the hunger meter.
+     * Route planning: what one block of water costs, in blocks of land. civfabric's heavy swimming
+     * drain only hits the sprint-swim pose (`isSwimming`), which the bot never uses; crossing water
+     * at a normal pace counts as walking, just slower (~2 vs ~4.3 blocks/s) plus vanilla's small
+     * in-water exhaustion — about 3× walking per block. Measured 2026-09-22: ~1 food for a ~100-block
+     * crossing (1.16 food/min in water). Tune from the hunger meter.
      */
-    public int swimCostBlocks = 85;
+    public int swimCostBlocks = 3;
     /** How far around the bot the route planner looks (blocks; bounded by what's loaded). */
     public int routeRadius = 96;
 
@@ -229,6 +232,10 @@ public final class ZymbotConfig {
             else if (a.name == null) a.name = "?";
             return bad;
         });
+        if (schemaVersion < 4 && swimCostBlocks == 85) {    // the old default, from a wrong reading of the drain table
+            warnings.add("swim_cost_blocks 85 → 3 (measured: crossing water costs ~3× walking, not 85×)");
+            swimCostBlocks = 3;
+        }
         schemaVersion = SCHEMA_VERSION;
         if (!List.of("off", "relative", "exact").contains(shareCoordsWithHumans)) {
             warnings.add("share_coords_with_humans '" + shareCoordsWithHumans + "' unknown; using 'relative'");
@@ -250,7 +257,7 @@ public final class ZymbotConfig {
         }
         if (neverEat == null) neverEat = new ArrayList<>();
         if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();
-        if (swimCostBlocks < 1) swimCostBlocks = 85;
+        if (swimCostBlocks < 1) swimCostBlocks = 3;
         if (routeRadius < 16 || routeRadius > 256) routeRadius = 96;
         if (lanPort < 1024 || lanPort > 65535) {
             warnings.add("lan_port " + lanPort + " out of range; using 25565");

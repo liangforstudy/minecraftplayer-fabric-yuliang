@@ -139,15 +139,25 @@ public final class RouteTask implements Task {
         int lastSwim = -1;
         for (int i = 0; i < legs.size(); i++) if (legs.get(i).swim()) lastSwim = i;
         if (lastSwim < 0) return;
-        String because = p.dry.isPresent()
+        boolean dryIsAnAlternative = p.dry.isPresent() && (r.reachesGoal()
+                ? p.dry.get().reachesGoal()
+                : end(p.dry.get()) <= end(r) + 2);            // only if the dry way gets as close
+        String because = dryIsAnAlternative
                 ? String.format(Locale.ROOT, "the dry way round is %d blocks longer (swim ≈%.2f food, walk round ≈%.2f)",
                         Math.round(p.dry.get().length() - r.length()), r.food(), p.dry.get().food())
-                : "there's no dry way within " + radius + " blocks";
+                : r.reachesGoal() ? "there's no dry way within " + radius + " blocks"
+                : "no dry way gets any closer within " + radius + " blocks";
         log.accept(String.format(Locale.ROOT, "planning to swim %d blocks", Math.round(r.waterBlocks())), because);
         if (cruise != null) cruise.cancel();
         cruise = null;                                                 // Baritone picks up again after
         crossing = new ArrayDeque<>(legs.subList(0, lastSwim + 1));
         leg = nextLeg();
+    }
+
+    /** How far the route's last step is from the target. */
+    private double end(RoutePlanner.Route r) {
+        var last = r.steps().get(r.steps().size() - 1);
+        return Math.hypot(last.x() - target.x(), last.z() - target.z());
     }
 
     private WalkTask nextLeg() {
