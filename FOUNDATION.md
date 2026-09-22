@@ -191,15 +191,23 @@ only chat cosmetics, Discord bridges, and generic P2P libraries), so this is our
 
 ### Rules every message follows
 
-- **Envelope:** `v1 <msg-id> <sender-uuid> <server-id> <day> <x,z> <TYPE> <fields…>`.
+- **Envelope:** `zb1 <msg-id> <sender-uuid> <server-id> <sent-at> <day> <x,z> <TYPE> <fields…> #<sig>`.
   The version lets old and new bots coexist; unknown types are ignored, not errors.
 - **Dedupe by `msg-id`.** The same message can arrive by local bus *and* chat; it counts once.
 - **Position travels with every message**, so a receiver can apply a *virtual range* if the
   game design calls for "within N blocks" — the transport's reach and the game rule are separate.
-- **Signed with a team key** (a passphrase shared out-of-band, HMAC), and **encrypted on the
-  relay** (AES-GCM). Without this, anyone on a public broker could send a fake blood-moon
-  reading and make every bot hide all night. The relay topic is derived from
-  `hash(server-id + team key)`, so strangers can't even find it.
+- **Signed with a team key** (HMAC), and **encrypted on every transport that leaves the
+  process** (AES-256-GCM → `zbx <blob>`) — the LAN included, not just the relay: on café Wi-Fi a
+  signed-but-plain message still shows bot positions to anyone listening. Without the key, a
+  stranger can neither read nor fake a message (a fake blood-moon reading would make every bot
+  hide all night). The relay topic is derived from `hash(server-id + team key)`, so strangers
+  can't even find it.
+- **Never an empty key.** The mod generates a random team key on first run; headless `setup`
+  gives every local bot the same one (`headless/team-key.txt`, gitignored); `bots.py team-key`
+  shows it for your own client's config.
+- **Replays are dropped.** `sent-at` is signed; anything older than 60 s (or dated in the
+  future) is rejected even with a valid signature. Machines need roughly correct clocks — status
+  reports "stale" messages if one is off.
 - **Humans can't use coordinates.** The live server hides them from F3; only bots know exact
   positions. So bot↔bot messages carry xyz, but anything **for a human** is phrased the way a
   human can act on it: *"~300 blocks north-east of spawn"* (a compass points to spawn, the sun
@@ -211,6 +219,19 @@ only chat cosmetics, Discord bridges, and generic P2P libraries), so this is our
 Why MQTT for the relay: mature small Java clients (Eclipse Paho), free public brokers to test
 on, and a self-hosted broker (Mosquitto) runs on a Raspberry Pi. Nostr and WebRTC were the
 alternatives; Nostr's Java tooling is thinner, WebRTC needs NAT traversal we don't need.
+
+### Security model — who can do what
+
+| threat | defence |
+|---|---|
+| a stranger **controls** a bot | control only listens on `127.0.0.1` (the headless console relay, and any future control channel) plus a random per-run token — other machines can't even reach it |
+| a stranger **fakes** bot messages | HMAC signature with the team key |
+| a stranger **reads** bot messages | AES-GCM on every off-process transport |
+| a stranger **replays** an old message | signed timestamp, 60 s window, plus message-id dedupe |
+| **no key** configured | a random key is generated; the status line shouts if it's ever empty |
+| players type **nasty chat** | chat is untrusted input: strict parsing, value bounds, one reading per player per night, rate limits — chat can never trigger a command |
+| **bad downloads** | official sources only, checked against the published checksum/digest |
+| the **key leaks** | it lives in each game's `config/zymbot.json`, outside git |
 
 This is the bots' version of humans sharing coordinates on Discord — no more power than a
 coordinated human team already has.

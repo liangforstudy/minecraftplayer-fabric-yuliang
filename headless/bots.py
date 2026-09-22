@@ -4,7 +4,13 @@ every run detects Prism, Java 21 and this folder, and rewrites each rig's Headle
 
   bots.py setup                         first run on a new machine: find Java/Prism, install Fabric
   bots.py sync [--check]                mirror Prism mods+config into the rigs (see sync_bots.py)
-  bots.py run <bot1|bot3> [heap] [host:port]
+  bots.py run <bot1|bot3> [heap] [host:port]   launch; join straight away if a server is given
+  bots.py standby <bot> [heap]          launch to the title screen and wait
+  bots.py connect <bot> <host:port> [--wait]   join now, or as soon as the world opens
+  bots.py disconnect <bot>              leave the server, stay running
+  bots.py gui <bot>                     what's on the bot's screen (buttons, text)
+  bots.py send <bot> <command...>       any hmc-specifics console command (click, msg, / ...)
+  bots.py team-key                      show the shared team key (for your own client's config)
   bots.py stop                          stop headless bots only — never your Prism client
 
 Overrides, if detection picks the wrong thing:
@@ -179,6 +185,10 @@ def cmd_setup():
     for rig in rigs():
         write_config(rig, java)
         print(f"[{rig}] config written for this machine")
+    key = team_key()
+    for rig in rigs():
+        set_rig_team_key(rig, key)
+    print(f"team key: shared by {len(rigs())} rig(s) — for your own client, see: bots.py team-key")
     if os.path.isdir(os.path.join(minecraft_dir(), "versions", VERSION_NAME)):
         print(f"{VERSION_NAME} already installed")
     else:
@@ -194,10 +204,11 @@ def _headless_pids():
     if IS_WIN:
         ps = ("Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and "
               "($_.CommandLine -match 'minecraft.launcher.brand=HeadlessMc' -or "
-              "$_.CommandLine -match 'headlessmc-launcher') } | ForEach-Object { $_.ProcessId }")
+              "$_.CommandLine -match 'headlessmc-launcher' -or $_.CommandLine -match 'bots.py _relay') } "
+              "| ForEach-Object { $_.ProcessId }")
         out = subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True).stdout
     else:
-        out = subprocess.run(["pgrep", "-f", f"{BRAND}|headlessmc-launcher"], capture_output=True, text=True).stdout
+        out = subprocess.run(["pgrep", "-f", f"{BRAND}|headlessmc-launcher|bots.py _relay"], capture_output=True, text=True).stdout
     return [int(x) for x in out.split() if x.isdigit() and int(x) != os.getpid()]
 
 
@@ -238,7 +249,49 @@ def _grep(text, pattern, flags=re.I):
     return re.search(pattern, text, flags)
 
 
-def cmd_run(bot, heap="3G", addr=None):
+TEAM_KEY_FILE = os.path.join(HERE, "team-key.txt")   # gitignored — never commit it
+
+
+def team_key():
+    """The team key every local bot shares (created once). Signs and encrypts bus messages."""
+    import secrets
+    if os.path.exists(TEAM_KEY_FILE):
+        k = open(TEAM_KEY_FILE).read().strip()
+        if k:
+            return k
+    k = secrets.token_urlsafe(18)
+    fd = os.open(TEAM_KEY_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        f.write(k + "\n")
+    return k
+
+
+def set_rig_team_key(rig, key):
+    """Put the shared key into the rig's zymbot.json (the mod fills in every other setting)."""
+    import json
+    p = os.path.join(HERE, rig, "gamedir", "config", "zymbot.json")
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    try:
+        cfg = json.load(open(p, encoding="utf-8"))
+    except (OSError, ValueError):
+        cfg = {}
+    if cfg.get("team_key") != key:
+        cfg["team_key"] = key
+        with open(p, "w", encoding="utf-8") as f:
+            json.dump(cfg, f, indent=2)
+
+
+def cmd_team_key():
+    key = team_key()
+    print("Your team key (keep it private — anyone with it can read and send bot messages):")
+    print(f"  {key}")
+    print("To make your own game part of the team, put it in your Prism instance's")
+    print("  minecraft/config/zymbot.json  ->  \"team_key\": \"<the key>\"")
+    print("then restart the game. Bots with a different key simply can't hear each other.")
+    return 0
+
+
+def _check_rig(bot):
     if not os.path.exists(os.path.join(HERE, bot, "identity.properties")):
         sys.exit(f"no rig at {bot}/ (needs {bot}/identity.properties)")
     if os.path.exists(os.path.join(HERE, bot, ".unsynced")):
@@ -246,21 +299,34 @@ def cmd_run(bot, heap="3G", addr=None):
         print("        " + open(os.path.join(HERE, bot, ".unsynced")).read().strip())
     if not os.path.isdir(os.path.join(minecraft_dir(), "versions", VERSION_NAME)):
         sys.exit(f"{VERSION_NAME} isn't installed on this machine — run setup first.")
+
+
+def cmd_run(bot, heap="3G", addr=None):
+    """Launch through the console relay, so the bot keeps a console we can send commands to."""
+    _check_rig(bot)
+    if _console(bot):
+        sys.exit(f"[{bot}] is already running — stop it first, or use connect/send")
     java = find_java()
     write_config(bot, java, f"--quickPlayMultiplayer {addr}" if addr else None)
     name = _read_prop(bot, "hmc.offline.username") or bot
-
     log = os.path.join(HERE, bot, "run-" + time.strftime("%H%M%S") + ".log")
-    print(f"[{name}] launching headless, heap={heap}{', joining ' + addr if addr else ''} -> {os.path.relpath(log, HERE)}")
-    p = _hmc(bot, java, [f"launch {VERSION_NAME} -lwjgl -offline --jvm -Xmx{heap}", "exit"], log=log, wait=False)
-    with open(os.path.join(HERE, bot, "launcher.pid"), "w") as f:
-        f.write(str(p.pid))
+    print(f"[{name}] launching headless, heap={heap}{', joining ' + addr if addr else ' (standby at title screen)'}"
+          f" -> {os.path.relpath(log, HERE)}")
+    _spawn_relay(bot, java, heap, log)
+    return _await_verdict(bot, name, log, addr, offset=0)
 
-    # wait for a verdict; cover failure paths, not just success
+
+def _await_verdict(bot, name, log, addr, offset, timeout=300):
+    """Watch the log from `offset` until the join (or title screen) succeeds or fails. Covers every
+    failure path we've met, not just success."""
     since = None
-    for _ in range(100):
-        time.sleep(3)
-        text = open(log, encoding="utf-8", errors="replace").read()
+    until = time.time() + timeout
+    while time.time() < until:
+        time.sleep(2)
+        try:
+            text = open(log, encoding="utf-8", errors="replace").read()[offset:]
+        except FileNotFoundError:
+            continue
         norealms = "\n".join(l for l in text.splitlines() if "realms" not in l.lower())
         if _grep(text, r"Game crashed|OutOfMemory", 0):
             print(f"[{name}] CRASHED — see {log} and {bot}/gamedir/crash-reports/"); return 1
@@ -284,8 +350,7 @@ def cmd_run(bot, heap="3G", addr=None):
             since = since or time.time()
             if time.time() - since > 60:
                 print(f"[{name}] CONNECTED THEN DROPPED — reached {addr} but never entered the world.")
-                print("        No reason logged. Usual causes: the world is online-mode (needs OfflineLAN,")
-                print("        online mode off), or the host has mods the bot lacks (run sync).")
+                print(f"        No reason logged — try: bots.py gui {bot}   (shows the screen it's stuck on)")
                 return 5
         else:
             since = None
@@ -293,8 +358,167 @@ def cmd_run(bot, heap="3G", addr=None):
             pid, rss = _game_pid(name)
             print(f"[{name}] IN THE WORLD" + (f" (rss {rss}MB)" if rss else "")); return 0
         if not addr and "Realms" in text:
-            print(f"[{name}] at title screen (no server given)"); return 0
-    print(f"[{name}] no verdict after 5 min — check {log}"); return 4
+            print(f"[{name}] at title screen — standing by. Next: bots.py connect {bot} <host:port> [--wait]")
+            return 0
+    print(f"[{name}] no verdict after {timeout}s — check {log}"); return 4
+
+
+# ---------------------------------------------------------------- console relay
+#
+# HeadlessMC reads commands on its console, and hmc-specifics turns them into game actions
+# (connect, disconnect, gui, click, msg, /cmd). The relay is a small background process that owns
+# that console and accepts lines on 127.0.0.1 only, with a random token from <rig>/console.json
+# (readable by this user only). Nothing on another machine can reach it.
+
+def _spawn_relay(bot, java, heap, log):
+    args = [sys.executable, os.path.abspath(__file__), "_relay", bot, java, heap, log]
+    kw = dict(stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, cwd=HERE)
+    if IS_WIN:
+        kw["creationflags"] = 0x00000008 | 0x00000200   # DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP
+    else:
+        kw["start_new_session"] = True                  # survives this script and its terminal
+    subprocess.Popen(args, **kw)
+    for _ in range(50):                                 # wait for it to publish its port
+        if _console(bot):
+            return
+        time.sleep(0.1)
+    sys.exit(f"[{bot}] console relay didn't start — see {log}")
+
+
+def _relay_main(bot, java, heap, log):
+    import secrets
+    import socket
+    import threading
+    info = os.path.join(HERE, bot, "console.json")
+    logf = open(log, "w", encoding="utf-8")
+    p = subprocess.Popen([java, "-jar", LAUNCHER], cwd=os.path.join(HERE, bot), stdin=subprocess.PIPE,
+                         stdout=logf, stderr=subprocess.STDOUT, text=True, bufsize=1)
+    # -Dhmc.jline.enabled=false: the game's console is our pipe, not a terminal (JLine would crash)
+    p.stdin.write(f"launch {VERSION_NAME} -lwjgl -offline --jvm \"-Xmx{heap} -Dhmc.jline.enabled=false\"\n")
+    p.stdin.flush()
+    srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    srv.bind(("127.0.0.1", 0))                          # loopback only, any free port
+    srv.listen(4)
+    token = secrets.token_urlsafe(24)
+    import json
+    fd = os.open(info, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "w") as f:
+        json.dump({"port": srv.getsockname()[1], "token": token, "relay_pid": os.getpid(),
+                   "launcher_pid": p.pid, "log": log}, f)
+    lock = threading.Lock()
+
+    def serve(conn):
+        with conn, conn.makefile("r", encoding="utf-8") as r, conn.makefile("w", encoding="utf-8") as w:
+            if r.readline().strip() != token:
+                w.write("denied\n"); return
+            for line in r:
+                line = line.rstrip("\n")
+                if not line or "\n" in line:
+                    continue
+                with lock:
+                    p.stdin.write(line + "\n"); p.stdin.flush()
+                w.write("ok\n"); w.flush()
+
+    def accept():
+        while True:
+            try:
+                conn, _ = srv.accept()
+            except OSError:
+                return
+            threading.Thread(target=serve, args=(conn,), daemon=True).start()
+
+    threading.Thread(target=accept, daemon=True).start()
+    p.wait()                                            # the game (and launcher) ended
+    srv.close()
+    try:
+        os.remove(info)
+    except OSError:
+        pass
+
+
+def _console(bot):
+    """The running bot's relay info, or None."""
+    import json
+    info = os.path.join(HERE, bot, "console.json")
+    try:
+        c = json.load(open(info))
+    except (OSError, ValueError):
+        return None
+    if not _pid_alive(c.get("relay_pid", 0)):
+        try:
+            os.remove(info)
+        except OSError:
+            pass
+        return None
+    return c
+
+
+def _pid_alive(pid):
+    if not pid:
+        return False
+    if IS_WIN:
+        out = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH"], capture_output=True, text=True).stdout
+        return str(pid) in out
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def _send_line(bot, line):
+    import socket
+    c = _console(bot)
+    if not c:
+        sys.exit(f"[{bot}] isn't running (start it: bots.py standby {bot})")
+    with socket.create_connection(("127.0.0.1", c["port"]), timeout=5) as s:
+        s.sendall((c["token"] + "\n" + line + "\n").encode("utf-8"))
+        reply = s.makefile("r").readline().strip()
+    if reply != "ok":
+        sys.exit(f"[{bot}] console refused the command ({reply or 'no reply'})")
+    return c
+
+
+def cmd_send(bot, words, show_secs=3):
+    """Send one console command (hmc-specifics: gui, click, connect, disconnect, msg, / ...)."""
+    line = " ".join(words)
+    c = _console(bot)
+    if not c:
+        sys.exit(f"[{bot}] isn't running (start it: bots.py standby {bot})")
+    offset = os.path.getsize(c["log"])
+    _send_line(bot, line)
+    time.sleep(show_secs)
+    new = open(c["log"], encoding="utf-8", errors="replace").read()[offset:]
+    shown = [l for l in new.splitlines() if l.strip() and "Missing sound" not in l]
+    print("\n".join(shown[-60:]) if shown else f"(sent '{line}'; no console output within {show_secs}s)")
+    return 0
+
+
+def cmd_connect(bot, addr, wait=False, wait_secs=900):
+    """Join a server from the title screen. --wait: keep checking until the world is open, then join."""
+    import socket
+    host, _, port = addr.rpartition(":") if ":" in addr else (addr, "", "25565")
+    port = int(port)
+    name = _read_prop(bot, "hmc.offline.username") or bot
+    c = _console(bot)
+    if not c:
+        sys.exit(f"[{bot}] isn't running (start it: bots.py standby {bot})")
+    if wait:
+        print(f"[{name}] waiting for {host}:{port} to open (up to {wait_secs // 60} min)...")
+        until = time.time() + wait_secs
+        while True:
+            try:
+                socket.create_connection((host, port), timeout=2).close()
+                break
+            except OSError:
+                if time.time() > until:
+                    print(f"[{name}] {host}:{port} never opened"); return 3
+                time.sleep(3)
+        time.sleep(2)                                   # let the LAN server finish opening
+    offset = os.path.getsize(c["log"])
+    print(f"[{name}] connecting to {host}:{port}")
+    _send_line(bot, f"connect {host} {port}")
+    return _await_verdict(bot, name, c["log"], f"{host}:{port}", offset, timeout=180)
 
 
 def main(argv):
@@ -310,6 +534,26 @@ def main(argv):
         if not rest:
             sys.exit("usage: bots.py run <bot1|bot3> [heap] [host:port]")
         return cmd_run(*rest[:3])
+    if cmd == "standby":
+        if not rest:
+            sys.exit("usage: bots.py standby <bot> [heap]")
+        return cmd_run(rest[0], rest[1] if len(rest) > 1 else "3G", None)
+    if cmd == "connect":
+        if len(rest) < 2:
+            sys.exit("usage: bots.py connect <bot> <host:port> [--wait]")
+        return cmd_connect(rest[0], rest[1], wait="--wait" in rest)
+    if cmd == "disconnect":
+        return cmd_send(rest[0], ["disconnect"])
+    if cmd == "gui":
+        return cmd_send(rest[0], ["gui"])
+    if cmd == "send":
+        if len(rest) < 2:
+            sys.exit("usage: bots.py send <bot> <console command...>")
+        return cmd_send(rest[0], rest[1:])
+    if cmd == "team-key":
+        return cmd_team_key()
+    if cmd == "_relay":
+        _relay_main(*rest[:4]); return 0
     if cmd == "stop":
         cmd_stop(); return 0
     sys.exit(f"unknown command '{cmd}' — try: setup, sync, run, stop")

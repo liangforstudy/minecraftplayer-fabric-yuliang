@@ -38,6 +38,11 @@ public final class ConfigIO {
         }
         List<String> warnings = cfg.normalize();
         warnings.forEach(w -> LOG.warn("[zymbot] config: {}", w));
+        if (cfg.teamKey.isEmpty()) {
+            cfg.teamKey = newTeamKey();
+            LOG.warn("[zymbot] generated a new team key in {} — bots only hear bots with the SAME key. "
+                    + "Copy team_key to your other bots (headless: setup does it for you).", file);
+        }
         save(file, cfg);
         return cfg;
     }
@@ -51,6 +56,13 @@ public final class ConfigIO {
         } catch (IOException e) {
             LOG.error("[zymbot] can't write {}: {}", file, e.getMessage());
         }
+    }
+
+    /** 144 random bits, URL-safe — easy to copy between config files. */
+    public static String newTeamKey() {
+        byte[] b = new byte[18];
+        new java.security.SecureRandom().nextBytes(b);
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(b);
     }
 
     private static ZymbotConfig defaults(ZymbotConfig cfg) {

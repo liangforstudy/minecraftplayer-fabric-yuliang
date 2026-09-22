@@ -52,6 +52,37 @@ separate offline usernames, so they don't overwrite each other's files or kick e
 ./stop-bots.sh
 ```
 
+### Standby, then connect — skip the 90-second boot on "go"
+
+```bash
+./standby.sh bot1                          # boot to the title screen and wait (~1 min)
+./connect.sh bot1 127.0.0.1:25565          # join now — seconds, not minutes
+./connect.sh bot1 127.0.0.1:25565 --wait   # or: join by itself the moment the world opens
+./gui.sh bot1                              # what's on its screen right now (buttons, text)
+./send.sh bot1 click 0                     # any hmc-specifics console command
+./disconnect.sh bot1
+```
+
+This uses **[hmc-specifics](https://github.com/headlesshq/hmc-specifics)** (HeadlessMC's own
+companion mod, MIT; `hmc-specifics-1.21.1-2.4.0-fabric-release.jar`, verified against GitHub's
+SHA-256 digest), which turns HeadlessMC's console into a remote control: `connect`, `disconnect`,
+`gui`, `click`, `msg`, `/`. The sync adds it to every rig; the host doesn't need it.
+
+`bots.py` launches through a small **console relay**: a background process that owns the game's
+console and accepts lines on **127.0.0.1 only**, with a random token in `<rig>/console.json`
+(readable by you only). Nothing on another machine can reach it. The console is a pipe, not a
+terminal, so JLine is switched off (`hmc.jline.enabled=false`) — with it on, hmc-specifics crashes
+the game at startup ("Failed to start JLineCommandLineReader").
+
+`sync-bots.sh` refuses to touch a running rig — stop it first.
+
+### Team key
+
+`setup.sh` creates `team-key.txt` (gitignored) and writes it into every rig's `zymbot.json`, so
+your bots sign and encrypt their messages with the same key and can hear each other.
+`./team-key.sh` shows it — paste it into your own Prism instance's `config/zymbot.json` to make
+your client part of the team.
+
 On **Windows** it's the same with `.bat` (`setup.bat`, `sync-bots.bat`, `run-bot.bat bot1 3G
 127.0.0.1:25565`, `stop-bots.bat`). All four are one-line wrappers around **`bots.py`**, which is
 the same code on every OS — see [Moving to another machine](#moving-to-another-machine-windows).
@@ -124,6 +155,9 @@ it's swapping hard and a bot should come down.
 | `sync-exclude.txt` | mod ids never copied to a bot |
 | `<rig>/.source`, `<rig>/.unsynced` | which instance a rig mirrors; opt a rig out of syncing |
 | `moonlight-headless-patch-1.0.0.jar` | prebuilt copy of the patch, used when the build output isn't there |
+| `hmc-specifics-*.jar` | console remote control for the running bot (downloaded, gitignored) |
+| `team-key.txt`, `<rig>/console.json` | shared team key; the running relay's port + token (both gitignored) |
+| `<rig>/identity.properties` | the bot's name, UUID and fixed HeadlessMC flags (tracked) |
 
 Version files install to `~/Library/Application Support/minecraft/` (created fresh — no
 pre-existing vanilla install was touched). Fabric loader here is 0.19.5; the Prism instance

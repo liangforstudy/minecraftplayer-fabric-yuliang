@@ -12,7 +12,6 @@ import dev.yuliang.zymbot.core.config.ZymbotConfig;
 import dev.yuliang.zymbot.core.protocol.Bus;
 import dev.yuliang.zymbot.core.protocol.Envelope;
 import dev.yuliang.zymbot.core.protocol.MessageTypes;
-import dev.yuliang.zymbot.core.protocol.Signer;
 import dev.yuliang.zymbot.core.protocol.Transport;
 import dev.yuliang.zymbot.core.store.BotMemory;
 import dev.yuliang.zymbot.core.store.VersionedStore;
@@ -66,7 +65,7 @@ public final class Bot {
         this.headless = headless;
         this.clock = clock;
         this.log = new DecisionLog(50, clock);
-        this.bus = new Bus(selfId, new Signer(config.teamKey));
+        this.bus = new Bus(selfId, config.teamKey, clock);
         this.brain = new Brain(List.of(), Planner.EMPTY, log);
         bus.subscribe(this::onEnvelope);
     }
@@ -191,8 +190,10 @@ public final class Bot {
         out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
                 + (AutostartPolicy.shouldAutostart(config.autostartServers, address) ? " (autostart)" : "")));
         out.add("bus: " + String.join(", ", bus.transportNames())
-                + (config.teamKey.isEmpty() ? " — no team key set (unsigned)" : " — signed")
-                + (bus.rejectedCount() > 0 ? ", " + bus.rejectedCount() + " rejected (wrong team key?)" : ""));
+                + (config.teamKey.isEmpty() ? " — NO TEAM KEY (anyone on the network can read and fake messages)"
+                                              : " — signed + encrypted")
+                + (bus.rejectedCount() > 0 ? ", " + bus.rejectedCount() + " rejected (wrong team key?)" : "")
+                + (bus.staleCount() > 0 ? ", " + bus.staleCount() + " stale (replayed, or a clock is off)" : ""));
         if (memory.roster.isEmpty()) {
             out.add("bots heard: none yet");
         } else {

@@ -10,12 +10,13 @@ import java.util.UUID;
 
 /**
  * One bus message (FOUNDATION.md → Communication stack). Wire form, one line:
- * <pre>zb1 &lt;msgId&gt; &lt;sender&gt; &lt;serverId&gt; &lt;day&gt; &lt;x&gt;,&lt;z&gt; &lt;TYPE&gt; [fields...] #&lt;sig&gt;</pre>
+ * <pre>zb1 &lt;msgId&gt; &lt;sender&gt; &lt;serverId&gt; &lt;sentAt&gt; &lt;day&gt; &lt;x&gt;,&lt;z&gt; &lt;TYPE&gt; [fields...] #&lt;sig&gt;</pre>
  * The version tag lets old and new bots coexist; unknown types are ignored by receivers, not
  * errors. Fields are percent-encoded, so spaces and '#' can't break the framing. Position rides on
- * every message so a receiver can apply a virtual range.
+ * every message so a receiver can apply a virtual range. {@code sentAt} (epoch millis, signed) lets
+ * receivers reject replays of old messages.
  */
-public record Envelope(String msgId, UUID sender, String serverId, long day, int x, int z,
+public record Envelope(String msgId, UUID sender, String serverId, long sentAt, long day, int x, int z,
                        String type, List<String> fields) {
     public static final String VERSION = "zb1";
 
@@ -30,7 +31,8 @@ public record Envelope(String msgId, UUID sender, String serverId, long day, int
     /** The signed part — everything except the signature. */
     public String body() {
         StringBuilder sb = new StringBuilder(VERSION).append(' ').append(msgId).append(' ').append(sender)
-                .append(' ').append(serverId).append(' ').append(day).append(' ').append(x).append(',').append(z)
+                .append(' ').append(serverId).append(' ').append(sentAt).append(' ').append(day)
+                .append(' ').append(x).append(',').append(z)
                 .append(' ').append(type);
         for (String f : fields) sb.append(' ').append(enc(f));
         return sb.toString();
@@ -51,13 +53,13 @@ public record Envelope(String msgId, UUID sender, String serverId, long day, int
         String body = s.substring(0, hash), sig = s.substring(hash + 2);
         if (!signer.verify(body, sig)) return Optional.empty();
         String[] p = body.split(" ");
-        if (p.length < 7) return Optional.empty();
+        if (p.length < 8) return Optional.empty();
         try {
-            String[] xz = p[5].split(",");
+            String[] xz = p[6].split(",");
             List<String> fields = new ArrayList<>();
-            for (int i = 7; i < p.length; i++) fields.add(p[i].equals("~") ? "" : URLDecoder.decode(p[i], StandardCharsets.UTF_8));
-            return Optional.of(new Envelope(p[1], UUID.fromString(p[2]), p[3], Long.parseLong(p[4]),
-                    Integer.parseInt(xz[0]), Integer.parseInt(xz[1]), p[6], fields));
+            for (int i = 8; i < p.length; i++) fields.add(p[i].equals("~") ? "" : URLDecoder.decode(p[i], StandardCharsets.UTF_8));
+            return Optional.of(new Envelope(p[1], UUID.fromString(p[2]), p[3], Long.parseLong(p[4]), Long.parseLong(p[5]),
+                    Integer.parseInt(xz[0]), Integer.parseInt(xz[1]), p[7], fields));
         } catch (RuntimeException e) {
             return Optional.empty();
         }

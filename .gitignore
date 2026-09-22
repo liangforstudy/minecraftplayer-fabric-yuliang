@@ -7,6 +7,9 @@ headless/prism-dir.txt
 # downloadable jars (links in headless/README.md); the tiny patch jar stays tracked
 headless/headlessmc-launcher-*.jar
 headless/baritone-*.jar
+headless/hmc-specifics-*.jar
+headless/bot*/console.json
+headless/team-key.txt
 
 # --- build output ---
 build/

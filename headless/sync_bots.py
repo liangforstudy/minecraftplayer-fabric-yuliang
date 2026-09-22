@@ -134,6 +134,23 @@ def mirror_dir(src, dst):
                 shutil.copy2(s, d)
 
 
+def bot_only_jars(patch):
+    """Jars every rig gets that the host doesn't need: (file-name prefix, source, label)."""
+    out = [("moonlight-headless-patch-", patch, "headless patch")]
+    hmc = sorted(glob.glob(os.path.join(HERE, "hmc-specifics-*-fabric-release.jar")))
+    if hmc:
+        out.append(("hmc-specifics-", hmc[-1], "hmc-specifics console"))
+    built = sorted(glob.glob(ZYMBOT_GLOB), key=os.path.getmtime)
+    if built:
+        out.append(("zymbot-", built[-1], "zymbot"))
+    return out
+
+
+def _is_current(mods, src_jar):
+    dst = os.path.join(mods, os.path.basename(src_jar))
+    return os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src_jar)
+
+
 def main(argv=None):
     from bots import prism_dir
     argv = sys.argv[1:] if argv is None else argv
@@ -151,6 +168,11 @@ def main(argv=None):
         if os.path.exists(os.path.join(rig_dir, ".unsynced")):
             note = open(os.path.join(rig_dir, ".unsynced")).read().strip()
             print(f"[{rig}] UNSYNCED — skipped ({note})")
+            continue
+
+        from bots import _console
+        if _console(rig):
+            print(f"[{rig}] RUNNING — not touched (stop it first; swapping jars under a live game is unsafe)")
             continue
 
         src_file = os.path.join(rig_dir, ".source")
@@ -172,18 +194,16 @@ def main(argv=None):
 
         mods = os.path.join(rig_dir, "gamedir", "mods")
         os.makedirs(mods, exist_ok=True)      # absent on a fresh clone (gitignored)
-        ours = lambda j: j == PATCH_NAME or (j.startswith("zymbot-") and j.endswith(".jar"))
+        extras = bot_only_jars(PATCH)          # [(prefix, source path, label)]
+        ours = lambda j: any(j.startswith(pre) for pre, _, _ in extras)
         have = {j for j in os.listdir(mods) if j.endswith(".jar") and not ours(j)}
         want = set(keep)
         add, remove = sorted(want - have), sorted(have - want)
-        has_patch = os.path.exists(os.path.join(mods, PATCH_NAME))
-        zymbot = sorted(glob.glob(ZYMBOT_GLOB), key=os.path.getmtime)[-1:] if glob.glob(ZYMBOT_GLOB) else []
-        zymbot_current = all(os.path.exists(os.path.join(mods, os.path.basename(z))) and
-                             os.path.getmtime(os.path.join(mods, os.path.basename(z))) >= os.path.getmtime(z)
-                             for z in zymbot)
+        stale = [(pre, src_jar, label) for pre, src_jar, label in extras if not _is_current(mods, src_jar)]
 
-        if not add and not remove and has_patch and zymbot_current:
-            print(f"[{rig}] in sync with '{source}' — {len(want)} mods (+patch), {len(dropped)} excluded")
+        if not add and not remove and not stale:
+            print(f"[{rig}] in sync with '{source}' — {len(want)} mods + "
+                  f"{', '.join(l for _, _, l in extras)}; {len(dropped)} excluded")
             continue
 
         drift = True
@@ -192,10 +212,8 @@ def main(argv=None):
             print(f"   + {j}")
         for j in remove:
             print(f"   - {j}")
-        if not has_patch:
-            print(f"   + {PATCH_NAME} (headless patch)")
-        if not zymbot_current:
-            print(f"   + {os.path.basename(zymbot[0])} (our mod, rebuilt)")
+        for _, src_jar, label in stale:
+            print(f"   + {os.path.basename(src_jar)} ({label})")
         if check:
             continue
 
@@ -203,14 +221,15 @@ def main(argv=None):
             os.remove(os.path.join(mods, j))
         for j in add:
             shutil.copy2(os.path.join(src, "mods", j), mods)
-        shutil.copy2(PATCH, mods)
-        for old in [j for j in os.listdir(mods) if j.startswith("zymbot-") and j.endswith(".jar")]:
-            os.remove(os.path.join(mods, old))
-        for z in zymbot:
-            shutil.copy2(z, mods)
+        for pre, src_jar, _ in stale:
+            for old in [j for j in os.listdir(mods) if j.startswith(pre)]:
+                os.remove(os.path.join(mods, old))
+            shutil.copy2(src_jar, mods)
         mirror_dir(os.path.join(src, "config"), os.path.join(rig_dir, "gamedir", "config"))
-        print(f"[{rig}] synced — {len(want)} mods + patch{' + zymbot' if zymbot else ' (zymbot not built)'}; excluded {len(dropped)}: "
-              + ", ".join(m for m, _ in dropped))
+        print(f"[{rig}] synced — {len(want)} mods + {', '.join(l for _, _, l in extras)}; "
+              f"excluded {len(dropped)}: " + ", ".join(m for m, _ in dropped))
+        if not any(pre == "zymbot-" for pre, _, _ in extras):
+            print(f"[{rig}] note: zymbot isn't built yet (mod/: ./gradlew build) — the bot runs without it")
 
     return 1 if (check and drift) else 0
 

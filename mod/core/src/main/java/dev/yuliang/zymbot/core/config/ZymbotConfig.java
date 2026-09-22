@@ -29,7 +29,11 @@ public final class ZymbotConfig {
     /** off | relative | exact — exact only where the server owner allows it (FOUNDATION.md → !where). */
     public String shareCoordsWithHumans = "relative";
 
-    /** Shared by the team's bots to sign bus messages. Empty = unsigned (anyone on the LAN could spoof). */
+    /**
+     * Shared by the team's bots: signs and encrypts every bus message. Generated at random on first
+     * load if empty — never leave it empty (anyone on the network could read and fake messages).
+     * Keep it secret; it lives here, outside git.
+     */
     public String teamKey = "";
 
     public Transports transports = new Transports();

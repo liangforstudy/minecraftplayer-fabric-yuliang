@@ -32,6 +32,15 @@ class ConfigTest {
     }
 
     @Test
+    void aTeamKeyIsGeneratedOnceAndKept() {
+        Path f = dir.resolve("zymbot.json");
+        String key = ConfigIO.load(f).teamKey;
+        assertTrue(key.length() >= 20, "a strong random key, never empty: " + key);
+        assertEquals(key, ConfigIO.load(f).teamKey, "stable across restarts");
+        assertNotEquals(key, ConfigIO.load(dir.resolve("other.json")).teamKey, "each install gets its own");
+    }
+
+    @Test
     void badCommandRootFallsBack() {
         ZymbotConfig c = new ZymbotConfig();
         c.commandRoot = "My Bot!";

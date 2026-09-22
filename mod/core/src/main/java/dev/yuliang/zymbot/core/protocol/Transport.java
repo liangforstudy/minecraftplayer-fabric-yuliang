@@ -15,6 +15,12 @@ public interface Transport extends AutoCloseable {
     /** Where received lines go. May be called from a network thread — the bus queues them. */
     void onReceive(Consumer<String> receiver);
 
+    /**
+     * Whether lines on this transport leave the process, and so must be encrypted. True for every
+     * real network; only in-process test fakes may say false.
+     */
+    default boolean confidential() { return true; }
+
     @Override
     default void close() {}
 }
