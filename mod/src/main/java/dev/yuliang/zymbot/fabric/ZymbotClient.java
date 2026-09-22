@@ -37,6 +37,14 @@ public final class ZymbotClient implements ClientModInitializer {
 
     static ZymbotClient get() { return instance; }
     ZymbotConfig config() { return config; }
+    /** Null until the first world is joined. */
+    Bot bot() { return bot; }
+
+    /** Save settings edited in the screen. With a bot live, it re-checks roles/servers at once. */
+    void settingsEdited() {
+        ConfigIO.save(configFile, config);
+        if (bot != null) bot.settingsChanged();
+    }
 
     /** From the settings screen. Returns null when applied, or why it was refused. */
     String applyTeamKey(String key) {
@@ -93,7 +101,7 @@ public final class ZymbotClient implements ClientModInitializer {
     private void onTick(Minecraft mc) {
         if (bot == null || mc.player == null || mc.level == null) return;
         if (!HEADLESS && humanIsMoving(mc.options)) bot.humanInput(hands);
-        bot.tick(new FabricWorldView(mc.player, mc.level), hands);
+        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection()), hands);
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
     }

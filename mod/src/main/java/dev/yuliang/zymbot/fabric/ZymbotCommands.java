@@ -6,6 +6,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import dev.yuliang.zymbot.core.Bot;
+import dev.yuliang.zymbot.core.config.ZymbotConfig;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -40,6 +41,11 @@ final class ZymbotCommands {
                     b.stop("stopped by /" + root + " stop");
                     return List.of("stopped");
                 })))
+                .then(literal("role")
+                        .executes(c -> withBot(c, bot, b -> List.of("this account: " + b.role().label())))
+                        .then(literal("bot").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.BOT)))))
+                        .then(literal("teammate").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.TEAMMATE)))))
+                        .then(literal("none").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.NONE))))))
                 .then(literal("autostart")
                         .executes(c -> withBot(c, bot, Bot::autostartList))
                         .then(literal("add").executes(c -> withBot(c, bot, b -> List.of(b.autostartAdd()))))
@@ -52,7 +58,9 @@ final class ZymbotCommands {
         return List.of(
                 r + " status — what the bot is doing, and why",
                 r + " start / stop — hand control to the bot, or take it back",
-                r + " autostart add | remove | list — servers where it starts by itself",
+                r + " role bot | teammate | none — what this account is (Bot: the bot plays it; Teammate: you play, it announces)",
+                r + " autostart add | remove | list — servers where Zymbot is active",
+                "Settings (team key, accounts, servers): Mod Menu → Zymbot.",
                 "Pressing a movement key pauses the bot; it resumes after a few seconds.");
     }
 

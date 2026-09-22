@@ -188,7 +188,7 @@ def cmd_setup():
     key = team_key()
     for rig in rigs():
         set_rig_team_key(rig, key)
-    print(f"team key: shared by {len(rigs())} rig(s) — for your own client, see: bots.py team-key")
+    print(f"team key: shared by {len(rigs())} rig(s), each listed as a Bot — for your own client, see: bots.py team-key")
     if os.path.isdir(os.path.join(minecraft_dir(), "versions", VERSION_NAME)):
         print(f"{VERSION_NAME} already installed")
     else:
@@ -267,7 +267,8 @@ def team_key():
 
 
 def set_rig_team_key(rig, key):
-    """Put the shared key into the rig's zymbot.json (the mod fills in every other setting)."""
+    """Put the shared key into the rig's zymbot.json, and list the rig's own account as a Bot
+    (by UUID, from identity.properties). The mod fills in every other setting."""
     import json
     p = os.path.join(HERE, rig, "gamedir", "config", "zymbot.json")
     os.makedirs(os.path.dirname(p), exist_ok=True)
@@ -275,10 +276,25 @@ def set_rig_team_key(rig, key):
         cfg = json.load(open(p, encoding="utf-8"))
     except (OSError, ValueError):
         cfg = {}
-    if cfg.get("team_key") != key:
-        cfg["team_key"] = key
+    before = json.dumps(cfg, sort_keys=True)
+    cfg["team_key"] = key
+    uuid = _ident(rig, "hmc.offline.uuid")
+    name = _ident(rig, "hmc.offline.username") or rig
+    if uuid:
+        accounts = [a for a in cfg.get("accounts", []) if a.get("uuid", "").lower() != uuid.lower()]
+        accounts.append({"uuid": uuid, "name": name, "role": "bot"})
+        cfg["accounts"] = accounts
+    if json.dumps(cfg, sort_keys=True) != before:
         with open(p, "w", encoding="utf-8") as f:
             json.dump(cfg, f, indent=2)
+
+
+def _ident(rig, key):
+    p = os.path.join(HERE, rig, "identity.properties")
+    for line in open(p, encoding="utf-8") if os.path.exists(p) else []:
+        if line.startswith(key + "="):
+            return line.split("=", 1)[1].strip()
+    return None
 
 
 def key_fingerprint(key):
@@ -292,7 +308,8 @@ def cmd_team_key():
     print("Your team key (keep it private — anyone with it can read and send bot messages):")
     print(f"  {key}")
     print(f"fingerprint: {key_fingerprint(key)}   (safe to share; it must match in every game)")
-    print("To add your own game to the team: Mod Menu -> Zymbot -> paste the key -> Save.")
+    print("To add your own game to the team: Mod Menu -> Zymbot -> Team key: paste -> Save key,")
+    print("then Accounts: + <you> as Teammate, and Servers: + this server.")
     print("(Or edit minecraft/config/zymbot.json -> \"team_key\" and restart.)")
     return 0
 

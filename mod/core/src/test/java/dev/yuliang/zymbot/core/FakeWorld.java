@@ -4,7 +4,9 @@ import dev.yuliang.zymbot.core.api.Hands;
 import dev.yuliang.zymbot.core.api.Vec3;
 import dev.yuliang.zymbot.core.api.WorldView;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -22,10 +24,18 @@ public final class FakeWorld implements WorldView, Hands {
     public long day = 1;
     public int respawns;
     public final List<String> notices = new ArrayList<>();
+    /** This player's tab list. Starts with just ourselves, like a real client. */
+    public final Set<UUID> online = new HashSet<>();
 
     public FakeWorld(String name) {
         this.name = name;
         this.id = UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes());
+        online.add(id);
+    }
+
+    /** Put these players on one server: each sees all of them in its tab list. */
+    public static void sameServer(FakeWorld... worlds) {
+        for (FakeWorld a : worlds) for (FakeWorld b : worlds) a.online.add(b.id);
     }
 
     @Override public UUID selfId() { return id; }
@@ -36,6 +46,7 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public boolean isDead() { return dead; }
     @Override public long timeOfDay() { return time; }
     @Override public long day() { return day; }
+    @Override public Set<UUID> onlinePlayers() { return online; }
 
     @Override public void respawn() { respawns++; dead = false; health = 20; }
     @Override public void notifyLocal(String message) { notices.add(message); }

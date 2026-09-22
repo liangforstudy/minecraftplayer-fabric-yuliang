@@ -38,7 +38,9 @@ class BotTest {
     void singleplayerAutostartsWhenListed() {
         ZymbotConfig cfg = new ZymbotConfig();
         cfg.autostartServers.add("singleplayer");
-        Bot b = bot(new FakeWorld("Bot1"), cfg, false);
+        FakeWorld w = new FakeWorld("Bot1");
+        cfg.setRole(w.id, "Bot1", ZymbotConfig.Role.BOT);
+        Bot b = bot(w, cfg, false);
         b.onJoin("singleplayer", "singleplayer:New World", "Bot1");
         assertTrue(b.isRunning());
     }
@@ -61,7 +63,7 @@ class BotTest {
         b.start("test");
         b.stop("test");
         assertEquals(Phase.STOPPED, b.phase());
-        assertEquals("doing: nothing — stopped", b.status().get(1));
+        assertEquals("doing: nothing — silent", b.status().get(1));
     }
 
     @Test
@@ -134,6 +136,7 @@ class BotTest {
         FakeBus net = new FakeBus();
         FakeWorld w1 = new FakeWorld("Bot1"), w3 = new FakeWorld("Bot3");
         w3.pos = new dev.yuliang.zymbot.core.api.Vec3(-338.5, 66, 244.5);
+        FakeWorld.sameServer(w1, w3);
         Bot b1 = bot(w1, new ZymbotConfig(), true), b3 = bot(w3, new ZymbotConfig(), true);
         b1.attachTransport(net.endpoint());
         b3.attachTransport(net.endpoint());
@@ -160,6 +163,7 @@ class BotTest {
         k1.teamKey = "ours";
         k2.teamKey = "theirs";
         FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Stranger");
+        FakeWorld.sameServer(w1, w2);
         Bot b1 = bot(w1, k1, true), b2 = bot(w2, k2, true);
         b1.attachTransport(net.endpoint());
         b2.attachTransport(net.endpoint());
@@ -174,8 +178,8 @@ class BotTest {
     }
 
     @Test
-    void botsOnOtherServersAreIgnored() {
-        FakeBus net = new FakeBus();
+    void botsNotInOurTabListAreIgnored() {
+        FakeBus net = new FakeBus();                        // same LAN, but different servers
         FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Bot2");
         Bot b1 = bot(w1, new ZymbotConfig(), true), b2 = bot(w2, new ZymbotConfig(), true);
         b1.attachTransport(net.endpoint());
@@ -186,13 +190,56 @@ class BotTest {
         b2.start("t");
         b2.tick(w2, w2);
         b1.tick(w1, w1);
+        clock.advance(Bot.TAB_LIST_GRACE_MILLIS + 1);
+        b1.tick(w1, w1);
         assertTrue(b1.memory().roster.isEmpty());
+        assertTrue(String.join("\n", b1.status()).contains("not in this server's tab list"));
+    }
+
+    @Test
+    void hostAndGuestMeet_eventhoughTheirAddressesDiffer() {
+        // the bug seen live: the LAN host is "singleplayer" to itself, the guest joined 127.0.0.1:25565
+        FakeBus net = new FakeBus();
+        FakeWorld host = new FakeWorld("Bot2"), guest = new FakeWorld("Bot1");
+        FakeWorld.sameServer(host, guest);
+        Bot h = bot(host, new ZymbotConfig(), false), g = bot(guest, new ZymbotConfig(), true);
+        h.attachTransport(net.endpoint());
+        g.attachTransport(net.endpoint());
+        h.onJoin("singleplayer", "singleplayer:New World", "Bot2");
+        g.onJoin("127.0.0.1:25565", "Bot1");
+        h.start("t");
+        g.start("t");
+        h.tick(host, host);
+        g.tick(guest, guest);
+        h.tick(host, host);
+        assertEquals("Bot1", h.memory().roster.get(guest.id.toString()).name);
+        assertEquals("Bot2", g.memory().roster.get(host.id.toString()).name);
+    }
+
+    @Test
+    void aHelloThatBeatsTheTabListIsKeptBriefly() {
+        FakeBus net = new FakeBus();
+        FakeWorld w1 = new FakeWorld("Bot1"), w3 = new FakeWorld("Bot3");
+        Bot b1 = bot(w1, new ZymbotConfig(), true), b3 = bot(w3, new ZymbotConfig(), true);
+        b1.attachTransport(net.endpoint());
+        b3.attachTransport(net.endpoint());
+        b1.onJoin("s", "Bot1");
+        b3.onJoin("s", "Bot3");
+        b3.start("t");
+        b3.tick(w3, w3);                                   // Bot3's HELLO arrives...
+        b1.tick(w1, w1);                                   // ...before Bot3 shows in Bot1's tab list
+        assertTrue(b1.memory().roster.isEmpty());
+        clock.advance(3_000);
+        w1.online.add(w3.id);                              // the tab list catches up
+        b1.tick(w1, w1);
+        assertEquals("Bot3", b1.memory().roster.get(w3.id.toString()).name);
     }
 
     @Test
     void rosterSurvivesARestart() {
         FakeBus net = new FakeBus();
         FakeWorld w1 = new FakeWorld("Bot1"), w3 = new FakeWorld("Bot3");
+        FakeWorld.sameServer(w1, w3);
         Bot b1 = bot(w1, new ZymbotConfig(), true), b3 = bot(w3, new ZymbotConfig(), true);
         b1.attachTransport(net.endpoint());
         b3.attachTransport(net.endpoint());
@@ -227,6 +274,7 @@ class BotTest {
         k1.teamKey = "bot-rig-key-123";
         k2.teamKey = "my-own-random-key";
         FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Me");
+        FakeWorld.sameServer(w1, w2);
         Bot b1 = bot(w1, k1, true), b2 = bot(w2, k2, false);
         b1.attachTransport(net.endpoint());
         b2.attachTransport(net.endpoint());
@@ -246,5 +294,110 @@ class BotTest {
         assertEquals("Bot1", b2.memory().roster.get(w1.id.toString()).name);
         assertEquals(ZymbotConfig.fingerprint("bot-rig-key-123"), ZymbotConfig.fingerprint(k2.teamKey));
         assertFalse(String.join("\n", b2.status()).contains("bot-rig-key-123"), "status never shows the key itself");
+    }
+
+    // ------------------------------------------------------------------ roles
+
+    Bot joined(FakeWorld w, ZymbotConfig cfg, boolean headless, FakeBus net) {
+        Bot b = bot(w, cfg, headless);
+        if (net != null) b.attachTransport(net.endpoint());
+        b.onJoin("127.0.0.1:25565", w.name);
+        return b;
+    }
+
+    ZymbotConfig listed(String... servers) {
+        ZymbotConfig c = new ZymbotConfig();
+        c.autostartServers.addAll(List.of(servers));
+        return c;
+    }
+
+    @Test
+    void unlistedHumanAccountStaysSilent_evenOnAListedServer() {
+        FakeBus net = new FakeBus();
+        FakeWorld me = new FakeWorld("ZymSB");
+        Bot b = joined(me, listed("127.0.0.1:25565"), false, net);
+        b.tick(me, me);
+        assertEquals(Phase.STOPPED, b.phase());
+        assertTrue(net.wire.isEmpty(), "no HELLO from an account nobody listed");
+    }
+
+    @Test
+    void teammateAnnouncesButNeverTakesControl() {
+        FakeBus net = new FakeBus();
+        FakeWorld me = new FakeWorld("ZymSB"), bot1 = new FakeWorld("Bot1");
+        FakeWorld.sameServer(me, bot1);
+        ZymbotConfig mine = listed("127.0.0.1:25565");
+        mine.setRole(me.id, "ZymSB", ZymbotConfig.Role.TEAMMATE);
+        Bot human = joined(me, mine, false, net);
+        Bot bot = joined(bot1, listed("127.0.0.1:25565"), true, net);
+
+        assertEquals(Phase.TEAMMATE, human.phase());
+        assertFalse(human.isRunning(), "a teammate is never driven by the bot");
+        human.tick(me, me);
+        bot.tick(bot1, bot1);
+        assertEquals("ZymSB", bot.memory().roster.get(me.id.toString()).name, "bots know the human is on the team");
+        assertEquals("TEAMMATE", bot.memory().roster.get(me.id.toString()).phase);
+
+        me.dead = true;
+        human.tick(me, me);
+        assertEquals(0, me.respawns, "never presses Respawn for a human");
+        human.humanInput(me);
+        assertTrue(me.notices.isEmpty(), "no 'paused' nagging — it was never in control");
+    }
+
+    @Test
+    void teammateCanStillHandOverByHand_andStopReturnsToAnnouncing() {
+        FakeWorld me = new FakeWorld("ZymSB");
+        ZymbotConfig mine = listed("127.0.0.1:25565");
+        mine.setRole(me.id, "ZymSB", ZymbotConfig.Role.TEAMMATE);
+        Bot b = joined(me, mine, false, null);
+        b.start("/zbot start");
+        assertTrue(b.isRunning());
+        b.stop("/zbot stop");
+        assertEquals(Phase.TEAMMATE, b.phase(), "back to announcing, not silent");
+        b.stop("/zbot stop again");
+        assertEquals(Phase.STOPPED, b.phase());
+    }
+
+    @Test
+    void botAccountTakesControlOnlyOnListedServers() {
+        FakeWorld w = new FakeWorld("RealBotName");
+        ZymbotConfig cfg = listed("play.zymciv.net");
+        cfg.setRole(w.id, "RealBotName", ZymbotConfig.Role.BOT);
+        Bot here = bot(w, cfg, false);
+        here.onJoin("play.zymciv.net", "RealBotName");
+        assertTrue(here.isRunning());
+        Bot elsewhere = bot(w, cfg, false);
+        elsewhere.onJoin("some.other.server", "RealBotName");
+        assertEquals(Phase.STOPPED, elsewhere.phase());
+    }
+
+    @Test
+    void menuChangesApplyLive_butNeverGrabTheControls() {
+        FakeWorld me = new FakeWorld("ZymSB");
+        Bot b = joined(me, listed("127.0.0.1:25565"), false, null);
+        assertEquals(Phase.STOPPED, b.phase());
+
+        b.setOwnRole(ZymbotConfig.Role.TEAMMATE);
+        assertEquals(Phase.TEAMMATE, b.phase(), "starts announcing at once");
+
+        b.setOwnRole(ZymbotConfig.Role.BOT);
+        assertFalse(b.isRunning(), "a click in a menu must not suddenly drive your character");
+
+        b.setOwnRole(ZymbotConfig.Role.TEAMMATE);
+        b.serverRemove("127.0.0.1:25565");
+        assertEquals(Phase.STOPPED, b.phase(), "server taken off the list: silent");
+        assertEquals("type an address first", b.serverAdd(""));
+    }
+
+    @Test
+    void rolesSurviveInTheConfigFile() throws Exception {
+        FakeWorld me = new FakeWorld("ZymSB");
+        Bot b = joined(me, listed("127.0.0.1:25565"), false, null);
+        b.setOwnRole(ZymbotConfig.Role.TEAMMATE);
+        String json = Files.readString(dir.resolve("zymbot.json"));
+        assertTrue(json.contains("\"role\": \"teammate\"") && json.contains(me.id.toString()), json);
+        ZymbotConfig again = dev.yuliang.zymbot.core.config.ConfigIO.load(dir.resolve("zymbot.json"));
+        assertEquals(ZymbotConfig.Role.TEAMMATE, again.roleOf(me.id));
     }
 }

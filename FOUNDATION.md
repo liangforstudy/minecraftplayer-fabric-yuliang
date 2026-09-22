@@ -161,11 +161,21 @@ autostart_servers: [
 ],
 ```
 
-| on join | behaviour |
-|---|---|
-| server **in** the list | run `/<root> start` automatically → first phase: **DISCOVERY** |
-| server **not** in the list | load, stay idle; `/<root> start` still works by hand |
-| singleplayer | same rule — add the token `"singleplayer"` to the list to autostart there |
+Each **account** also has a role (Mod Menu → Zymbot → Accounts, or `/<root> role`), matched by
+UUID because names change on real servers:
+
+| on join | **Bot** account | **Teammate** account (you) | unlisted account |
+|---|---|---|---|
+| server **in** the list | takes control → **DISCOVERY** | **announces** (HELLO, shares readings), never takes control | silent |
+| server **not** in the list | silent | silent | silent |
+
+- `/<root> start` still hands control over by hand, for any role; `stop` returns a Teammate to
+  announcing, and a second `stop` goes silent.
+- Menu changes apply live, with one exception: giving an account the Bot role never grabs the
+  controls from a menu click — it takes effect on the next join.
+- A headless client with no accounts listed counts as a Bot (nobody else can be playing it);
+  `setup` lists each rig explicitly anyway.
+- Singleplayer follows the same rules: add `"singleplayer"` to the server list.
 
 Matching is on the address the player joined with, lower-cased, `:25565` implied. Commands:
 `/<root> autostart add` (adds the current server), `remove`, `list`.
@@ -194,6 +204,12 @@ only chat cosmetics, Discord bridges, and generic P2P libraries), so this is our
 - **Envelope:** `zb1 <msg-id> <sender-uuid> <server-id> <sent-at> <day> <x,z> <TYPE> <fields…> #<sig>`.
   The version lets old and new bots coexist; unknown types are ignored, not errors.
 - **Dedupe by `msg-id`.** The same message can arrive by local bus *and* chat; it counts once.
+- **"Same server" means "in my tab list".** A message only counts if its sender's UUID is in the
+  receiver's tab list right now — the one thing the host and every guest see identically. Not
+  the address: a LAN host is "singleplayer" to itself while guests joined `127.0.0.1:25565`, so
+  address-based ids never matched (found live, 2026-09-22). A sender not yet listed gets a 10 s
+  grace period (a HELLO can beat the tab-list update). `server-id` in the envelope is kept only as
+  the key for the bot's saved memory.
 - **Position travels with every message**, so a receiver can apply a *virtual range* if the
   game design calls for "within N blocks" — the transport's reach and the game rule are separate.
 - **Signed with a team key** (HMAC), and **encrypted on every transport that leaves the

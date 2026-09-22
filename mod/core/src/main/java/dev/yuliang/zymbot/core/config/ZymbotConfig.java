@@ -2,6 +2,8 @@ package dev.yuliang.zymbot.core.config;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -9,7 +11,7 @@ import java.util.regex.Pattern;
  * so a missing or partial file still works; {@link #normalize()} repairs bad values.
  */
 public final class ZymbotConfig {
-    public static final int SCHEMA_VERSION = 1;
+    public static final int SCHEMA_VERSION = 2;   // 2: accounts + roles
     private static final Pattern COMMAND = Pattern.compile("[a-z0-9_]{1,16}");
 
     public int schemaVersion = SCHEMA_VERSION;
@@ -18,8 +20,54 @@ public final class ZymbotConfig {
     public String commandRoot = "zbot";
     public List<String> commandAliases = new ArrayList<>();
 
-    /** Servers where the bot starts by itself on join. "singleplayer" opts singleplayer in. */
+    /**
+     * Servers where Zymbot is active: a Bot account takes control there, a Teammate account
+     * announces itself. "singleplayer" opts singleplayer in. Everywhere else it stays silent.
+     */
     public List<String> autostartServers = new ArrayList<>();
+
+    /** Which accounts are what. Matched by UUID (names can change); the name is for display. */
+    public List<Account> accounts = new ArrayList<>();
+
+    public enum Role {
+        /** The bot plays this account: takes control on whitelisted servers. */
+        BOT,
+        /** A human on the team: announces itself and shares readings, never takes control. */
+        TEAMMATE,
+        /** Not listed: Zymbot stays silent. */
+        NONE;
+
+        public String label() { return this == BOT ? "Bot" : this == TEAMMATE ? "Teammate" : "not listed"; }
+    }
+
+    public static final class Account {
+        public String uuid = "";
+        public String name = "";
+        public String role = "teammate";
+
+        public Account() {}
+
+        public Account(UUID uuid, String name, Role role) {
+            this.uuid = uuid.toString();
+            this.name = name;
+            this.role = role.name().toLowerCase(Locale.ROOT);
+        }
+
+        public Role parsedRole() {
+            return "bot".equals(role) ? Role.BOT : "teammate".equals(role) ? Role.TEAMMATE : Role.NONE;
+        }
+    }
+
+    public Role roleOf(UUID id) {
+        for (Account a : accounts) if (a.uuid.equalsIgnoreCase(id.toString())) return a.parsedRole();
+        return Role.NONE;
+    }
+
+    /** Sets (or with NONE, removes) an account's role. */
+    public void setRole(UUID id, String name, Role role) {
+        accounts.removeIf(a -> a.uuid.equalsIgnoreCase(id.toString()));
+        if (role != Role.NONE) accounts.add(new Account(id, name, role));
+    }
 
     /** Chat prefixes for players without the mod. */
     public String humanForecastPrefix = "!lf";
@@ -74,6 +122,15 @@ public final class ZymbotConfig {
         return null;
     }
 
+    private static boolean isUuid(String s) {
+        try {
+            UUID.fromString(s);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     /** Fixes invalid values in place; returns warnings for the log. */
     public List<String> normalize() {
         List<String> warnings = new ArrayList<>();
@@ -88,6 +145,15 @@ public final class ZymbotConfig {
             return bad;
         });
         if (autostartServers == null) autostartServers = new ArrayList<>();
+        if (accounts == null) accounts = new ArrayList<>();
+        accounts.removeIf(a -> {
+            if (a != null && a.role != null) a.role = a.role.trim().toLowerCase(Locale.ROOT);
+            boolean bad = a == null || a.uuid == null || !isUuid(a.uuid) || a.parsedRole() == Role.NONE;
+            if (bad) warnings.add("ignoring account entry " + (a == null ? "null" : a.name + " / " + a.uuid + " / " + a.role));
+            else if (a.name == null) a.name = "?";
+            return bad;
+        });
+        schemaVersion = SCHEMA_VERSION;
         if (!List.of("off", "relative", "exact").contains(shareCoordsWithHumans)) {
             warnings.add("share_coords_with_humans '" + shareCoordsWithHumans + "' unknown; using 'relative'");
             shareCoordsWithHumans = "relative";
