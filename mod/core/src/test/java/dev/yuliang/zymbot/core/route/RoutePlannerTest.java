@@ -146,4 +146,28 @@ public class RoutePlannerTest {
         assertEquals(List.of(48, 95), legs.stream().map(l -> l.end().x()).toList(), legs.toString());
         assertTrue(legs.stream().noneMatch(RoutePlanner.Leg::swim));
     }
+
+    @Test
+    void outOfTime_givesTheBestSoFar_andSaysSo() {
+        Terrain drawn = map(grid(193, 193, '.'));
+        Terrain slow = new Terrain() {
+            public Kind kind(int x, int z) {
+                long t = System.nanoTime() + 50_000;
+                while (System.nanoTime() < t) Thread.onSpinWait();
+                return z == 150 ? Kind.BLOCKED : drawn.kind(x, z);            // a wall: the goal is out of reach
+            }
+            public int height(int x, int z) { return drawn.height(x, z); }
+        };
+        long t0 = System.nanoTime();
+        var r = new RoutePlanner(slow, 96, 96, 96)
+                .plan(new BlockPos(96, 64, 96), new BlockPos(96, 64, 190), 3, new RoutePlanner.Budget(50, false))
+                .orElseThrow();
+        long ms = (System.nanoTime() - t0) / 1_000_000;
+        assertTrue(r.timedOut() && !r.reachesGoal(), r.toString());
+        assertTrue(ms < 1000, "stopped near the budget, not after flooding the map: " + ms + " ms");
+        var gentle = new RoutePlanner(map(grid(40, 40, '.')), 5, 5, 96)
+                .plan(new BlockPos(5, 64, 5), new BlockPos(35, 64, 35), 3, new RoutePlanner.Budget(0, true))
+                .orElseThrow();
+        assertTrue(gentle.reachesGoal() && !gentle.timedOut(), "gentle still finishes: " + gentle);
+    }
 }

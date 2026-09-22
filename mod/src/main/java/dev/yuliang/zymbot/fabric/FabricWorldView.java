@@ -53,6 +53,7 @@ final class FabricWorldView implements WorldView {
     private final boolean beingRevived;
     private final long dayTime;
     private final Set<UUID> online;
+    private final double tps;
     private List<ItemView> inventory;
     private List<EntityView> nearby;
 
@@ -91,6 +92,7 @@ final class FabricWorldView implements WorldView {
         this.lastDeath = player.getLastDeathLocation()
                 .map(g -> g.dimension().location() + " " + g.pos().toShortString()).orElse("");
         this.dayTime = level.getDayTime();
+        this.tps = ZymbotClient.TPS.tps(System.nanoTime());
         this.online = connection == null ? Set.of() : Set.copyOf(connection.getOnlinePlayerIds());   // the tab list
     }
 
@@ -107,6 +109,7 @@ final class FabricWorldView implements WorldView {
     @Override public boolean usingItem() { return using; }
     @Override public int selectedSlot() { return selected; }
     @Override public int air() { return air; }
+    @Override public double serverTps() { return tps; }
     @Override public int maxAir() { return maxAir; }
     @Override public boolean headInWater() { return headInWater; }
     @Override public String lastDeath() { return lastDeath; }

@@ -621,7 +621,7 @@ public final class Bot {
         String where = x + (y == null ? "" : " " + y) + " " + z;
         brain.order(Objective.of("walk to " + where, "ordered by /" + config.commandRoot + " goto",
                 (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), target, y == null,
-                        config.routeRadius, config.swimCostBlocks, log::record)));
+                        config.routeRadius, config.swimCostBlocks, log::record).limits(config.planTimeoutMs, config.lagTps)));
         return "walking to " + where + pathfinderWarning();
     }
 
@@ -666,7 +666,7 @@ public final class Bot {
         if (death == null) return "no grave within " + dev.yuliang.zymbot.core.task.GraveTask.SEARCH_RADIUS + " blocks, and no death on record";
         brain.order(Objective.of("walk back to where I died", "ordered by /" + config.commandRoot + " grave — then look for the grave",
                 (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), death, false, 3,
-                        config.routeRadius, config.swimCostBlocks, log::record, "walking back to where I died")));
+                        config.routeRadius, config.swimCostBlocks, log::record, "walking back to where I died").limits(config.planTimeoutMs, config.lagTps)));
         return "no grave in sight — walking back to where I died (" + death.x() + " " + death.y() + " " + death.z()
                 + "); run it again there";
     }
@@ -718,7 +718,7 @@ public final class Bot {
         BlockPos target = new BlockPos(x, 0, z);
         brain.order(Objective.of("come to " + name, "ordered by /" + config.commandRoot + " come",
                 (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), target, true, COME_WITHIN,
-                        config.routeRadius, config.swimCostBlocks, log::record, "coming to " + name)));
+                        config.routeRadius, config.swimCostBlocks, log::record, "coming to " + name).limits(config.planTimeoutMs, config.lagTps)));
         return "coming to " + name + " at " + x + " " + z + (seen ? "" : " (where they last announced)") + pathfinderWarning();
     }
 

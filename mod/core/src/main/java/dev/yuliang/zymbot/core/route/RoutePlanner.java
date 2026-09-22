@@ -37,8 +37,24 @@ public final class RoutePlanner {
 
     public record Step(int x, int y, int z, boolean water) {}
 
-    /** {@code reachesGoal}: ends at the goal column; otherwise at the closest reachable one. */
-    public record Route(List<Step> steps, double landBlocks, double waterBlocks, boolean reachesGoal) {
+    /**
+     * How long a search may take. {@code gentle}: the server is lagging, so pause briefly now and
+     * then to leave the CPU to it (the pauses count against the time too — lag means a smaller search).
+     */
+    public record Budget(long timeoutMs, boolean gentle) {
+        public static final Budget UNLIMITED = new Budget(0, false);
+    }
+    /** Search this many columns between clock checks. */
+    static final int CHECK_EVERY = 256;
+    /** Gentle searches pause {@link #PAUSE_MS} after this many columns. */
+    static final int PAUSE_EVERY = 512;
+    static final long PAUSE_MS = 2;
+
+    /**
+     * {@code reachesGoal}: ends at the goal column; otherwise at the closest reachable one.
+     * {@code timedOut}: the search ran out of time, so this is only the best found so far.
+     */
+    public record Route(List<Step> steps, double landBlocks, double waterBlocks, boolean reachesGoal, boolean timedOut) {
         public double food() { return landBlocks * FOOD_PER_LAND_BLOCK + waterBlocks * FOOD_PER_WATER_BLOCK; }
         public double length() { return landBlocks + waterBlocks; }
     }
@@ -60,6 +76,14 @@ public final class RoutePlanner {
 
     /** @param swimCost cost of a water block; 0 or less forbids water */
     public Optional<Route> plan(BlockPos from, BlockPos goal, double swimCost) {
+        return plan(from, goal, swimCost, Budget.UNLIMITED);
+    }
+
+    /** As {@link #plan(BlockPos, BlockPos, double)}, but stops when the budget runs out. */
+    public Optional<Route> plan(BlockPos from, BlockPos goal, double swimCost, Budget budget) {
+        long deadline = budget.timeoutMs() > 0 ? System.nanoTime() + budget.timeoutMs() * 1_000_000 : Long.MAX_VALUE;
+        boolean timedOut = false;
+        int searched = 0;
         int start = index(from.x(), from.z());
         if (start < 0 || kindAt(start) == Terrain.Kind.UNLOADED || kindAt(start) == Terrain.Kind.BLOCKED) return Optional.empty();
         int goalIdx = index(goal.x(), goal.z());
@@ -76,6 +100,16 @@ public final class RoutePlanner {
         while (!open.isEmpty()) {
             int cur = (int) open.poll()[1];
             if (closed[cur]) continue;
+            if (++searched % CHECK_EVERY == 0 && System.nanoTime() > deadline) { timedOut = true; break; }
+            if (budget.gentle() && searched % PAUSE_EVERY == 0) {
+                try {
+                    Thread.sleep(PAUSE_MS);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    timedOut = true;
+                    break;
+                }
+            }
             closed[cur] = true;
             double hc = h(cur, goal);
             if (hc < bestH) { bestH = hc; best = cur; }
@@ -112,7 +146,7 @@ public final class RoutePlanner {
             }
         }
         Collections.reverse(steps);
-        return Optional.of(new Route(List.copyOf(steps), land, water, end == goalIdx));
+        return Optional.of(new Route(List.copyOf(steps), land, water, end == goalIdx, timedOut && end != goalIdx));
     }
 
     /** Cost multiplier for stepping from a to b, or -1 if you can't. */

@@ -296,6 +296,61 @@ class BodyTest {
     }
 
     @Test
+    void aLaggingServer_meansLookingAheadLessOften() {
+        java.util.List<Runnable> queued = new java.util.ArrayList<>();
+        var inline = dev.yuliang.zymbot.core.task.RouteTask.PLANNER;
+        dev.yuliang.zymbot.core.task.RouteTask.PLANNER = queued::add;
+        try {
+            FakeWorld w = new FakeWorld("Bot1");
+            w.terrain = dev.yuliang.zymbot.core.route.RoutePlannerTest.map(dev.yuliang.zymbot.core.route.RoutePlannerTest.grid(300, 20, '.'));
+            w.pos = new Vec3(5.5, 64, 10.5);
+            w.tps = 8;                                                       // lagtps is 15
+            Bot b = running(w, new ZymbotConfig(), true);
+            b.goTo(290, 64, 10);
+            ticks(b, w, 2);
+            assertEquals(1, queued.size());
+            assertTrue(log(b).contains("planning less") && log(b).contains("every 160 blocks"), log(b));
+            queued.remove(0).run();
+            w.pos = new Vec3(75.5, 64, 10.5);                                // 70 blocks on: normally a look-ahead
+            ticks(b, w, 2);
+            assertEquals(0, queued.size(), "at 8 TPS it waits for 160 blocks");
+            w.pos = new Vec3(170.5, 64, 10.5);
+            ticks(b, w, 2);
+            assertEquals(1, queued.size());
+            queued.remove(0).run();
+            w.tps = 20;
+            ticks(b, w, 2);
+            assertTrue(log(b).contains("planning normally"), log(b));
+        } finally {
+            dev.yuliang.zymbot.core.task.RouteTask.PLANNER = inline;
+        }
+    }
+
+    @Test
+    void outOfTimeCheckingTheDryWay_itDoesntSwimOnAGuess() {
+        String[] m = dev.yuliang.zymbot.core.route.RoutePlannerTest.grid(400, 40, '.');
+        dev.yuliang.zymbot.core.route.RoutePlannerTest.paint(m, 0, 18, 399, 21, '~');     // a river, no bridge in sight
+        var drawn = dev.yuliang.zymbot.core.route.RoutePlannerTest.map(m);
+        FakeWorld w = new FakeWorld("Bot1");
+        w.terrain = new dev.yuliang.zymbot.core.api.Terrain() {             // far columns are slow to read
+            public Kind kind(int x, int z) {
+                if (x > 30) { long t = System.nanoTime() + 100_000; while (System.nanoTime() < t) Thread.onSpinWait(); }
+                return drawn.kind(x, z);
+            }
+            public int height(int x, int z) { return drawn.height(x, z); }
+            public dev.yuliang.zymbot.core.api.Terrain snapshot(int ox, int oz, int r) { return this; }
+        };
+        w.pos = new Vec3(10.5, 64, 5.5);
+        ZymbotConfig cfg = new ZymbotConfig();
+        cfg.planTimeoutMs = 50;
+        Bot b = running(w, cfg, true);
+        b.goTo(10, 64, 35);
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("not planning a swim"), log(b));
+        assertEquals(new BlockPos(10, 64, 35), w.paths.goal, "Baritone keeps the whole walk: " + log(b));
+    }
+
+    @Test
     void goTo_startingInWater_swimsAtOnce() {
         FakeWorld w = new FakeWorld("Bot1");
         w.inWater = true;

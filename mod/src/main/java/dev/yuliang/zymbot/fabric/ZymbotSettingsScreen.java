@@ -255,7 +255,9 @@ final class ZymbotSettingsScreen extends Screen {
             {"leash", "Leash — max blocks from a human while working"},
             {"eat", "Eat when hunger is at or below (of 20)"},
             {"critical", "Critical health — heal or retreat (of 20)"},
-            {"downed", "Knocked out: seconds to wait for a human"}};
+            {"downed", "Knocked out: seconds to wait for a human"},
+            {"plantime", "Route search time limit (ms)"},
+            {"lagtps", "Server lagging below (TPS) — plan less"}};
 
     private void initBody(int cx, int top) {
         int y = top;

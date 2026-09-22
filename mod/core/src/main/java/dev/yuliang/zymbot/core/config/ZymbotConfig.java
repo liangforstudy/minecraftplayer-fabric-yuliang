@@ -141,11 +141,22 @@ public final class ZymbotConfig {
     public int swimCostBlocks = 3;
     /** How far around the bot the route planner looks (blocks; bounded by what's loaded). */
     public int routeRadius = 96;
+    /**
+     * Longest one route search may take, in ms (like Baritone's own time limit). Out of time, the bot
+     * goes with the best route found so far — but won't swim on a half-checked dry way.
+     */
+    public int planTimeoutMs = 500;
+    /**
+     * Server TPS below this counts as lagging: the bot looks ahead less often and plans gently
+     * (low-priority thread, with pauses), leaving the CPU to the server — often the host on the same Mac.
+     */
+    public int lagTps = 15;
 
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
             "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19},
-            "downed", new int[]{0, 55});
+            "downed", new int[]{0, 55},
+            "plantime", new int[]{50, 5000}, "lagtps", new int[]{5, 19});
 
     public int tunable(String name) {
         return switch (name) {
@@ -153,6 +164,8 @@ public final class ZymbotConfig {
             case "eat" -> eatBelowHunger;
             case "critical" -> criticalHealth;
             case "downed" -> downedWaitForHumansSeconds;
+            case "plantime" -> planTimeoutMs;
+            case "lagtps" -> lagTps;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -160,12 +173,14 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, eat, critical or downed";
+        if (range == null) return "unknown setting '" + name + "' — leash, eat, critical, downed, plantime or lagtps";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> leashBlocks = value;
             case "eat" -> eatBelowHunger = value;
             case "downed" -> downedWaitForHumansSeconds = value;
+            case "plantime" -> planTimeoutMs = value;
+            case "lagtps" -> lagTps = value;
             default -> criticalHealth = value;
         }
         return null;

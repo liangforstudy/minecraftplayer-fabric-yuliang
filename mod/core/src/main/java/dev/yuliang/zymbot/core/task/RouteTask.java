@@ -23,6 +23,11 @@ import org.slf4j.LoggerFactory;
  * cost) crosses water, it takes over for just that crossing — to the near shore, across, then hands
  * the rest back to Baritone. Each crossing is logged with why it beat the dry way round. With no
  * dry way at all, the walk's own fallback applies: swim, and say so.
+ * <p>
+ * Each search has a time budget ({@code plantime}); out of time, it uses the best route found so
+ * far — but never swims on a half-checked dry way. When the server drops below {@code lagtps}, the
+ * bot looks ahead less often (up to {@link #MAX_BACK_OFF}× the distance) and plans gently, on a
+ * low-priority thread with pauses, so it doesn't take CPU a laggy host needs (same Mac, often).
  */
 public final class RouteTask implements Task {
     private static final Logger LOG = LoggerFactory.getLogger("zymbot");
@@ -30,6 +35,8 @@ public final class RouteTask implements Task {
     static final int LOOK_AHEAD_EVERY = 64;
     /** This close, don't bother looking ahead — just finish. */
     static final int FINISH_RANGE = 8;
+    /** Lagging, look ahead at most this many times less often. */
+    static final int MAX_BACK_OFF = 4;
 
     /** Where plans are computed. Tests swap in a same-thread executor. */
     public static volatile Executor PLANNER = Executors.newSingleThreadExecutor(r -> {
@@ -38,7 +45,7 @@ public final class RouteTask implements Task {
         return t;
     });
 
-    private record Plan(Optional<RoutePlanner.Route> route, Optional<RoutePlanner.Route> dry, long ms) {}
+    private record Plan(Optional<RoutePlanner.Route> route, Optional<RoutePlanner.Route> dry, long ms, boolean gentle) {}
 
     private final PathProvider paths;
     private final BlockPos target;
@@ -54,6 +61,9 @@ public final class RouteTask implements Task {
     private Deque<RoutePlanner.Leg> crossing;    // a planned crossing, leg by leg
     private WalkTask leg;
     private String failure = "";
+    private int timeoutMs = 500;
+    private int lagTps = 15;
+    private boolean lagging;
 
     public RouteTask(PathProvider paths, BlockPos target, boolean ignoreY, int radius, double swimCost,
                      BiConsumer<String, String> log) {
@@ -76,6 +86,20 @@ public final class RouteTask implements Task {
         this.what = what;
     }
 
+    /** @param timeoutMs per search (0 = no limit); @param lagTps back off below this server TPS */
+    public RouteTask limits(int timeoutMs, int lagTps) {
+        this.timeoutMs = Math.max(0, timeoutMs);
+        this.lagTps = lagTps;
+        return this;
+    }
+
+    /** How far to walk between look-aheads: {@link #LOOK_AHEAD_EVERY}, stretched while the server lags. */
+    static int lookAheadEvery(double tps, int lagTps) {
+        if (tps >= lagTps) return LOOK_AHEAD_EVERY;
+        double stretch = Math.min(MAX_BACK_OFF, 20 / Math.max(tps, 1));
+        return (int) Math.round(LOOK_AHEAD_EVERY * Math.max(1, stretch));
+    }
+
     @Override
     public Status tick(WorldView world) {
         if (!paths.available()) return fail("no pathfinder: " + paths.name());
@@ -89,8 +113,17 @@ public final class RouteTask implements Task {
             planning = null;
             onPlan(p);
         }
+        double tps = world.serverTps();
+        boolean lagNow = tps < lagTps;
+        if (lagNow != lagging) {
+            lagging = lagNow;
+            if (lagNow) log.accept("planning less", String.format(Locale.ROOT,
+                    "the server is at %.0f TPS (below %d) — looking ahead every %d blocks, gently", tps, lagTps,
+                    lookAheadEvery(tps, lagTps)));
+            else log.accept("planning normally", String.format(Locale.ROOT, "the server is back to %.0f TPS", tps));
+        }
         if (leg == null && planning == null && horizontal(world, target) > FINISH_RANGE
-                && (lookedFrom == null || horizontal(world, lookedFrom) >= LOOK_AHEAD_EVERY)) {
+                && (lookedFrom == null || horizontal(world, lookedFrom) >= lookAheadEvery(tps, lagTps))) {
             lookAhead(world);                                          // in the background; keep walking
         }
         if (leg != null) {
@@ -115,19 +148,26 @@ public final class RouteTask implements Task {
         long t0 = System.nanoTime();
         Terrain ground = world.terrain().snapshot(from.x(), from.z(), radius);   // game thread: a quick copy
         long copyMs = (System.nanoTime() - t0) / 1_000_000;
+        RoutePlanner.Budget budget = new RoutePlanner.Budget(timeoutMs, lagging);
         planning = CompletableFuture.supplyAsync(() -> {
+            Thread me = Thread.currentThread();
+            if (me.getName().equals("zymbot-route-planner"))              // not a test's own thread
+                me.setPriority(budget.gentle() ? Thread.MIN_PRIORITY : Thread.NORM_PRIORITY - 1);
             long p0 = System.nanoTime();
             RoutePlanner planner = new RoutePlanner(ground, from.x(), from.z(), radius);
-            var route = planner.plan(from, target, swimCost);
+            var route = planner.plan(from, target, swimCost, budget);
             var dry = route.filter(r -> r.waterBlocks() > 0)
-                    .flatMap(r -> planner.plan(from, target, 0).filter(d -> d.reachesGoal() == r.reachesGoal()));
-            return new Plan(route, dry, (System.nanoTime() - p0) / 1_000_000);
+                    .flatMap(r -> planner.plan(from, target, 0, budget)
+                            .filter(d -> d.timedOut() || d.reachesGoal() == r.reachesGoal()));
+            return new Plan(route, dry, (System.nanoTime() - p0) / 1_000_000, budget.gentle());
         }, PLANNER).whenComplete((p, e) -> {
             if (e != null) LOG.warn("[zymbot] route planning failed: {}", e.toString());
-            else LOG.info("[zymbot] route: {} — copied the ground in {} ms, planned in {} ms (off the game thread)",
+            else LOG.info("[zymbot] route: {}{} — copied the ground in {} ms, planned in {} ms (off the game thread{})",
                     p.route.map(r -> String.format(Locale.ROOT, "%.0f land + %.0f water blocks%s", r.landBlocks(),
-                            r.waterBlocks(), r.reachesGoal() ? "" : " (to the edge of what's loaded)")).orElse("no plan"),
-                    copyMs, p.ms);
+                            r.waterBlocks(), r.timedOut() ? " (best found in " + timeoutMs + " ms)"
+                                    : r.reachesGoal() ? "" : " (to the edge of what's loaded)")).orElse("no plan"),
+                    p.dry.filter(RoutePlanner.Route::timedOut).isPresent() ? ", dry check ran out of time" : "",
+                    copyMs, p.ms, p.gentle ? ", gently — server lagging" : "");
         });
     }
 
@@ -139,6 +179,11 @@ public final class RouteTask implements Task {
         int lastSwim = -1;
         for (int i = 0; i < legs.size(); i++) if (legs.get(i).swim()) lastSwim = i;
         if (lastSwim < 0) return;
+        if (p.dry.isPresent() && p.dry.get().timedOut()) {             // a dry way might exist: don't swim on a guess
+            log.accept("not planning a swim", "ran out of time (" + timeoutMs + " ms) checking the dry way round"
+                    + " — Baritone keeps walking dry");
+            return;
+        }
         boolean dryIsAnAlternative = p.dry.isPresent() && (r.reachesGoal()
                 ? p.dry.get().reachesGoal()
                 : end(p.dry.get()) <= end(r) + 2);            // only if the dry way gets as close

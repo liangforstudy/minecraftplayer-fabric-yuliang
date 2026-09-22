@@ -75,6 +75,8 @@ public interface WorldView {
 
     /** The loaded ground around us, for route planning. {@link Terrain#NONE} if unknown. */
     default Terrain terrain() { return Terrain.NONE; }
+    /** How fast the server is ticking, 0–20 (TpsMeter); 20 when unknown. */
+    default double serverTps() { return 20; }
 
     /** Nearest known place with this tag ("bed", "village", ...). Empty until the map exists. */
     default Optional<BlockPos> nearest(String placeTag) { return Optional.empty(); }

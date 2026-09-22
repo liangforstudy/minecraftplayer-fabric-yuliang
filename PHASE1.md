@@ -91,7 +91,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot block <x> <y> <z>` | debug: what this client sees at a block |
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
 | `/zbot look <name>` | face a player |
-| `/zbot set leash\|eat\|critical <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them |
+| `/zbot set leash\|eat\|critical\|downed\|plantime\|lagtps <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them. `plantime` = ms per route search (50–5000), `lagtps` = plan less below this TPS (5–19) |
 | `/zbot cancel` | drop the current order; the bot keeps running |
 
 Orders need the bot running. An interrupt (eating, retreating) pauses an order, which resumes
@@ -169,6 +169,14 @@ further than it needs to.
 6. Each crossing is justified: `swimming 6 blocks — because the dry way round is 410 blocks`.
 7. When no dry route exists it always swims — the shortest gap — and reports it (your call:
    last resort, never refuse).
+8. **Time budget and lag (0.1.24).** Each search stops after `plantime` ms (default 500, like
+   Baritone's own ~0.5 s limit) and goes with the best route found so far. If the *dry* check runs
+   out of time it doesn't swim on a guess — Baritone keeps walking dry (`not planning a swim — ran
+   out of time …`). The bot reads the server's TPS from its world-time updates (about one a second);
+   below `lagtps` (default 15) it logs `planning less`, looks ahead less often (64 blocks × 20/TPS,
+   at most 4×: every 160 blocks at 8 TPS) and plans gently — a low-priority thread that pauses every
+   512 columns — so it doesn't take CPU from a laggy host on the same Mac. (Java thread priority is
+   mostly ignored on macOS; the pauses are what actually hand the CPU back.)
 
 Later, not in either step: boats (no swim drain, but crafting one costs 3.2 hunger — Phase 3) and
 bridging (needs block placing).

@@ -38,6 +38,7 @@ public final class FakeWorld implements WorldView, Hands {
     public boolean onGround = true;
     public boolean headInWater;
     public int air = 300;
+    public double tps = 20;
     public BlockPos dryLand;
     public boolean forwardHeld, jumpHeld;
     public String lastDeath = "";
@@ -118,6 +119,7 @@ public final class FakeWorld implements WorldView, Hands {
     }
     @Override public void useOn(BlockPos b) { used.add(b); }
     @Override public dev.yuliang.zymbot.core.api.Terrain terrain() { return terrain; }
+    @Override public double serverTps() { return tps; }
     @Override public int downedSecondsLeft() { return downed; }
     @Override public boolean beingRevived() { return beingRevived; }
     @Override public Optional<BlockPos> nearestDryLand(int radius) { return Optional.ofNullable(dryLand); }

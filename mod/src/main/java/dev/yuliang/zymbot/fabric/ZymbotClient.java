@@ -40,6 +40,8 @@ public final class ZymbotClient implements ClientModInitializer {
     static final boolean HEADLESS = "HeadlessMc".equals(System.getProperty("minecraft.launcher.brand"));
 
     private static ZymbotClient instance;
+    /** The server's tick rate, from its time updates (mixin.ServerTimeMixin). */
+    public static final dev.yuliang.zymbot.core.body.TpsMeter TPS = new dev.yuliang.zymbot.core.body.TpsMeter();
     private ZymbotConfig config;
     private Path configFile;
     private Bot bot;
@@ -88,7 +90,7 @@ public final class ZymbotClient implements ClientModInitializer {
                         () -> levelName(Minecraft.getInstance()), config.commandRoot, config.commandAliases));
         // the bot exists from the title screen on, so a summon can reach it before any world
         ClientLifecycleEvents.CLIENT_STARTED.register(this::createBot);
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> onJoin(mc));
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); onJoin(mc); });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
         ClientReceiveMessageEvents.CHAT.register((message, signed, sender, params, at) -> {

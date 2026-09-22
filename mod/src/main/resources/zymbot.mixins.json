@@ -5,7 +5,8 @@
   "compatibilityLevel": "${java}",
   "client": [
     "BossHealthOverlayAccessor",
-    "MinecraftAccessor"
+    "MinecraftAccessor",
+    "ServerTimeMixin"
   ],
   "injectors": {
     "defaultRequire": 1
