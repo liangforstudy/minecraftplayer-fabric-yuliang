@@ -1,0 +1,31 @@
+{
+ "minecraft:stone_sword":       { "armor": 1, "shield": 1 },
+ "minecraft:golden_sword":      { "armor": 1, "shield": 1 },
+ "minecraft:iron_sword":        { "armor": 3, "shield": 2 },
+ "minecraft:diamond_sword":     { "armor": 4, "shield": 2 },
+ "minecraft:netherite_sword":   { "armor": 4, "shield": 2 },
+
+ "minecraft:stone_axe":         { "armor": 1, "shield": 2 },
+ "minecraft:golden_axe":        { "armor": 1, "shield": 2 },
+ "minecraft:iron_axe":          { "armor": 3, "shield": 8 },
+ "minecraft:diamond_axe":       { "armor": 4, "shield": 12 },
+ "minecraft:netherite_axe":     { "armor": 4, "shield": 12 },
+
+ "minecraft:stone_shovel":      { "armor": 1, "shield": 1, "class": "builder", "low": 1, "high": 3 },
+ "minecraft:golden_shovel":     { "armor": 1, "shield": 1, "class": "builder", "low": 1, "high": 3 },
+ "minecraft:iron_shovel":       { "armor": 1, "shield": 1, "class": "builder", "low": 1, "high": 3 },
+ "minecraft:diamond_shovel":    { "armor": 1, "shield": 1, "class": "builder", "low": 1, "high": 3 },
+ "minecraft:netherite_shovel":  { "armor": 1, "shield": 1, "class": "builder", "low": 1, "high": 3 },
+
+ "minecraft:stone_hoe":         { "armor": 1, "shield": 1, "class": "farmer", "low": 1, "high": 3 },
+ "minecraft:golden_hoe":        { "armor": 1, "shield": 1, "class": "farmer", "low": 1, "high": 3 },
+ "minecraft:iron_hoe":          { "armor": 1, "shield": 1, "class": "farmer", "low": 1, "high": 3 },
+ "minecraft:diamond_hoe":       { "armor": 1, "shield": 1, "class": "farmer", "low": 1, "high": 4 },
+ "minecraft:netherite_hoe":     { "armor": 1, "shield": 1, "class": "farmer", "low": 2, "high": 4 },
+
+ "minecraft:stone_pickaxe":     { "armor": 2, "shield": 2, "class": "miner", "low": 1, "high": 2 },
+ "minecraft:golden_pickaxe":    { "armor": 3, "shield": 3, "class": "miner", "low": 1, "high": 3 },
+ "minecraft:iron_pickaxe":      { "armor": 4, "shield": 4, "class": "miner", "low": 1, "high": 6 },
+ "minecraft:diamond_pickaxe":   { "armor": 5, "shield": 5, "class": "miner", "low": 2, "high": 8 },
+ "minecraft:netherite_pickaxe": { "armor": 6, "shield": 6, "class": "miner", "low": 2, "high": 8 }
+}

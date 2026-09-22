@@ -1,0 +1,2156 @@
+{
+ "bakery:apple_cupcake": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:apple_pie_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:baguette": {
+  "nutrition": 5,
+  "saturation": 1.2,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:braided_bread": {
+  "nutrition": 5,
+  "saturation": 1.2,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:bread": {
+  "nutrition": 5,
+  "saturation": 1.2,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:bread_with_jam": {
+  "nutrition": 5,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 5.0
+ },
+ "bakery:bun": {
+  "nutrition": 5,
+  "saturation": 1.2,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:bundt_cake_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:cake_dough": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:chocolate_cake_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:chocolate_gateau_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:chocolate_glazed_cookie": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:chocolate_tart_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:chocolate_truffle": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "bakery (server config)",
+  "total_saturation": 1.6
+ },
+ "bakery:cornet": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:croissant": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:crusty_bread": {
+  "nutrition": 5,
+  "saturation": 1.2,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:glowberry_pie_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:grilled_bacon_sandwich": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 7
+ },
+ "bakery:grilled_salmon_sandwich": {
+  "nutrition": 6,
+  "saturation": 0.8,
+  "source": "bakery (server config)",
+  "total_saturation": 6
+ },
+ "bakery:jam_roll": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:linzer_tart_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:misslilitu_biscuit": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "source": "bakery (server config)",
+  "total_saturation": 6
+ },
+ "bakery:pudding_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:sandwich": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 7
+ },
+ "bakery:strawberry_cake_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:strawberry_cupcake": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:strawberry_glazed_cookie": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:sweet_dough": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:sweetberry_cake_slice": {
+  "nutrition": 5,
+  "saturation": 0.7,
+  "source": "bakery (server config)",
+  "total_saturation": 5
+ },
+ "bakery:sweetberry_cupcake": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:sweetberry_glazed_cookie": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 3.0
+ },
+ "bakery:toast": {
+  "nutrition": 3,
+  "saturation": 0.8,
+  "source": "bakery (server config)",
+  "total_saturation": 3
+ },
+ "bakery:vegetable_sandwich": {
+  "nutrition": 8,
+  "saturation": 0.6,
+  "source": "bakery (server config)",
+  "total_saturation": 8
+ },
+ "bakery:waffle": {
+  "nutrition": 5,
+  "saturation": 0.5,
+  "source": "bakery (server config)",
+  "total_saturation": 5.0
+ },
+ "brewery:dumplings": {
+  "nutrition": 7,
+  "saturation": 0.8,
+  "source": "brewery",
+  "total_saturation": 7
+ },
+ "brewery:fried_chicken": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "source": "brewery",
+  "total_saturation": 7
+ },
+ "brewery:half_chicken": {
+  "nutrition": 3,
+  "saturation": 0.4,
+  "source": "brewery",
+  "total_saturation": 2.4
+ },
+ "brewery:mashed_potatoes": {
+  "nutrition": 4,
+  "saturation": 0.5,
+  "source": "brewery",
+  "total_saturation": 4.0
+ },
+ "brewery:pork_knuckle": {
+  "nutrition": 9,
+  "saturation": 0.9,
+  "source": "brewery",
+  "total_saturation": 9
+ },
+ "brewery:potato_salad": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "brewery",
+  "total_saturation": 8
+ },
+ "brewery:pretzel": {
+  "nutrition": 3,
+  "saturation": 0.4,
+  "source": "brewery",
+  "total_saturation": 2.4
+ },
+ "brewery:sausage": {
+  "nutrition": 6,
+  "saturation": 0.5,
+  "source": "brewery",
+  "total_saturation": 6.0
+ },
+ "candlelight:beef_wellington": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:beef_wellington_block": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:beef_with_mushroom_in_wine_and_potatoes": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:bolognese": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:chicken_alfredo": {
+  "nutrition": 7,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 7
+ },
+ "candlelight:chicken_with_vegetables": {
+  "nutrition": 6,
+  "saturation": 1.2,
+  "source": "candlelight",
+  "total_saturation": 6
+ },
+ "candlelight:fillet_steak": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 8
+ },
+ "candlelight:fresh_garden_salad_block": {
+  "nutrition": 6,
+  "saturation": 0.9,
+  "source": "candlelight",
+  "total_saturation": 6
+ },
+ "candlelight:khinkali": {
+  "nutrition": 6,
+  "saturation": 1.2,
+  "source": "candlelight",
+  "total_saturation": 6
+ },
+ "candlelight:lasagne": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:lasagne_block": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:mozzarella": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "candlelight",
+  "total_saturation": 5
+ },
+ "candlelight:mushroom_soup": {
+  "nutrition": 4,
+  "saturation": 0.5,
+  "source": "candlelight",
+  "total_saturation": 4.0
+ },
+ "candlelight:pasta_with_bolognese": {
+  "nutrition": 7,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 7
+ },
+ "candlelight:pasta_with_mozzarella": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 10
+ },
+ "candlelight:pork_ribs": {
+  "nutrition": 7,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 7
+ },
+ "candlelight:pork_ribs_block": {
+  "nutrition": 7,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 7
+ },
+ "candlelight:roastbeef_with_glazed_carrots": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 8
+ },
+ "candlelight:roasted_lamb_with_lettuce": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 8
+ },
+ "candlelight:salmon_on_white_wine": {
+  "nutrition": 5,
+  "saturation": 0.8,
+  "source": "candlelight",
+  "total_saturation": 5
+ },
+ "candlelight:tomato_mozzarella_block": {
+  "nutrition": 6,
+  "saturation": 0.7,
+  "source": "candlelight",
+  "total_saturation": 6
+ },
+ "candlelight:tomato_soup": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "source": "candlelight",
+  "total_saturation": 6
+ },
+ "candlelight:tropical_fish_supreme": {
+  "nutrition": 6,
+  "saturation": 1.2,
+  "source": "candlelight",
+  "total_saturation": 6
+ },
+ "civfabric:hearty_soup": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "effects": [
+   {
+    "effect": "regeneration",
+    "durationTicks": 100,
+    "amplifier": 1
+   }
+  ],
+  "source": "civfabric",
+  "total_saturation": 6
+ },
+ "cobblemon:berry_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:candied_apple": {
+  "nutrition": 6,
+  "saturation": 0.2,
+  "source": "cobblemon",
+  "total_saturation": 2.4
+ },
+ "cobblemon:candied_berry": {
+  "nutrition": 5,
+  "saturation": 0.22,
+  "source": "cobblemon",
+  "total_saturation": 2.2
+ },
+ "cobblemon:clover_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:flower_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:leek_and_potato_stew": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "source": "cobblemon",
+  "total_saturation": 6
+ },
+ "cobblemon:love_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:medicinal_leek": {
+  "snack": true,
+  "nutrition": 1,
+  "saturation": 0.2,
+  "source": "cobblemon",
+  "total_saturation": 0.4
+ },
+ "cobblemon:potato_mochi": {
+  "nutrition": 4,
+  "saturation": 0.4,
+  "source": "cobblemon",
+  "total_saturation": 3.2
+ },
+ "cobblemon:ribbon_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:roasted_leek": {
+  "snack": true,
+  "nutrition": 3,
+  "saturation": 0.2,
+  "source": "cobblemon",
+  "total_saturation": 1.2
+ },
+ "cobblemon:star_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:strawberry_sweet": {
+  "nutrition": 6,
+  "saturation": 0.125,
+  "source": "cobblemon",
+  "total_saturation": 1.5
+ },
+ "cobblemon:sweet_apple": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "source": "cobblemon",
+  "total_saturation": 2.4
+ },
+ "cobblemon:syrupy_apple": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "source": "cobblemon",
+  "total_saturation": 2.4
+ },
+ "cobblemon:tart_apple": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "source": "cobblemon",
+  "total_saturation": 2.4
+ },
+ "cobblemon:tasty_tail": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "cobblemon",
+  "total_saturation": 1.8
+ },
+ "cobblemon:vivichoke_dip": {
+  "nutrition": 10,
+  "saturation": 0.6,
+  "effects": [
+   {
+    "effect": "absorption",
+    "durationTicks": 900,
+    "amplifier": 0
+   }
+  ],
+  "alwaysEdible": true,
+  "source": "cobblemon",
+  "total_saturation": 10
+ },
+ "cobblemon:whipped_dream": {
+  "nutrition": 8,
+  "saturation": 0.3,
+  "source": "cobblemon",
+  "total_saturation": 4.8
+ },
+ "farm_and_charm:bacon": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "farm_and_charm",
+  "total_saturation": 1.8
+ },
+ "farm_and_charm:bacon_with_eggs": {
+  "nutrition": 6,
+  "saturation": 0.7,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 6
+ },
+ "farm_and_charm:baked_lamb_ham": {
+  "nutrition": 8,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 8
+ },
+ "farm_and_charm:baked_lamb_ham_block": {
+  "nutrition": 8,
+  "saturation": 0.9,
+  "source": "farm_and_charm",
+  "total_saturation": 8
+ },
+ "farm_and_charm:barley_patties_with_potatoes": {
+  "nutrition": 5,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 5
+ },
+ "farm_and_charm:barley_soup": {
+  "nutrition": 5,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 5
+ },
+ "farm_and_charm:beef_patty_with_vegetables": {
+  "nutrition": 6,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 6
+ },
+ "farm_and_charm:butter": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "source": "farm_and_charm",
+  "total_saturation": 1.2
+ },
+ "farm_and_charm:chicken_parts": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "source": "farm_and_charm",
+  "total_saturation": 1.2
+ },
+ "farm_and_charm:chicken_wrapped_in_bacon": {
+  "nutrition": 9,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 9
+ },
+ "farm_and_charm:cooked_cod": {
+  "nutrition": 7,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 7
+ },
+ "farm_and_charm:cooked_salmon": {
+  "nutrition": 7,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 7
+ },
+ "farm_and_charm:corn": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "farm_and_charm",
+  "total_saturation": 0.4
+ },
+ "farm_and_charm:corn_grits": {
+  "nutrition": 6,
+  "saturation": 0.5,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 6.0
+ },
+ "farm_and_charm:dough": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "farm_and_charm",
+  "total_saturation": 0.4
+ },
+ "farm_and_charm:farmer_salad": {
+  "nutrition": 7,
+  "saturation": 0.6,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 7
+ },
+ "farm_and_charm:farmers_bread": {
+  "nutrition": 6,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 6
+ },
+ "farm_and_charm:farmers_bread_block": {
+  "nutrition": 6,
+  "saturation": 0.8,
+  "source": "farm_and_charm",
+  "total_saturation": 6
+ },
+ "farm_and_charm:farmers_breakfast": {
+  "nutrition": 12,
+  "saturation": 1.2,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 12
+ },
+ "farm_and_charm:farmers_breakfast_block": {
+  "nutrition": 12,
+  "saturation": 1.2,
+  "source": "farm_and_charm",
+  "total_saturation": 12
+ },
+ "farm_and_charm:goulash": {
+  "nutrition": 8,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 8
+ },
+ "farm_and_charm:grandmothers_strawberry_cake": {
+  "nutrition": 4,
+  "saturation": 0.7,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 4
+ },
+ "farm_and_charm:grandmothers_strawberry_cake_block": {
+  "nutrition": 7,
+  "saturation": 0.6,
+  "source": "farm_and_charm",
+  "total_saturation": 7
+ },
+ "farm_and_charm:lamb_ham": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "source": "farm_and_charm",
+  "total_saturation": 1.2
+ },
+ "farm_and_charm:lamb_with_corn": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 8
+ },
+ "farm_and_charm:lettuce": {
+  "nutrition": 3,
+  "saturation": 0.6,
+  "source": "farm_and_charm",
+  "total_saturation": 3
+ },
+ "farm_and_charm:minced_beef": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "farm_and_charm",
+  "total_saturation": 1.8
+ },
+ "farm_and_charm:nettle_tea_cup": {
+  "nutrition": 1,
+  "saturation": 0.05,
+  "effects": [
+   {
+    "effect": "instant_health",
+    "durationTicks": 0
+   }
+  ],
+  "source": "farm_and_charm",
+  "total_saturation": 0.1
+ },
+ "farm_and_charm:oat_pancake": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 5
+ },
+ "farm_and_charm:oatmeal_with_strawberries": {
+  "nutrition": 4,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 4
+ },
+ "farm_and_charm:onion": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "farm_and_charm",
+  "total_saturation": 0.4
+ },
+ "farm_and_charm:onion_soup": {
+  "nutrition": 7,
+  "saturation": 0.6,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 7
+ },
+ "farm_and_charm:pasta_with_onion_sauce": {
+  "nutrition": 6,
+  "saturation": 0.7,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 6
+ },
+ "farm_and_charm:potato_soup": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 5
+ },
+ "farm_and_charm:potato_with_roast_meat": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 7
+ },
+ "farm_and_charm:potato_with_roast_meat_block": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "source": "farm_and_charm",
+  "total_saturation": 7
+ },
+ "farm_and_charm:raw_pasta": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "farm_and_charm",
+  "total_saturation": 0.4
+ },
+ "farm_and_charm:ribwort_tea_cup": {
+  "nutrition": 1,
+  "saturation": 0.05,
+  "effects": [
+   {
+    "effect": "regeneration",
+    "durationTicks": 60
+   }
+  ],
+  "source": "farm_and_charm",
+  "total_saturation": 0.1
+ },
+ "farm_and_charm:roasted_chicken": {
+  "nutrition": 5,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 5
+ },
+ "farm_and_charm:roasted_corn": {
+  "nutrition": 5,
+  "saturation": 0.5,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 5.0
+ },
+ "farm_and_charm:rotten_tomato": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "poison",
+    "durationTicks": 100,
+    "amplifier": 0,
+    "chance": 0.6
+   }
+  ],
+  "source": "farm_and_charm",
+  "total_saturation": 1.2
+ },
+ "farm_and_charm:sausage_with_oat_patty": {
+  "nutrition": 8,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 8
+ },
+ "farm_and_charm:simple_tomato_soup": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 6
+ },
+ "farm_and_charm:strawberry": {
+  "nutrition": 1,
+  "saturation": 0.6,
+  "source": "farm_and_charm",
+  "total_saturation": 1
+ },
+ "farm_and_charm:strawberry_tea_cup": {
+  "nutrition": 1,
+  "saturation": 0.05,
+  "effects": [
+   {
+    "effect": "haste",
+    "durationTicks": 120
+   }
+  ],
+  "source": "farm_and_charm",
+  "total_saturation": 0.1
+ },
+ "farm_and_charm:stuffed_chicken": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 8
+ },
+ "farm_and_charm:stuffed_chicken_block": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "farm_and_charm",
+  "total_saturation": 8
+ },
+ "farm_and_charm:stuffed_rabbit": {
+  "nutrition": 9,
+  "saturation": 0.9,
+  "source": "farm_and_charm (server config)",
+  "total_saturation": 9
+ },
+ "farm_and_charm:stuffed_rabbit_block": {
+  "nutrition": 9,
+  "saturation": 0.9,
+  "source": "farm_and_charm",
+  "total_saturation": 9
+ },
+ "farm_and_charm:tomato": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "source": "farm_and_charm",
+  "total_saturation": 2.4
+ },
+ "farmersdelight:apple_cider": {
+  "alwaysEdible": true,
+  "effects": [
+   {
+    "effect": "absorption",
+    "durationTicks": 1200,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight"
+ },
+ "farmersdelight:apple_pie_slice": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "snack": true,
+  "effects": [
+   {
+    "effect": "speed",
+    "durationTicks": 600,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 1.8
+ },
+ "farmersdelight:bacon": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 1.2
+ },
+ "farmersdelight:bacon_and_eggs": {
+  "nutrition": 10,
+  "saturation": 0.6,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:bacon_sandwich": {
+  "nutrition": 10,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:baked_cod_stew": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:barbecue_stick": {
+  "nutrition": 8,
+  "saturation": 0.9,
+  "source": "farmersdelight",
+  "total_saturation": 8
+ },
+ "farmersdelight:beef_patty": {
+  "nutrition": 4,
+  "saturation": 0.8,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 4
+ },
+ "farmersdelight:beef_stew": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:bone_broth": {
+  "nutrition": 8,
+  "saturation": 0.7,
+  "source": "farmersdelight",
+  "total_saturation": 8
+ },
+ "farmersdelight:cabbage": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "farmersdelight",
+  "total_saturation": 1.6
+ },
+ "farmersdelight:cabbage_leaf": {
+  "nutrition": 1,
+  "saturation": 0.4,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.8
+ },
+ "farmersdelight:cabbage_rolls": {
+  "nutrition": 5,
+  "saturation": 0.5,
+  "source": "farmersdelight",
+  "total_saturation": 5.0
+ },
+ "farmersdelight:cake_slice": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "snack": true,
+  "effects": [
+   {
+    "effect": "speed",
+    "durationTicks": 400,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 0.4
+ },
+ "farmersdelight:chicken_cuts": {
+  "nutrition": 1,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.6
+ },
+ "farmersdelight:chicken_sandwich": {
+  "nutrition": 10,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:chicken_soup": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:chocolate_pie_slice": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "snack": true,
+  "effects": [
+   {
+    "effect": "speed",
+    "durationTicks": 600,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 1.8
+ },
+ "farmersdelight:cod_roll": {
+  "nutrition": 7,
+  "saturation": 0.6,
+  "source": "farmersdelight",
+  "total_saturation": 7
+ },
+ "farmersdelight:cod_slice": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.2
+ },
+ "farmersdelight:cooked_bacon": {
+  "nutrition": 4,
+  "saturation": 0.8,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 4
+ },
+ "farmersdelight:cooked_chicken_cuts": {
+  "nutrition": 3,
+  "saturation": 0.6,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 3
+ },
+ "farmersdelight:cooked_cod_slice": {
+  "nutrition": 3,
+  "saturation": 0.5,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 3.0
+ },
+ "farmersdelight:cooked_mutton_chops": {
+  "nutrition": 3,
+  "saturation": 0.8,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 3
+ },
+ "farmersdelight:cooked_rice": {
+  "nutrition": 6,
+  "saturation": 0.4,
+  "source": "farmersdelight",
+  "total_saturation": 4.8
+ },
+ "farmersdelight:cooked_salmon_slice": {
+  "nutrition": 3,
+  "saturation": 0.8,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 3
+ },
+ "farmersdelight:dog_food": {
+  "nutrition": 4,
+  "saturation": 0.2,
+  "source": "farmersdelight",
+  "total_saturation": 1.6
+ },
+ "farmersdelight:dumplings": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 8
+ },
+ "farmersdelight:egg_sandwich": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 8
+ },
+ "farmersdelight:fish_stew": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:fried_egg": {
+  "nutrition": 4,
+  "saturation": 0.4,
+  "source": "farmersdelight",
+  "total_saturation": 3.2
+ },
+ "farmersdelight:fried_rice": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:fruit_salad": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "effects": [
+   {
+    "effect": "regeneration",
+    "durationTicks": 100,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 6
+ },
+ "farmersdelight:gleaming_salad": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:glow_berry_custard": {
+  "nutrition": 7,
+  "saturation": 0.6,
+  "alwaysEdible": true,
+  "effects": [
+   {
+    "effect": "glowing",
+    "durationTicks": 100,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 7
+ },
+ "farmersdelight:grilled_salmon": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:ham": {
+  "nutrition": 5,
+  "saturation": 0.3,
+  "source": "farmersdelight",
+  "total_saturation": 3.0
+ },
+ "farmersdelight:hamburger": {
+  "nutrition": 11,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 11
+ },
+ "farmersdelight:honey_cookie": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.4
+ },
+ "farmersdelight:honey_glazed_ham": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:kelp_roll_slice": {
+  "nutrition": 6,
+  "saturation": 0.5,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 6.0
+ },
+ "farmersdelight:melon_popsicle": {
+  "nutrition": 3,
+  "saturation": 0.2,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "farmersdelight",
+  "total_saturation": 1.2
+ },
+ "farmersdelight:minced_beef": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 1.2
+ },
+ "farmersdelight:mixed_salad": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "effects": [
+   {
+    "effect": "regeneration",
+    "durationTicks": 100,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 6
+ },
+ "farmersdelight:mushroom_rice": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:mutton_chops": {
+  "nutrition": 1,
+  "saturation": 0.3,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.6
+ },
+ "farmersdelight:mutton_wrap": {
+  "nutrition": 10,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:nether_salad": {
+  "nutrition": 5,
+  "saturation": 0.4,
+  "effects": [
+   {
+    "effect": "nausea",
+    "durationTicks": 240,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 4.0
+ },
+ "farmersdelight:noodle_soup": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:onion": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "farmersdelight",
+  "total_saturation": 1.6
+ },
+ "farmersdelight:onion_soup": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:pasta_with_meatballs": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:pasta_with_mutton_chop": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:pie_crust": {
+  "nutrition": 2,
+  "saturation": 0.2,
+  "source": "farmersdelight",
+  "total_saturation": 0.8
+ },
+ "farmersdelight:pumpkin_pie_slice": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "snack": true,
+  "effects": [
+   {
+    "effect": "speed",
+    "durationTicks": 600,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 1.8
+ },
+ "farmersdelight:pumpkin_slice": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "farmersdelight",
+  "total_saturation": 1.8
+ },
+ "farmersdelight:pumpkin_soup": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:ratatouille": {
+  "nutrition": 10,
+  "saturation": 0.6,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:raw_pasta": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 1.2
+ },
+ "farmersdelight:roast_chicken": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:roasted_mutton_chops": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:salmon_roll": {
+  "nutrition": 7,
+  "saturation": 0.6,
+  "source": "farmersdelight",
+  "total_saturation": 7
+ },
+ "farmersdelight:salmon_slice": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.2
+ },
+ "farmersdelight:shepherds_pie": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:smoked_ham": {
+  "nutrition": 10,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:squid_ink_pasta": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:steak_and_potatoes": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:stuffed_potato": {
+  "nutrition": 10,
+  "saturation": 0.7,
+  "source": "farmersdelight",
+  "total_saturation": 10
+ },
+ "farmersdelight:stuffed_pumpkin": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:sweet_berry_cheesecake_slice": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "snack": true,
+  "effects": [
+   {
+    "effect": "speed",
+    "durationTicks": 600,
+    "amplifier": 0
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 1.8
+ },
+ "farmersdelight:sweet_berry_cookie": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "snack": true,
+  "source": "farmersdelight",
+  "total_saturation": 0.4
+ },
+ "farmersdelight:tomato": {
+  "nutrition": 1,
+  "saturation": 0.3,
+  "source": "farmersdelight",
+  "total_saturation": 0.6
+ },
+ "farmersdelight:tomato_sauce": {
+  "nutrition": 4,
+  "saturation": 0.4,
+  "source": "farmersdelight",
+  "total_saturation": 3.2
+ },
+ "farmersdelight:vegetable_noodles": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "farmersdelight",
+  "total_saturation": 14
+ },
+ "farmersdelight:vegetable_soup": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "farmersdelight",
+  "total_saturation": 12
+ },
+ "farmersdelight:wheat_dough": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "source": "farmersdelight",
+  "total_saturation": 1.2
+ },
+ "herbalbrews:black_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:coffee": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:coffee_beans": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:dried_black_tea": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:dried_green_tea": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:dried_oolong_tea": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:green_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:hibiscus_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:lavender_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:milk_coffee": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:oolong_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:rooibos_leaf": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:rooibos_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "herbalbrews:tea_blossom": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:yerba_mate_leaf": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "snack": true,
+  "alwaysEdible": true,
+  "source": "herbalbrews",
+  "total_saturation": 0.2
+ },
+ "herbalbrews:yerba_mate_tea": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "herbalbrews",
+  "total_saturation": 0.4
+ },
+ "minecraft:apple": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 2.4
+ },
+ "minecraft:baked_potato": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 5
+ },
+ "minecraft:beef": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 1.8
+ },
+ "minecraft:beetroot": {
+  "nutrition": 1,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 1
+ },
+ "minecraft:beetroot_soup": {
+  "saturation": 0.6,
+  "nutrition": 6,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:bread": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 5
+ },
+ "minecraft:carrot": {
+  "nutrition": 3,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 3
+ },
+ "minecraft:chicken": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.3
+   }
+  ],
+  "source": "vanilla",
+  "total_saturation": 1.2
+ },
+ "minecraft:chorus_fruit": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "alwaysEdible": true,
+  "source": "vanilla",
+  "total_saturation": 2.4
+ },
+ "minecraft:cod": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.4
+ },
+ "minecraft:cooked_beef": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "vanilla",
+  "total_saturation": 8
+ },
+ "minecraft:cooked_chicken": {
+  "nutrition": 6,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:cooked_cod": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 5
+ },
+ "minecraft:cooked_mutton": {
+  "nutrition": 6,
+  "saturation": 0.8,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:cooked_porkchop": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "source": "vanilla",
+  "total_saturation": 8
+ },
+ "minecraft:cooked_rabbit": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "vanilla",
+  "total_saturation": 5
+ },
+ "minecraft:cooked_salmon": {
+  "nutrition": 6,
+  "saturation": 0.8,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:cookie": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.4
+ },
+ "minecraft:dried_kelp": {
+  "nutrition": 1,
+  "saturation": 0.3,
+  "snack": true,
+  "source": "vanilla",
+  "total_saturation": 0.6
+ },
+ "minecraft:enchanted_golden_apple": {
+  "nutrition": 4,
+  "saturation": 1.2,
+  "effects": [
+   {
+    "effect": "regeneration",
+    "durationTicks": 400,
+    "amplifier": 1
+   },
+   {
+    "effect": "resistance",
+    "durationTicks": 6000,
+    "amplifier": 0
+   },
+   {
+    "effect": "fire_resistance",
+    "durationTicks": 6000,
+    "amplifier": 0
+   },
+   {
+    "effect": "absorption",
+    "durationTicks": 2400,
+    "amplifier": 3
+   }
+  ],
+  "alwaysEdible": true,
+  "source": "vanilla",
+  "total_saturation": 4
+ },
+ "minecraft:glow_berries": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.4
+ },
+ "minecraft:golden_apple": {
+  "nutrition": 4,
+  "saturation": 1.2,
+  "effects": [
+   {
+    "effect": "regeneration",
+    "durationTicks": 100,
+    "amplifier": 1
+   },
+   {
+    "effect": "absorption",
+    "durationTicks": 2400,
+    "amplifier": 0
+   }
+  ],
+  "alwaysEdible": true,
+  "source": "vanilla",
+  "total_saturation": 4
+ },
+ "minecraft:golden_carrot": {
+  "nutrition": 6,
+  "saturation": 1.2,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:honey_bottle": {
+  "nutrition": 6,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 1.2
+ },
+ "minecraft:melon_slice": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 1.2
+ },
+ "minecraft:mushroom_stew": {
+  "saturation": 0.6,
+  "nutrition": 6,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:mutton": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 1.2
+ },
+ "minecraft:ominous_bottle": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.2
+ },
+ "minecraft:poisonous_potato": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "poison",
+    "durationTicks": 100,
+    "amplifier": 0,
+    "chance": 0.6
+   }
+  ],
+  "source": "vanilla",
+  "total_saturation": 1.2
+ },
+ "minecraft:porkchop": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 1.8
+ },
+ "minecraft:potato": {
+  "nutrition": 1,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 0.6
+ },
+ "minecraft:pufferfish": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "effects": [
+   {
+    "effect": "poison",
+    "durationTicks": 1200,
+    "amplifier": 1
+   },
+   {
+    "effect": "hunger",
+    "durationTicks": 300,
+    "amplifier": 2
+   },
+   {
+    "effect": "nausea",
+    "durationTicks": 300,
+    "amplifier": 0
+   }
+  ],
+  "source": "vanilla",
+  "total_saturation": 0.2
+ },
+ "minecraft:pumpkin_pie": {
+  "nutrition": 8,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 4.8
+ },
+ "minecraft:rabbit": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "vanilla",
+  "total_saturation": 1.8
+ },
+ "minecraft:rabbit_stew": {
+  "saturation": 0.6,
+  "nutrition": 10,
+  "source": "vanilla",
+  "total_saturation": 10
+ },
+ "minecraft:rotten_flesh": {
+  "nutrition": 4,
+  "saturation": 0.1,
+  "effects": [
+   {
+    "effect": "hunger",
+    "durationTicks": 600,
+    "amplifier": 0,
+    "chance": 0.8
+   }
+  ],
+  "source": "vanilla",
+  "total_saturation": 0.8
+ },
+ "minecraft:salmon": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.4
+ },
+ "minecraft:spider_eye": {
+  "nutrition": 2,
+  "saturation": 0.8,
+  "effects": [
+   {
+    "effect": "poison",
+    "durationTicks": 100,
+    "amplifier": 0
+   }
+  ],
+  "source": "vanilla",
+  "total_saturation": 2
+ },
+ "minecraft:suspicious_stew": {
+  "saturation": 0.6,
+  "nutrition": 6,
+  "alwaysEdible": true,
+  "source": "vanilla",
+  "total_saturation": 6
+ },
+ "minecraft:sweet_berries": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.4
+ },
+ "minecraft:tropical_fish": {
+  "nutrition": 1,
+  "saturation": 0.1,
+  "source": "vanilla",
+  "total_saturation": 0.2
+ },
+ "supplementaries:lumisene_bottle": {
+  "nutrition": 0,
+  "saturation": 0.0,
+  "alwaysEdible": true,
+  "effects": [
+   {
+    "effect": "glowing",
+    "durationTicks": 0,
+    "amplifier": 0
+   },
+   {
+    "effect": null,
+    "durationTicks": 0,
+    "amplifier": 0
+   }
+  ],
+  "source": "supplementaries",
+  "total_saturation": 0.0
+ },
+ "ubesdelight:chicken_inasal": {
+  "nutrition": 8,
+  "saturation": 0.7,
+  "source": "ubesdelight",
+  "total_saturation": 8
+ },
+ "ubesdelight:cookie_ginger": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "ubesdelight",
+  "total_saturation": 0.4
+ },
+ "ubesdelight:cookie_ube": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "ubesdelight",
+  "total_saturation": 0.4
+ },
+ "ubesdelight:ensaymada": {
+  "nutrition": 9,
+  "saturation": 0.9,
+  "effects": [
+   {
+    "effect": "hunger"
+   }
+  ],
+  "source": "ubesdelight",
+  "total_saturation": 9
+ },
+ "ubesdelight:garlic": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "ubesdelight",
+  "total_saturation": 1.6
+ },
+ "ubesdelight:garlic_chop": {
+  "nutrition": 1,
+  "saturation": 0.4,
+  "effects": [
+   {
+    "effect": "night_vision"
+   }
+  ],
+  "source": "ubesdelight",
+  "total_saturation": 0.8
+ },
+ "ubesdelight:ginger": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "ubesdelight",
+  "total_saturation": 1.6
+ },
+ "ubesdelight:ginger_chop": {
+  "nutrition": 1,
+  "saturation": 0.4,
+  "source": "ubesdelight",
+  "total_saturation": 0.8
+ },
+ "ubesdelight:hopia_munggo": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "effects": [
+   {
+    "effect": "hunger"
+   }
+  ],
+  "source": "ubesdelight",
+  "total_saturation": 7
+ },
+ "ubesdelight:leche_flan": {
+  "nutrition": 3,
+  "saturation": 0.4,
+  "source": "ubesdelight",
+  "total_saturation": 2.4
+ },
+ "ubesdelight:lemongrass": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "ubesdelight",
+  "total_saturation": 1.6
+ },
+ "ubesdelight:lumpia": {
+  "nutrition": 7,
+  "saturation": 0.7,
+  "source": "ubesdelight",
+  "total_saturation": 7
+ },
+ "ubesdelight:pandesal": {
+  "nutrition": 8,
+  "saturation": 0.8,
+  "effects": [
+   {
+    "effect": "night_vision"
+   }
+  ],
+  "source": "ubesdelight",
+  "total_saturation": 8
+ },
+ "ubesdelight:polvorone": {
+  "nutrition": 2,
+  "saturation": 0.2,
+  "source": "ubesdelight",
+  "total_saturation": 0.8
+ },
+ "ubesdelight:polvorone_cc": {
+  "nutrition": 2,
+  "saturation": 0.2,
+  "source": "ubesdelight",
+  "total_saturation": 0.8
+ },
+ "ubesdelight:polvorone_pinipig": {
+  "nutrition": 2,
+  "saturation": 0.2,
+  "source": "ubesdelight",
+  "total_saturation": 0.8
+ },
+ "ubesdelight:polvorone_ube": {
+  "nutrition": 2,
+  "saturation": 0.2,
+  "source": "ubesdelight",
+  "total_saturation": 0.8
+ },
+ "ubesdelight:tocino": {
+  "nutrition": 8,
+  "saturation": 0.7,
+  "source": "ubesdelight",
+  "total_saturation": 8
+ },
+ "ubesdelight:ube": {
+  "nutrition": 2,
+  "saturation": 0.4,
+  "source": "ubesdelight",
+  "total_saturation": 1.6
+ },
+ "vinery:apple_mash": {
+  "nutrition": 4,
+  "saturation": 0.3,
+  "source": "vinery",
+  "total_saturation": 2.4
+ },
+ "vinery:cherry": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "vinery:jungle_grapes_red": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "vinery",
+  "total_saturation": 5
+ },
+ "vinery:jungle_grapes_white": {
+  "nutrition": 5,
+  "saturation": 0.6,
+  "source": "vinery",
+  "total_saturation": 5
+ },
+ "vinery:red_grape": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "vinery:rotten_cherry": {
+  "nutrition": 2,
+  "saturation": 0.3,
+  "effects": [
+   {
+    "effect": "poison",
+    "durationTicks": 100,
+    "amplifier": 0,
+    "chance": 0.6
+   }
+  ],
+  "source": "vinery",
+  "total_saturation": 1.2
+ },
+ "vinery:savanna_grapes_red": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "vinery:savanna_grapes_white": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "vinery:taiga_grapes_red": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "vinery:taiga_grapes_white": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "vinery:white_grape": {
+  "nutrition": 2,
+  "saturation": 0.1,
+  "source": "vinery",
+  "total_saturation": 0.4
+ },
+ "zymlabs-rules:katsudon": {
+  "nutrition": 14,
+  "saturation": 0.75,
+  "source": "zymlabs-rules (server)",
+  "total_saturation": 14
+ },
+ "zymlabs-rules:oyakodon": {
+  "nutrition": 12,
+  "saturation": 0.8,
+  "source": "zymlabs-rules (server)",
+  "total_saturation": 12
+ },
+ "zymlabs-rules:raw_katsu": {
+  "nutrition": 3,
+  "saturation": 0.3,
+  "source": "zymlabs-rules (server)",
+  "total_saturation": 1.8
+ },
+ "zymlabs-rules:tonkatsu": {
+  "nutrition": 9,
+  "saturation": 0.8,
+  "source": "zymlabs-rules (server)",
+  "total_saturation": 9
+ },
+ "zymlabs:bandung": {
+  "nutrition": 10,
+  "saturation": 0.5,
+  "source": "zymlabs",
+  "total_saturation": 10.0
+ },
+ "zymlabs:cornucopia": {
+  "nutrition": 10,
+  "saturation": 0.5,
+  "source": "zymlabs",
+  "total_saturation": 10.0
+ }
+}

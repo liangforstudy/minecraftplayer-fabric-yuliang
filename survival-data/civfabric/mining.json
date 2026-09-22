@@ -1,0 +1,18 @@
+{
+ "minecraft:ancient_debris": 4,
+ "minecraft:copper_ore": 1,
+ "minecraft:deepslate_copper_ore": 1,
+ "minecraft:deepslate_diamond_ore": 4,
+ "minecraft:deepslate_emerald_ore": 3,
+ "minecraft:deepslate_gold_ore": 3,
+ "minecraft:deepslate_iron_ore": 2,
+ "minecraft:deepslate_lapis_ore": 2,
+ "minecraft:deepslate_redstone_ore": 3,
+ "minecraft:diamond_ore": 4,
+ "minecraft:emerald_ore": 3,
+ "minecraft:gold_ore": 3,
+ "minecraft:iron_ore": 2,
+ "minecraft:lapis_ore": 2,
+ "minecraft:nether_gold_ore": 2,
+ "minecraft:redstone_ore": 3
+}

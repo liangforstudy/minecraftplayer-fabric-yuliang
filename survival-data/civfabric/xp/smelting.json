@@ -1,0 +1,246 @@
+{
+ "farmersdelight:fried_egg": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:baked_potato": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:black_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brick": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:charcoal": {
+  "class": "blacksmith",
+  "xp": 2.0
+ },
+ "minecraft:coal": {
+  "class": "blacksmith",
+  "xp": 3.0
+ },
+ "minecraft:cooked_beef": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:cooked_chicken": {
+  "class": "farmer",
+  "xp": 5.0
+ },
+ "minecraft:cooked_cod": {
+  "class": "farmer",
+  "xp": 5.0
+ },
+ "minecraft:cooked_mutton": {
+  "class": "farmer",
+  "xp": 6.0
+ },
+ "minecraft:cooked_porkchop": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:cooked_rabbit": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:cooked_salmon": {
+  "class": "farmer",
+  "xp": 5.0
+ },
+ "minecraft:copper_ingot": {
+  "class": "blacksmith",
+  "xp": 3.0
+ },
+ "minecraft:cracked_deepslate_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cracked_deepslate_tiles": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cracked_nether_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cracked_polished_blackstone_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cracked_stone_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cyan_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:deepslate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:diamond": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:dried_kelp": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:emerald": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gold_ingot": {
+  "class": "blacksmith",
+  "xp": 8.0
+ },
+ "minecraft:gold_nugget": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:gray_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:green_dye": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:green_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:iron_ingot": {
+  "class": "blacksmith",
+  "xp": 6.0
+ },
+ "minecraft:iron_nugget": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:lapis_lazuli": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:leaf_litter": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_dye": {
+  "class": "librarian",
+  "xp": 1.0
+ },
+ "minecraft:lime_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:magenta_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:nether_brick": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:netherite_scrap": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:orange_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pink_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:popped_chorus_fruit": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:purple_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:quartz": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:red_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:redstone": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:resin_brick": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_basalt": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_quartz": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_red_sandstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_sandstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_stone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:sponge": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:stone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:white_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:yellow_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ }
+}

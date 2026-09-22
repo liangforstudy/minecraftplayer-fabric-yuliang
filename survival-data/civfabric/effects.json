@@ -1,0 +1,130 @@
+{
+ "builder": {
+  "apprentice": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 0
+   }
+  ],
+  "journeyman": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 1
+   }
+  ],
+  "expert": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 1
+   }
+  ],
+  "master": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 2
+   }
+  ],
+  "grandmaster": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 3
+   }
+  ]
+ },
+ "hunter": {
+  "apprentice": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 0
+   }
+  ],
+  "journeyman": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 0
+   }
+  ],
+  "expert": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 0
+   }
+  ],
+  "master": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 0
+   }
+  ],
+  "grandmaster": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 0
+   }
+  ]
+ },
+ "librarian": {
+  "apprentice": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 0
+   }
+  ],
+  "journeyman": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 1
+   }
+  ],
+  "expert": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 1
+   }
+  ],
+  "master": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 2
+   }
+  ],
+  "grandmaster": [
+   {
+    "effect": "minecraft:speed",
+    "amplifier": 2
+   }
+  ]
+ },
+ "miner": {
+  "apprentice": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 1
+   }
+  ],
+  "journeyman": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 2
+   }
+  ],
+  "expert": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 3
+   }
+  ],
+  "master": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 4
+   }
+  ],
+  "grandmaster": [
+   {
+    "effect": "minecraft:haste",
+    "amplifier": 5
+   }
+  ]
+ }
+}

@@ -1,0 +1,84 @@
+{
+ "boosts": {
+  "0": {
+   "xp": 1.0,
+   "xpDuration": 0.0,
+   "hungerDuration": 0.0
+  },
+  "1": {
+   "xp": 1.0,
+   "xpDuration": 0.0,
+   "hungerDuration": 0.0
+  },
+  "2": {
+   "xp": 1.0,
+   "xpDuration": 0.0,
+   "hungerDuration": 0.0
+  },
+  "3": {
+   "xp": 1.08,
+   "xpDuration": 1.0,
+   "hungerDuration": 1.0
+  },
+  "4": {
+   "xp": 1.2,
+   "xpDuration": 2.0,
+   "hungerDuration": 2.0
+  },
+  "5": {
+   "xp": 1.33,
+   "xpDuration": 3.0,
+   "hungerDuration": 3.0
+  }
+ },
+ "foods": {
+  "minecraft:cake": {
+   "hungerSeconds": 8,
+   "xpSeconds": 40,
+   "requiredFarmerRank": 5
+  },
+  "minecraft:rabbit_stew": {
+   "hungerSeconds": 8,
+   "xpSeconds": 120
+  },
+  "minecraft:suspicious_stew": {
+   "hungerSeconds": 8,
+   "xpSeconds": 60
+  },
+  "minecraft:pumpkin_pie": {
+   "hungerSeconds": 8,
+   "xpSeconds": 60
+  },
+  "minecraft:golden_carrot": {
+   "hungerSeconds": 8,
+   "xpSeconds": 60
+  },
+  "minecraft:mushroom_stew": {
+   "hungerSeconds": 8,
+   "xpSeconds": 60
+  },
+  "minecraft:beetroot_soup": {
+   "hungerSeconds": 8,
+   "xpSeconds": 60
+  },
+  "minecraft:honey_bottle": {
+   "hungerSeconds": 8,
+   "xpSeconds": 60
+  },
+  "minecraft:cookie": {
+   "hungerSeconds": 0,
+   "xpSeconds": 30
+  }
+ },
+ "derived": {
+  "enabled": true,
+  "minimumValue": 10.0,
+  "xpSecondsPerPoint": 5.0,
+  "hungerSecondsPerPoint": 0.5,
+  "blacklist": [
+   "minecraft:golden_apple",
+   "minecraft:enchanted_golden_apple",
+   "farmersdelight:egg_sandwich"
+  ]
+ }
+}

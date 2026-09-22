@@ -1,0 +1,578 @@
+[
+ {
+  "mod": "Cobblemon",
+  "feature": "cobblemon:berry_groves",
+  "rarity_1_in_chunks": 10,
+  "biome_tag": null,
+  "harvest": {}
+ },
+ {
+  "mod": "Cobblemon",
+  "feature": "cobblemon:mints",
+  "rarity_1_in_chunks": 12,
+  "biome_tag": null,
+  "harvest": {
+   "cobblemon:red_mint": [
+    "cobblemon:red_mint_seeds (100%)",
+    "cobblemon:red_mint_seeds (12%)",
+    "cobblemon:red_mint_seeds (25%)",
+    "cobblemon:red_mint_seeds (50%)",
+    "cobblemon:red_mint_leaf (100%)",
+    "cobblemon:red_mint_leaf (50%)"
+   ]
+  }
+ },
+ {
+  "mod": "Cobblemon",
+  "feature": "cobblemon:revival_herb",
+  "rarity_1_in_chunks": null,
+  "biome_tag": null,
+  "harvest": {
+   "cobblemon:revival_herb": [
+    "cobblemon:revival_herb (100%)",
+    "cobblemon:revival_herb (x2-3)",
+    "cobblemon:revival_herb (x1-2)",
+    "cobblemon:pep_up_flower (x1-2)",
+    "cobblemon:mental_herb (100%)",
+    "cobblemon:mirror_herb (100%)",
+    "cobblemon:power_herb (100%)",
+    "cobblemon:white_herb (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_brown_mushroom_colony",
+  "rarity_1_in_chunks": 15,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:brown_mushroom_colony": [
+    "minecraft:brown_mushroom (100%)",
+    "minecraft:brown_mushroom (100%)",
+    "minecraft:brown_mushroom (100%)",
+    "minecraft:brown_mushroom (shears)",
+    "farmersdelight:brown_mushroom_colony (shears)"
+   ],
+   "minecraft:brown_mushroom": []
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_red_mushroom_colony",
+  "rarity_1_in_chunks": 15,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:red_mushroom_colony": [
+    "minecraft:red_mushroom (100%)",
+    "minecraft:red_mushroom (100%)",
+    "minecraft:red_mushroom (100%)",
+    "minecraft:red_mushroom (shears)",
+    "farmersdelight:red_mushroom_colony (shears)"
+   ],
+   "minecraft:red_mushroom": []
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_beetroots",
+  "rarity_1_in_chunks": 30,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:sandy_shrub": [
+    "farmersdelight:sandy_shrub (shears)",
+    "minecraft:beetroot_seeds (12% fortune+)"
+   ],
+   "farmersdelight:wild_beetroots": [
+    "minecraft:beetroot (20%)",
+    "farmersdelight:wild_beetroots (shears)",
+    "minecraft:beetroot_seeds (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_cabbages",
+  "rarity_1_in_chunks": 30,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:sandy_shrub": [
+    "farmersdelight:sandy_shrub (shears)",
+    "minecraft:beetroot_seeds (12% fortune+)"
+   ],
+   "farmersdelight:wild_cabbages": [
+    "farmersdelight:cabbage (20%)",
+    "farmersdelight:wild_cabbages (shears)",
+    "farmersdelight:cabbage_seeds (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_carrots",
+  "rarity_1_in_chunks": 120,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:wild_carrots": [
+    "farmersdelight:wild_carrots (shears)",
+    "minecraft:carrot (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_onions",
+  "rarity_1_in_chunks": 120,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:wild_onions": [
+    "farmersdelight:wild_onions (shears)",
+    "farmersdelight:onion (fortune+)",
+    "minecraft:allium (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_potatoes",
+  "rarity_1_in_chunks": 100,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:wild_potatoes": [
+    "farmersdelight:wild_potatoes (shears)",
+    "minecraft:potato (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_rice",
+  "rarity_1_in_chunks": 20,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:wild_rice": [
+    "farmersdelight:wild_rice (shears)",
+    "farmersdelight:rice (100%)",
+    "farmersdelight:wild_rice (shears)",
+    "farmersdelight:rice (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "FarmersDelight",
+  "feature": "farmersdelight:patch_wild_tomatoes",
+  "rarity_1_in_chunks": 100,
+  "biome_tag": "minecraft:is_overworld",
+  "harvest": {
+   "farmersdelight:wild_tomatoes": [
+    "farmersdelight:tomato (20%)",
+    "farmersdelight:wild_tomatoes (shears)",
+    "farmersdelight:tomato_seeds (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "brewery:wild_hops",
+  "rarity_1_in_chunks": 1,
+  "biome_tag": null,
+  "harvest": {
+   "brewery:wild_hops": [
+    "brewery:wild_hops (shears)",
+    "brewery:hops (12% fortune+)",
+    "brewery:hops (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_barley_chance",
+  "rarity_1_in_chunks": 40,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_barley": [
+    "farm_and_charm:wild_barley (shears)",
+    "farm_and_charm:barley_seeds (12% fortune+)",
+    "farm_and_charm:barley (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_beetroots_chance",
+  "rarity_1_in_chunks": 39,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_beetroots": [
+    "farm_and_charm:wild_beetroots (shears)",
+    "minecraft:beetroot_seeds (12% fortune+)",
+    "minecraft:beetroot (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_carrots_chance",
+  "rarity_1_in_chunks": 44,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_carrots": [
+    "farm_and_charm:wild_carrots (shears)",
+    "minecraft:carrot (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_corn_chance",
+  "rarity_1_in_chunks": 39,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_corn": [
+    "farm_and_charm:wild_corn (shears)",
+    "farm_and_charm:kernels (12% fortune+)",
+    "farm_and_charm:corn (x2-5)",
+    "farm_and_charm:wild_corn (shears)",
+    "farm_and_charm:kernels (12% fortune+)",
+    "farm_and_charm:corn (x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_emmer_chance",
+  "rarity_1_in_chunks": 36,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_emmer": [
+    "farm_and_charm:wild_emmer (shears)",
+    "minecraft:wheat_seeds (12% fortune+)",
+    "minecraft:wheat (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_lettuce_chance",
+  "rarity_1_in_chunks": 47,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_lettuce": [
+    "farm_and_charm:wild_lettuce (shears)",
+    "farm_and_charm:lettuce_seeds (12% fortune+)",
+    "farm_and_charm:lettuce (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_nettle_chance",
+  "rarity_1_in_chunks": 34,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_nettle": [
+    "farm_and_charm:wild_nettle (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_oat_chance",
+  "rarity_1_in_chunks": 44,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_oat": [
+    "farm_and_charm:wild_oat (shears)",
+    "farm_and_charm:oat_seeds (12% fortune+)",
+    "farm_and_charm:oat (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_onions_chance",
+  "rarity_1_in_chunks": 48,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_onions": [
+    "farm_and_charm:wild_onions (shears)",
+    "farm_and_charm:onion (12% fortune+)",
+    "farm_and_charm:onion (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_potatoes_chance",
+  "rarity_1_in_chunks": 33,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_potatoes": [
+    "farm_and_charm:wild_potatoes (shears)",
+    "minecraft:poisonous_potato (12% fortune+)",
+    "minecraft:potato (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_ribwort_chance",
+  "rarity_1_in_chunks": 41,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_ribwort": [
+    "farm_and_charm:wild_ribwort (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_strawberry_chance",
+  "rarity_1_in_chunks": 47,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_strawberries": [
+    "farm_and_charm:wild_strawberries (shears)",
+    "farm_and_charm:strawberry_seeds (12% fortune+)",
+    "farm_and_charm:strawberry (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "farm_and_charm:wild_tomatoes_chance",
+  "rarity_1_in_chunks": 45,
+  "biome_tag": null,
+  "harvest": {
+   "farm_and_charm:wild_tomatoes": [
+    "farm_and_charm:wild_tomatoes (shears)",
+    "farm_and_charm:tomato_seeds (12% fortune+)",
+    "farm_and_charm:tomato (100% x2-5)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "herbalbrews:coffee_patch_chance",
+  "rarity_1_in_chunks": 44,
+  "biome_tag": null,
+  "harvest": {
+   "herbalbrews:wild_coffee_plant": [
+    "herbalbrews:wild_coffee_plant (shears)",
+    "herbalbrews:coffee_beans (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "herbalbrews:hibiscus_flower_patch_chance",
+  "rarity_1_in_chunks": 33,
+  "biome_tag": null,
+  "harvest": {
+   "herbalbrews:hibiscus": [
+    "herbalbrews:tea_blossom (shears)",
+    "herbalbrews:tea_blossom (100%)",
+    "herbalbrews:tea_blossom (5% fortune+)",
+    "herbalbrews:hibiscus (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "herbalbrews:lavender_flower_patch_chance",
+  "rarity_1_in_chunks": 33,
+  "biome_tag": null,
+  "harvest": {
+   "herbalbrews:lavender": [
+    "herbalbrews:lavender_blossom (shears)",
+    "herbalbrews:tea_blossom (100%)",
+    "herbalbrews:lavender (x1.0-1.0)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "herbalbrews:rooibos_patch_chance",
+  "rarity_1_in_chunks": 44,
+  "biome_tag": null,
+  "harvest": {
+   "herbalbrews:wild_rooibos_plant": [
+    "herbalbrews:wild_rooibos_plant (shears)",
+    "herbalbrews:wild_rooibos_plant (100%)",
+    "herbalbrews:rooibos_leaf (x1.0-1.0)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "herbalbrews:yerba_mate_patch_chance",
+  "rarity_1_in_chunks": 44,
+  "biome_tag": null,
+  "harvest": {
+   "herbalbrews:wild_yerba_mate_plant": [
+    "herbalbrews:wild_yerba_mate_plant (shears)",
+    "herbalbrews:wild_yerba_mate_plant (100%)",
+    "herbalbrews:yerba_mate_leaf (x1.0-1.0)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:jungle_red_grape_bush_chance",
+  "rarity_1_in_chunks": 10,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:jungle_grape_bush_red": [
+    "vinery:jungle_grape_seeds_red (100%)",
+    "vinery:jungle_grape_seeds_red (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:jungle_white_grape_bush_chance",
+  "rarity_1_in_chunks": 10,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:jungle_grape_bush_white": [
+    "vinery:jungle_grape_seeds_white (100%)",
+    "vinery:jungle_grape_seeds_white (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:red_grape_bush_chance",
+  "rarity_1_in_chunks": 22,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:red_grape_bush": [
+    "vinery:red_grape_seeds (100%)",
+    "vinery:red_grape_seeds (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:savanna_red_grape_bush_chance",
+  "rarity_1_in_chunks": 22,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:savanna_grape_bush_red": [
+    "vinery:savanna_grape_seeds_red (100%)",
+    "vinery:savanna_grape_seeds_red (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:savanna_white_grape_bush_chance",
+  "rarity_1_in_chunks": 22,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:savanna_grape_bush_white": [
+    "vinery:savanna_grape_seeds_white (100%)",
+    "vinery:savanna_grape_seeds_white (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:taiga_red_grape_bush_chance",
+  "rarity_1_in_chunks": 22,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:taiga_grape_bush_red": [
+    "vinery:taiga_grape_seeds_red (100%)",
+    "vinery:taiga_grape_seeds_red (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:taiga_white_grape_bush_chance",
+  "rarity_1_in_chunks": 22,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:taiga_grape_bush_white": [
+    "vinery:taiga_grape_seeds_white (100%)",
+    "vinery:taiga_grape_seeds_white (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "letsdo",
+  "feature": "vinery:white_grape_bush_chance",
+  "rarity_1_in_chunks": 22,
+  "biome_tag": null,
+  "harvest": {
+   "vinery:white_grape_bush": [
+    "vinery:white_grape_seeds (100%)",
+    "vinery:white_grape_seeds (100%)"
+   ]
+  }
+ },
+ {
+  "mod": "supplementaries",
+  "feature": "supplementaries:wild_flax",
+  "rarity_1_in_chunks": 7,
+  "biome_tag": null,
+  "harvest": {
+   "supplementaries:wild_flax": [
+    "supplementaries:wild_flax (100%)",
+    "supplementaries:flax_seeds (fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "ubesdelight",
+  "feature": "ubesdelight:patch_wild_garlic",
+  "rarity_1_in_chunks": 80,
+  "biome_tag": null,
+  "harvest": {
+   "ubesdelight:wild_garlic": [
+    "ubesdelight:wild_garlic (shears)",
+    "ubesdelight:garlic (shears fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "ubesdelight",
+  "feature": "ubesdelight:patch_wild_ginger",
+  "rarity_1_in_chunks": 80,
+  "biome_tag": null,
+  "harvest": {
+   "ubesdelight:wild_ginger": [
+    "ubesdelight:wild_ginger (shears)",
+    "ubesdelight:ginger (shears fortune+)"
+   ]
+  }
+ },
+ {
+  "mod": "ubesdelight",
+  "feature": "ubesdelight:patch_wild_lemongrass",
+  "rarity_1_in_chunks": 80,
+  "biome_tag": null,
+  "harvest": {
+   "ubesdelight:wild_lemongrass": [
+    "ubesdelight:wild_lemongrass (shears)",
+    "ubesdelight:lemongrass_seeds (100%)",
+    "ubesdelight:lemongrass (12%)",
+    "ubesdelight:wild_lemongrass (shears)",
+    "ubesdelight:lemongrass_seeds (100%)",
+    "ubesdelight:lemongrass (12%)"
+   ]
+  }
+ },
+ {
+  "mod": "ubesdelight",
+  "feature": "ubesdelight:patch_wild_ube",
+  "rarity_1_in_chunks": 50,
+  "biome_tag": null,
+  "harvest": {
+   "ubesdelight:wild_ube": [
+    "ubesdelight:wild_ube (shears)",
+    "ubesdelight:ube (shears fortune+)"
+   ]
+  }
+ }
+]

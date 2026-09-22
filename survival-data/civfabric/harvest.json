@@ -1,0 +1,52 @@
+{
+ "default": {
+  "base": 0.4,
+  "perRank": 0.1,
+  "perHoeTier": 0.06
+ },
+ "cobblemon:medicinal_leek": {
+  "base": 0.23,
+  "perRank": 0.084,
+  "perHoeTier": 0.07
+ },
+ "minecraft:beetroots": {
+  "base": 0.58,
+  "perRank": 0.06,
+  "perHoeTier": 0.03,
+  "untended": 0.4
+ },
+ "minecraft:carrots": {
+  "base": 0.448,
+  "perRank": 0.06,
+  "perHoeTier": 0.05
+ },
+ "minecraft:cocoa": {
+  "base": 0.31,
+  "perRank": 0.1,
+  "perHoeTier": 0.04,
+  "requiresHoe": false
+ },
+ "minecraft:melon": {
+  "base": 0.4,
+  "perRank": 0.1,
+  "perHoeTier": 0.06,
+  "requiresHoe": false
+ },
+ "minecraft:potatoes": {
+  "base": 0.413,
+  "perRank": 0.064,
+  "perHoeTier": 0.053
+ },
+ "minecraft:pumpkin": {
+  "base": 0.4,
+  "perRank": 0.1,
+  "perHoeTier": 0.06,
+  "requiresHoe": false
+ },
+ "minecraft:wheat": {
+  "base": 0.58,
+  "perRank": 0.06,
+  "perHoeTier": 0.03,
+  "untended": 0.4
+ }
+}

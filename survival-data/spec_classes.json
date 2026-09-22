@@ -1,0 +1,280 @@
+{
+ "_source": "civfabric-0.4.0 jar resources (civfabric/*.json) + SpecConfig.class",
+ "_why": "Classes gate crafting, mining, block use and crop harvesting. This is the mechanical reason 3 players must specialise.",
+ "classes": [
+  "FARMER",
+  "BUILDER",
+  "MINER",
+  "MEDIC",
+  "LIBRARIAN",
+  "BLACKSMITH",
+  "HUNTER"
+ ],
+ "class_slots": "ClassSetup.slots() \u2014 read from server config; specialising DRAINS xp from off-classes (DRAIN_TOTAL_FROM_OFF_CLASSES=1.0, DRAIN_PER_SPECIALISATION=0.525), so you cannot max everything",
+ "rank_range": "0..5",
+ "harvest_success": {
+  "_formula": "success = base + perRank*FARMER_rank + perHoeTier*hoeTier",
+  "_critical": "If a crop's curve has requiresHoe (the default), harvesting WITHOUT a hoe FAILS OUTRIGHT \u2014 you get nothing.",
+  "hoe_tiers": {
+   "wood": 1,
+   "stone": 2,
+   "gold": 2,
+   "iron": 3,
+   "diamond": 4,
+   "netherite": 5
+  },
+  "curves": {
+   "default": {
+    "base": 0.4,
+    "perRank": 0.1,
+    "perHoeTier": 0.06
+   },
+   "cobblemon:medicinal_leek": {
+    "base": 0.23,
+    "perRank": 0.084,
+    "perHoeTier": 0.07
+   },
+   "minecraft:beetroots": {
+    "base": 0.58,
+    "perRank": 0.06,
+    "perHoeTier": 0.03,
+    "untended": 0.4
+   },
+   "minecraft:carrots": {
+    "base": 0.448,
+    "perRank": 0.06,
+    "perHoeTier": 0.05
+   },
+   "minecraft:cocoa": {
+    "base": 0.31,
+    "perRank": 0.1,
+    "perHoeTier": 0.04,
+    "requiresHoe": false
+   },
+   "minecraft:melon": {
+    "base": 0.4,
+    "perRank": 0.1,
+    "perHoeTier": 0.06,
+    "requiresHoe": false
+   },
+   "minecraft:potatoes": {
+    "base": 0.413,
+    "perRank": 0.064,
+    "perHoeTier": 0.053
+   },
+   "minecraft:pumpkin": {
+    "base": 0.4,
+    "perRank": 0.1,
+    "perHoeTier": 0.06,
+    "requiresHoe": false
+   },
+   "minecraft:wheat": {
+    "base": 0.58,
+    "perRank": 0.06,
+    "perHoeTier": 0.03,
+    "untended": 0.4
+   }
+  },
+  "worked": {
+   "wheat_rank0_woodhoe": 0.61,
+   "wheat_rank5_netherite": 1.0,
+   "carrots_rank0_woodhoe": 0.498,
+   "carrots_rank5_netherite": 0.998,
+   "potatoes_rank0_woodhoe": 0.466,
+   "potatoes_rank5_netherite": 0.998
+  },
+  "side_effects": [
+   "harvesting wears the hoe (wearTool)",
+   "soil is exhausted (exhaustSoil)",
+   "untended crops use a separate lower chance (wheat/beetroot untended=0.4)",
+   "cocoa, melon and pumpkin set requiresHoe=false \u2014 harvestable bare-handed"
+  ],
+  "auto_replant": "FARMER rank 2 (REPLANT_RANK) replants automatically, costing 3 hoe durability (REPLANT_HOE_COST)"
+ },
+ "tool_gates": {
+  "minecraft:wooden_hoe": "UNGATED",
+  "minecraft:stone_hoe": "blacksmith 1",
+  "minecraft:iron_hoe": "blacksmith 2",
+  "minecraft:diamond_hoe": "blacksmith 3",
+  "minecraft:diamond_pickaxe": "blacksmith 3",
+  "minecraft:shears": "blacksmith 3",
+  "minecraft:bucket": "blacksmith 3",
+  "minecraft:flint_and_steel": "blacksmith 3",
+  "minecraft:blast_furnace": "blacksmith 1",
+  "_consequence": "A lone FARMER is still capped at a wooden hoe; an iron hoe now needs BLACKSMITH 2 + MINER 2 iron."
+ },
+ "classless_items": {
+  "items": [
+   "minecraft:torch",
+   "minecraft:soul_torch",
+   "minecraft:stick",
+   "minecraft:crafting_table",
+   "minecraft:furnace",
+   "minecraft:chest",
+   "minecraft:barrel"
+  ],
+  "tags": [
+   "minecraft:planks",
+   "minecraft:boats",
+   "minecraft:chest_boats"
+  ]
+ },
+ "crafting_hunger": {
+  "_formula": "CraftingHunger.costOf(player, stack); charge() deducts, tooHungry() can REFUSE the craft",
+  "_note": "some entries are flat, some are {perRank:[...]} arrays indexed by class rank",
+  "examples": {
+   "minecraft:bread": 0.5,
+   "minecraft:crafting_table": 1.0,
+   "minecraft:chest": 1.25,
+   "minecraft:furnace": 1.25,
+   "minecraft:bucket": 2.0,
+   "minecraft:shears": 2.0,
+   "minecraft:boat": 3.2,
+   "minecraft:mushroom_stew": 0.35,
+   "minecraft:cookie": 0.125
+  }
+ },
+ "movement_hunger": {
+  "_source": "SpecConfig + MovementHunger.class",
+  "interval_ticks": 200,
+  "idle_after_ticks": 100,
+  "drain_per_interval": {
+   "idle": 0.05,
+   "crouching": 0.1,
+   "walking": 0.2,
+   "sprinting": 0.75,
+   "swimming": 3.0
+  },
+  "_consequence": "Sprinting costs 3.75x walking and swimming 15x (was 10x / 40x in civfabric 0.4.0). Idle now drains too (0.05). Walking is still the cheapest way to travel."
+ },
+ "medic_healing": {
+  "_why": "naturalRegeneration is off; MEDIC 'stitches' is the coop heal",
+  "base_heal": 4.0,
+  "heal_per_rank": 1.5,
+  "self_heal_penalty": 1.0,
+  "combat_heal_penalty": 1.0,
+  "food_cost": 3,
+  "cooldown_self_ticks": 500,
+  "cooldown_other_ticks": 150
+ },
+ "misc": {
+  "berry_safe_rank": 2,
+  "berry_damage_chance": 0.2,
+  "berry_damage": 1.0,
+  "lava_rank": 3,
+  "light_rank": 3,
+  "hunter_vision_rank": 1,
+  "death_xp_loss": 0.5,
+  "pacifism_off_xp_multiplier": 2.0,
+  "pokemon_capture_xp": 10.0,
+  "pokemon_victory_xp": 5.0,
+  "wandering_traders_open_to_all": true
+ },
+ "gated_recipe_counts": {
+  "librarian": {
+   "1": 5,
+   "2": 20,
+   "3": 3,
+   "4": 1,
+   "5": 23
+  },
+  "builder": {
+   "1": 88,
+   "2": 40,
+   "3": 68,
+   "4": 33,
+   "5": 21
+  },
+  "blacksmith": {
+   "1": 50,
+   "2": 6,
+   "3": 22,
+   "4": 10,
+   "5": 11
+  },
+  "medic": {
+   "1": 1,
+   "2": 1,
+   "3": 1,
+   "4": 2,
+   "5": 1
+  },
+  "farmer": {
+   "1": 2,
+   "2": 2,
+   "4": 1
+  },
+  "miner": {
+   "3": 1
+  }
+ },
+ "specialisation": {
+  "_source": "ClassSetup.class (DEFAULT_SLOTS, DEFAULT_ENABLED) + SpecConfig drain constants",
+  "config_file": "civfabric/classes.json",
+  "config_keys": {
+   "enabled": "list of class ids",
+   "specialisationSlots": "int"
+  },
+  "default_slots": 2,
+  "default_enabled": [
+   "FARMER",
+   "BUILDER",
+   "MINER",
+   "MEDIC",
+   "LIBRARIAN",
+   "BLACKSMITH"
+  ],
+  "disabled_by_default": [
+   "HUNTER"
+  ],
+  "locking": "Classes lock in once an XP/level tier is reached; ClassManager.specialisations(player) returns the locked set, isSpecialisation(player,type) tests membership.",
+  "drain": {
+   "DRAIN_TOTAL_FROM_OFF_CLASSES": 1.0,
+   "DRAIN_PER_SPECIALISATION": 0.525,
+   "DRAIN_ARMING_FRACTION": 0.85,
+   "DRAIN_RESPECTS_RANK_FLOOR": false,
+   "meaning": "Once specialisations arm (at 85% of a tier), XP bleeds out of off-classes. Allocation is effectively one-way."
+  },
+  "_key_arithmetic": "6 classes enabled by default x 2 slots = 12 class-slots needed for full coverage; 3 players x 2 slots = 6 slots covers all 6 enabled classes EXACTLY ONCE. The pack is dimensioned for a 3-player group."
+ },
+ "mining_gates": {
+  "_source": "civfabric/mining.json",
+  "_rule": "Ore blocks require a minimum MINER rank to mine at all.",
+  "gates": {
+   "minecraft:ancient_debris": 4,
+   "minecraft:copper_ore": 1,
+   "minecraft:deepslate_copper_ore": 1,
+   "minecraft:deepslate_diamond_ore": 4,
+   "minecraft:deepslate_emerald_ore": 3,
+   "minecraft:deepslate_gold_ore": 3,
+   "minecraft:deepslate_iron_ore": 2,
+   "minecraft:deepslate_lapis_ore": 2,
+   "minecraft:deepslate_redstone_ore": 3,
+   "minecraft:diamond_ore": 4,
+   "minecraft:emerald_ore": 3,
+   "minecraft:gold_ore": 3,
+   "minecraft:iron_ore": 2,
+   "minecraft:lapis_ore": 2,
+   "minecraft:nether_gold_ore": 2,
+   "minecraft:redstone_ore": 3
+  },
+  "_critical_chain": "iron_ore needs MINER 2 -> iron -> iron_hoe needs BLACKSMITH 2 -> hoe tier 3. Both sides dropped a rank in civfabric 0.4.2 (was MINER 3 / BLACKSMITH 3). Gold went UP to MINER 3."
+ },
+ "_versions": {
+  "civfabric": "0.4.2",
+  "zymlabs-rules": "0.0.8",
+  "realisticplantgrowth": "0.1.1",
+  "note": "refreshed 2026-09-21 after the pack updated; see CHANGELOG in BOT_DESIGN.md"
+ },
+ "class_xp_sources": {
+  "pokemon_kill_xp": 2.0,
+  "pokemon_kill_xp_per_level": 0.25,
+  "pokemon_capture_xp": 0.0,
+  "pokemon_victory_xp": 0.0,
+  "pacifism_off_xp_multiplier": 2.5,
+  "under_attack_xp_multiplier": 2.5,
+  "under_attack_ticks": 900,
+  "forecast_guess_xp_base": 160.0,
+  "_note": "Killing Pokemon now gives class XP; catching and battling give none. Blood moons (pacifism off) give 2.5x."
+ }
+}

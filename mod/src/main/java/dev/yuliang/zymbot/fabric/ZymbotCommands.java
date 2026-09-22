@@ -1,0 +1,70 @@
+package dev.yuliang.zymbot.fabric;
+
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import dev.yuliang.zymbot.core.Bot;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.network.chat.Component;
+
+/**
+ * /&lt;root&gt; — the root is config.command_root (default "zbot") plus any aliases, so it can't clash
+ * with another mod or a server plugin. Client-side only: the server never sees these.
+ */
+final class ZymbotCommands {
+    private ZymbotCommands() {}
+
+    static void register(CommandDispatcher<FabricClientCommandSource> dispatcher, Supplier<Bot> bot,
+                         String root, List<String> aliases) {
+        dispatcher.register(tree(root, bot, root));
+        for (String alias : aliases) dispatcher.register(tree(alias, bot, root));
+    }
+
+    private static LiteralArgumentBuilder<FabricClientCommandSource> tree(String name, Supplier<Bot> bot, String root) {
+        return literal(name)
+                .executes(c -> reply(c, help(root)))
+                .then(literal("help").executes(c -> reply(c, help(root))))
+                .then(literal("status").executes(c -> withBot(c, bot, Bot::status)))
+                .then(literal("start").executes(c -> withBot(c, bot, b -> {
+                    if (b.isRunning()) return List.of("already running");
+                    b.start("started by /" + root + " start");
+                    return List.of("started — phase " + b.phase());
+                })))
+                .then(literal("stop").executes(c -> withBot(c, bot, b -> {
+                    if (!b.isRunning()) return List.of("already stopped");
+                    b.stop("stopped by /" + root + " stop");
+                    return List.of("stopped");
+                })))
+                .then(literal("autostart")
+                        .executes(c -> withBot(c, bot, Bot::autostartList))
+                        .then(literal("add").executes(c -> withBot(c, bot, b -> List.of(b.autostartAdd()))))
+                        .then(literal("remove").executes(c -> withBot(c, bot, b -> List.of(b.autostartRemove()))))
+                        .then(literal("list").executes(c -> withBot(c, bot, Bot::autostartList))));
+    }
+
+    private static List<String> help(String root) {
+        String r = "/" + root;
+        return List.of(
+                r + " status — what the bot is doing, and why",
+                r + " start / stop — hand control to the bot, or take it back",
+                r + " autostart add | remove | list — servers where it starts by itself",
+                "Pressing a movement key pauses the bot; it resumes after a few seconds.");
+    }
+
+    private static int withBot(CommandContext<FabricClientCommandSource> c, Supplier<Bot> bot,
+                               Function<Bot, List<String>> action) {
+        Bot b = bot.get();
+        if (b == null) return reply(c, List.of("not in a world yet"));
+        return reply(c, action.apply(b));
+    }
+
+    private static int reply(CommandContext<FabricClientCommandSource> c, List<String> lines) {
+        for (String l : lines) c.getSource().sendFeedback(Component.literal("§7[zymbot]§r " + l));
+        return 1;
+    }
+}

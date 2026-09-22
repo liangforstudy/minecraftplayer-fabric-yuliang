@@ -1,0 +1,247 @@
+{
+ "_why": "naturalRegeneration is FALSE on this server. These are the only ways to recover health from food.",
+ "healing_foods": [
+  {
+   "item": "civfabric:hearty_soup",
+   "nutrition": 6,
+   "saturation": 0.6,
+   "effect": "regeneration",
+   "durationTicks": 100,
+   "amplifier": 1,
+   "chance": null,
+   "alwaysEdible": false,
+   "source": "civfabric"
+  },
+  {
+   "item": "cobblemon:vivichoke_dip",
+   "nutrition": 10,
+   "saturation": 0.6,
+   "effect": "absorption",
+   "durationTicks": 900,
+   "amplifier": 0,
+   "chance": null,
+   "alwaysEdible": true,
+   "source": "cobblemon"
+  },
+  {
+   "item": "farm_and_charm:nettle_tea_cup",
+   "nutrition": 1,
+   "saturation": 0.05,
+   "effect": "instant_health",
+   "durationTicks": 0,
+   "amplifier": null,
+   "chance": null,
+   "alwaysEdible": false,
+   "source": "farm_and_charm"
+  },
+  {
+   "item": "farm_and_charm:ribwort_tea_cup",
+   "nutrition": 1,
+   "saturation": 0.05,
+   "effect": "regeneration",
+   "durationTicks": 60,
+   "amplifier": null,
+   "chance": null,
+   "alwaysEdible": false,
+   "source": "farm_and_charm"
+  },
+  {
+   "item": "farmersdelight:apple_cider",
+   "nutrition": null,
+   "saturation": null,
+   "effect": "absorption",
+   "durationTicks": 1200,
+   "amplifier": 0,
+   "chance": null,
+   "alwaysEdible": true,
+   "source": "farmersdelight"
+  },
+  {
+   "item": "farmersdelight:fruit_salad",
+   "nutrition": 6,
+   "saturation": 0.6,
+   "effect": "regeneration",
+   "durationTicks": 100,
+   "amplifier": 0,
+   "chance": null,
+   "alwaysEdible": false,
+   "source": "farmersdelight"
+  },
+  {
+   "item": "farmersdelight:mixed_salad",
+   "nutrition": 6,
+   "saturation": 0.6,
+   "effect": "regeneration",
+   "durationTicks": 100,
+   "amplifier": 0,
+   "chance": null,
+   "alwaysEdible": false,
+   "source": "farmersdelight"
+  },
+  {
+   "item": "minecraft:enchanted_golden_apple",
+   "nutrition": 4,
+   "saturation": 1.2,
+   "effect": "regeneration",
+   "durationTicks": 400,
+   "amplifier": 1,
+   "chance": null,
+   "alwaysEdible": true,
+   "source": "vanilla"
+  },
+  {
+   "item": "minecraft:enchanted_golden_apple",
+   "nutrition": 4,
+   "saturation": 1.2,
+   "effect": "absorption",
+   "durationTicks": 2400,
+   "amplifier": 3,
+   "chance": null,
+   "alwaysEdible": true,
+   "source": "vanilla"
+  },
+  {
+   "item": "minecraft:golden_apple",
+   "nutrition": 4,
+   "saturation": 1.2,
+   "effect": "regeneration",
+   "durationTicks": 100,
+   "amplifier": 1,
+   "chance": null,
+   "alwaysEdible": true,
+   "source": "vanilla"
+  },
+  {
+   "item": "minecraft:golden_apple",
+   "nutrition": 4,
+   "saturation": 1.2,
+   "effect": "absorption",
+   "durationTicks": 2400,
+   "amplifier": 0,
+   "chance": null,
+   "alwaysEdible": true,
+   "source": "vanilla"
+  }
+ ],
+ "foods_with_negative_effects": [
+  {
+   "item": "farm_and_charm:butter",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "farm_and_charm:chicken_parts",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "farm_and_charm:rotten_tomato",
+   "effect": "poison",
+   "durationTicks": 100,
+   "amplifier": 0,
+   "chance": 0.6
+  },
+  {
+   "item": "farmersdelight:chicken_cuts",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "farmersdelight:nether_salad",
+   "effect": "nausea",
+   "durationTicks": 240,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "farmersdelight:raw_pasta",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "farmersdelight:wheat_dough",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "minecraft:chicken",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.3
+  },
+  {
+   "item": "minecraft:poisonous_potato",
+   "effect": "poison",
+   "durationTicks": 100,
+   "amplifier": 0,
+   "chance": 0.6
+  },
+  {
+   "item": "minecraft:pufferfish",
+   "effect": "poison",
+   "durationTicks": 1200,
+   "amplifier": 1,
+   "chance": null
+  },
+  {
+   "item": "minecraft:pufferfish",
+   "effect": "hunger",
+   "durationTicks": 300,
+   "amplifier": 2,
+   "chance": null
+  },
+  {
+   "item": "minecraft:pufferfish",
+   "effect": "nausea",
+   "durationTicks": 300,
+   "amplifier": 0,
+   "chance": null
+  },
+  {
+   "item": "minecraft:rotten_flesh",
+   "effect": "hunger",
+   "durationTicks": 600,
+   "amplifier": 0,
+   "chance": 0.8
+  },
+  {
+   "item": "minecraft:spider_eye",
+   "effect": "poison",
+   "durationTicks": 100,
+   "amplifier": 0,
+   "chance": null
+  },
+  {
+   "item": "ubesdelight:ensaymada",
+   "effect": "hunger",
+   "durationTicks": null,
+   "amplifier": null,
+   "chance": null
+  },
+  {
+   "item": "ubesdelight:hopia_munggo",
+   "effect": "hunger",
+   "durationTicks": null,
+   "amplifier": null,
+   "chance": null
+  },
+  {
+   "item": "vinery:rotten_cherry",
+   "effect": "poison",
+   "durationTicks": 100,
+   "amplifier": 0,
+   "chance": 0.6
+  }
+ ]
+}

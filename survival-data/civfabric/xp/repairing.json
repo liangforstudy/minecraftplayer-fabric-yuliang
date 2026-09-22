@@ -1,0 +1,274 @@
+{
+ "minecraft:bow": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:brush": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:carrot_on_a_stick": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:chainmail_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:chainmail_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:chainmail_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:chainmail_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:crossbow": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:elytra": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:fishing_rod": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:flint_and_steel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:leather_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:leather_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:leather_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:leather_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:mace": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:shears": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:shield": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:stone_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:stone_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:stone_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:stone_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:stone_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:trident": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:turtle_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:warped_fungus_on_a_stick": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:wolf_armor": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:wooden_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:wooden_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:wooden_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:wooden_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:wooden_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "moonlight-headless-patch",
+  "version": "${version}",
+  "name": "Moonlight Headless Patch",
+  "description": "Lets Moonlight-based mods load under HeadlessMC. Moonlight's SpriteUtils.parsePaletteStrip reads pixel data from textures during resource reload; with LWJGL/STB stubbed every image decodes empty and it throws 'has too few colors'. This returns a placeholder palette instead, and skips Supplementaries' globe refresh outright. Inert on a normal client and when the target mods are absent.",
+  "authors": ["yuliang"],
+  "license": "MIT",
+  "environment": "client",
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.21.1"
+  },
+  "mixins": [
+    { "config": "mlhl.mixins.json", "environment": "client" }
+  ]
+}

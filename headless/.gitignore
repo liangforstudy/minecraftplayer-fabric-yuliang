@@ -1,0 +1,6 @@
+headlessmc-launcher-*.jar
+bot*/HeadlessMC/
+bot*/gamedir/
+bot*/*.log
+bot*/launcher.pid
+*.log

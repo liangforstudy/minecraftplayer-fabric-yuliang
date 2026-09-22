@@ -1,0 +1,645 @@
+{
+ "cobblemon:aguav_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:apicot_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:aspear_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:babiri_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:belue_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:black_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "cobblemon:blue_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "cobblemon:bluk_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:charti_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:cheri_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:chesto_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:chilan_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:chople_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:coba_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:colbur_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:cornn_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:custap_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:dawn_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:deepslate_dawn_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_dusk_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_fire_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_ice_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_leaf_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_moon_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_shiny_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_sun_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_thunder_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:deepslate_water_stone_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "cobblemon:dripstone_moon_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:durin_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:dusk_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:eggant_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:enigma_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:figy_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:fire_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:ganlon_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:green_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "cobblemon:grepa_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:haban_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:hearty_grains": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:hondew_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:hopo_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:iapapa_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:ice_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:jaboca_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:kasib_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:kebia_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:kee_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:kelpsy_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:lansat_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:leaf_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:leppa_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:liechi_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:lum_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:mago_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:magost_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:maranga_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:micle_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:moon_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:nanab_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:nether_fire_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:nomel_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:occa_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:oran_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:pamtre_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:passho_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:payapa_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:pecha_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:persim_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:petaya_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:pinap_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:pink_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "cobblemon:pomeg_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:qualot_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:rabuta_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:rawst_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:razz_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:red_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "cobblemon:rindo_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:roseli_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:rowap_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:salac_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:shiny_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:shuca_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:sitrus_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:spelon_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:starf_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:sun_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:tamato_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:tanga_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:terracotta_sun_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:thunder_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:touga_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:wacan_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:water_stone_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "cobblemon:watmel_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:wepear_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:white_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "cobblemon:wiki_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:yache_berry": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "cobblemon:yellow_apricorn": {
+  "class": "farmer",
+  "xp": 2.0,
+  "planted": false
+ },
+ "farmersdelight:budding_tomatoes": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "farmersdelight:rice_panicles": {
+  "class": "farmer",
+  "xp": 7.0,
+  "planted": false
+ },
+ "farmersdelight:tomatoes": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "farmersdelight:tomatoes_on_rope": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:amethyst_cluster": {
+  "class": "miner",
+  "xp": 20.0
+ },
+ "minecraft:ancient_debris": {
+  "class": "miner",
+  "xp": 100.0
+ },
+ "minecraft:andesite": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:beetroots": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:carrots": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:cave_vines": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cave_vines_plant": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:clay": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:coal_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "minecraft:cocoa": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:copper_ore": {
+  "class": "miner",
+  "xp": 7.0
+ },
+ "minecraft:deepslate": {
+  "class": "miner",
+  "xp": 2.0
+ },
+ "minecraft:deepslate_coal_ore": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "minecraft:deepslate_copper_ore": {
+  "class": "miner",
+  "xp": 8.0
+ },
+ "minecraft:deepslate_diamond_ore": {
+  "class": "miner",
+  "xp": 35.0
+ },
+ "minecraft:deepslate_emerald_ore": {
+  "class": "miner",
+  "xp": 21.0
+ },
+ "minecraft:deepslate_gold_ore": {
+  "class": "miner",
+  "xp": 21.0
+ },
+ "minecraft:deepslate_iron_ore": {
+  "class": "miner",
+  "xp": 15.0
+ },
+ "minecraft:deepslate_lapis_ore": {
+  "class": "miner",
+  "xp": 15.0
+ },
+ "minecraft:deepslate_redstone_ore": {
+  "class": "miner",
+  "xp": 21.0
+ },
+ "minecraft:diamond_ore": {
+  "class": "miner",
+  "xp": 30.0
+ },
+ "minecraft:diorite": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:emerald_ore": {
+  "class": "miner",
+  "xp": 18.0
+ },
+ "minecraft:gold_ore": {
+  "class": "miner",
+  "xp": 18.0
+ },
+ "minecraft:granite": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:gravel": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:iron_ore": {
+  "class": "miner",
+  "xp": 12.0
+ },
+ "minecraft:lapis_ore": {
+  "class": "miner",
+  "xp": 12.0
+ },
+ "minecraft:large_amethyst_bud": {
+  "class": "miner",
+  "xp": 10.0
+ },
+ "minecraft:medium_amethyst_bud": {
+  "class": "miner",
+  "xp": 5.0
+ },
+ "minecraft:melon": {
+  "class": "farmer",
+  "xp": 4.0,
+  "planted": false
+ },
+ "minecraft:nether_gold_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "minecraft:nether_quartz_ore": {
+  "class": "miner",
+  "xp": 4.0
+ },
+ "minecraft:pitcher_crop": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:pitcher_plant": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:potatoes": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:pumpkin": {
+  "class": "farmer",
+  "xp": 4.0,
+  "planted": false
+ },
+ "minecraft:redstone_ore": {
+  "class": "miner",
+  "xp": 18.0
+ },
+ "minecraft:small_amethyst_bud": {
+  "class": "miner",
+  "xp": 2.0
+ },
+ "minecraft:stone": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:sugar_cane": {
+  "class": "farmer",
+  "xp": 1.0,
+  "planted": false
+ },
+ "minecraft:sweet_berry_bush": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:torchflower": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "minecraft:tuff": {
+  "class": "miner",
+  "xp": 1.0
+ },
+ "minecraft:wheat": {
+  "class": "farmer",
+  "xp": 7.0
+ },
+ "vinery:jungle_grape_bush_red": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:jungle_grape_bush_white": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:red_grape_bush": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:savanna_grape_bush_red": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:savanna_grape_bush_white": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:taiga_grape_bush_red": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:taiga_grape_bush_white": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "vinery:white_grape_bush": {
+  "class": "farmer",
+  "xp": 3.0
+ }
+}

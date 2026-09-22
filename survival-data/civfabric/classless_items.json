@@ -1,0 +1,16 @@
+{
+ "items": [
+  "minecraft:torch",
+  "minecraft:soul_torch",
+  "minecraft:stick",
+  "minecraft:crafting_table",
+  "minecraft:furnace",
+  "minecraft:chest",
+  "minecraft:barrel"
+ ],
+ "tags": [
+  "minecraft:planks",
+  "minecraft:boats",
+  "minecraft:chest_boats"
+ ]
+}

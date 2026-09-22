@@ -1,0 +1,61 @@
+# Mod IDs never copied into a bot rig: performance, visual-only and UI mods.
+# A headless client renders nothing, so these add nothing — and render-heavy ones
+# risk crashing under stubbed LWJGL (as Supplementaries did before the patch).
+# Matched by fabric.mod.json "id", so version bumps don't slip through.
+# One id per line; '#' starts a comment.
+
+# --- performance ---
+sodium
+sodium-extra
+reeses-sodium-options
+iris
+lithium
+entityculling
+dynamic_fps
+immediatelyfast
+ferritecore
+modernfix
+c2me
+krypton
+moreculling
+noisium
+indium
+
+# --- visual only ---
+lambdynlights
+lighty
+skinlayers3d
+cosycritters      # NOTE: auto-kept anyway — registers particle types, which the host syncs to joiners
+tiltbreak
+watut
+coroutil
+chat_heads
+chatanimation
+boatiview
+boatview360
+continuity
+fabricskyboxes
+
+# --- UI / HUD / menus ---
+modmenu
+betterf3
+betterpingdisplay
+controlling
+searchables
+ok_zoomer
+zoomify
+morechathistory
+jade
+emi
+emiprofessions
+emi_enchanting
+emi_loot
+emi_ores
+# xaerominimap    kept: registers synced entries (bot dropped with "12 registry entries unknown")
+# xaeroworldmap   kept: same reason
+authme
+offlinelan        # host-only: lets the LAN world run with online mode off
+
+# --- libraries with no remaining dependents in the Full pack ---
+tenshilib
+placeholder-api

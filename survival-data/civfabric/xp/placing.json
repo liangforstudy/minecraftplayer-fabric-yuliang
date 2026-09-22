@@ -1,0 +1,1718 @@
+{
+ "minecraft:acacia_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:acacia_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:acacia_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:andesite_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:andesite_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:andesite_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_mosaic": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_mosaic_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_mosaic_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bamboo_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:birch_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:black_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:black_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:black_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:black_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:black_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:black_wool": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blackstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blackstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blackstone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blackstone_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_ice": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:blue_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bone_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:brown_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chain": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cherry_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chest": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_deepslate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_nether_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:chiseled_polished_blackstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_quartz_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_red_sandstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_resin_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_sandstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_stone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:chiseled_tuff": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:chiseled_tuff_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:cobbled_deepslate_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cobbled_deepslate_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cobbled_deepslate_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cobblestone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cobblestone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cobblestone_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:copper_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cracked_deepslate_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:cracked_deepslate_tiles": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cracked_nether_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:cracked_polished_blackstone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:cracked_stone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:crimson_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_stem": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crimson_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:crying_obsidian": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_red_sandstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_red_sandstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_sandstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cut_sandstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cyan_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cyan_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cyan_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cyan_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:cyan_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_oak_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_prismarine": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_prismarine_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dark_prismarine_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:daylight_detector": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:deepslate_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:deepslate_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:deepslate_brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:deepslate_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:deepslate_tile_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:deepslate_tile_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:deepslate_tile_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:deepslate_tiles": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:diamond_block": {
+  "class": "builder",
+  "xp": 10.0
+ },
+ "minecraft:diorite": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:diorite_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:diorite_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:diorite_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:dirt_path": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:end_stone_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:end_stone_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:end_stone_brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:end_stone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:exposed_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:exposed_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:farmland": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:gilded_blackstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:glowstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:granite": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:granite_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:granite_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:granite_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gray_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gray_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gray_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gray_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gray_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:gray_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:green_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:green_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:green_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:green_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:green_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:green_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:honey_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:honeycomb_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:hopper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:iron_bars": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:iron_block": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:iron_door": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:jungle_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:jungle_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_blue_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:light_gray_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:lime_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:magenta_concrete": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:magenta_concrete_powder": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:magenta_glazed_terracotta": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:magenta_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:magenta_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_pressure_plate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_wall_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mangrove_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mossy_cobblestone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mossy_cobblestone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mossy_cobblestone_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mossy_stone_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:mossy_stone_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:mossy_stone_brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:mossy_stone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:mud_brick_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mud_brick_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mud_brick_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:mud_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:nether_brick_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:nether_brick_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:nether_brick_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:nether_brick_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:nether_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oak_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:oxidized_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_fence": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_fence_gate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_log": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_planks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_pressure_plate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:pale_oak_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:petrified_oak_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_andesite": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_andesite_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_andesite_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_basalt": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_blackstone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_blackstone_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:polished_blackstone_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:polished_blackstone_brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:polished_blackstone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:polished_blackstone_button": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_blackstone_pressure_plate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_blackstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_blackstone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_blackstone_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_deepslate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_deepslate_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_deepslate_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_deepslate_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_diorite": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_diorite_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_diorite_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_granite": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_granite_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_granite_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_tuff": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_tuff_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_tuff_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:polished_tuff_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:prismarine": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:prismarine_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:prismarine_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:prismarine_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:prismarine_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:prismarine_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:prismarine_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:purpur_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:purpur_pillar": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:purpur_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:purpur_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:quartz_block": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:quartz_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:quartz_pillar": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:quartz_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:quartz_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_nether_brick_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_nether_brick_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_nether_brick_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_nether_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_sandstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_sandstone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_sandstone_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:red_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:resin_brick_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:resin_brick_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:resin_brick_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:resin_bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:sandstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:sandstone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:sandstone_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_quartz_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_quartz_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_red_sandstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_red_sandstone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_sandstone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_sandstone_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_stone": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:smooth_stone_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:spruce_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:spruce_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:spruce_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:spruce_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:spruce_wood": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:stone_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:stone_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:stone_brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:stone_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:stonecutter": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:tuff_brick_slab": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:tuff_brick_stairs": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:tuff_brick_wall": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:tuff_bricks": {
+  "class": "builder",
+  "xp": 2.0
+ },
+ "minecraft:tuff_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:tuff_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:tuff_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:warped_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:warped_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:warped_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:warped_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:warped_wall_hanging_sign": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_exposed_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_oxidized_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:waxed_weathered_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_chiseled_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_copper_bulb": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_copper_door": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_copper_grate": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_copper_trapdoor": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_cut_copper": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_cut_copper_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:weathered_cut_copper_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:white_stained_glass": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:white_stained_glass_pane": {
+  "class": "builder",
+  "xp": 1.0
+ }
+}

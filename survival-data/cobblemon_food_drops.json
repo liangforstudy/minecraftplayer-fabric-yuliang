@@ -1,0 +1,6363 @@
+[
+ {
+  "pokemon": "bunnelby",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 38,
+  "atk": 36,
+  "speed": 57,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:carrot x1 @2.5%"
+  ],
+  "all_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_hide x0-1",
+   "minecraft:rabbit_foot x1 @2.5%",
+   "minecraft:carrot x1 @2.5%",
+   "cobblemon:chilan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "combee",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 30,
+  "atk": 30,
+  "speed": 70,
+  "type": "bug",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_temperate",
+   "#the_bumblezone:the_bumblezone"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:honey_bottle x0-1",
+   "minecraft:honeycomb x0-1"
+  ],
+  "all_drops": [
+   "minecraft:honey_bottle x0-1",
+   "minecraft:honeycomb x0-1",
+   "cobblemon:poison_barb x1 @2.5%",
+   "cobblemon:charti_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "feebas",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 20,
+  "atk": 15,
+  "speed": 80,
+  "type": "water",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:prism_scale x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "flittle",
+  "min_level": 1,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 30,
+  "atk": 35,
+  "speed": 75,
+  "type": "psychic",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_arid"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:chicken x1",
+   "cobblemon:tanga_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "hoothoot",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 30,
+  "speed": 50,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:wise_glasses x1 @2.5%",
+   "cobblemon:chilan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "lechonk",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 54,
+  "atk": 45,
+  "speed": 35,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_mushroom",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_temperate",
+   "#cobblemon:nether/is_crimson",
+   "#cobblemon:nether/is_fungus",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:porkchop x1-2"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-2",
+   "cobblemon:oran_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "magikarp",
+  "min_level": 1,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 20,
+  "atk": 10,
+  "speed": 80,
+  "type": "water",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "nickit",
+  "min_level": 1,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 40,
+  "atk": 28,
+  "speed": 50,
+  "type": "dark",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_plains",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:sweet_berries x1-3"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x1-3",
+   "minecraft:emerald x1 @2.5%",
+   "cobblemon:roseli_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "pidgey",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 45,
+  "speed": 56,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_sky",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:chilan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "pidove",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 50,
+  "atk": 55,
+  "speed": 43,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:razz_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "poochyena",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 35,
+  "atk": 55,
+  "speed": 35,
+  "type": "dark",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-1",
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:pecha_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "rattata",
+  "min_level": 1,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 30,
+  "atk": 56,
+  "speed": 72,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_spooky"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:chilan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "rookidee",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 38,
+  "atk": 47,
+  "speed": 57,
+  "type": "flying",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "spearow",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 60,
+  "speed": 70,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:charti_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "spinarak",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 60,
+  "speed": 30,
+  "type": "bug",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_spooky"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:spider_eye x0-1",
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:string x0-1",
+   "minecraft:spider_eye x0-1",
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:poison_barb x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "starly",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 55,
+  "speed": 60,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:yache_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "swinub",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 50,
+  "atk": 50,
+  "speed": 50,
+  "type": "ice",
+  "catchRate": 225,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_tundra"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:porkchop x1"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1",
+   "minecraft:brown_wool x1",
+   "cobblemon:never_melt_ice x1 @2.5%",
+   "cobblemon:aspear_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "tarountula",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 35,
+  "atk": 41,
+  "speed": 20,
+  "type": "bug",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_swamp"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:spider_eye x0-1"
+  ],
+  "all_drops": [
+   "minecraft:string x0-1",
+   "minecraft:spider_eye x0-1"
+  ]
+ },
+ {
+  "pokemon": "wishiwashi",
+  "min_level": 1,
+  "buckets": [
+   "common"
+  ],
+  "hp": 45,
+  "atk": 20,
+  "speed": 40,
+  "type": "water",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:cod x1"
+  ],
+  "all_drops": [
+   "minecraft:cod x1",
+   "minecraft:bone_meal x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "diglett",
+  "min_level": 2,
+  "buckets": [
+   "common"
+  ],
+  "hp": 10,
+  "atk": 55,
+  "speed": 95,
+  "type": "ground",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:potato x1 @2.5%"
+  ],
+  "all_drops": [
+   "minecraft:dirt x0-1",
+   "minecraft:potato x1 @2.5%",
+   "cobblemon:big_root x1 @2.5%",
+   "cobblemon:soft_sand x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "milcery",
+  "min_level": 2,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 45,
+  "atk": 40,
+  "speed": 34,
+  "type": "fairy",
+  "catchRate": 200,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 1,
+  "food_drops": [
+   "minecraft:sugar x0-1"
+  ],
+  "all_drops": [
+   "minecraft:sugar x0-1"
+  ]
+ },
+ {
+  "pokemon": "pikipek",
+  "min_level": 2,
+  "buckets": [
+   "common"
+  ],
+  "hp": 35,
+  "atk": 75,
+  "speed": 65,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1"
+  ]
+ },
+ {
+  "pokemon": "surskit",
+  "min_level": 2,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 40,
+  "atk": 30,
+  "speed": 65,
+  "type": "bug",
+  "catchRate": 200,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_freshwater",
+   "#the_bumblezone:the_bumblezone"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:honey_bottle x0-1"
+  ],
+  "all_drops": [
+   "minecraft:honey_bottle x0-1",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "taillow",
+  "min_level": 2,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 55,
+  "speed": 85,
+  "type": "normal",
+  "catchRate": 200,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:charti_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "wingull",
+  "min_level": 2,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 30,
+  "speed": 85,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "wooloo",
+  "min_level": 2,
+  "buckets": [
+   "common"
+  ],
+  "hp": 42,
+  "atk": 40,
+  "speed": 48,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_plains"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:mutton x1-2"
+  ],
+  "all_drops": [
+   "minecraft:mutton x1-2",
+   "minecraft:white_wool x1"
+  ]
+ },
+ {
+  "pokemon": "arrokuda",
+  "min_level": 3,
+  "buckets": [
+   "common"
+  ],
+  "hp": 41,
+  "atk": 63,
+  "speed": 66,
+  "type": "water",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_swamp"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "fletchling",
+  "min_level": 3,
+  "buckets": [
+   "common"
+  ],
+  "hp": 45,
+  "atk": 50,
+  "speed": 62,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_taiga",
+   "#cobblemon:nether/is_forest",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:rawst_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "mareep",
+  "min_level": 3,
+  "buckets": [
+   "common"
+  ],
+  "hp": 55,
+  "atk": 40,
+  "speed": 35,
+  "type": "electric",
+  "catchRate": 235,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_highlands",
+   "#cobblemon:is_plains"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:mutton x1-2"
+  ],
+  "all_drops": [
+   "minecraft:mutton x1-2",
+   "minecraft:white_wool x1-2",
+   "cobblemon:cheri_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "purrloin",
+  "min_level": 3,
+  "buckets": [
+   "common"
+  ],
+  "hp": 41,
+  "atk": 50,
+  "speed": 66,
+  "type": "dark",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:bluk_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "wattrel",
+  "min_level": 3,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 40,
+  "atk": 40,
+  "speed": 70,
+  "type": "electric",
+  "catchRate": 180,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_island",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day",
+   "night"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:razz_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "foongus",
+  "min_level": 4,
+  "buckets": [
+   "common"
+  ],
+  "hp": 69,
+  "atk": 55,
+  "speed": 15,
+  "type": "grass",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_mushroom"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:red_mushroom x0-1"
+  ],
+  "all_drops": [
+   "minecraft:red_mushroom x0-1",
+   "cobblemon:cheri_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "morelull",
+  "min_level": 4,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 35,
+  "speed": 15,
+  "type": "grass",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_lush",
+   "#cobblemon:is_magical",
+   "#cobblemon:is_mushroom",
+   "#cobblemon:is_overworld",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:brown_mushroom x0-1"
+  ],
+  "all_drops": [
+   "minecraft:brown_mushroom x0-1",
+   "cobblemon:luminous_moss x1 @2.5%",
+   "cobblemon:bright_powder x1 @2.5%",
+   "cobblemon:kebia_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "paras",
+  "min_level": 4,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 35,
+  "atk": 70,
+  "speed": 25,
+  "type": "bug",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_lush",
+   "#cobblemon:is_mushroom",
+   "#cobblemon:is_overworld",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:red_mushroom x0-2"
+  ],
+  "all_drops": [
+   "minecraft:red_mushroom x0-2",
+   "cobblemon:coba_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "spheal",
+  "min_level": 4,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 40,
+  "speed": 25,
+  "type": "ice",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:cod x0-1"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-1",
+   "cobblemon:chesto_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "capsakid",
+  "min_level": 5,
+  "buckets": [
+   "common"
+  ],
+  "hp": 50,
+  "atk": 62,
+  "speed": 50,
+  "type": "grass",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_arid",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "cobblemon:roasted_leek x0-1"
+  ],
+  "all_drops": [
+   "cobblemon:roasted_leek x0-1",
+   "cobblemon:rawst_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "cutiefly",
+  "min_level": 5,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 45,
+  "speed": 84,
+  "type": "bug",
+  "catchRate": 190,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_floral",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:honey_bottle x0-1"
+  ],
+  "all_drops": [
+   "minecraft:honey_bottle x0-1",
+   "cobblemon:cheri_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "electrike",
+  "min_level": 5,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 45,
+  "speed": 65,
+  "type": "electric",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_hills"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-1",
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:cheri_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "piplup",
+  "min_level": 5,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 53,
+  "atk": 51,
+  "speed": 40,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4",
+   "starter"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean",
+   "#cobblemon:is_glacial",
+   "#cobblemon:is_tundra",
+   "minecraft:frozen_river"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:mystic_water x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "remoraid",
+  "min_level": 5,
+  "buckets": [
+   "common"
+  ],
+  "hp": 35,
+  "atk": 65,
+  "speed": 65,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x1"
+  ],
+  "all_drops": [
+   "minecraft:cod x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:aspear_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "rowlet",
+  "min_level": 5,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 68,
+  "atk": 55,
+  "speed": 42,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7",
+   "starter",
+   "alolan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:miracle_seed x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "scorbunny",
+  "min_level": 5,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 50,
+  "atk": 71,
+  "speed": 69,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8",
+   "starter"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_tundra",
+   "aether:skyroot_grove",
+   "aether:skyroot_meadow"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:rabbit x1"
+  ],
+  "all_drops": [
+   "minecraft:rabbit_hide x0-1",
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_foot x1 @5.0%",
+   "cobblemon:charcoal_stick x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "shroomish",
+  "min_level": 5,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 40,
+  "speed": 35,
+  "type": "grass",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_mushroom",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:brown_mushroom x0-1"
+  ],
+  "all_drops": [
+   "minecraft:brown_mushroom x0-1",
+   "cobblemon:kebia_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "tepig",
+  "min_level": 5,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 65,
+  "atk": 63,
+  "speed": 45,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5",
+   "starter"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains",
+   "#cobblemon:nether/is_crimson",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:porkchop x1-2"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-2",
+   "cobblemon:charcoal_stick x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "torchic",
+  "min_level": 5,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 45,
+  "atk": 60,
+  "speed": 45,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3",
+   "starter"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains",
+   "aether:skyroot_grove",
+   "aether:skyroot_meadow"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:charcoal_stick x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "vulpix",
+  "min_level": 5,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 38,
+  "atk": 41,
+  "speed": 65,
+  "type": "fire",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga",
+   "#cobblemon:nether/is_forest",
+   "#cobblemon:nether/is_frozen"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:sweet_berries x1-3"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x1-3",
+   "minecraft:charcoal x1 @2.5%",
+   "cobblemon:rawst_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "cubchoo",
+  "min_level": 6,
+  "buckets": [
+   "common"
+  ],
+  "hp": 55,
+  "atk": 70,
+  "speed": 40,
+  "type": "ice",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x0-1"
+  ],
+  "all_drops": [
+   "minecraft:snowball x0-1",
+   "minecraft:cod x0-1",
+   "cobblemon:aspear_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "doduo",
+  "min_level": 6,
+  "buckets": [
+   "common"
+  ],
+  "hp": 35,
+  "atk": 85,
+  "speed": 75,
+  "type": "normal",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_savanna"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "ducklett",
+  "min_level": 6,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 62,
+  "atk": 44,
+  "speed": 55,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "fidough",
+  "min_level": 6,
+  "buckets": [
+   "common"
+  ],
+  "hp": 37,
+  "atk": 55,
+  "speed": 65,
+  "type": "fairy",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:bread x0-1"
+  ],
+  "all_drops": [
+   "minecraft:bread x0-1",
+   "cobblemon:nanab_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "swablu",
+  "min_level": 6,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 45,
+  "atk": 40,
+  "speed": 50,
+  "type": "normal",
+  "catchRate": 255,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_peak",
+   "#cobblemon:is_sky"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:white_wool x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:yache_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "finizen",
+  "min_level": 7,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 70,
+  "atk": 45,
+  "speed": 75,
+  "type": "water",
+  "catchRate": 200,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_ocean"
+  ],
+  "time": [],
+  "drop_amount": 1,
+  "food_drops": [
+   "minecraft:cod x0-1"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-1"
+  ]
+ },
+ {
+  "pokemon": "goldeen",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 45,
+  "atk": 67,
+  "speed": 63,
+  "type": "water",
+  "catchRate": 225,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_bamboo",
+   "#cobblemon:is_floral",
+   "#cobblemon:is_freezing",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_magical",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_river",
+   "#cobblemon:is_taiga",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:mystic_water x1 @2.5%",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "joltik",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 50,
+  "atk": 47,
+  "speed": 65,
+  "type": "bug",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:spider_eye x0-1",
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:string x0-1",
+   "minecraft:spider_eye x0-1",
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:nanab_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "natu",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 50,
+  "speed": 70,
+  "type": "psychic",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_plateau"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:wise_glasses x1 @2.5%",
+   "cobblemon:persim_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "psyduck",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 50,
+  "atk": 52,
+  "speed": 55,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_magical",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:mystic_water x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "salandit",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 48,
+  "atk": 44,
+  "speed": 77,
+  "type": "poison",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_volcanic",
+   "#cobblemon:nether/is_basalt",
+   "#cobblemon:nether/is_desert"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:shuca_berry x1 @2.5%",
+   "cobblemon:smoke_ball x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "skrelp",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 50,
+  "atk": 60,
+  "speed": 30,
+  "type": "poison",
+  "catchRate": 225,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:kelp x0-1"
+  ],
+  "all_drops": [
+   "minecraft:kelp x0-1",
+   "cobblemon:pecha_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "slowpoke",
+  "min_level": 7,
+  "buckets": [
+   "common"
+  ],
+  "hp": 90,
+  "atk": 65,
+  "speed": 15,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_beach",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_river",
+   "#cobblemon:is_tropical_island",
+   "minecraft:mushroom_fields"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "cobblemon:tasty_tail x0-1"
+  ],
+  "all_drops": [
+   "cobblemon:tasty_tail x0-1",
+   "cobblemon:kings_rock x1 @2.5%",
+   "cobblemon:lagging_tail x1 @2.5%",
+   "cobblemon:chesto_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "buizel",
+  "min_level": 8,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 55,
+  "atk": 65,
+  "speed": 85,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:salmon x0-1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x0-1",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "delibird",
+  "min_level": 8,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 45,
+  "atk": 55,
+  "speed": 75,
+  "type": "ice",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_peak"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:charti_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "exeggcute",
+  "min_level": 8,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 60,
+  "atk": 40,
+  "speed": 40,
+  "type": "grass",
+  "catchRate": 90,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_beach",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:egg x0-3"
+  ],
+  "all_drops": [
+   "minecraft:egg x0-3",
+   "cobblemon:oval_stone x1 @2.5%",
+   "cobblemon:psychic_seed x1 @2.5%",
+   "cobblemon:tanga_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "finneon",
+  "min_level": 8,
+  "buckets": [
+   "common"
+  ],
+  "hp": 49,
+  "atk": 49,
+  "speed": 66,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_deep_ocean",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:cod x1"
+  ],
+  "all_drops": [
+   "minecraft:cod x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:rindo_berry x1 @2.5%",
+   "cobblemon:prism_scale x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "houndour",
+  "min_level": 8,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 45,
+  "atk": 60,
+  "speed": 65,
+  "type": "dark",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_overworld",
+   "#minecraft:is_nether"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-1",
+   "minecraft:rotten_flesh x0-1",
+   "minecraft:blaze_powder x1 @2.5%",
+   "cobblemon:rawst_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "seel",
+  "min_level": 8,
+  "buckets": [
+   "common"
+  ],
+  "hp": 65,
+  "atk": 45,
+  "speed": 45,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x0-1"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-1",
+   "cobblemon:never_melt_ice x1 @2.5%",
+   "cobblemon:aspear_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "spoink",
+  "min_level": 8,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 25,
+  "speed": 60,
+  "type": "psychic",
+  "catchRate": 255,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:porkchop x1-2"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-2",
+   "minecraft:ender_pearl x0-1",
+   "cobblemon:tanga_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "teddiursa",
+  "min_level": 8,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 80,
+  "speed": 40,
+  "type": "normal",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_taiga",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:sweet_berries x1-3",
+   "minecraft:honey_bottle x1 @2.5%"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x1-3",
+   "minecraft:honey_bottle x1 @2.5%",
+   "cobblemon:peat_block x1 @2.5%",
+   "cobblemon:oran_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "zorua",
+  "min_level": 8,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 40,
+  "atk": 65,
+  "speed": 65,
+  "type": "dark",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5",
+   "unovan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#minecraft:is_nether"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:sweet_berries x1-3"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x1-3",
+   "cobblemon:colbur_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "maschiff",
+  "min_level": 9,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 78,
+  "speed": 51,
+  "type": "dark",
+  "catchRate": 150,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-1",
+   "minecraft:rotten_flesh x0-1",
+   "cobblemon:tanga_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "swirlix",
+  "min_level": 9,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 62,
+  "atk": 48,
+  "speed": 49,
+  "type": "fairy",
+  "catchRate": 200,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:sugar x0-1"
+  ],
+  "all_drops": [
+   "minecraft:sugar x0-1",
+   "minecraft:cake x1 @2.5%",
+   "cobblemon:babiri_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "toedscool",
+  "min_level": 9,
+  "buckets": [
+   "common"
+  ],
+  "hp": 40,
+  "atk": 40,
+  "speed": 70,
+  "type": "ground",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_mushroom",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:brown_mushroom x0-1"
+  ],
+  "all_drops": [
+   "minecraft:brown_mushroom x0-1",
+   "cobblemon:yache_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "buneary",
+  "min_level": 10,
+  "buckets": [
+   "common"
+  ],
+  "hp": 55,
+  "atk": 66,
+  "speed": 85,
+  "type": "normal",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:carrot x1 @2.5%"
+  ],
+  "all_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_hide x0-1",
+   "minecraft:rabbit_foot x1 @2.5%",
+   "minecraft:carrot x1 @2.5%",
+   "cobblemon:chople_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "mantyke",
+  "min_level": 10,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 45,
+  "atk": 20,
+  "speed": 50,
+  "type": "water",
+  "catchRate": 25,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4",
+   "baby"
+  ],
+  "biomes": [
+   "#cobblemon:is_lukewarm_ocean",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_warm_ocean"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:cod x0-1"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-1",
+   "cobblemon:wacan_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "rufflet",
+  "min_level": 10,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 70,
+  "atk": 83,
+  "speed": 60,
+  "type": "normal",
+  "catchRate": 190,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5",
+   "unovan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:razz_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "skiddo",
+  "min_level": 10,
+  "buckets": [
+   "common"
+  ],
+  "hp": 66,
+  "atk": 65,
+  "speed": 52,
+  "type": "grass",
+  "catchRate": 200,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:mutton x1-2"
+  ],
+  "all_drops": [
+   "minecraft:mutton x1-2",
+   "cobblemon:oran_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "litleo",
+  "min_level": 12,
+  "buckets": [
+   "common"
+  ],
+  "hp": 62,
+  "atk": 50,
+  "speed": 72,
+  "type": "fire",
+  "catchRate": 220,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_savanna",
+   "#cobblemon:nether/is_overgrowth",
+   "#cobblemon:nether/is_wasteland"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-1"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-1",
+   "minecraft:blaze_powder x1 @2.5%",
+   "cobblemon:rawst_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "staravia",
+  "min_level": 14,
+  "buckets": [
+   "common"
+  ],
+  "hp": 55,
+  "atk": 75,
+  "speed": 80,
+  "type": "normal",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:yache_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "trumbeak",
+  "min_level": 14,
+  "buckets": [
+   "common"
+  ],
+  "hp": 55,
+  "atk": 85,
+  "speed": 75,
+  "type": "normal",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "flaaffy",
+  "min_level": 15,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 55,
+  "speed": 45,
+  "type": "electric",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_highlands",
+   "#cobblemon:is_plains"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:mutton x1-3"
+  ],
+  "all_drops": [
+   "minecraft:mutton x1-3",
+   "minecraft:white_wool x1",
+   "cobblemon:cheri_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "spidops",
+  "min_level": 15,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 79,
+  "speed": 35,
+  "type": "bug",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_swamp"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:spider_eye x0-2"
+  ],
+  "all_drops": [
+   "minecraft:string x0-2",
+   "minecraft:spider_eye x0-2"
+  ]
+ },
+ {
+  "pokemon": "chatot",
+  "min_level": 16,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 76,
+  "atk": 65,
+  "speed": 91,
+  "type": "normal",
+  "catchRate": 30,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:metronome x1 @5.0%",
+   "cobblemon:persim_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "combusken",
+  "min_level": 16,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 60,
+  "atk": 85,
+  "speed": 55,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains",
+   "aether:skyroot_grove",
+   "aether:skyroot_meadow"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:charcoal_stick x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "murkrow",
+  "min_level": 16,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 85,
+  "speed": 91,
+  "type": "dark",
+  "catchRate": 30,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "cobblemon:bluk_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "prinplup",
+  "min_level": 16,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 64,
+  "atk": 66,
+  "speed": 50,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean",
+   "#cobblemon:is_glacial",
+   "#cobblemon:is_tundra",
+   "minecraft:frozen_river"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:mystic_water x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "raboot",
+  "min_level": 16,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 65,
+  "atk": 86,
+  "speed": 94,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_tundra",
+   "aether:skyroot_grove",
+   "aether:skyroot_meadow"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:rabbit x1"
+  ],
+  "all_drops": [
+   "minecraft:rabbit_hide x0-2",
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_foot x1 @10.0%",
+   "cobblemon:charcoal_stick x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "chansey",
+  "min_level": 17,
+  "buckets": [
+   "rare"
+  ],
+  "hp": 250,
+  "atk": 5,
+  "speed": 50,
+  "type": "normal",
+  "catchRate": 30,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 1,
+  "food_drops": [
+   "minecraft:egg x1 @50.0%"
+  ],
+  "all_drops": [
+   "cobblemon:lucky_egg x1 @10.0%",
+   "cobblemon:oval_stone x1 @10.0%",
+   "minecraft:egg x1 @50.0%"
+  ]
+ },
+ {
+  "pokemon": "dartrix",
+  "min_level": 17,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 78,
+  "atk": 75,
+  "speed": 52,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7",
+   "alolan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:miracle_seed x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "fletchinder",
+  "min_level": 17,
+  "buckets": [
+   "common"
+  ],
+  "hp": 62,
+  "atk": 73,
+  "speed": 84,
+  "type": "fire",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_taiga",
+   "#cobblemon:nether/is_forest",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:rawst_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "pignite",
+  "min_level": 17,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 90,
+  "atk": 93,
+  "speed": 55,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains",
+   "#cobblemon:nether/is_crimson",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:porkchop x1-3"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-3",
+   "cobblemon:charcoal_stick x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "squawkabilly",
+  "min_level": 17,
+  "buckets": [
+   "common"
+  ],
+  "hp": 82,
+  "atk": 96,
+  "speed": 92,
+  "type": "normal",
+  "catchRate": 190,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:chilan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "corvisquire",
+  "min_level": 18,
+  "buckets": [
+   "common"
+  ],
+  "hp": 68,
+  "atk": 67,
+  "speed": 77,
+  "type": "flying",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "grotle",
+  "min_level": 18,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 75,
+  "atk": 89,
+  "speed": 36,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:sweet_berries x2-4"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x2-4",
+   "cobblemon:miracle_seed x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "mightyena",
+  "min_level": 18,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 90,
+  "speed": 70,
+  "type": "dark",
+  "catchRate": 127,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-2",
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:pecha_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "oinkologne",
+  "min_level": 18,
+  "buckets": [
+   "common"
+  ],
+  "hp": 110,
+  "atk": 100,
+  "speed": 65,
+  "type": "normal",
+  "catchRate": 100,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_mushroom",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_temperate",
+   "#cobblemon:nether/is_crimson",
+   "#cobblemon:nether/is_fungus",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:porkchop x1-3"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-3",
+   "cobblemon:oran_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "pidgeotto",
+  "min_level": 18,
+  "buckets": [
+   "common"
+  ],
+  "hp": 63,
+  "atk": 60,
+  "speed": 71,
+  "type": "normal",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_sky",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:chilan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "thievul",
+  "min_level": 18,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 70,
+  "atk": 58,
+  "speed": 90,
+  "type": "dark",
+  "catchRate": 127,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_plains",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:sweet_berries x2-4"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x2-4",
+   "minecraft:emerald x1 @5.0%",
+   "cobblemon:roseli_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "qwilfish",
+  "min_level": 19,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 65,
+  "atk": 95,
+  "speed": 85,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2",
+   "johtonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold",
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean",
+   "#cobblemon:is_lukewarm_ocean",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_warm_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:pufferfish x1"
+  ],
+  "all_drops": [
+   "minecraft:pufferfish x1",
+   "minecraft:prismarine_shard x0-1",
+   "cobblemon:poison_barb x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "diggersby",
+  "min_level": 20,
+  "buckets": [
+   "common"
+  ],
+  "hp": 85,
+  "atk": 56,
+  "speed": 78,
+  "type": "normal",
+  "catchRate": 127,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:carrot x1 @5.0%"
+  ],
+  "all_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_hide x0-2",
+   "minecraft:rabbit_foot x1 @5.0%",
+   "minecraft:carrot x1 @5.0%",
+   "cobblemon:chilan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "fearow",
+  "min_level": 20,
+  "buckets": [
+   "common"
+  ],
+  "hp": 65,
+  "atk": 90,
+  "speed": 100,
+  "type": "normal",
+  "catchRate": 90,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%",
+   "cobblemon:charti_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "gyarados",
+  "min_level": 20,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 95,
+  "atk": 125,
+  "speed": 81,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @10.0%",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "liepard",
+  "min_level": 20,
+  "buckets": [
+   "common"
+  ],
+  "hp": 64,
+  "atk": 88,
+  "speed": 106,
+  "type": "dark",
+  "catchRate": 90,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:bluk_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "noctowl",
+  "min_level": 20,
+  "buckets": [
+   "common"
+  ],
+  "hp": 100,
+  "atk": 50,
+  "speed": 70,
+  "type": "normal",
+  "catchRate": 90,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:wise_glasses x1 @5.0%",
+   "cobblemon:chilan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "raticate",
+  "min_level": 20,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 55,
+  "atk": 81,
+  "speed": 97,
+  "type": "normal",
+  "catchRate": 127,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_spooky"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:chilan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "basculin",
+  "min_level": 21,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 92,
+  "speed": 98,
+  "type": "water",
+  "catchRate": 190,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5",
+   "unovan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_arid",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_taiga",
+   "#cobblemon:is_tundra"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:deep_sea_tooth x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "gloom",
+  "min_level": 21,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 65,
+  "speed": 40,
+  "type": "grass",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_temperate",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:honey_bottle x0-2"
+  ],
+  "all_drops": [
+   "minecraft:honey_bottle x0-2",
+   "cobblemon:absorb_bulb x1 @5.0%",
+   "cobblemon:pecha_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "tranquill",
+  "min_level": 21,
+  "buckets": [
+   "common"
+  ],
+  "hp": 62,
+  "atk": 77,
+  "speed": 65,
+  "type": "normal",
+  "catchRate": 120,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:razz_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "vespiquen",
+  "min_level": 21,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 80,
+  "speed": 40,
+  "type": "bug",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_temperate",
+   "#the_bumblezone:the_bumblezone"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 8,
+  "food_drops": [
+   "minecraft:honey_bottle x0-3",
+   "minecraft:honeycomb x0-3"
+  ],
+  "all_drops": [
+   "minecraft:honey_bottle x0-3",
+   "minecraft:honeycomb x0-3",
+   "cobblemon:poison_barb x1 @10.0%",
+   "cobblemon:charti_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "alcremie",
+  "min_level": 22,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 65,
+  "atk": 60,
+  "speed": 64,
+  "type": "fairy",
+  "catchRate": 100,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:sugar x0-2"
+  ],
+  "all_drops": [
+   "minecraft:sugar x0-2",
+   "minecraft:cake x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "alomomola",
+  "min_level": 22,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 165,
+  "atk": 75,
+  "speed": 65,
+  "type": "water",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_deep_ocean",
+   "#cobblemon:is_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x1"
+  ],
+  "all_drops": [
+   "minecraft:cod x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:deep_sea_scale x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "ariados",
+  "min_level": 22,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 90,
+  "speed": 40,
+  "type": "bug",
+  "catchRate": 90,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_spooky"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 7,
+  "food_drops": [
+   "minecraft:spider_eye x0-2",
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:string x0-2",
+   "minecraft:spider_eye x0-2",
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:poison_barb x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "eiscue",
+  "min_level": 22,
+  "buckets": [
+   "common"
+  ],
+  "hp": 75,
+  "atk": 80,
+  "speed": 50,
+  "type": "ice",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_frozen_ocean",
+   "#cobblemon:is_glacial",
+   "#cobblemon:is_tundra"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1",
+   "minecraft:cod x0-1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-1",
+   "minecraft:chicken x1",
+   "minecraft:cod x0-1",
+   "minecraft:blue_ice x1",
+   "cobblemon:aspear_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "swellow",
+  "min_level": 22,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 85,
+  "speed": 125,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:charti_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "breloom",
+  "min_level": 23,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 130,
+  "speed": 70,
+  "type": "grass",
+  "catchRate": 90,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_mushroom",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:brown_mushroom x0-2"
+  ],
+  "all_drops": [
+   "minecraft:brown_mushroom x0-2",
+   "cobblemon:kebia_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "bruxish",
+  "min_level": 23,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 68,
+  "atk": 105,
+  "speed": 92,
+  "type": "water",
+  "catchRate": 80,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_warm_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x1"
+  ],
+  "all_drops": [
+   "minecraft:cod x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:razor_fang x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "cramorant",
+  "min_level": 23,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 70,
+  "atk": 85,
+  "speed": 85,
+  "type": "flying",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_coast",
+   "#cobblemon:is_island",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:chicken x1",
+   "minecraft:cod x0-2"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "minecraft:cod x0-2",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "tatsugiri",
+  "min_level": 23,
+  "buckets": [
+   "rare"
+  ],
+  "hp": 68,
+  "atk": 50,
+  "speed": 82,
+  "type": "dragon",
+  "catchRate": 100,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_bamboo",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_swamp"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%",
+   "cobblemon:haban_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "veluza",
+  "min_level": 23,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 90,
+  "atk": 102,
+  "speed": 70,
+  "type": "water",
+  "catchRate": 100,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:cod x1-3"
+  ],
+  "all_drops": [
+   "minecraft:cod x1-3",
+   "minecraft:bone_meal x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "bouffalant",
+  "min_level": 24,
+  "buckets": [
+   "common"
+  ],
+  "hp": 95,
+  "atk": 110,
+  "speed": 55,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains"
+  ],
+  "time": [],
+  "drop_amount": 8,
+  "food_drops": [
+   "minecraft:beef x1-3"
+  ],
+  "all_drops": [
+   "minecraft:leather x0-2",
+   "minecraft:beef x1-3",
+   "minecraft:brown_wool x1-2",
+   "cobblemon:wepear_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "dubwool",
+  "min_level": 24,
+  "buckets": [
+   "common"
+  ],
+  "hp": 72,
+  "atk": 80,
+  "speed": 88,
+  "type": "normal",
+  "catchRate": 127,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_plains"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:mutton x1-3"
+  ],
+  "all_drops": [
+   "minecraft:mutton x1-3",
+   "minecraft:white_wool x1-2"
+  ]
+ },
+ {
+  "pokemon": "houndoom",
+  "min_level": 24,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 75,
+  "atk": 90,
+  "speed": 95,
+  "type": "dark",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_overworld",
+   "#minecraft:is_nether"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-2",
+   "minecraft:rotten_flesh x0-2",
+   "minecraft:blaze_powder x1 @5.0%",
+   "cobblemon:rawst_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "miltank",
+  "min_level": 24,
+  "buckets": [
+   "common"
+  ],
+  "hp": 95,
+  "atk": 80,
+  "speed": 100,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:beef x1-3"
+  ],
+  "all_drops": [
+   "minecraft:leather x0-2",
+   "minecraft:beef x1-3",
+   "cobblemon:oran_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "munchlax",
+  "min_level": 24,
+  "buckets": [
+   "rare",
+   "uncommon"
+  ],
+  "hp": 135,
+  "atk": 85,
+  "speed": 5,
+  "type": "normal",
+  "catchRate": 50,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4",
+   "baby"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_snowy_forest",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:apple x0-3"
+  ],
+  "all_drops": [
+   "minecraft:apple x0-3",
+   "cobblemon:leftovers x1 @2.5%",
+   "cobblemon:chesto_berry x1 @2.5%"
+  ]
+ },
+ {
+  "pokemon": "parasect",
+  "min_level": 24,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 60,
+  "atk": 95,
+  "speed": 30,
+  "type": "bug",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_lush",
+   "#cobblemon:is_mushroom",
+   "#cobblemon:is_overworld",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:red_mushroom x1"
+  ],
+  "all_drops": [
+   "minecraft:red_mushroom x1",
+   "cobblemon:coba_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "shiinotic",
+  "min_level": 24,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 45,
+  "speed": 30,
+  "type": "grass",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_lush",
+   "#cobblemon:is_magical",
+   "#cobblemon:is_mushroom",
+   "#cobblemon:is_overworld",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:brown_mushroom x0-2"
+  ],
+  "all_drops": [
+   "minecraft:brown_mushroom x0-2",
+   "cobblemon:luminous_moss x1 @5.0%",
+   "cobblemon:bright_powder x1 @5.0%",
+   "cobblemon:kebia_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "tauros",
+  "min_level": 24,
+  "buckets": [
+   "common"
+  ],
+  "hp": 75,
+  "atk": 100,
+  "speed": 110,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_highlands"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:beef x1-3"
+  ],
+  "all_drops": [
+   "minecraft:leather x0-2",
+   "minecraft:beef x1-3"
+  ]
+ },
+ {
+  "pokemon": "flamigo",
+  "min_level": 25,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 82,
+  "atk": 115,
+  "speed": 90,
+  "type": "flying",
+  "catchRate": 100,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:payapa_berry x1 @5.0%",
+   "cobblemon:fairy_feather x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "kilowattrel",
+  "min_level": 25,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 70,
+  "atk": 70,
+  "speed": 125,
+  "type": "electric",
+  "catchRate": 90,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_island",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day",
+   "night"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:razz_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "ninetales",
+  "min_level": 25,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 73,
+  "atk": 76,
+  "speed": 100,
+  "type": "fire",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga",
+   "#cobblemon:nether/is_forest",
+   "#cobblemon:nether/is_frozen"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:sweet_berries x2-4"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x2-4",
+   "minecraft:charcoal x1 @5.0%",
+   "cobblemon:rawst_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "pelipper",
+  "min_level": 25,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 50,
+  "speed": 65,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "ribombee",
+  "min_level": 25,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 55,
+  "speed": 124,
+  "type": "bug",
+  "catchRate": 75,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_floral",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:honey_bottle x0-2"
+  ],
+  "all_drops": [
+   "minecraft:honey_bottle x0-2",
+   "cobblemon:cheri_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "scovillain",
+  "min_level": 25,
+  "buckets": [
+   "common"
+  ],
+  "hp": 65,
+  "atk": 108,
+  "speed": 75,
+  "type": "grass",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_arid",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "cobblemon:roasted_leek x0-2"
+  ],
+  "all_drops": [
+   "cobblemon:roasted_leek x0-2",
+   "cobblemon:rawst_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "xatu",
+  "min_level": 25,
+  "buckets": [
+   "common"
+  ],
+  "hp": 65,
+  "atk": 75,
+  "speed": 95,
+  "type": "psychic",
+  "catchRate": 75,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_plateau"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:wise_glasses x1 @5.0%",
+   "cobblemon:persim_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "barraskewda",
+  "min_level": 26,
+  "buckets": [
+   "common"
+  ],
+  "hp": 61,
+  "atk": 123,
+  "speed": 136,
+  "type": "water",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_swamp"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "dachsbun",
+  "min_level": 26,
+  "buckets": [
+   "common"
+  ],
+  "hp": 57,
+  "atk": 80,
+  "speed": 95,
+  "type": "fairy",
+  "catchRate": 90,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:bread x0-2"
+  ],
+  "all_drops": [
+   "minecraft:bread x0-2",
+   "cobblemon:nanab_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "dugtrio",
+  "min_level": 26,
+  "buckets": [
+   "common"
+  ],
+  "hp": 35,
+  "atk": 100,
+  "speed": 120,
+  "type": "ground",
+  "catchRate": 50,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:potato x1 @5.0%"
+  ],
+  "all_drops": [
+   "minecraft:dirt x0-2",
+   "minecraft:potato x1 @5.0%",
+   "cobblemon:big_root x1 @5.0%",
+   "cobblemon:soft_sand x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "floatzel",
+  "min_level": 26,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 85,
+  "atk": 105,
+  "speed": 115,
+  "type": "water",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:salmon x0-2"
+  ],
+  "all_drops": [
+   "minecraft:salmon x0-2",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "manectric",
+  "min_level": 26,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 75,
+  "speed": 105,
+  "type": "electric",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_hills"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-2",
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:cheri_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "dhelmise",
+  "min_level": 27,
+  "buckets": [
+   "common",
+   "rare"
+  ],
+  "hp": 70,
+  "atk": 131,
+  "speed": 40,
+  "type": "ghost",
+  "catchRate": 25,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_ocean"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:kelp x0-2"
+  ],
+  "all_drops": [
+   "minecraft:kelp x0-2",
+   "minecraft:raw_iron x0-2"
+  ]
+ },
+ {
+  "pokemon": "dondozo",
+  "min_level": 28,
+  "buckets": [
+   "rare"
+  ],
+  "hp": 150,
+  "atk": 100,
+  "speed": 35,
+  "type": "water",
+  "catchRate": 25,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_bamboo",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_swamp"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "exeggutor",
+  "min_level": 28,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 95,
+  "atk": 95,
+  "speed": 55,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_beach",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_savanna",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:egg x0-3"
+  ],
+  "all_drops": [
+   "minecraft:egg x0-3",
+   "cobblemon:oval_stone x1 @5.0%",
+   "cobblemon:psychic_seed x1 @5.0%",
+   "cobblemon:tanga_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "toucannon",
+  "min_level": 28,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 120,
+  "speed": 60,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "slurpuff",
+  "min_level": 29,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 82,
+  "atk": 80,
+  "speed": 72,
+  "type": "fairy",
+  "catchRate": 140,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:sugar x0-2"
+  ],
+  "all_drops": [
+   "minecraft:sugar x0-2",
+   "minecraft:cake x1 @5.0%",
+   "cobblemon:babiri_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "ampharos",
+  "min_level": 30,
+  "buckets": [
+   "common"
+  ],
+  "hp": 90,
+  "atk": 75,
+  "speed": 55,
+  "type": "electric",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_highlands",
+   "#cobblemon:is_plains"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:mutton x2-4"
+  ],
+  "all_drops": [
+   "minecraft:mutton x2-4",
+   "cobblemon:cheri_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "lopunny",
+  "min_level": 30,
+  "buckets": [
+   "common"
+  ],
+  "hp": 65,
+  "atk": 76,
+  "speed": 105,
+  "type": "normal",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:carrot x1 @5.0%"
+  ],
+  "all_drops": [
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_hide x0-2",
+   "minecraft:rabbit_foot x1 @5.0%",
+   "minecraft:carrot x1 @5.0%",
+   "cobblemon:chople_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "mabosstiff",
+  "min_level": 30,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 120,
+  "speed": 85,
+  "type": "dark",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:bone x0-2",
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:tanga_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "mantine",
+  "min_level": 30,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 85,
+  "atk": 40,
+  "speed": 70,
+  "type": "water",
+  "catchRate": 25,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_lukewarm_ocean",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_warm_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x0-2"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-2",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "toedscruel",
+  "min_level": 30,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 70,
+  "speed": 100,
+  "type": "ground",
+  "catchRate": 90,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_mushroom",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:brown_mushroom x0-2"
+  ],
+  "all_drops": [
+   "minecraft:brown_mushroom x0-2",
+   "cobblemon:yache_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "ursaring",
+  "min_level": 30,
+  "buckets": [
+   "common"
+  ],
+  "hp": 90,
+  "atk": 130,
+  "speed": 55,
+  "type": "normal",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_taiga",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 7,
+  "food_drops": [
+   "minecraft:sweet_berries x2-4",
+   "minecraft:honey_bottle x1 @5.0%"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x2-4",
+   "minecraft:honey_bottle x1 @5.0%",
+   "cobblemon:peat_block x1 @5.0%",
+   "cobblemon:oran_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "zoroark",
+  "min_level": 30,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 60,
+  "atk": 105,
+  "speed": 105,
+  "type": "dark",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5",
+   "unovan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#minecraft:is_nether"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:sweet_berries x2-4"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x2-4",
+   "cobblemon:roseli_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "dodrio",
+  "min_level": 31,
+  "buckets": [
+   "common"
+  ],
+  "hp": 60,
+  "atk": 110,
+  "speed": 110,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_savanna"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "lumineon",
+  "min_level": 31,
+  "buckets": [
+   "common"
+  ],
+  "hp": 69,
+  "atk": 69,
+  "speed": 91,
+  "type": "water",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_deep_ocean",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:cod x1"
+  ],
+  "all_drops": [
+   "minecraft:cod x1",
+   "minecraft:bone_meal x1 @10.0%",
+   "cobblemon:rindo_berry x1 @5.0%",
+   "cobblemon:prism_scale x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "gogoat",
+  "min_level": 32,
+  "buckets": [
+   "common"
+  ],
+  "hp": 123,
+  "atk": 100,
+  "speed": 68,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:mutton x1-3"
+  ],
+  "all_drops": [
+   "minecraft:mutton x1-3",
+   "cobblemon:oran_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "grumpig",
+  "min_level": 32,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 45,
+  "speed": 80,
+  "type": "psychic",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:porkchop x1-3"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-3",
+   "minecraft:ender_pearl x0-2",
+   "cobblemon:tanga_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "sealeo",
+  "min_level": 32,
+  "buckets": [
+   "common"
+  ],
+  "hp": 90,
+  "atk": 60,
+  "speed": 45,
+  "type": "ice",
+  "catchRate": 120,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:cod x0-2"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-2",
+   "cobblemon:chesto_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "torterra",
+  "min_level": 32,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 95,
+  "atk": 109,
+  "speed": 56,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:apple x0-3"
+  ],
+  "all_drops": [
+   "minecraft:apple x0-3",
+   "cobblemon:miracle_seed x1 @25.0%"
+  ]
+ },
+ {
+  "pokemon": "unfezant",
+  "min_level": 32,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 115,
+  "speed": 93,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%",
+   "cobblemon:razz_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "golduck",
+  "min_level": 33,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 82,
+  "speed": 85,
+  "type": "water",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_magical",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_tropical_island"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:mystic_water x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "piloswine",
+  "min_level": 33,
+  "buckets": [
+   "common"
+  ],
+  "hp": 100,
+  "atk": 100,
+  "speed": 50,
+  "type": "ice",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#cobblemon:is_tundra"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:porkchop x1-2"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x1-2",
+   "minecraft:brown_wool x1-2",
+   "cobblemon:never_melt_ice x1 @5.0%",
+   "cobblemon:aspear_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "salazzle",
+  "min_level": 33,
+  "buckets": [
+   "common"
+  ],
+  "hp": 68,
+  "atk": 64,
+  "speed": 117,
+  "type": "poison",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen7"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_volcanic",
+   "#cobblemon:nether/is_basalt",
+   "#cobblemon:nether/is_desert"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:shuca_berry x1 @5.0%",
+   "cobblemon:smoke_ball x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "seaking",
+  "min_level": 33,
+  "buckets": [
+   "common"
+  ],
+  "hp": 80,
+  "atk": 92,
+  "speed": 68,
+  "type": "water",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_bamboo",
+   "#cobblemon:is_floral",
+   "#cobblemon:is_freezing",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_magical",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_river",
+   "#cobblemon:is_taiga",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @10.0%",
+   "cobblemon:mystic_water x1 @5.0%",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "decidueye",
+  "min_level": 34,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 78,
+  "atk": 107,
+  "speed": 70,
+  "type": "grass",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen7",
+   "alolan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_snowy_taiga",
+   "#cobblemon:is_taiga",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:miracle_seed x1 @25.0%"
+  ]
+ },
+ {
+  "pokemon": "dewgong",
+  "min_level": 34,
+  "buckets": [
+   "common"
+  ],
+  "hp": 90,
+  "atk": 70,
+  "speed": 70,
+  "type": "water",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:cod x0-2"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-2",
+   "cobblemon:never_melt_ice x1 @5.0%",
+   "cobblemon:aspear_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "snorlax",
+  "min_level": 34,
+  "buckets": [
+   "rare",
+   "uncommon"
+  ],
+  "hp": 160,
+  "atk": 110,
+  "speed": 30,
+  "type": "normal",
+  "catchRate": 25,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_snowy_forest",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 8,
+  "food_drops": [
+   "minecraft:apple x0-3",
+   "minecraft:apple x0-3"
+  ],
+  "all_drops": [
+   "minecraft:apple x0-3",
+   "minecraft:apple x0-3",
+   "cobblemon:chesto_berry x1 @5.0%",
+   "cobblemon:leftovers x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "staraptor",
+  "min_level": 34,
+  "buckets": [
+   "common"
+  ],
+  "hp": 85,
+  "atk": 120,
+  "speed": 100,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%",
+   "cobblemon:yache_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "altaria",
+  "min_level": 35,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 75,
+  "atk": 70,
+  "speed": 80,
+  "type": "dragon",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_peak",
+   "#cobblemon:is_sky"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:white_wool x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:yache_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "cinderace",
+  "min_level": 35,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 80,
+  "atk": 116,
+  "speed": 119,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_tundra",
+   "aether:skyroot_grove",
+   "aether:skyroot_meadow"
+  ],
+  "time": [],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:rabbit x1"
+  ],
+  "all_drops": [
+   "minecraft:rabbit_hide x0-3",
+   "minecraft:rabbit x1",
+   "minecraft:rabbit_foot x1 @25.0%",
+   "cobblemon:charcoal_stick x1 @25.0%"
+  ]
+ },
+ {
+  "pokemon": "espathra",
+  "min_level": 35,
+  "buckets": [
+   "uncommon"
+  ],
+  "hp": 95,
+  "atk": 60,
+  "speed": 105,
+  "type": "psychic",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_arid"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:chicken x1",
+   "cobblemon:tanga_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "pyroar",
+  "min_level": 35,
+  "buckets": [
+   "common"
+  ],
+  "hp": 86,
+  "atk": 68,
+  "speed": 106,
+  "type": "fire",
+  "catchRate": 65,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_savanna",
+   "#cobblemon:nether/is_overgrowth",
+   "#cobblemon:nether/is_wasteland"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:rotten_flesh x0-2",
+   "minecraft:blaze_powder x1 @5.0%",
+   "cobblemon:rawst_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "swanna",
+  "min_level": 35,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 75,
+  "atk": 87,
+  "speed": 98,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:wacan_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "talonflame",
+  "min_level": 35,
+  "buckets": [
+   "common"
+  ],
+  "hp": 78,
+  "atk": 81,
+  "speed": 126,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_forest",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_taiga",
+   "#cobblemon:nether/is_forest",
+   "#cobblemon:nether/is_fungus"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%",
+   "cobblemon:rawst_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "blaziken",
+  "min_level": 36,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 80,
+  "atk": 120,
+  "speed": 80,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains",
+   "aether:skyroot_grove",
+   "aether:skyroot_meadow"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:charcoal_stick x1 @25.0%"
+  ]
+ },
+ {
+  "pokemon": "emboar",
+  "min_level": 36,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 110,
+  "atk": 123,
+  "speed": 65,
+  "type": "fire",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_plains",
+   "#cobblemon:nether/is_crimson",
+   "#cobblemon:nether/is_overgrowth"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:porkchop x2-4"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x2-4",
+   "cobblemon:charcoal_stick x1 @25.0%"
+  ]
+ },
+ {
+  "pokemon": "empoleon",
+  "min_level": 36,
+  "buckets": [
+   "ultra-rare"
+  ],
+  "hp": 84,
+  "atk": 86,
+  "speed": 60,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean",
+   "#cobblemon:is_glacial",
+   "#cobblemon:is_tundra",
+   "minecraft:frozen_river"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:mystic_water x1 @25.0%"
+  ]
+ },
+ {
+  "pokemon": "galvantula",
+  "min_level": 36,
+  "buckets": [
+   "common"
+  ],
+  "hp": 70,
+  "atk": 77,
+  "speed": 108,
+  "type": "bug",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_savanna"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 7,
+  "food_drops": [
+   "minecraft:spider_eye x0-2",
+   "minecraft:rotten_flesh x0-2"
+  ],
+  "all_drops": [
+   "minecraft:string x0-2",
+   "minecraft:spider_eye x0-2",
+   "minecraft:rotten_flesh x0-2",
+   "cobblemon:nanab_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "honchkrow",
+  "min_level": 36,
+  "buckets": [
+   "common"
+  ],
+  "hp": 100,
+  "atk": 125,
+  "speed": 71,
+  "type": "dark",
+  "catchRate": 30,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_swamp",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "night"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:bluk_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "pidgeot",
+  "min_level": 36,
+  "buckets": [
+   "common"
+  ],
+  "hp": 83,
+  "atk": 80,
+  "speed": 101,
+  "type": "normal",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen1"
+  ],
+  "biomes": [
+   "#cobblemon:is_sky",
+   "#cobblemon:is_temperate"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @5.0%",
+   "cobblemon:chilan_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "beartic",
+  "min_level": 37,
+  "buckets": [
+   "common"
+  ],
+  "hp": 95,
+  "atk": 130,
+  "speed": 50,
+  "type": "ice",
+  "catchRate": 60,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:cod x0-2"
+  ],
+  "all_drops": [
+   "minecraft:snowball x0-2",
+   "minecraft:cod x0-2",
+   "cobblemon:aspear_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "slowbro",
+  "min_level": 37,
+  "buckets": [
+   "common"
+  ],
+  "hp": 95,
+  "atk": 75,
+  "speed": 30,
+  "type": "water",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen1",
+   "kantonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_beach",
+   "#cobblemon:is_tropical_island",
+   "minecraft:mushroom_fields"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "cobblemon:tasty_tail x0-1"
+  ],
+  "all_drops": [
+   "cobblemon:tasty_tail x0-1",
+   "cobblemon:kings_rock x1 @5.0%",
+   "cobblemon:lagging_tail x1 @5.0%",
+   "cobblemon:chesto_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "slowking",
+  "min_level": 37,
+  "buckets": [
+   "common"
+  ],
+  "hp": 95,
+  "atk": 75,
+  "speed": 30,
+  "type": "water",
+  "catchRate": 70,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2",
+   "johtonian_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_beach",
+   "#cobblemon:is_tropical_island",
+   "minecraft:mushroom_fields"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "cobblemon:tasty_tail x0-1"
+  ],
+  "all_drops": [
+   "cobblemon:tasty_tail x0-1",
+   "cobblemon:kings_rock x1 @10.0%",
+   "cobblemon:lagging_tail x1 @10.0%",
+   "cobblemon:chesto_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "corviknight",
+  "min_level": 38,
+  "buckets": [
+   "common"
+  ],
+  "hp": 98,
+  "atk": 87,
+  "speed": 67,
+  "type": "flying",
+  "catchRate": 45,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen8"
+  ],
+  "biomes": [
+   "#cobblemon:is_hills",
+   "#cobblemon:is_sky",
+   "#cobblemon:is_spooky",
+   "#cobblemon:is_taiga"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 6,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-3",
+   "minecraft:chicken x1",
+   "cobblemon:metal_coat x1 @10.0%",
+   "cobblemon:wacan_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "palafin",
+  "min_level": 38,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 100,
+  "atk": 70,
+  "speed": 100,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen9"
+  ],
+  "biomes": [
+   "#cobblemon:is_ocean"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:cod x0-2"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-2"
+  ]
+ },
+ {
+  "pokemon": "amoonguss",
+  "min_level": 39,
+  "buckets": [
+   "common"
+  ],
+  "hp": 114,
+  "atk": 85,
+  "speed": 30,
+  "type": "grass",
+  "catchRate": 75,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen5"
+  ],
+  "biomes": [
+   "#cobblemon:is_mushroom"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:red_mushroom x0-2"
+  ],
+  "all_drops": [
+   "minecraft:red_mushroom x0-2",
+   "cobblemon:cheri_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "overqwil",
+  "min_level": 39,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 85,
+  "atk": 115,
+  "speed": 85,
+  "type": "dark",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8a"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold",
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:pufferfish x1"
+  ],
+  "all_drops": [
+   "minecraft:pufferfish x1",
+   "minecraft:prismarine_shard x0-2",
+   "cobblemon:poison_barb x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "blissey",
+  "min_level": 40,
+  "buckets": [
+   "rare"
+  ],
+  "hp": 255,
+  "atk": 10,
+  "speed": 55,
+  "type": "normal",
+  "catchRate": 30,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen2"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 1,
+  "food_drops": [
+   "minecraft:egg x1 @50.0%"
+  ],
+  "all_drops": [
+   "cobblemon:lucky_egg x1 @25.0%",
+   "cobblemon:oval_stone x1 @25.0%",
+   "minecraft:egg x1 @50.0%"
+  ]
+ },
+ {
+  "pokemon": "mamoswine",
+  "min_level": 40,
+  "buckets": [
+   "common"
+  ],
+  "hp": 110,
+  "atk": 130,
+  "speed": 80,
+  "type": "ice",
+  "catchRate": 50,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen4"
+  ],
+  "biomes": [
+   "#cobblemon:is_tundra"
+  ],
+  "time": [],
+  "drop_amount": 8,
+  "food_drops": [
+   "minecraft:porkchop x2-3"
+  ],
+  "all_drops": [
+   "minecraft:porkchop x2-3",
+   "minecraft:brown_wool x2-3",
+   "cobblemon:never_melt_ice x1 @10.0%",
+   "cobblemon:aspear_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "basculegion",
+  "min_level": 41,
+  "buckets": [
+   "common"
+  ],
+  "hp": 120,
+  "atk": 112,
+  "speed": 78,
+  "type": "water",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8a"
+  ],
+  "biomes": [
+   "#cobblemon:is_arid",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_freshwater",
+   "#cobblemon:is_grassland",
+   "#cobblemon:is_jungle",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_snowy_forest",
+   "#cobblemon:is_taiga",
+   "#cobblemon:is_tundra"
+  ],
+  "time": [],
+  "drop_amount": 2,
+  "food_drops": [
+   "minecraft:salmon x1"
+  ],
+  "all_drops": [
+   "minecraft:salmon x1",
+   "minecraft:bone_meal x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "walrein",
+  "min_level": 44,
+  "buckets": [
+   "common"
+  ],
+  "hp": 110,
+  "atk": 80,
+  "speed": 65,
+  "type": "ice",
+  "catchRate": 45,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen3"
+  ],
+  "biomes": [
+   "#cobblemon:is_cold_ocean",
+   "#cobblemon:is_frozen_ocean"
+  ],
+  "time": [],
+  "drop_amount": 4,
+  "food_drops": [
+   "minecraft:cod x0-3"
+  ],
+  "all_drops": [
+   "minecraft:cod x0-3",
+   "cobblemon:chesto_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "ursaluna",
+  "min_level": 45,
+  "buckets": [
+   "common"
+  ],
+  "hp": 130,
+  "atk": 140,
+  "speed": 50,
+  "type": "ground",
+  "catchRate": 20,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen8a"
+  ],
+  "biomes": [
+   "#aether:is_aether",
+   "#cobblemon:is_forest",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_overworld",
+   "#cobblemon:is_taiga",
+   "aether:skyroot_forest",
+   "aether:skyroot_woodland"
+  ],
+  "time": [],
+  "drop_amount": 8,
+  "food_drops": [
+   "minecraft:sweet_berries x3-5",
+   "minecraft:honey_bottle x1 @10.0%"
+  ],
+  "all_drops": [
+   "minecraft:sweet_berries x3-5",
+   "minecraft:honey_bottle x1 @10.0%",
+   "cobblemon:peat_block x1 @10.0%",
+   "cobblemon:oran_berry x1 @10.0%"
+  ]
+ },
+ {
+  "pokemon": "dragalge",
+  "min_level": 48,
+  "buckets": [
+   "common"
+  ],
+  "hp": 65,
+  "atk": 75,
+  "speed": 44,
+  "type": "poison",
+  "catchRate": 55,
+  "canFly": false,
+  "canSwim": false,
+  "labels": [
+   "gen6"
+  ],
+  "biomes": [
+   "#cobblemon:is_coast",
+   "#cobblemon:is_ocean",
+   "#cobblemon:is_overworld"
+  ],
+  "time": [],
+  "drop_amount": 3,
+  "food_drops": [
+   "minecraft:kelp x0-2"
+  ],
+  "all_drops": [
+   "minecraft:kelp x0-2",
+   "cobblemon:pecha_berry x1 @5.0%"
+  ]
+ },
+ {
+  "pokemon": "braviary",
+  "min_level": 54,
+  "buckets": [
+   "common",
+   "uncommon"
+  ],
+  "hp": 100,
+  "atk": 123,
+  "speed": 80,
+  "type": "normal",
+  "catchRate": 60,
+  "canFly": true,
+  "canSwim": false,
+  "labels": [
+   "gen5",
+   "unovan_form"
+  ],
+  "biomes": [
+   "#cobblemon:is_badlands",
+   "#cobblemon:is_hills",
+   "#cobblemon:is_mountain",
+   "#cobblemon:is_sky"
+  ],
+  "time": [
+   "day"
+  ],
+  "drop_amount": 5,
+  "food_drops": [
+   "minecraft:chicken x1"
+  ],
+  "all_drops": [
+   "minecraft:feather x0-2",
+   "minecraft:chicken x1",
+   "cobblemon:sharp_beak x1 @2.5%",
+   "cobblemon:razz_berry x1 @5.0%"
+  ]
+ }
+]

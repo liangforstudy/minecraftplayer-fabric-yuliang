@@ -1,0 +1,106 @@
+{
+ "cobblemon:healing_machine": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:anvil": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:brewing_stand": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:cartography_table": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:chipped_anvil": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:crafter": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:damaged_anvil": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:dispenser": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:dropper": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:enchanting_table": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:loom": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smithing_table": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stonecutter": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ }
+}

@@ -1,0 +1,803 @@
+{
+ "spice_of_fabric": {
+  "active": true,
+  "hunger_formula": "hungerValue * 0.7^timesEaten",
+  "saturation_formula": "saturationValue (unchanged)",
+  "consume_duration_formula": "consumeDuration * 1.3^timesEaten",
+  "history_length": 11,
+  "meaning": "timesEaten = how many of your last 11 eaten items were this same food. Rotate >=11 distinct foods to always eat at full value.",
+  "decay_table": {
+   "0": 1.0,
+   "1": 0.7,
+   "2": 0.49,
+   "3": 0.343,
+   "4": 0.2401,
+   "5": 0.1681,
+   "6": 0.1176,
+   "7": 0.0824
+  },
+  "carrot_mode": false,
+  "respawn_hunger": "max(8, hunger at death)",
+  "reset_history_on_death": false
+ },
+ "realistic_plant_growth": {
+  "active": true,
+  "min_natural_light": 15,
+  "note": "Player-planted crops need natural skylight 15. Torch-lit indoor farms do NOT grow.",
+  "only_player_planted": true,
+  "bonemeal_limit": 3,
+  "bonemeal_respects_biome": true,
+  "soil_rotation_days": 5,
+  "destroy_farmland_player": false,
+  "grow_in_dark": [
+   "RED_MUSHROOM",
+   "BROWN_MUSHROOM",
+   "COCOA",
+   "CAVE_VINES",
+   "GLOW_LICHEN",
+   "KELP",
+   "CHORUS_FLOWER",
+   "WEEPING_VINES",
+   "TWISTING_VINES",
+   "NETHER_WART",
+   "WARPED_FUNGUS",
+   "CRIMSON_FUNGUS"
+  ],
+  "biome_groups": {
+   "Arid": [
+    "BADLANDS",
+    "DESERT",
+    "ERODED_BADLANDS",
+    "WOODED_BADLANDS"
+   ],
+   "Savanna": [
+    "SAVANNA",
+    "SAVANNA_PLATEAU"
+   ],
+   "Frozen": [
+    "SNOWY_BEACH",
+    "DEEP_FROZEN_OCEAN",
+    "FROZEN_OCEAN",
+    "FROZEN_RIVER",
+    "FROZEN_PEAKS",
+    "GROVE",
+    "ICE_SPIKES",
+    "JAGGED_PEAKS",
+    "SNOWY_PLAINS",
+    "SNOWY_SLOPES",
+    "SNOWY_TAIGA"
+   ],
+   "Chilly": [
+    "COLD_OCEAN",
+    "DEEP_COLD_OCEAN",
+    "OLD_GROWTH_PINE_TAIGA",
+    "OLD_GROWTH_SPRUCE_TAIGA",
+    "TAIGA"
+   ],
+   "Temperate": [
+    "OCEAN",
+    "DEEP_OCEAN",
+    "LUKEWARM_OCEAN",
+    "DEEP_LUKEWARM_OCEAN",
+    "WARM_OCEAN",
+    "BIRCH_FOREST",
+    "CHERRY_GROVE",
+    "DARK_FOREST",
+    "FLOWER_FOREST",
+    "FOREST",
+    "MEADOW",
+    "MUSHROOM_FIELDS",
+    "OLD_GROWTH_BIRCH_FOREST",
+    "PLAINS",
+    "SUNFLOWER_PLAINS"
+   ],
+   "Tropical": [
+    "JUNGLE",
+    "BAMBOO_JUNGLE",
+    "SPARSE_JUNGLE",
+    "MANGROVE_SWAMP",
+    "SWAMP"
+   ],
+   "RiverAndCoasts": [
+    "RIVER",
+    "BEACH",
+    "STONY_SHORE"
+   ],
+   "Caves": [
+    "DEEP_DARK",
+    "DRIPSTONE_CAVES",
+    "LUSH_CAVES"
+   ],
+   "Windy": [
+    "WINDSWEPT_FOREST",
+    "WINDSWEPT_GRAVELLY_HILLS",
+    "WINDSWEPT_HILLS",
+    "WINDSWEPT_SAVANNA"
+   ]
+  },
+  "crop_growth_rates": {
+   "WHEAT": {
+    "best": [
+     "PLAINS",
+     "SUNFLOWER_PLAINS",
+     "MEADOW"
+    ],
+    "rate_best": 100,
+    "death_best": 0.0,
+    "groups": {
+     "Savanna": [
+      50,
+      0.73
+     ],
+     "Tropical": [
+      50,
+      1.49
+     ]
+    },
+    "elsewhere": "will not grow"
+   },
+   "CARROTS": {
+    "best": [
+     "BIRCH_FOREST",
+     "DARK_FOREST",
+     "FLOWER_FOREST",
+     "FOREST",
+     "OLD_GROWTH_BIRCH_FOREST"
+    ],
+    "rate_best": 100,
+    "death_best": 0.73,
+    "groups": {
+     "Chilly": [
+      50,
+      2.29
+     ]
+    },
+    "elsewhere": "will not grow"
+   },
+   "POTATOES": {
+    "best": [
+     "STONY_PEAKS",
+     "JAGGED_PEAKS",
+     "STONY_SHORE"
+    ],
+    "rate_best": 100,
+    "death_best": 0.73,
+    "groups": {
+     "Windy": [
+      100,
+      0.73
+     ],
+     "Arid": [
+      100,
+      0.73
+     ]
+    },
+    "elsewhere": "will not grow"
+   },
+   "BEETROOTS": {
+    "best": [
+     "CHERRY_GROVE"
+    ],
+    "rate_best": 75,
+    "death_best": 3.45,
+    "groups": {
+     "Chilly": [
+      100,
+      1.7
+     ],
+     "Frozen": [
+      75,
+      3.45
+     ]
+    },
+    "elsewhere": "will not grow"
+   },
+   "SWEET_BERRY_BUSH": {
+    "best": [
+     "WINDSWEPT_FOREST",
+     "WINDSWEPT_GRAVELLY_HILLS",
+     "WINDSWEPT_HILLS"
+    ],
+    "rate_best": 25,
+    "death_best": 1.7,
+    "groups": {
+     "Chilly": [
+      100,
+      0.67
+     ],
+     "Frozen": [
+      80,
+      0.67
+     ],
+     "Temperate": [
+      60,
+      1.7
+     ]
+    }
+   },
+   "MELON_STEM": {
+    "groups": {
+     "Tropical": [
+      100,
+      0.73
+     ],
+     "Temperate": [
+      25,
+      2.29
+     ]
+    },
+    "elsewhere": "will not grow"
+   },
+   "PUMPKIN_STEM": {
+    "groups": {
+     "Chilly": [
+      100,
+      0.73
+     ],
+     "Temperate": [
+      85,
+      0.73
+     ],
+     "Frozen": [
+      70,
+      5.97
+     ]
+    },
+    "elsewhere": "will not grow"
+   },
+   "BROWN_MUSHROOM": {
+    "best": [
+     "DARK_FOREST",
+     "MUSHROOM_FIELDS"
+    ],
+    "rate_best": 100,
+    "death_best": 5,
+    "groups": {
+     "Chilly": [
+      100,
+      5
+     ],
+     "Tropical": [
+      100,
+      5
+     ],
+     "Caves": [
+      100,
+      5
+     ]
+    }
+   },
+   "SUGAR_CANE": {
+    "groups": {
+     "Tropical": [
+      100,
+      null
+     ],
+     "Arid": [
+      null,
+      null
+     ],
+     "RiverAndCoasts": [
+      null,
+      null
+     ]
+    }
+   },
+   "COCOA": {
+    "best": [
+     "JUNGLE",
+     "BAMBOO_JUNGLE",
+     "SPARSE_JUNGLE"
+    ],
+    "rate_best": 100,
+    "death_best": 2.53
+   },
+   "CACTUS": {
+    "groups": {
+     "Arid": [
+      100,
+      0.34
+     ]
+    }
+   }
+  },
+  "caveat": "GrowthRate is % chance a growth tick applies; NaturalDeathChance is % the plant dies on that tick. A crop with no matching biome group and an empty Default biome list does not grow at all.",
+  "server_wild_crop_biomes": {
+   "_source": "world datapack biome tags with replace:true (these OVERRIDE mod defaults)",
+   "_insight": "Where a crop grows wild on this server is exactly where it farms at 100%. Finding a wild patch identifies the correct farming biome.",
+   "farm_and_charm:spawns_wild_barley": [
+    "plains",
+    "sunflower_plains",
+    "#is_savanna"
+   ],
+   "farm_and_charm:spawns_wild_potatoes": [
+    "windswept_hills",
+    "windswept_gravelly_hills",
+    "windswept_forest",
+    "windswept_savanna"
+   ],
+   "farm_and_charm:spawns_wild_strawberries": [
+    "meadow",
+    "#is_forest",
+    "#is_taiga"
+   ],
+   "farm_and_charm:spawns_wild_tomatoes_and_corn": [
+    "plains",
+    "savanna",
+    "savanna_plateau",
+    "#is_badlands"
+   ],
+   "farmersdelight:wild_carrots_whitelist": [
+    "forest",
+    "birch_forest",
+    "dark_forest",
+    "flower_forest",
+    "old_growth_birch_forest"
+   ],
+   "farmersdelight:wild_onions_whitelist": [
+    "plains",
+    "sunflower_plains",
+    "meadow",
+    "forest",
+    "birch_forest",
+    "dark_forest",
+    "flower_forest",
+    "old_growth_birch_forest",
+    "taiga",
+    "old_growth_pine_taiga",
+    "old_growth_spruce_taiga"
+   ],
+   "farmersdelight:wild_potatoes_whitelist": [
+    "windswept_hills",
+    "windswept_gravelly_hills",
+    "windswept_forest",
+    "windswept_savanna"
+   ]
+  }
+ },
+ "pacifist": {
+  "active": true,
+  "kill_cooldown_minutes": 30,
+  "engagement_grace_seconds": 15,
+  "hit_cooldown_seconds": 20,
+  "villages_suspend_pacifism_at_night": true,
+  "pacifism_suspended_during": [
+   "enhancedcelestials:blood_moon",
+   "enhancedcelestials:super_blood_moon"
+  ],
+  "note": "PvP-facing rule set; does not stop you harvesting animals or Pokemon."
+ },
+ "villager_trades": {
+  "farmersdelight": {
+   "enabled": true,
+   "farmer_buys": [
+    "farmersdelight:cabbage",
+    "farmersdelight:onion",
+    "farmersdelight:rice",
+    "farmersdelight:tomato"
+   ],
+   "wandering_trader_sells": [
+    "farmersdelight:cabbage_seeds",
+    "farmersdelight:tomato_seeds"
+   ]
+  },
+  "vinery": {
+   "level1": [
+    "farmer BUYS vinery:red_grape 15x1",
+    "farmer BUYS vinery:white_grape 15x1",
+    "farmer SELLS vinery:red_grape_seeds 2 emeralds",
+    "farmer SELLS vinery:white_grape_seeds 2 emeralds"
+   ],
+   "level2": [
+    "SELLS vinery:wine_bottle",
+    "BUYS vinery:cherry x12",
+    "SELLS vinery:apple_mash"
+   ]
+  },
+  "ubesdelight": {
+   "farmers_buy_crops": true,
+   "wandering_trader_sells_items": true
+  },
+  "note": "Vanilla farmer/butcher/fisherman trades are unchanged and remain the fastest emerald->food conversion."
+ },
+ "world_generation": {
+  "farmersdelight": {
+   "generateFDChestLoot": true,
+   "generateVillageCompostHeaps": true,
+   "generateFDCropsOnVillageFarms": true
+  },
+  "ubesdelight": {
+   "generateWildUbe": true,
+   "generateWildGarlic": true,
+   "generateWildGinger": true,
+   "generateWildLemongrass": true,
+   "generateUDChestLoot": true
+  },
+  "chefsdelight_village_houses": {
+   "plains_chef_house": 2,
+   "desert_chef_house": 5,
+   "savanna_chef_house": 3,
+   "snowy_chef_house": 3,
+   "taiga_chef_house": 2
+  }
+ },
+ "forced_gamerules": {
+  "naturalRegeneration": false,
+  "forgiveDeadPlayers": true,
+  "difficulty": "forced by zymlabs-rules WorldRules",
+  "source": "zymlabs-rules WorldRules.class + RulesConfig.class",
+  "consequence": "You NEVER heal from a full hunger bar. Health only returns via regeneration/instant_health effects, absorption, or potions. This also means hunger drains far slower than vanilla, because the 6.0-exhaustion-per-heal drain never fires."
+ },
+ "zymlabs_server_rules": {
+  "_source": "zymlabs-rules-0.0.6 RulesConfig.class (compile-time defaults)",
+  "campfire_burn_percent": 30,
+  "carrot_night_vision_ticks": 600,
+  "kelp": {
+   "poison_percent": 10,
+   "poison_ticks": 120,
+   "amplifier": 1,
+   "note": "dried kelp has a 10% chance to poison; do not use it as a staple"
+  },
+  "baked_potato_hunger": 4,
+  "charcoal_in_nine": 1,
+  "soul_charcoal_in_nine": 4,
+  "roasted_berries": {
+   "nutrition": 3,
+   "bitter_fire_resistance_ticks": 300,
+   "dry_rest_relief_ticks": 24000
+  },
+  "custom_foods": {
+   "bandung": {
+    "nutrition": 2,
+    "total_saturation": 1.6,
+    "effect_ticks": 1200,
+    "speed_level": 1,
+    "haste_level": 0
+   },
+   "cornucopia": {
+    "nutrition": 10,
+    "total_saturation": 10.0
+   },
+   "oyakodon": {
+    "nutrition": 12,
+    "total_saturation": 19.2,
+    "enabled": false
+   },
+   "katsudon": {
+    "nutrition": 14,
+    "total_saturation": 21.0
+   },
+   "raw_katsu": {
+    "nutrition": 3,
+    "total_saturation": 1.8
+   },
+   "tonkatsu": {
+    "nutrition": 9,
+    "total_saturation": 14.4
+   }
+  },
+  "treecapitator": {
+   "logs_at_first": 8,
+   "scan_limit": 256,
+   "radius": 16,
+   "require_leaves": true,
+   "durability_per_log": 1,
+   "leaf_fall_ticks": 60,
+   "note": "whole-tree felling; wood gathering is cheap, so tool crafting is cheap"
+  },
+  "storm_lightning": {
+   "sweep_ticks": 40,
+   "min_clearance": 8,
+   "full_clearance": 48,
+   "low_exposure_seconds": 480.0,
+   "high_exposure_seconds": 90.0,
+   "low_damage": 5.0,
+   "full_damage": 100.0,
+   "grace_ticks": 200,
+   "note": "CORRECTED: targets players flying (elytra / flying Pokemon). Risk starts 8 blocks above the ground, full damage at 48. A player on foot has clearance ~0 and is never struck.",
+   "measures": "clearanceBelow — empty air UNDER the player, i.e. height above ground"
+  },
+  "golem_truce": "Iron golems can be appeased per-player (GolemTruce.APPEASED attachment); village access is reputation-gated.",
+  "lootr_lock": "Some Lootr chests are access-gated by the server rule set.",
+  "axe_damage_vs_players_unlisted": 9.0,
+  "spawn_rules": {
+   "cold_skeleton_share": 80,
+   "silverfish_weight": 50,
+   "silverfish_group": [
+    2,
+    4
+   ],
+   "skeleton_armed_in": 8,
+   "skeleton_tool_drop_chance": 0.085
+  }
+ },
+ "lunar_events": {
+  "_source": "world datapack data/enhancedcelestials/.../lunar/event/*.json",
+  "blood_moon": {
+   "chance_per_night": 0.1,
+   "min_nights_between": 4,
+   "valid_moon_phases": "any",
+   "monster_spawn_multiplier": 1.0,
+   "force_surface_spawning": true,
+   "blocks_sleeping": true
+  },
+  "super_blood_moon": {
+   "chance_per_night": 0.05,
+   "min_nights_between": 20,
+   "valid_moon_phases": [
+    0
+   ],
+   "monster_spawn_multiplier": 2.25,
+   "force_surface_spawning": true,
+   "blocks_sleeping": true
+  },
+  "consequences": [
+   "Cannot sleep through the night — no skipping to morning.",
+   "Mobs are forced to spawn on the surface, including on top of your farm.",
+   "pacifist-fabric suspends pacifism during both events, so PvP is live.",
+   "With naturalRegeneration off, taking damage on a blood moon is not recoverable without healing items.",
+   "Harvest and blue moons are opportunities: sleeping skips the night, and with it the bonus.",
+   "Harvest moon: hold ripe crops and harvest during the night for x2 (super x4) drops.",
+   "Blue moon: the night to enchant and repair (costs halved; quartered on a super blue moon)."
+  ],
+  "harvest_moon": {
+   "_source": "Enhanced-Celestials-Fabric-1.21.1-6.0.2.5.jar defaults (data/enhancedcelestials/enhancedcelestials/lunar/event/). ON on the live server per owner 2026-09-22; live values may differ from defaults.",
+   "chance_per_night": 0.1,
+   "min_nights_between": 4,
+   "valid_moon_phases": "any",
+   "crop_drop_multiplier": 2.0,
+   "crop_tag": "#enhancedcelestials:harvest_moon_crops",
+   "blocks_sleeping": false
+  },
+  "super_harvest_moon": {
+   "_source": "Enhanced-Celestials-Fabric-1.21.1-6.0.2.5.jar defaults (data/enhancedcelestials/enhancedcelestials/lunar/event/). ON on the live server per owner 2026-09-22; live values may differ from defaults.",
+   "chance_per_night": 0.05,
+   "min_nights_between": 20,
+   "valid_moon_phases": [
+    0
+   ],
+   "crop_drop_multiplier": 4.0,
+   "blocks_sleeping": false
+  },
+  "blue_moon": {
+   "_source": "Enhanced-Celestials-Fabric-1.21.1-6.0.2.5.jar defaults (data/enhancedcelestials/enhancedcelestials/lunar/event/). ON on the live server per owner 2026-09-22; live values may differ from defaults.",
+   "chance_per_night": 0.1,
+   "min_nights_between": 4,
+   "valid_moon_phases": "any",
+   "effect": "minecraft:luck I (all entities)",
+   "enchanting_cost_multiplier": 0.5,
+   "anvil_cost_multiplier": 0.5,
+   "beacon_radius_multiplier": 1.5,
+   "blocks_sleeping": false
+  },
+  "super_blue_moon": {
+   "_source": "Enhanced-Celestials-Fabric-1.21.1-6.0.2.5.jar defaults (data/enhancedcelestials/enhancedcelestials/lunar/event/). ON on the live server per owner 2026-09-22; live values may differ from defaults.",
+   "chance_per_night": 0.05,
+   "min_nights_between": 20,
+   "valid_moon_phases": [
+    0
+   ],
+   "effect": "minecraft:luck V",
+   "enchanting_cost_multiplier": 0.25,
+   "anvil_cost_multiplier": 0.25,
+   "beacon_radius_multiplier": 2.0,
+   "blocks_sleeping": false
+  }
+ },
+ "tools_and_harvest": {
+  "_verified_against": "wild-crop loot tables in every content mod",
+  "hoe_effect_on_drops": "NONE. No wild-crop or crop loot table in this pack is conditioned on a hoe.",
+  "what_actually_changes_drops": {
+   "shears": "The only tool predicate on wild crops. Shears yield the PLANT BLOCK itself (for transplanting) INSTEAD of the food/seeds.",
+   "fortune": "Enchantment, not tool tier. Applies to seed/secondary drops via apply_bonus (FD: uniform_bonus_count bonusMultiplier 2; Let's Do: 12% base scaled by level). A hoe can carry Fortune, but a plain wooden hoe does nothing."
+  },
+  "why_you_still_need_a_hoe": "Tilling farmland. Without a hoe you cannot create farmland and cannot plant anything. Realistic Plant Growth sets require_hoe:false for players, so harvesting needs no hoe — only planting does.",
+  "hoe_cost": {
+   "recipe": "2 planks + 2 sticks",
+   "wood_cost": "~1 log (planks) + ~0.5 log (sticks)",
+   "hunger_cost": "Tilling adds no exhaustion in vanilla (only block BREAKING does, at 0.005 each). The hunger cost of getting a hoe is the walking and log-breaking, not the tilling.",
+   "note": "zymlabs Treecapitator fells whole trees at 1 durability per log, so wood for tools is very cheap here."
+  },
+  "exhaustion_model": {
+   "break_block": 0.005,
+   "attack_entity": 0.1,
+   "damage_taken": 0.1,
+   "sprint_per_metre": 0.1,
+   "jump": 0.05,
+   "sprint_jump": 0.2,
+   "swim_per_metre": 0.01,
+   "regen_heal": "6.0 — DISABLED on this server (naturalRegeneration=false)",
+   "conversion": "4.0 exhaustion consumes 1 saturation, then 1 hunger"
+  }
+ },
+ "pacifism": {
+  "_source": "pacifist-fabric-1.1.0 (MobMixin, TargetingConditionsMixin, GrudgeGroups, AlwaysHostileMobs, LunarEvents, Villages) + config/pacifist-fabric.json",
+  "hostile_mobs_are_neutral_until_provoked": true,
+  "grudge_groups": {
+   "zombie_kin": [
+    "minecraft:zombie",
+    "minecraft:husk",
+    "minecraft:drowned",
+    "minecraft:zombie_villager"
+   ],
+   "skeleton_kin": [
+    "minecraft:skeleton",
+    "minecraft:stray",
+    "minecraft:bogged"
+   ],
+   "rule": "Provoking ONE member turns the whole kin group hostile to you. Never melee a zombie in a group unless you intend to fight all zombie-kin nearby."
+  },
+  "always_hostile": {
+   "mechanism": "AlwaysHostileMobs accepts supplied exemptions at runtime; config villageAlwaysIgnores=[minecraft:creeper]",
+   "known": [
+    "minecraft:creeper (village pacifism never applies)"
+   ]
+  },
+  "pacifism_suspended": {
+   "in_villages_at_night": true,
+   "village_notice_seconds": 5,
+   "during_events": [
+    "enhancedcelestials:blood_moon",
+    "enhancedcelestials:super_blood_moon"
+   ]
+  },
+  "timers": {
+   "kill_cooldown_minutes": 30,
+   "engagement_grace_seconds": 15,
+   "hit_cooldown_seconds": 20,
+   "offline_recovery_hours": 18,
+   "war_commitment_minutes": 5
+  },
+  "bot_consequence": "Night travel is SAFE by default. The bot's threat model is not 'mobs at night' but 'do not provoke, and do not be in a village at night or out during a blood moon'."
+ },
+ "bed_and_rest": {
+  "_source": "civfabric-0.4.0 bed/BedConfig.class + BedRest/BedClaims/Towns",
+  "_why_it_matters": "naturalRegeneration is OFF. Bed rest is the primary renewable heal, and it is PAID FOR IN HUNGER. This is the direct link between the farming economy and the health economy.",
+  "rest_heal_per_day": 5.0,
+  "rest_heal_per_cycle": 1.0,
+  "rest_interval_ticks": 900,
+  "rest_hunger_per_health": 1.0,
+  "rest_hunger_floor": 3,
+  "warmth_radius": 4,
+  "warmth_height": 2,
+  "town_radius": 64,
+  "town_min_beds": 3,
+  "rules": [
+   "Resting heals 1 HP per 900-tick (45s) cycle, up to 5 HP per day.",
+   "Each HP healed costs 1 hunger point.",
+   "Resting halts when hunger reaches 3 (REST_HUNGER_FLOOR).",
+   "Rest requires WARMTH: a heat source within radius 4, height 2 of the bed.",
+   "Beds are CLAIMED per player (BedClaims.OWNED_BED). One owned bed each; a bot needs its own.",
+   "A TOWN is >=3 beds clustered within 64 blocks. This is why 3+ players is a mechanical minimum, not a suggestion."
+  ],
+  "bot_consequence": "Healing 5 HP costs 5 hunger, i.e. roughly one good meal. Bed placement priority should be weighed as: expected_damage_taken * hunger_per_hp vs. cost of walking home. Far from spawn, the downside of death (full item loss to a grave) dominates, so bed priority should rise with distance from the current spawn point."
+ },
+ "death_and_graves": {
+  "_source": "civfabric-0.4.0 grave/ + dbno/",
+  "grave_keeps_all_experience": false,
+  "mechanics": [
+   "Death drops your items into a grave block at the death site, not scattered.",
+   "You respawn at your spawn point (bed if claimed and valid, else world spawn) with nothing.",
+   "civfabric has a 'dbno' (down-but-not-out) module — downed state before true death.",
+   "Experience is NOT fully kept by the grave."
+  ],
+  "bot_consequence": "Death cost = full trip back to the grave + lost time, not lost items. So the dominant risk metric is DISTANCE FROM SPAWN, exactly as the design intends."
+ },
+ "lunar_forecast": {
+  "_source": "civfabric-0.4.0 compat/enhancedcelestials/LunarForecast.class + spec/config/SpecConfig.class",
+  "commands": [
+   "/lunarforecast",
+   "/forecast"
+  ],
+  "base_command": "Enhanced Celestials also registers /lunarForecast (world data, same answer for everyone). civfabric's version is the per-player noisy one.",
+  "per_player_noise": true,
+  "seeded_by": "seed(player UUID, day bucket) — each player gets an INDEPENDENT reading of the same underlying truth",
+  "reading": {
+   "moon": "event id or none",
+   "confidence": "double, displayed as percent with one decimal"
+  },
+  "output_format": "'You sense a <Moon Name> <tonight|tomorrow night> ... <confidence>%' (DecimalFormat '0.0', confidence*100)",
+  "accuracy_by_class_rank": {
+   "rank_source": "max rank across SpecConfig.FORECAST_CLASSES via ClassManager.rank(player, classType)",
+   "FORECAST_SENSITIVITY": [
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9
+   ],
+   "FORECAST_NOISE": [
+    0.1,
+    0.08,
+    0.06,
+    0.05,
+    0.04,
+    0.02
+   ],
+   "index": "rank clamped to 0..5",
+   "meaning": "sensitivity = P(reports E | E is true). noise = P(reports E | E is false)."
+  },
+  "priors": {
+   "ordinary_moon_full_phase": 0.0491,
+   "ordinary_moon_other_phase": 0.0522,
+   "super_moon": 0.0267,
+   "ordinary_moons": [
+    "enhancedcelestials:blood_moon",
+    "enhancedcelestials:blue_moon",
+    "enhancedcelestials:harvest_moon"
+   ],
+   "super_moons": [
+    "enhancedcelestials:super_blood_moon",
+    "enhancedcelestials:super_blue_moon",
+    "enhancedcelestials:super_harvest_moon",
+    "enhancedcelestials:super_moon"
+   ]
+  },
+  "active_in_this_world": [
+   "enhancedcelestials:blood_moon",
+   "enhancedcelestials:super_blood_moon"
+  ],
+  "note_on_active_events": "The EC jar ships 7 event types, but the world datapack only defines blood_moon and super_blood_moon. legalOn(time) filters by moon phase, so super_blood_moon can only be reported on a full moon (phase 0).",
+  "fusion_math": {
+   "why": "Because readings are independently seeded per player and share one prior, they are conditionally independent observations of the same truth. Log-odds fusion is exact, not an approximation.",
+   "with_rank_known": "odds = prior_odds * PROD_i LR_i, where LR_i = sens_i/noise_i if player i reports E, else (1-sens_i)/(1-noise_i).",
+   "with_only_confidence_known": "combined_odds = prior_odds * PROD_i (odds_i / prior_odds), where odds_i = c_i/(1-c_i). This needs no rank, only each reported confidence and the shared prior.",
+   "worked_example": "Three rank-0 players (sens 0.4, noise 0.1) all report blood_moon on a non-full-moon night. prior 0.0522 -> odds 0.0551. LR = 4.0 each. Fused odds = 0.0551*64 = 3.53 -> P = 0.78. One rank-0 reading alone would be only P = 0.18."
+  },
+  "forecast_classes": {
+   "_source": "user (server owner knowledge); SpecConfig.FORECAST_CLASSES is server-config driven",
+   "classes": [
+    "LIBRARIAN",
+    "HUNTER"
+   ],
+   "caveat": "Only these two are known to contribute. rank(player) = MAX rank across the ACTIVE forecast classes.",
+   "_critical": "HUNTER is DISABLED by default (ClassSetup.DEFAULT_ENABLED excludes it). So on current settings LIBRARIAN is the ONLY live forecast class, and a player's forecast rank == their LIBRARIAN rank.",
+   "when_hunter_returns": "Owner intends to enable HUNTER and raise specialisationSlots to 3. Forecast rank then = max(LIBRARIAN, HUNTER), so two classes can carry it and readings get cheaper to source."
+  },
+  "fusion_reference_table": {
+   "_prior": "0.0522 (ordinary moon, non-full night)",
+   "_group": "3 players; with HUNTER off only a LIBRARIAN has rank > 0",
+   "scenarios": {
+    "all 3 report; LIB5 + 2x rank0": 0.9754,
+    "all 3 report; LIB3 + 2x rank0": 0.925,
+    "all 3 report; all rank0": 0.779,
+    "only LIB5 reports; 2 silent": 0.5241,
+    "LIB5 SILENT; 2x rank0 report": 0.0825,
+    "nobody reports; LIB5 present": 0.0025,
+    "nobody reports; all rank0": 0.0161,
+    "single LIB5 alone": 0.7125,
+    "single rank0 alone": 0.1805
+   },
+   "_key_findings": [
+    "A high-rank LIBRARIAN's SILENCE is close to a veto: LIB5 silent + two rank-0 positives = 0.082.",
+    "Three rank-0 readings (0.779) just beat one LIB5 alone (0.713) — pooling novices works for DETECTION.",
+    "But for an ALL-CLEAR the librarian is irreplaceable: nobody-reports is 0.002 with a LIB5 present vs 0.016 without. 8x more certain.",
+    "So LIBRARIAN rank buys confident NEGATIVES more than confident positives. Positives can be crowdsourced; negatives cannot."
+   ]
+  },
+  "forecast_guess": {
+   "_source": "civfabric 0.4.2 ForecastGuess.class (new)",
+   "commands": [
+    "/guessforecast",
+    "/guesslunarforecast"
+   ],
+   "how": "Name the moon you expect (or a quiet night) and a class to receive the reward. If it comes true you earn class XP; you can change your guess until the night.",
+   "xp_base": 160.0,
+   "bot_relevance": "A bot running the P2P fusion has the best estimate in the group, so it can guess nightly and bank reliable class XP into a class of its choice.",
+   "wrong_guess_penalty": "none — a miss only prints 'The ... did not come.' Verified in settle(); owner confirms it's deliberate (to discourage gambling).",
+   "reward_formula": "clamp(160 * x, 0, 160); x = 1 - own_reading_confidence if the guess matches your own /lunarforecast moon, else own_reading_confidence",
+   "reward_formula_consequence": "Agreeing with a confident reading pays little; a correct contrarian guess pays a lot. Team readings that contradict your own are worth XP.",
+   "guessable": [
+    "blood_moon",
+    "blue_moon",
+    "harvest_moon",
+    "none"
+   ],
+   "guessable_note": "super_* moons count as their base moon (categoryOf strips 'super_'). Blue and harvest moons are ON on the live server (owner, 2026-09-22).",
+   "xp_award": "ClassManager.awardUnboosted — no under-attack or pacifism multipliers",
+   "timing": "guess before tick 13000 targets tonight, after it targets tomorrow night; changeable until then",
+   "bot_strategy": "always guess (free); pick argmax over g of P_own(g) * reward(g)"
+  }
+ }
+}

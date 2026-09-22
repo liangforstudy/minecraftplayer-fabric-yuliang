@@ -1,0 +1,39 @@
+{
+ "journeyman": [
+  "minecraft:protection",
+  "minecraft:feather_falling",
+  "minecraft:efficiency",
+  "minecraft:sharpness",
+  "minecraft:power",
+  "minecraft:respiration",
+  "minecraft:aqua_affinity",
+  "minecraft:binding_curse"
+ ],
+ "expert": [
+  "minecraft:fire_protection",
+  "minecraft:blast_protection",
+  "minecraft:projectile_protection",
+  "minecraft:fire_aspect",
+  "minecraft:knockback",
+  "minecraft:smite",
+  "minecraft:bane_of_arthropods",
+  "minecraft:silk_touch",
+  "minecraft:fortune",
+  "minecraft:flame",
+  "minecraft:punch"
+ ],
+ "master": [
+  "minecraft:unbreaking",
+  "minecraft:looting",
+  "minecraft:infinity",
+  "minecraft:depth_strider",
+  "minecraft:frost_walker",
+  "minecraft:thorns",
+  "minecraft:sweeping_edge"
+ ],
+ "grandmaster": [
+  "minecraft:mending",
+  "minecraft:soul_speed",
+  "minecraft:swift_sneak"
+ ]
+}

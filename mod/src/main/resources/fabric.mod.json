@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "${id}",
+  "version": "${version}",
+  "name": "${name}",
+  "description": "A client-side bot that plays Minecraft by rules, not an LLM — survives, cooperates, and works toward the End.",
+  "authors": ["yuliang"],
+  "license": "All-Rights-Reserved",
+  "icon": "assets/zymbot/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["dev.yuliang.zymbot.fabric.ZymbotClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.17",
+    "minecraft": "${minecraft}",
+    "fabric-api-base": "*",
+    "fabric-lifecycle-events-v1": "*",
+    "fabric-networking-api-v1": "*",
+    "fabric-command-api-v2": "*",
+    "fabric-message-api-v1": "*"
+  }
+}

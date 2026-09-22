@@ -1,0 +1,1145 @@
+[
+ {
+  "source": "Cobblemon",
+  "table": "blocks/chesto_berry",
+  "food": [
+   "cobblemon:chesto_berry  (w1, 100%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/abandoned_mineshaft",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 12%)",
+   "cobblemon:blue_apricorn_seed  (w1, 12%)",
+   "cobblemon:green_apricorn_seed  (w1, 12%)",
+   "cobblemon:pink_apricorn_seed  (w1, 12%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 12%)",
+   "cobblemon:white_apricorn_seed  (w1, 12%)",
+   "cobblemon:black_apricorn_seed  (w1, 12%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 12%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/jungle_temple",
+  "food": [
+   "cobblemon:vivichoke_seeds x1-3 (w1, 100%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/shipwreck_supply",
+  "food": [
+   "cobblemon:vivichoke_seeds x1-3 (w1, 100%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/simple_dungeon",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 12%)",
+   "cobblemon:blue_apricorn_seed  (w1, 12%)",
+   "cobblemon:green_apricorn_seed  (w1, 12%)",
+   "cobblemon:pink_apricorn_seed  (w1, 12%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 12%)",
+   "cobblemon:white_apricorn_seed  (w1, 12%)",
+   "cobblemon:black_apricorn_seed  (w1, 12%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 12%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/spawn_bonus_chest",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 5%)",
+   "cobblemon:blue_apricorn_seed  (w1, 5%)",
+   "cobblemon:green_apricorn_seed  (w1, 5%)",
+   "cobblemon:pink_apricorn_seed  (w1, 5%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 5%)",
+   "cobblemon:white_apricorn_seed  (w1, 5%)",
+   "cobblemon:black_apricorn_seed  (w1, 5%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/village_house",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 11%)",
+   "cobblemon:blue_apricorn_seed  (w1, 11%)",
+   "cobblemon:green_apricorn_seed  (w1, 11%)",
+   "cobblemon:pink_apricorn_seed  (w1, 11%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 11%)",
+   "cobblemon:white_apricorn_seed  (w1, 11%)",
+   "cobblemon:black_apricorn_seed  (w1, 11%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 11%)"
+  ]
+ },
+ {
+  "source": "Cobblemon",
+  "table": "injection/chests/woodland_mansion",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 11%)",
+   "cobblemon:blue_apricorn_seed  (w1, 11%)",
+   "cobblemon:green_apricorn_seed  (w1, 11%)",
+   "cobblemon:pink_apricorn_seed  (w1, 11%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 11%)",
+   "cobblemon:white_apricorn_seed  (w1, 11%)",
+   "cobblemon:black_apricorn_seed  (w1, 11%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 11%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_abandoned_mineshaft",
+  "food": [
+   "farmersdelight:tomato_seeds x2-4 (w1, 17%)",
+   "farmersdelight:cabbage_seeds x2-4 (w1, 17%)",
+   "farmersdelight:rice x2-4 (w1, 17%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_bastion_hoglin_stable",
+  "food": [
+   "farmersdelight:ham x2-5 (w4, 44%)",
+   "farmersdelight:smoked_ham x2-5 (w2, 22%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_pillager_outpost",
+  "food": [
+   "farmersdelight:onion x4-12 (w5, 71%)",
+   "farmersdelight:onion_crate x1-3 (w2, 29%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_shipwreck_supply",
+  "food": [
+   "farmersdelight:tomato_seeds x2-4 (w6, 23%)",
+   "farmersdelight:cabbage_seeds x2-4 (w6, 23%)",
+   "farmersdelight:onion x2-4 (w6, 23%)",
+   "farmersdelight:rice x2-4 (w6, 23%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_simple_dungeon",
+  "food": [
+   "farmersdelight:tomato_seeds x2-4 (w1, 33%)",
+   "farmersdelight:cabbage_seeds x2-4 (w1, 33%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_village_butcher",
+  "food": [
+   "farmersdelight:ham  (w1, 8%)",
+   "farmersdelight:minced_beef x2-6 (w3, 25%)",
+   "farmersdelight:bacon x2-6 (w3, 25%)",
+   "farmersdelight:mutton_chops x2-6 (w3, 25%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_village_desert_house",
+  "food": [
+   "farmersdelight:tomato_seeds x1-3 (w1, 50%)",
+   "farmersdelight:rice x1-3 (w1, 50%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_village_plains_house",
+  "food": [
+   "farmersdelight:onion x1-3 (w1, 50%)",
+   "farmersdelight:tomato_seeds x1-3 (w1, 50%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_village_savanna_house",
+  "food": [
+   "farmersdelight:tomato_seeds x1-3 (w1, 50%)",
+   "farmersdelight:cabbage_seeds x1-3 (w1, 50%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_village_snowy_house",
+  "food": [
+   "farmersdelight:onion x1-3 (w1, 50%)",
+   "farmersdelight:cabbage_seeds x1-3 (w1, 50%)"
+  ]
+ },
+ {
+  "source": "FarmersDelight",
+  "table": "chests/fd_village_taiga_house",
+  "food": [
+   "farmersdelight:cabbage_seeds x1-3 (w1, 50%)",
+   "farmersdelight:rice x1-3 (w1, 50%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/ancient_ruins",
+  "food": [
+   "minecraft:rotten_flesh  (w10, 10%)",
+   "minecraft:rabbit_foot  (w1, 1%)",
+   "minecraft:bread  (w3, 3%)",
+   "minecraft:carrot  (w5, 5%)",
+   "minecraft:chainmail_leggings  (w3, 3%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/ancient_ruins_loot",
+  "food": [
+   "minecraft:apple  (w3, 2%)",
+   "minecraft:carrot_on_a_stick  (w4, 2%)",
+   "minecraft:pumpkin_seeds x2-4 (w12, 7%)",
+   "minecraft:beetroot_seeds x2-4 (w7, 4%)",
+   "minecraft:honeycomb x1-8 (w5, 3%)",
+   "minecraft:rotten_flesh x1-8 (w15, 8%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/badlands_dungeon_loot_high",
+  "food": [
+   "minecraft:cooked_chicken  (w8, 3%)",
+   "minecraft:iron_leggings  (w9, 3%)",
+   "minecraft:rotten_flesh  (w15, 5%)",
+   "minecraft:melon_seeds x2-4 (w10, 4%)",
+   "minecraft:pumpkin_seeds x2-4 (w12, 4%)",
+   "minecraft:beetroot_seeds x2-4 (w7, 3%)",
+   "minecraft:rotten_flesh x1-8 (w13, 5%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/badlands_dungeon_loot_low",
+  "food": [
+   "minecraft:chainmail_leggings  (w6, 3%)",
+   "minecraft:bread  (w10, 5%)",
+   "minecraft:wheat x1-4 (w12, 5%)",
+   "minecraft:rotten_flesh x2-4 (w13, 6%)",
+   "minecraft:beetroot_seeds x2-4 (w7, 3%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/bone_dungeon_loot",
+  "food": [
+   "minecraft:iron_leggings  (w9, 2%)",
+   "minecraft:golden_apple  (w4, 1%)",
+   "minecraft:enchanted_golden_apple  (w3, 1%)",
+   "minecraft:diamond_leggings  (w7, 2%)",
+   "minecraft:bread  (w12, 3%)",
+   "minecraft:rotten_flesh x1-8 (w10, 3%)",
+   "minecraft:enchanted_golden_apple x1-2 (w3, 1%)",
+   "minecraft:golden_apple x1-2 (w4, 1%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/desert_pyramid_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w8, 3%)",
+   "minecraft:chainmail_leggings  (w9, 3%)",
+   "minecraft:iron_leggings  (w9, 3%)",
+   "minecraft:bread  (w12, 4%)",
+   "minecraft:wheat x1-4 (w12, 4%)",
+   "minecraft:rotten_flesh x2-4 (w13, 4%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/end_ruins_loot",
+  "food": [
+   "minecraft:golden_apple  (w4, 1%)",
+   "minecraft:golden_carrot  (w9, 3%)",
+   "minecraft:chorus_fruit  (w10, 3%)",
+   "minecraft:diamond_leggings  (w8, 2%)",
+   "minecraft:rotten_flesh x1-8 (w6, 2%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/level_one_ruins_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w2, 1%)",
+   "minecraft:golden_leggings  (w3, 1%)",
+   "minecraft:bread  (w10, 4%)",
+   "minecraft:wheat x1-4 (w13, 5%)",
+   "minecraft:golden_leggings x2-4 (w6, 2%)",
+   "minecraft:pumpkin_seeds x2-4 (w12, 4%)",
+   "minecraft:cookie x2-4 (w8, 3%)",
+   "minecraft:spider_eye x2-4 (w7, 3%)",
+   "minecraft:honeycomb x2-4 (w7, 3%)",
+   "minecraft:honey_bottle x2-4 (w6, 2%)",
+   "minecraft:suspicious_stew x1-2 (w5, 2%)",
+   "minecraft:goat_horn x1-2 (w4, 1%)",
+   "minecraft:beetroot_seeds x2-4 (w7, 3%)",
+   "minecraft:rotten_flesh x1-8 (w15, 5%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/level_three_ruins_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w7, 2%)",
+   "minecraft:golden_leggings  (w6, 2%)",
+   "minecraft:golden_leggings x2-4 (w5, 2%)",
+   "minecraft:pumpkin_seeds x2-4 (w10, 3%)",
+   "minecraft:golden_apple x2-4 (w2, 1%)",
+   "minecraft:spider_eye x2-4 (w12, 4%)",
+   "minecraft:honey_bottle x2-4 (w7, 2%)",
+   "minecraft:suspicious_stew x1-2 (w6, 2%)",
+   "minecraft:goat_horn x1-2 (w5, 2%)",
+   "minecraft:golden_apple x2-4 (w1, 0%)",
+   "minecraft:rotten_flesh x1-8 (w12, 4%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/lost_soul_city_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w3, 1%)",
+   "minecraft:diamond_leggings  (w4, 1%)",
+   "minecraft:golden_apple x1-2 (w3, 1%)",
+   "minecraft:golden_carrot x1-2 (w5, 2%)",
+   "minecraft:enchanted_golden_apple x1-2 (w1, 0%)",
+   "minecraft:bread  (w14, 5%)",
+   "minecraft:wheat x1-2 (w8, 3%)",
+   "minecraft:pumpkin_seeds x2-2 (w12, 4%)",
+   "minecraft:beetroot_seeds x1-2 (w7, 3%)",
+   "minecraft:rotten_flesh x1-3 (w13, 5%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/nether_lava_ruins_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w8, 2%)",
+   "minecraft:golden_leggings  (w5, 1%)",
+   "minecraft:netherite_leggings  (w2, 1%)",
+   "minecraft:rotten_flesh x1-4 (w14, 4%)",
+   "minecraft:porkchop x1-4 (w12, 3%)",
+   "minecraft:golden_apple x1-2 (w5, 1%)",
+   "minecraft:enchanted_golden_apple x1-2 (w4, 1%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/nether_ruins_low",
+  "food": [
+   "minecraft:golden_apple  (w8, 3%)",
+   "minecraft:rotten_flesh x1-4 (w18, 6%)",
+   "minecraft:golden_leggings x1-8 (w8, 3%)",
+   "minecraft:rotten_flesh x1-8 (w18, 6%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/ocean_ruin_fortress",
+  "food": [
+   "minecraft:chainmail_leggings  (w9, 2%)",
+   "minecraft:golden_leggings  (w9, 2%)",
+   "minecraft:iron_leggings  (w6, 1%)",
+   "minecraft:chainmail_leggings  (w6, 1%)",
+   "minecraft:fishing_rod  (w12, 2%)",
+   "minecraft:cod x1-4 (w15, 3%)",
+   "minecraft:golden_apple x2-4 (w8, 1%)",
+   "minecraft:cod x2-4 (w16, 3%)",
+   "minecraft:fishing_rod x2-4 (w10, 2%)",
+   "minecraft:suspicious_stew x1-2 (w8, 1%)",
+   "minecraft:pufferfish x1-2 (w9, 2%)",
+   "minecraft:salmon_bucket x1-2 (w8, 1%)",
+   "minecraft:dried_kelp x2-4 (w14, 2%)",
+   "minecraft:rotten_flesh x2-4 (w16, 3%)",
+   "minecraft:rotten_flesh x1-8 (w10, 2%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/ocean_ruins_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w9, 2%)",
+   "minecraft:golden_leggings  (w9, 2%)",
+   "minecraft:fishing_rod  (w12, 2%)",
+   "minecraft:golden_apple x2-4 (w8, 2%)",
+   "minecraft:cod x2-4 (w16, 3%)",
+   "minecraft:fishing_rod x2-4 (w10, 2%)",
+   "minecraft:suspicious_stew x1-2 (w8, 2%)",
+   "minecraft:pufferfish x1-2 (w9, 2%)",
+   "minecraft:salmon_bucket x1-2 (w8, 2%)",
+   "minecraft:dried_kelp x2-4 (w14, 3%)",
+   "minecraft:rotten_flesh x2-4 (w16, 3%)",
+   "minecraft:rotten_flesh x1-8 (w10, 2%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/ruin_loot",
+  "food": [
+   "minecraft:chainmail_leggings  (w3, 2%)",
+   "minecraft:bread  (w14, 7%)",
+   "minecraft:wheat x1-4 (w16, 8%)",
+   "minecraft:pumpkin_seeds x2-4 (w12, 6%)",
+   "minecraft:beetroot_seeds x2-4 (w7, 4%)",
+   "minecraft:rotten_flesh x1-8 (w15, 8%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/ruin_loot_value",
+  "food": [
+   "minecraft:golden_apple  (w2, 1%)",
+   "minecraft:bread  (w13, 8%)",
+   "minecraft:melon_seeds x2-4 (w11, 7%)",
+   "minecraft:pumpkin_seeds x2-4 (w13, 8%)",
+   "minecraft:rotten_flesh x1-8 (w14, 9%)"
+  ]
+ },
+ {
+  "source": "Philips",
+  "table": "chest/sculk_dungeon_loot",
+  "food": [
+   "minecraft:iron_leggings  (w9, 2%)",
+   "minecraft:golden_apple  (w4, 1%)",
+   "minecraft:enchanted_golden_apple  (w3, 1%)",
+   "minecraft:diamond_leggings  (w7, 1%)",
+   "minecraft:bread  (w12, 3%)",
+   "minecraft:rotten_flesh x1-8 (w10, 2%)",
+   "minecraft:enchanted_golden_apple x1-2 (w3, 1%)",
+   "minecraft:golden_apple x1-2 (w4, 1%)"
+  ]
+ },
+ {
+  "source": "YungsBetterDungeons",
+  "table": "keleton_dungeon/chests/common",
+  "food": [
+   "minecraft:golden_apple  (w5, 7%)",
+   "minecraft:enchanted_golden_apple  (w1, 1%)"
+  ]
+ },
+ {
+  "source": "YungsBetterDungeons",
+  "table": "mall_nether_dungeon/chests/common",
+  "food": [
+   "minecraft:rotten_flesh x1-8 (w10, 4%)",
+   "minecraft:golden_leggings  (w3, 1%)",
+   "minecraft:chainmail_leggings  (w3, 1%)",
+   "minecraft:enchanted_golden_apple  (w2, 1%)",
+   "minecraft:rotten_flesh x1-5 (w10, 4%)"
+  ]
+ },
+ {
+  "source": "YungsBetterDungeons",
+  "table": "pider_dungeon/chests/egg_room",
+  "food": [
+   "minecraft:golden_apple  (w5, 6%)",
+   "minecraft:enchanted_golden_apple  (w1, 1%)",
+   "minecraft:spider_eye x2-5 (w3, 3%)",
+   "minecraft:beetroot_seeds x2-5 (w3, 3%)",
+   "minecraft:pumpkin_seeds x2-5 (w3, 3%)",
+   "minecraft:melon_seeds x2-5 (w3, 3%)"
+  ]
+ },
+ {
+  "source": "YungsBetterDungeons",
+  "table": "zombie_dungeon/chests/common",
+  "food": [
+   "minecraft:golden_apple  (w5, 4%)",
+   "minecraft:enchanted_golden_apple  (w1, 1%)",
+   "minecraft:iron_leggings  (w2, 2%)",
+   "minecraft:apple x1-3 (w3, 2%)",
+   "minecraft:beetroot_seeds x2-4 (w3, 2%)",
+   "minecraft:wheat_seeds x2-4 (w3, 2%)",
+   "minecraft:cornflower  (w3, 2%)",
+   "minecraft:brown_mushroom  (w3, 2%)",
+   "minecraft:red_mushroom  (w3, 2%)",
+   "minecraft:rotten_flesh x1-3 (w10, 8%)",
+   "minecraft:carrot x1-2 (w5, 4%)",
+   "minecraft:potato x1-2 (w5, 4%)"
+  ]
+ },
+ {
+  "source": "YungsBetterDungeons",
+  "table": "zombie_dungeon/chests/special",
+  "food": [
+   "minecraft:golden_apple  (w5, 4%)",
+   "minecraft:enchanted_golden_apple  (w1, 1%)",
+   "minecraft:iron_leggings  (w2, 2%)",
+   "minecraft:apple x1-3 (w3, 2%)",
+   "minecraft:beetroot_seeds x2-4 (w3, 2%)",
+   "minecraft:wheat_seeds x2-4 (w3, 2%)",
+   "minecraft:cornflower  (w3, 2%)",
+   "minecraft:brown_mushroom  (w3, 2%)",
+   "minecraft:red_mushroom  (w3, 2%)",
+   "minecraft:rotten_flesh x1-3 (w10, 8%)",
+   "minecraft:carrot x1-2 (w5, 4%)",
+   "minecraft:potato x1-2 (w5, 4%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_badlands_house",
+  "food": [
+   "minecraft:wheat x1-7 (w10, 28%)",
+   "minecraft:bread x1-4 (w10, 28%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_beach_house",
+  "food": [
+   "minecraft:sugar_cane x1-4 (w10, 29%)",
+   "minecraft:wheat x1-7 (w10, 29%)",
+   "minecraft:bread x1-4 (w10, 29%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_dark_forest_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 23%)",
+   "minecraft:bread x1-4 (w10, 23%)",
+   "minecraft:apple x1-5 (w10, 23%)",
+   "minecraft:dark_oak_sapling x1-2 (w5, 12%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_farm",
+  "food": [
+   "minecraft:wheat x1-3 (w2, 22%)",
+   "minecraft:carrot x1-3 (w2, 22%)",
+   "minecraft:potato x1-3 (w2, 22%)",
+   "minecraft:beetroot x1-3 (w2, 22%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_jungle_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 25%)",
+   "minecraft:cookie x1-4 (w10, 25%)",
+   "minecraft:cocoa_beans x1-5 (w10, 25%)",
+   "minecraft:jungle_sapling x1-2 (w5, 12%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_mountain_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 26%)",
+   "minecraft:sweet_berries x1-7 (w5, 13%)",
+   "minecraft:bread x1-4 (w10, 26%)",
+   "minecraft:pumpkin_seeds x1-5 (w5, 13%)",
+   "minecraft:pumpkin_pie  (w1, 3%)",
+   "minecraft:spruce_sapling x1-5 (w5, 13%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_mushroom_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 29%)",
+   "minecraft:bread x1-4 (w10, 29%)",
+   "minecraft:brown_mushroom x1-2 (w5, 14%)",
+   "minecraft:red_mushroom x1-2 (w5, 14%)"
+  ]
+ },
+ {
+  "source": "[Fabric]ctov",
+  "table": "chests/village/village_swamp_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 23%)",
+   "minecraft:bread x1-4 (w10, 23%)",
+   "minecraft:apple x1-5 (w10, 23%)"
+  ]
+ },
+ {
+  "source": "chefsdelight",
+  "table": "chests/cooker",
+  "food": [
+   "farmersdelight:cabbage_leaf  (w1, 7%)",
+   "farmersdelight:cabbage_seeds  (w1, 7%)",
+   "farmersdelight:tomato_seeds  (w1, 7%)",
+   "farmersdelight:onion  (w1, 7%)",
+   "minecraft:egg  (w3, 20%)",
+   "minecraft:salmon  (w1, 7%)",
+   "minecraft:beef  (w1, 7%)",
+   "minecraft:porkchop  (w1, 7%)",
+   "minecraft:mutton  (w1, 7%)",
+   "minecraft:chicken  (w1, 7%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "chests/sky_pillar",
+  "food": [
+   "minecraft:beetroot_seeds x3-7 (w8, 6%)",
+   "cobblemon:vivichoke_seeds x1-3 (w7, 5%)",
+   "minecraft:rotten_flesh x4-8 (w1, 1%)",
+   "minecraft:wheat x3-8 (w1, 1%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "chests/tera_den",
+  "food": [
+   "minecraft:beetroot_seeds x3-7 (w8, 5%)",
+   "cobblemon:vivichoke_seeds x1-3 (w7, 4%)",
+   "cobblemon:tamato_berry x2-4 (w12, 7%)",
+   "minecraft:rotten_flesh x4-8 (w1, 1%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "injection/chests/abandoned_mineshaft",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 12%)",
+   "cobblemon:blue_apricorn_seed  (w1, 12%)",
+   "cobblemon:green_apricorn_seed  (w1, 12%)",
+   "cobblemon:pink_apricorn_seed  (w1, 12%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 12%)",
+   "cobblemon:white_apricorn_seed  (w1, 12%)",
+   "cobblemon:black_apricorn_seed  (w1, 12%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 12%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "injection/chests/jungle_temple",
+  "food": [
+   "cobblemon:vivichoke_seeds x1-3 (w1, 50%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "injection/chests/shipwreck_supply",
+  "food": [
+   "cobblemon:vivichoke_seeds x1-3 (w1, 100%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "injection/chests/simple_dungeon",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 12%)",
+   "cobblemon:blue_apricorn_seed  (w1, 12%)",
+   "cobblemon:green_apricorn_seed  (w1, 12%)",
+   "cobblemon:pink_apricorn_seed  (w1, 12%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 12%)",
+   "cobblemon:white_apricorn_seed  (w1, 12%)",
+   "cobblemon:black_apricorn_seed  (w1, 12%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 12%)"
+  ]
+ },
+ {
+  "source": "cobblemon",
+  "table": "injection/chests/woodland_mansion",
+  "food": [
+   "cobblemon:red_apricorn_seed  (w1, 11%)",
+   "cobblemon:blue_apricorn_seed  (w1, 11%)",
+   "cobblemon:green_apricorn_seed  (w1, 11%)",
+   "cobblemon:pink_apricorn_seed  (w1, 11%)",
+   "cobblemon:yellow_apricorn_seed  (w1, 11%)",
+   "cobblemon:white_apricorn_seed  (w1, 11%)",
+   "cobblemon:black_apricorn_seed  (w1, 11%)",
+   "cobblemon:vivichoke_seeds x1-3 (w1, 11%)"
+  ]
+ },
+ {
+  "source": "letsdo",
+  "table": "chests/pillager_outpost",
+  "food": [
+   "farm_and_charm:corn x1-1 (w1, 17%)"
+  ]
+ },
+ {
+  "source": "letsdo",
+  "table": "chests/village/village_desert_house",
+  "food": [
+   "farm_and_charm:corn x1-1 (w1, 17%)"
+  ]
+ },
+ {
+  "source": "letsdo",
+  "table": "chests/village/village_plains_house",
+  "food": [
+   "farm_and_charm:corn x1-1 (w1, 17%)"
+  ]
+ },
+ {
+  "source": "letsdo",
+  "table": "chests/village/village_savanna_house",
+  "food": [
+   "farm_and_charm:barley x1-1 (w1, 17%)",
+   "farm_and_charm:barley_seeds x1-1 (w3, 50%)",
+   "farm_and_charm:barley_seeds x1-1 (w2, 33%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/abandoned_mineshaft",
+  "food": [
+   "minecraft:golden_apple  (w20, 9%)",
+   "minecraft:enchanted_golden_apple  (w1, 0%)",
+   "minecraft:bread x1-3 (w15, 7%)",
+   "minecraft:glow_berries x3-6 (w15, 7%)",
+   "minecraft:melon_seeds x2-4 (w10, 5%)",
+   "minecraft:pumpkin_seeds x2-4 (w10, 5%)",
+   "minecraft:beetroot_seeds x2-4 (w10, 5%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/ancient_city",
+  "food": [
+   "minecraft:enchanted_golden_apple x1-2 (w1, 1%)",
+   "minecraft:diamond_leggings  (w2, 2%)",
+   "minecraft:glow_berries x1-15 (w3, 3%)",
+   "minecraft:iron_leggings  (w3, 3%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/ancient_city_ice_box",
+  "food": [
+   "minecraft:suspicious_stew x2-6 (w1, 11%)",
+   "minecraft:golden_carrot x1-10 (w1, 11%)",
+   "minecraft:baked_potato x1-10 (w1, 11%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/bastion_bridge",
+  "food": [
+   "minecraft:golden_leggings x1 (w1, 5%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/bastion_hoglin_stable",
+  "food": [
+   "minecraft:golden_carrot x8-17 (w10, 9%)",
+   "minecraft:golden_apple x1 (w10, 9%)",
+   "minecraft:porkchop x2-5 (w1, 1%)",
+   "minecraft:cooked_porkchop x2-5 (w1, 1%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/bastion_other",
+  "food": [
+   "minecraft:golden_carrot x6-17 (w12, 10%)",
+   "minecraft:golden_apple x1 (w9, 7%)",
+   "minecraft:golden_leggings x1 (w1, 1%)",
+   "minecraft:cooked_porkchop x1 (w1, 1%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/bastion_treasure",
+  "food": [
+   "minecraft:diamond_leggings  (w6, 5%)",
+   "minecraft:diamond_leggings  (w5, 5%)",
+   "minecraft:enchanted_golden_apple x1 (w2, 2%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/buried_treasure",
+  "food": [
+   "minecraft:cooked_cod x2-4 (w1, 2%)",
+   "minecraft:cooked_salmon x2-4 (w1, 2%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/desert_pyramid",
+  "food": [
+   "minecraft:spider_eye x1-3 (w25, 9%)",
+   "minecraft:rotten_flesh x3-7 (w25, 9%)",
+   "minecraft:golden_apple  (w20, 7%)",
+   "minecraft:enchanted_golden_apple  (w2, 1%)",
+   "minecraft:rotten_flesh x1-8 (w10, 4%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/end_city_treasure",
+  "food": [
+   "minecraft:beetroot_seeds x1-10 (w5, 6%)",
+   "minecraft:diamond_leggings  (w3, 3%)",
+   "minecraft:iron_leggings  (w3, 3%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/igloo_chest",
+  "food": [
+   "minecraft:apple x1-3 (w15, 23%)",
+   "minecraft:rotten_flesh  (w10, 16%)",
+   "minecraft:wheat x2-3 (w10, 16%)",
+   "minecraft:golden_apple  (w1, 2%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/jungle_temple",
+  "food": [
+   "minecraft:rotten_flesh x3-7 (w16, 18%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/pillager_outpost",
+  "food": [
+   "minecraft:wheat x3-5 (w7, 16%)",
+   "minecraft:potato x2-5 (w5, 12%)",
+   "minecraft:carrot x3-5 (w5, 12%)",
+   "minecraft:goat_horn  (w1, 2%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/ruined_portal",
+  "food": [
+   "minecraft:golden_apple  (w15, 4%)",
+   "minecraft:golden_leggings  (w15, 4%)",
+   "minecraft:glistering_melon_slice x4-12 (w5, 1%)",
+   "minecraft:golden_carrot x4-12 (w5, 1%)",
+   "minecraft:enchanted_golden_apple  (w1, 0%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/shipwreck_supply",
+  "food": [
+   "minecraft:potato x2-6 (w7, 8%)",
+   "minecraft:poisonous_potato x2-6 (w7, 8%)",
+   "minecraft:carrot x4-8 (w7, 8%)",
+   "minecraft:wheat x8-21 (w7, 8%)",
+   "minecraft:suspicious_stew  (w10, 12%)",
+   "minecraft:rotten_flesh x5-24 (w5, 6%)",
+   "minecraft:pumpkin x1-3 (w2, 2%)",
+   "minecraft:leather_leggings  (w3, 4%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/simple_dungeon",
+  "food": [
+   "minecraft:golden_apple  (w15, 5%)",
+   "minecraft:enchanted_golden_apple  (w2, 1%)",
+   "minecraft:bread  (w20, 7%)",
+   "minecraft:wheat x1-4 (w20, 7%)",
+   "minecraft:melon_seeds x2-4 (w10, 3%)",
+   "minecraft:pumpkin_seeds x2-4 (w10, 3%)",
+   "minecraft:beetroot_seeds x2-4 (w10, 3%)",
+   "minecraft:rotten_flesh x1-8 (w10, 3%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/spawn_bonus_chest",
+  "food": [
+   "minecraft:apple x1-2 (w5, 8%)",
+   "minecraft:bread x1-2 (w3, 5%)",
+   "minecraft:salmon x1-2 (w3, 5%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/stronghold_corridor",
+  "food": [
+   "minecraft:bread x1-3 (w15, 15%)",
+   "minecraft:apple x1-3 (w15, 15%)",
+   "minecraft:iron_leggings  (w5, 5%)",
+   "minecraft:golden_apple  (w1, 1%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/stronghold_crossing",
+  "food": [
+   "minecraft:bread x1-3 (w15, 24%)",
+   "minecraft:apple x1-3 (w15, 24%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/corridor",
+  "food": [
+   "minecraft:honeycomb x2-8 (w1, 5%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/entrance",
+  "food": [
+   "minecraft:honeycomb x2-8 (w10, 28%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/intersection",
+  "food": [
+   "minecraft:cake x1-4 (w20, 23%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/intersection_barrel",
+  "food": [
+   "minecraft:baked_potato x6-10 (w10, 30%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/reward_common",
+  "food": [
+   "minecraft:honey_bottle x1-2 (w3, 12%)",
+   "minecraft:ominous_bottle x1 (w2, 8%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/reward_ominous_common",
+  "food": [
+   "minecraft:ominous_bottle x1 (w1, 7%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/reward_ominous_rare",
+  "food": [
+   "minecraft:golden_apple  (w3, 10%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/reward_ominous_unique",
+  "food": [
+   "minecraft:enchanted_golden_apple  (w3, 30%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/reward_rare",
+  "food": [
+   "minecraft:golden_carrot x1-2 (w2, 9%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/reward_unique",
+  "food": [
+   "minecraft:golden_apple  (w4, 33%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/trial_chambers/supply",
+  "food": [
+   "minecraft:baked_potato x2-4 (w2, 11%)",
+   "minecraft:glow_berries x2-10 (w2, 11%)",
+   "minecraft:milk_bucket x1 (w1, 6%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/underwater_ruin_big",
+  "food": [
+   "minecraft:wheat x2-3 (w10, 19%)",
+   "minecraft:golden_apple  (w1, 2%)",
+   "minecraft:fishing_rod  (w5, 9%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/underwater_ruin_small",
+  "food": [
+   "minecraft:rotten_flesh  (w5, 12%)",
+   "minecraft:wheat x2-3 (w10, 25%)",
+   "minecraft:fishing_rod  (w5, 12%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_armorer",
+  "food": [
+   "minecraft:bread x1-4 (w4, 50%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_butcher",
+  "food": [
+   "minecraft:porkchop x1-3 (w6, 21%)",
+   "minecraft:wheat x1-3 (w6, 21%)",
+   "minecraft:beef x1-3 (w6, 21%)",
+   "minecraft:mutton x1-3 (w6, 21%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_cartographer",
+  "food": [
+   "minecraft:bread x1-4 (w15, 30%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_desert_house",
+  "food": [
+   "minecraft:wheat x1-7 (w10, 28%)",
+   "minecraft:bread x1-4 (w10, 28%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_fisher",
+  "food": [
+   "minecraft:cod x1-3 (w2, 18%)",
+   "minecraft:salmon x1-3 (w1, 9%)",
+   "minecraft:wheat_seeds x1-3 (w3, 27%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_fletcher",
+  "food": [
+   "minecraft:egg x1-3 (w2, 9%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_mason",
+  "food": [
+   "minecraft:bread x1-4 (w4, 31%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_plains_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 23%)",
+   "minecraft:bread x1-4 (w10, 23%)",
+   "minecraft:apple x1-5 (w10, 23%)",
+   "minecraft:oak_sapling x1-2 (w5, 12%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_savanna_house",
+  "food": [
+   "minecraft:bread x1-4 (w10, 22%)",
+   "minecraft:wheat_seeds x1-5 (w10, 22%)",
+   "minecraft:acacia_sapling x1-2 (w10, 22%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_shepherd",
+  "food": [
+   "minecraft:wheat x1-6 (w6, 26%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_snowy_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 19%)",
+   "minecraft:bread x1-4 (w10, 19%)",
+   "minecraft:beetroot_seeds x1-5 (w10, 19%)",
+   "minecraft:beetroot_soup  (w1, 2%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_taiga_house",
+  "food": [
+   "minecraft:potato x1-7 (w10, 19%)",
+   "minecraft:sweet_berries x1-7 (w5, 9%)",
+   "minecraft:bread x1-4 (w10, 19%)",
+   "minecraft:pumpkin_seeds x1-5 (w5, 9%)",
+   "minecraft:pumpkin_pie  (w1, 2%)",
+   "minecraft:spruce_sapling x1-5 (w5, 9%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_tannery",
+  "food": [
+   "minecraft:bread x1-4 (w5, 31%)",
+   "minecraft:leather_leggings  (w2, 12%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_temple",
+  "food": [
+   "minecraft:bread x1-4 (w7, 37%)",
+   "minecraft:rotten_flesh x1-4 (w7, 37%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_toolsmith",
+  "food": [
+   "minecraft:bread x1-3 (w15, 28%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/village/village_weaponsmith",
+  "food": [
+   "minecraft:bread x1-3 (w15, 16%)",
+   "minecraft:apple x1-3 (w15, 16%)",
+   "minecraft:iron_leggings  (w5, 5%)",
+   "minecraft:oak_sapling x3-7 (w5, 5%)"
+  ]
+ },
+ {
+  "source": "minecraft",
+  "table": "chests/woodland_mansion",
+  "food": [
+   "minecraft:golden_apple  (w15, 5%)",
+   "minecraft:enchanted_golden_apple  (w2, 1%)",
+   "minecraft:bread  (w20, 7%)",
+   "minecraft:wheat x1-4 (w20, 7%)",
+   "minecraft:melon_seeds x2-4 (w10, 3%)",
+   "minecraft:pumpkin_seeds x2-4 (w10, 3%)",
+   "minecraft:beetroot_seeds x2-4 (w10, 3%)",
+   "minecraft:rotten_flesh x1-8 (w10, 3%)"
+  ]
+ },
+ {
+  "source": "supplementaries",
+  "table": "loot/galleon/chest",
+  "food": [
+   "minecraft:goat_horn  (w2, 2%)",
+   "minecraft:fishing_rod  (w2, 2%)",
+   "minecraft:golden_carrot x1-3 (w3, 3%)",
+   "minecraft:melon_seeds  (w2, 2%)",
+   "minecraft:pumpkin_seeds  (w2, 2%)",
+   "supplementaries:flax_seeds  (w2, 2%)",
+   "minecraft:bread  (w3, 3%)"
+  ]
+ },
+ {
+  "source": "ubesdelight",
+  "table": "chests/ud_village_plains_house",
+  "food": [
+   "ubesdelight:lemongrass_seeds x1-3 (w1, 25%)"
+  ]
+ }
+]

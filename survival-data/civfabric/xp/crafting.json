@@ -1,0 +1,1314 @@
+{
+ "civfabric:hearty_soup": {
+  "class": "medic",
+  "xp": 50.0
+ },
+ "civfabric:stitches": {
+  "class": "medic",
+  "xp": 7.0
+ },
+ "cobblemon:ancient_azure_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_citrine_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_feather_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_gigaton_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:ancient_great_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:ancient_heavy_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_ivory_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_jet_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:ancient_leaden_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:ancient_poke_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_roseate_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_slate_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_ultra_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:ancient_verdant_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:ancient_wing_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:azure_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:beast_ball": {
+  "class": "blacksmith",
+  "xp": 2.0
+ },
+ "cobblemon:citrine_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:dive_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:dream_ball": {
+  "class": "blacksmith",
+  "xp": 4.0
+ },
+ "cobblemon:dusk_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:fast_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:friend_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:great_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:heal_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:heavy_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:level_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:love_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:lure_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:luxury_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:master_ball": {
+  "class": "blacksmith",
+  "xp": 200.0
+ },
+ "cobblemon:moon_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:nest_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:net_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:park_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:poke_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:premier_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:quick_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:repeat_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:roseate_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:safari_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:slate_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "cobblemon:sport_ball": {
+  "class": "blacksmith",
+  "xp": 1.5
+ },
+ "cobblemon:timer_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:ultra_ball": {
+  "class": "blacksmith",
+  "xp": 2.5
+ },
+ "cobblemon:verdant_ball": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:acacia_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:acacia_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:activator_rail": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:bamboo_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:bamboo_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:beef": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:beetroot_seeds": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:beetroot_soup": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bell": {
+  "class": "blacksmith",
+  "xp": 50.0
+ },
+ "minecraft:birch_button": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_door": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_fence": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_fence_gate": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:birch_leaves": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_log": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_pressure_plate": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_sapling": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:birch_slab": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_stairs": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_trapdoor": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:birch_wood": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_banner": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_bed": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_bundle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_candle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_carpet": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_concrete": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_concrete_powder": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:black_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_harness": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_shulker_box": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_stained_glass": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_stained_glass_pane": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:black_wool": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blackstone": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blackstone_slab": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blackstone_stairs": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blackstone_wall": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blade_pottery_sherd": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blast_furnace": {
+  "class": "blacksmith",
+  "xp": 12.0
+ },
+ "minecraft:blaze_powder": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blaze_rod": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blaze_spawn_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_banner": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_bed": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_bundle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_candle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_carpet": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_concrete": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_concrete_powder": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:blue_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_harness": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_ice": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_orchid": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_shulker_box": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_stained_glass": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_stained_glass_pane": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:blue_wool": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bogged_spawn_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bolt_armor_trim_smithing_template": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bone": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bone_block": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bone_meal": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:book": {
+  "class": "librarian",
+  "xp": 4.0
+ },
+ "minecraft:bookshelf": {
+  "class": "librarian",
+  "xp": 6.0
+ },
+ "minecraft:bordure_indented_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:bow": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bowl": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brain_coral": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brain_coral_block": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brain_coral_fan": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bread": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:breeze_rod": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:breeze_spawn_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brewer_pottery_sherd": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brewing_stand": {
+  "class": "medic",
+  "xp": 10.0
+ },
+ "minecraft:brick": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brick_slab": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brick_stairs": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brick_wall": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:bricks": {
+  "class": "builder",
+  "xp": 1.0
+ },
+ "minecraft:brown_banner": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_bed": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_bundle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_candle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_carpet": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_concrete": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_concrete_powder": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:brown_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_glazed_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_harness": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_mushroom": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_mushroom_block": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_shulker_box": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_stained_glass": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_stained_glass_pane": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_terracotta": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brown_wool": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:brush": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bubble_coral": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bubble_coral_block": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bubble_coral_fan": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bucket": {
+  "class": "blacksmith",
+  "xp": 9.0
+ },
+ "minecraft:budding_amethyst": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bundle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:burn_pottery_sherd": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:bush": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cactus": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cactus_flower": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cake": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:calcite": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:calibrated_sculk_sensor": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:camel_spawn_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:campfire": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:candle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:carrot": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:carrot_on_a_stick": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cartography_table": {
+  "class": "librarian",
+  "xp": 4.0
+ },
+ "minecraft:carved_pumpkin": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cat_spawn_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cauldron": {
+  "class": "builder",
+  "xp": 21.0
+ },
+ "minecraft:cave_spider_spawn_egg": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:chain": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:chainmail_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:chainmail_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:charcoal": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:cherry_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:cherry_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:chest_minecart": {
+  "class": "blacksmith",
+  "xp": 2.0
+ },
+ "minecraft:compass": {
+  "class": "librarian",
+  "xp": 12.0
+ },
+ "minecraft:creeper_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:crimson_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:crimson_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:cyan_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:dark_oak_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:dark_oak_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:detector_rail": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:diamond_axe": {
+  "class": "blacksmith",
+  "xp": 30.0
+ },
+ "minecraft:diamond_boots": {
+  "class": "blacksmith",
+  "xp": 40.0
+ },
+ "minecraft:diamond_chestplate": {
+  "class": "blacksmith",
+  "xp": 80.0
+ },
+ "minecraft:diamond_helmet": {
+  "class": "blacksmith",
+  "xp": 50.0
+ },
+ "minecraft:diamond_hoe": {
+  "class": "blacksmith",
+  "xp": 20.0
+ },
+ "minecraft:diamond_horse_armor": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:diamond_leggings": {
+  "class": "blacksmith",
+  "xp": 70.0
+ },
+ "minecraft:diamond_ore": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:diamond_pickaxe": {
+  "class": "blacksmith",
+  "xp": 30.0
+ },
+ "minecraft:diamond_shovel": {
+  "class": "blacksmith",
+  "xp": 10.0
+ },
+ "minecraft:diamond_sword": {
+  "class": "blacksmith",
+  "xp": 20.0
+ },
+ "minecraft:eye_armor_trim_smithing_template": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:field_masoned_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:filled_map": {
+  "class": "librarian",
+  "xp": 6.0
+ },
+ "minecraft:fishing_rod": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:flow_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:flower_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:furnace_minecart": {
+  "class": "blacksmith",
+  "xp": 3.0
+ },
+ "minecraft:glass_bottle": {
+  "class": "librarian",
+  "xp": 6.0
+ },
+ "minecraft:globe_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:golden_apple": {
+  "class": "medic",
+  "xp": 10.0
+ },
+ "minecraft:golden_axe": {
+  "class": "blacksmith",
+  "xp": 15.0
+ },
+ "minecraft:golden_boots": {
+  "class": "blacksmith",
+  "xp": 20.0
+ },
+ "minecraft:golden_carrot": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_chestplate": {
+  "class": "blacksmith",
+  "xp": 40.0
+ },
+ "minecraft:golden_helmet": {
+  "class": "blacksmith",
+  "xp": 25.0
+ },
+ "minecraft:golden_hoe": {
+  "class": "blacksmith",
+  "xp": 10.0
+ },
+ "minecraft:golden_horse_armor": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:golden_leggings": {
+  "class": "blacksmith",
+  "xp": 35.0
+ },
+ "minecraft:golden_pickaxe": {
+  "class": "blacksmith",
+  "xp": 15.0
+ },
+ "minecraft:golden_shovel": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:golden_sword": {
+  "class": "blacksmith",
+  "xp": 10.0
+ },
+ "minecraft:gray_concrete": {
+  "class": "farmer",
+  "xp": 10.0
+ },
+ "minecraft:gray_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:green_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:green_harness": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:guster_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:heavy_weighted_pressure_plate": {
+  "class": "builder",
+  "xp": 6.0
+ },
+ "minecraft:honey_bottle": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:hopper": {
+  "class": "builder",
+  "xp": 15.0
+ },
+ "minecraft:hopper_minecart": {
+  "class": "blacksmith",
+  "xp": 25.0
+ },
+ "minecraft:host_armor_trim_smithing_template": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:iron_axe": {
+  "class": "blacksmith",
+  "xp": 15.0
+ },
+ "minecraft:iron_bars": {
+  "class": "builder",
+  "xp": 18.0
+ },
+ "minecraft:iron_boots": {
+  "class": "farmer",
+  "xp": 20.0
+ },
+ "minecraft:iron_chestplate": {
+  "class": "blacksmith",
+  "xp": 40.0
+ },
+ "minecraft:iron_door": {
+  "class": "builder",
+  "xp": 18.0
+ },
+ "minecraft:iron_helmet": {
+  "class": "blacksmith",
+  "xp": 25.0
+ },
+ "minecraft:iron_hoe": {
+  "class": "blacksmith",
+  "xp": 10.0
+ },
+ "minecraft:iron_leggings": {
+  "class": "blacksmith",
+  "xp": 35.0
+ },
+ "minecraft:iron_pickaxe": {
+  "class": "blacksmith",
+  "xp": 15.0
+ },
+ "minecraft:iron_shovel": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:iron_sword": {
+  "class": "blacksmith",
+  "xp": 10.0
+ },
+ "minecraft:iron_trapdoor": {
+  "class": "builder",
+  "xp": 18.0
+ },
+ "minecraft:jungle_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:jungle_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:lead": {
+  "class": "farmer",
+  "xp": 4.0
+ },
+ "minecraft:leather": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:lectern": {
+  "class": "librarian",
+  "xp": 6.0
+ },
+ "minecraft:light_blue_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:light_gray_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:lime_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:loom": {
+  "class": "librarian",
+  "xp": 4.0
+ },
+ "minecraft:magenta_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:mangrove_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:mangrove_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:map": {
+  "class": "librarian",
+  "xp": 18.0
+ },
+ "minecraft:minecart": {
+  "class": "blacksmith",
+  "xp": 25.0
+ },
+ "minecraft:mojang_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:netherite_axe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_block": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:netherite_boots": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_chestplate": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_helmet": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_hoe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_ingot": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_leggings": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_pickaxe": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_scrap": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_shovel": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:netherite_sword": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:oak_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:oak_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:orange_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:pale_oak_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:pale_oak_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:paper": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:piglin_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:pink_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:pink_harness": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:piston": {
+  "class": "builder",
+  "xp": 3.0
+ },
+ "minecraft:powered_rail": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:pumpkin_pie": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:purple_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:rail": {
+  "class": "blacksmith",
+  "xp": 2.0
+ },
+ "minecraft:red_banner": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:red_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:shears": {
+  "class": "blacksmith",
+  "xp": 6.0
+ },
+ "minecraft:shield": {
+  "class": "blacksmith",
+  "xp": 3.0
+ },
+ "minecraft:skull_banner_pattern": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:smithing_table": {
+  "class": "blacksmith",
+  "xp": 1.0
+ },
+ "minecraft:smoker": {
+  "class": "farmer",
+  "xp": 5.0
+ },
+ "minecraft:soul_lantern": {
+  "class": "blacksmith",
+  "xp": 4.0
+ },
+ "minecraft:spruce_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:spruce_pressure_plate": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:spruce_sapling": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:spruce_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:spruce_slab": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:spruce_stairs": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:spruce_trapdoor": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:spruce_wood": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:spyglass": {
+  "class": "blacksmith",
+  "xp": 5.0
+ },
+ "minecraft:sticky_piston": {
+  "class": "builder",
+  "xp": 3.0
+ },
+ "minecraft:stone_axe": {
+  "class": "blacksmith",
+  "xp": 12.0
+ },
+ "minecraft:stone_hoe": {
+  "class": "blacksmith",
+  "xp": 8.0
+ },
+ "minecraft:stone_pickaxe": {
+  "class": "blacksmith",
+  "xp": 12.0
+ },
+ "minecraft:stone_shovel": {
+  "class": "blacksmith",
+  "xp": 4.0
+ },
+ "minecraft:stone_sword": {
+  "class": "blacksmith",
+  "xp": 8.0
+ },
+ "minecraft:stonecutter": {
+  "class": "builder",
+  "xp": 10.0
+ },
+ "minecraft:sugar": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:tnt_minecart": {
+  "class": "blacksmith",
+  "xp": 2.0
+ },
+ "minecraft:tuff_brick_slab": {
+  "class": "farmer",
+  "xp": 1.0
+ },
+ "minecraft:warped_hanging_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:warped_sign": {
+  "class": "librarian",
+  "xp": 3.0
+ },
+ "minecraft:white_bed": {
+  "class": "farmer",
+  "xp": 10.0
+ },
+ "minecraft:white_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ },
+ "minecraft:wolf_armor": {
+  "class": "blacksmith",
+  "xp": 4.0
+ },
+ "minecraft:wooden_axe": {
+  "class": "blacksmith",
+  "xp": 9.0
+ },
+ "minecraft:wooden_hoe": {
+  "class": "blacksmith",
+  "xp": 6.0
+ },
+ "minecraft:wooden_pickaxe": {
+  "class": "blacksmith",
+  "xp": 9.0
+ },
+ "minecraft:wooden_shovel": {
+  "class": "blacksmith",
+  "xp": 3.0
+ },
+ "minecraft:wooden_sword": {
+  "class": "blacksmith",
+  "xp": 6.0
+ },
+ "minecraft:writable_book": {
+  "class": "librarian",
+  "xp": 12.0
+ },
+ "minecraft:written_book": {
+  "class": "librarian",
+  "xp": 6.0
+ },
+ "minecraft:yellow_dye": {
+  "class": "librarian",
+  "xp": 2.0
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "farmersdelight:fried_egg": {
+  "class": "farmer",
+  "xp": 2.0
+ },
+ "minecraft:baked_potato": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:cooked_beef": {
+  "class": "farmer",
+  "xp": 4.0
+ },
+ "minecraft:cooked_chicken": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:cooked_cod": {
+  "class": "farmer",
+  "xp": 2.0
+ },
+ "minecraft:cooked_mutton": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:cooked_porkchop": {
+  "class": "farmer",
+  "xp": 4.0
+ },
+ "minecraft:cooked_rabbit": {
+  "class": "farmer",
+  "xp": 2.0
+ },
+ "minecraft:cooked_salmon": {
+  "class": "farmer",
+  "xp": 3.0
+ },
+ "minecraft:dried_kelp": {
+  "class": "farmer",
+  "xp": 1.0
+ }
+}

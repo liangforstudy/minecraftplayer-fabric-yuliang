@@ -1,0 +1,3693 @@
+{
+ "civfabric:class_xp_book_1000": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 4
+   }
+  ]
+ },
+ "civfabric:class_xp_book_1500": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ]
+ },
+ "civfabric:class_xp_book_200": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "civfabric:class_xp_book_500": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 3
+   }
+  ]
+ },
+ "civfabric:stitches": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_azure_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_citrine_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_feather_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_gigaton_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:ancient_great_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:ancient_heavy_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_ivory_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_jet_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:ancient_leaden_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:ancient_poke_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_roseate_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_slate_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_ultra_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:ancient_verdant_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:ancient_wing_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:azure_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:beast_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "cobblemon:cake_with_moomoo_milk": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 5
+   }
+  ]
+ },
+ "cobblemon:citrine_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:dive_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:dream_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "cobblemon:dusk_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:fast_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:friend_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:great_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:heal_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:healing_machine": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:heavy_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:level_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:love_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:lure_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:luxury_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:master_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "cobblemon:moon_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:nest_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:net_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:park_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:poke_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:premier_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:quick_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:repeat_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:roseate_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:safari_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:slate_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobblemon:sport_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "cobblemon:timer_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:ultra_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "cobblemon:verdant_ball": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "cobbreeding:cake": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 5
+   }
+  ]
+ },
+ "farmersdelight:cake_from_milk_bottle": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 5
+   }
+  ]
+ },
+ "farmersdelight:cake_from_slices": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:acacia_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:acacia_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:activator_rail": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:andesite_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:andesite_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:andesite_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:anvil": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:bamboo_chest_raft": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:bamboo_raft": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:beacon": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:birch_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:birch_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:black_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:black_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:black_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:black_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:black_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:blackstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:blackstone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:blackstone_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:blast_furnace": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:blaze_rod": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:blue_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:blue_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:blue_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:blue_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:blue_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:blue_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:bookshelf": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:brewing_stand": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:brown_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:brown_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:brown_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:brown_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:brown_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:brown_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:brush": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:bucket": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:cake": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:calibrated_sculk_sensor": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:cartography_table": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:cauldron": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   },
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:chainmail_boots": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chainmail_chestplate": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chainmail_helmet": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chainmail_leggings": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cherry_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:cherry_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:chiseled_bookshelf": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chiseled_deepslate": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chiseled_nether_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:chiseled_polished_blackstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:chiseled_quartz_block": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:chiseled_red_sandstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chiseled_sandstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:chiseled_stone_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cobbled_deepslate": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cobbled_deepslate_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cobbled_deepslate_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cobbled_deepslate_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:comparator": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:compass": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:composter": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:copper_block": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cracked_deepslate_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cracked_deepslate_tiles": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cracked_stone_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:crafter": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   },
+   {
+    "class": "builder",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:crossbow": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cut_red_sandstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cut_red_sandstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cut_sandstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cut_sandstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:cyan_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:cyan_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:cyan_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:cyan_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:cyan_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:dark_oak_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:dark_oak_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:dark_prismarine_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:dark_prismarine_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:daylight_detector": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:deepslate_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_tile_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_tile_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_tile_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:deepslate_tiles": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:detector_rail": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:diamond_axe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:diamond_boots": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:diamond_chestplate": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:diamond_helmet": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:diamond_hoe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:diamond_leggings": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:diamond_pickaxe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:diamond_shovel": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:diamond_sword": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:diorite_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:diorite_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:diorite_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:dispenser": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:dropper": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:elytra": {
+  "blocked": true
+ },
+ "minecraft:enchanting_table": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:end_stone_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:end_stone_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:end_stone_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:end_stone_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:ender_chest": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:exposed_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:exposed_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:exposed_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:exposed_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:flint_and_steel": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:gilded_blackstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:golden_apple": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:golden_axe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:golden_boots": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:golden_carrot": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:golden_chestplate": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:golden_helmet": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:golden_hoe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:golden_leggings": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:golden_pickaxe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:golden_shovel": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:golden_sword": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:granite_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:granite_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:granite_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:gray_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:gray_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:gray_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:gray_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:gray_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:gray_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:green_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:green_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:green_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:green_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:green_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:green_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:heavy_weighted_pressure_plate": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:hopper": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_axe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:iron_bars": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_boots": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_chestplate": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_door": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_helmet": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_hoe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:iron_leggings": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_nugget": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:iron_pickaxe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:iron_shovel": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:iron_sword": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:iron_trapdoor": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:jungle_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:jungle_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:lantern": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:leather_boots": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:leather_chestplate": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:leather_helmet": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:leather_leggings": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:lectern": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:lever": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_blue_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_blue_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:light_blue_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:light_blue_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_blue_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_blue_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:light_gray_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_gray_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:light_gray_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:light_gray_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_gray_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:light_gray_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:lightning_rod": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:lime_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:lime_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:lime_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:lime_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:lime_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:lime_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:loom": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:mace": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:magenta_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:magenta_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:magenta_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:magenta_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:magenta_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:magenta_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:mangrove_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:mangrove_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:minecart": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:mossy_stone_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:mossy_stone_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:mossy_stone_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:mossy_stone_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:mud_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:mud_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:mud_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:mud_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:nether_brick_fence": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:nether_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:nether_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:nether_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:nether_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:nether_wart": {
+  "requires": [
+   {
+    "class": "medic",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:netherite_axe_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:netherite_boots_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:netherite_chestplate_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:netherite_helmet_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:netherite_hoe_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:netherite_leggings_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:netherite_pickaxe_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:netherite_shovel_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:netherite_sword_smithing": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:netherite_upgrade_smithing_template": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ]
+ },
+ "minecraft:note_block": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:oak_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:oak_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:observer": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:orange_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:orange_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:orange_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:orange_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:orange_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:orange_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:oxidized_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:oxidized_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:oxidized_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:oxidized_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:pale_oak_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:pale_oak_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:pink_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:pink_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:pink_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:pink_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:pink_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:pink_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:piston": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_andesite": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_andesite_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_andesite_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_basalt": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_button": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_pressure_plate": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_blackstone_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:polished_diorite": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_diorite_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_diorite_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_granite": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_granite_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:polished_granite_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:powered_rail": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:prismarine_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:prismarine_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:prismarine_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:pumpkin_pie": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:purple_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:purple_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:purple_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:purple_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:purple_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:purple_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:quartz_block": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:quartz_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:quartz_pillar": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:quartz_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:quartz_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:rail": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:red_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:red_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:red_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:red_nether_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:red_nether_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:red_nether_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:red_nether_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:red_sandstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:red_sandstone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:red_sandstone_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:red_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:red_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:red_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:redstone_comparator": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:redstone_lamp": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:redstone_repeater": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:redstone_torch": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:sandstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:sandstone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:sandstone_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:scaffolding": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:sculk_sensor": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:sea_lantern": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:shears": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:shield": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:smithing_table": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_basalt": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:smooth_red_sandstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_red_sandstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_red_sandstone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_sandstone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_sandstone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_sandstone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_stone": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:smooth_stone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:soul_lantern": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:spruce_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:spruce_chest_boat": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 5
+   },
+   {
+    "class": "librarian",
+    "rank": 5
+   }
+  ],
+  "all": true
+ },
+ "minecraft:spyglass": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:sticky_piston": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:stone_axe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_hoe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_pickaxe": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_shovel": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:stone_sword": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:suspicious_stew": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 1
+   },
+   {
+    "class": "medic",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:tinted_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:tnt": {
+  "requires": [
+   {
+    "class": "miner",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tripwire_hook": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:tuff_brick_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tuff_brick_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tuff_brick_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tuff_bricks": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tuff_slab": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tuff_stairs": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:tuff_wall": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:waxed_copper_block": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_exposed_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_exposed_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_exposed_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_exposed_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_oxidized_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_oxidized_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_oxidized_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_oxidized_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_weathered_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_weathered_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_weathered_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:waxed_weathered_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:weathered_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:weathered_cut_copper": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:weathered_cut_copper_slab": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:weathered_cut_copper_stairs": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:white_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:white_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:white_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:white_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:white_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:white_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:writable_book": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 1
+   }
+  ]
+ },
+ "minecraft:written_book": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:yellow_banner": {
+  "requires": [
+   {
+    "class": "librarian",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:yellow_concrete_powder": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 3
+   }
+  ]
+ },
+ "minecraft:yellow_glazed_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 4
+   }
+  ]
+ },
+ "minecraft:yellow_stained_glass": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:yellow_stained_glass_pane": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 2
+   }
+  ]
+ },
+ "minecraft:yellow_terracotta": {
+  "requires": [
+   {
+    "class": "builder",
+    "rank": 1
+   }
+  ]
+ },
+ "pacifist-fabric:copper_rail": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ },
+ "zymlabs:leather_from_rotten_flesh": {
+  "requires": [
+   {
+    "class": "farmer",
+    "rank": 2
+   }
+  ]
+ },
+ "zymlabs:saddle": {
+  "requires": [
+   {
+    "class": "blacksmith",
+    "rank": 2
+   }
+  ]
+ }
+}
