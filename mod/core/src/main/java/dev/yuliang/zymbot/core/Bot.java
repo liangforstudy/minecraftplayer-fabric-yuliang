@@ -191,7 +191,7 @@ public final class Bot {
                 + (AutostartPolicy.shouldAutostart(config.autostartServers, address) ? " (autostart)" : "")));
         out.add("bus: " + String.join(", ", bus.transportNames())
                 + (config.teamKey.isEmpty() ? " — NO TEAM KEY (anyone on the network can read and fake messages)"
-                                              : " — signed + encrypted")
+                                              : " — signed + encrypted, key " + ZymbotConfig.fingerprint(config.teamKey))
                 + (bus.rejectedCount() > 0 ? ", " + bus.rejectedCount() + " rejected (wrong team key?)" : "")
                 + (bus.staleCount() > 0 ? ", " + bus.staleCount() + " stale (replayed, or a clock is off)" : ""));
         if (memory.roster.isEmpty()) {
@@ -203,6 +203,18 @@ public final class Bot {
         }
         log.latest(3).forEach(d -> out.add("  · " + d));
         return out;
+    }
+
+    /** Apply a new team key now: saved to config, and used for the very next message. */
+    public String setTeamKey(String key) {
+        String problem = ZymbotConfig.validateTeamKey(key);
+        if (problem != null) return problem;
+        config.teamKey = key.strip();
+        ConfigIO.save(configFile, config);
+        bus.rekey(config.teamKey);
+        nextHello = 0;                                   // announce ourselves under the new key
+        log.record("team key changed", "fingerprint " + ZymbotConfig.fingerprint(config.teamKey));
+        return null;
     }
 
     public String autostartAdd() {

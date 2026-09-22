@@ -14,7 +14,17 @@ val requiredJava: JavaVersion = when {
     else -> JavaVersion.VERSION_21
 }
 
+repositories {
+    // Mod Menu — optional: we only add a settings screen when it's installed
+    exclusiveContent {
+        forRepository { maven("https://maven.terraformersmc.com/releases") { name = "TerraformersMC" } }
+        filter { includeGroup("com.terraformersmc") }
+    }
+}
+
 dependencies {
+    modCompileOnly("com.terraformersmc:modmenu:${property("deps.modmenu")}") { isTransitive = false }
+
     // Only the Fabric API modules we actually use
     fun fapi(vararg modules: String) {
         for (it in modules) modImplementation(fabricApi.module(it, sc.properties["deps.fabric_api"]))

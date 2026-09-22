@@ -281,13 +281,19 @@ def set_rig_team_key(rig, key):
             json.dump(cfg, f, indent=2)
 
 
+def key_fingerprint(key):
+    """Same as ZymbotConfig.fingerprint in the mod: safe to show, compare it between games."""
+    import hashlib
+    return hashlib.sha256(("zymbot-fp:" + key).encode("utf-8")).hexdigest()[:6]
+
+
 def cmd_team_key():
     key = team_key()
     print("Your team key (keep it private — anyone with it can read and send bot messages):")
     print(f"  {key}")
-    print("To make your own game part of the team, put it in your Prism instance's")
-    print("  minecraft/config/zymbot.json  ->  \"team_key\": \"<the key>\"")
-    print("then restart the game. Bots with a different key simply can't hear each other.")
+    print(f"fingerprint: {key_fingerprint(key)}   (safe to share; it must match in every game)")
+    print("To add your own game to the team: Mod Menu -> Zymbot -> paste the key -> Save.")
+    print("(Or edit minecraft/config/zymbot.json -> \"team_key\" and restart.)")
     return 0
 
 

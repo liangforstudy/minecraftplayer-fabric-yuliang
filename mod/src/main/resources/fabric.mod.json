@@ -9,7 +9,8 @@
   "icon": "assets/zymbot/icon.png",
   "environment": "client",
   "entrypoints": {
-    "client": ["dev.yuliang.zymbot.fabric.ZymbotClient"]
+    "client": ["dev.yuliang.zymbot.fabric.ZymbotClient"],
+    "modmenu": ["dev.yuliang.zymbot.fabric.ZymbotModMenu"]
   },
   "depends": {
     "fabricloader": ">=0.17",
@@ -19,5 +20,8 @@
     "fabric-networking-api-v1": "*",
     "fabric-command-api-v2": "*",
     "fabric-message-api-v1": "*"
+  },
+  "suggests": {
+    "modmenu": "*"
   }
 }

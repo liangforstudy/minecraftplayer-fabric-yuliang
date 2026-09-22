@@ -25,8 +25,8 @@ public final class Bus {
     public static final long MAX_AGE_MILLIS = 60_000;
     private static final SecureRandom RNG = new SecureRandom();
     private final UUID self;
-    private final Signer signer;
-    private final Sealer sealer;
+    private volatile Signer signer;
+    private volatile Sealer sealer;
     private final LongSupplier clock;
     private final List<Transport> transports = new ArrayList<>();
     private final Queue<String> inbox = new ConcurrentLinkedQueue<>();
@@ -42,6 +42,12 @@ public final class Bus {
         this.signer = new Signer(teamKey);
         this.sealer = new Sealer(teamKey);
         this.clock = clock;
+    }
+
+    /** Switch to a new team key (e.g. pasted in the settings screen). Takes effect for the next message. */
+    public void rekey(String teamKey) {
+        this.signer = new Signer(teamKey);
+        this.sealer = new Sealer(teamKey);
     }
 
     public void addTransport(Transport t) {

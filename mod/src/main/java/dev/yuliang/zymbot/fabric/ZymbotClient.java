@@ -29,13 +29,28 @@ public final class ZymbotClient implements ClientModInitializer {
     /** HeadlessMC stamps this on the game process; a headless client has no human at the keys. */
     static final boolean HEADLESS = "HeadlessMc".equals(System.getProperty("minecraft.launcher.brand"));
 
+    private static ZymbotClient instance;
     private ZymbotConfig config;
     private Path configFile;
     private Bot bot;
     private FabricHands hands;
 
+    static ZymbotClient get() { return instance; }
+    ZymbotConfig config() { return config; }
+
+    /** From the settings screen. Returns null when applied, or why it was refused. */
+    String applyTeamKey(String key) {
+        String problem = ZymbotConfig.validateTeamKey(key);
+        if (problem != null) return problem;
+        if (bot != null) return bot.setTeamKey(key);    // saves, and rekeys the live bus
+        config.teamKey = key.strip();
+        ConfigIO.save(configFile, config);
+        return null;
+    }
+
     @Override
     public void onInitializeClient() {
+        instance = this;
         configFile = FabricLoader.getInstance().getConfigDir().resolve("zymbot.json");
         config = ConfigIO.load(configFile);
         LOG.info("[zymbot] loaded — command /{}{}, {}", config.commandRoot,

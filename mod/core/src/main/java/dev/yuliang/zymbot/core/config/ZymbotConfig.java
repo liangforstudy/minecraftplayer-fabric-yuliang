@@ -50,6 +50,30 @@ public final class ZymbotConfig {
         public boolean relay = false;     // MQTT — later
     }
 
+    /**
+     * A short, non-secret fingerprint of the team key — compare it between games to check they
+     * share a key without ever showing the key itself.
+     */
+    public static String fingerprint(String teamKey) {
+        if (teamKey == null || teamKey.isEmpty()) return "none";
+        try {
+            byte[] h = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(("zymbot-fp:" + teamKey).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return java.util.HexFormat.of().formatHex(h, 0, 3);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    /** Null if the key is usable, otherwise why not. */
+    public static String validateTeamKey(String key) {
+        if (key == null || key.isBlank()) return "the key can't be empty";
+        if (key.chars().anyMatch(Character::isWhitespace)) return "the key can't contain spaces";
+        if (key.length() < 8) return "too short — at least 8 characters";
+        if (key.length() > 128) return "too long — at most 128 characters";
+        return null;
+    }
+
     /** Fixes invalid values in place; returns warnings for the log. */
     public List<String> normalize() {
         List<String> warnings = new ArrayList<>();

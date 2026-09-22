@@ -219,4 +219,32 @@ class BotTest {
         assertEquals(List.of("play.example.net:25565"), b.autostartList());
         assertTrue(b.autostartRemove().startsWith("removed"));
     }
+
+    @Test
+    void pastingTheSameKeyLetsTwoBotsHearEachOther_withoutRestart() {
+        FakeBus net = new FakeBus();
+        ZymbotConfig k1 = new ZymbotConfig(), k2 = new ZymbotConfig();
+        k1.teamKey = "bot-rig-key-123";
+        k2.teamKey = "my-own-random-key";
+        FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Me");
+        Bot b1 = bot(w1, k1, true), b2 = bot(w2, k2, false);
+        b1.attachTransport(net.endpoint());
+        b2.attachTransport(net.endpoint());
+        b1.onJoin("s", "Bot1");
+        b2.onJoin("s", "Me");
+        b1.start("t");
+        b2.start("t");
+        b1.tick(w1, w1);
+        b2.tick(w2, w2);
+        assertTrue(b2.memory().roster.isEmpty(), "different keys: deaf to each other");
+
+        assertNotNull(b2.setTeamKey("short"), "a bad key is refused");
+        assertNull(b2.setTeamKey("bot-rig-key-123"));
+        clock.advance(Bot.HELLO_EVERY_MILLIS);
+        b1.tick(w1, w1);
+        b2.tick(w2, w2);
+        assertEquals("Bot1", b2.memory().roster.get(w1.id.toString()).name);
+        assertEquals(ZymbotConfig.fingerprint("bot-rig-key-123"), ZymbotConfig.fingerprint(k2.teamKey));
+        assertFalse(String.join("\n", b2.status()).contains("bot-rig-key-123"), "status never shows the key itself");
+    }
 }

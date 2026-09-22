@@ -2,7 +2,7 @@
 mod.id = "zymbot"
 mod.name = "Zymbot"
 mod.group = "dev.yuliang"
-mod.version = "0.0.1"
+mod.version = "0.0.2"
 
 deps.fabric_loader = "0.19.3"
 loomx.loom_version = "1.17-SNAPSHOT"
@@ -11,3 +11,4 @@ loomx.loom_version = "1.17-SNAPSHOT"
 mod.mc_compat = ">=1.21 <=1.21.1"
 mod.mc_releases = ["1.21", "1.21.1"]
 deps.fabric_api = "0.116.15+1.21.1"
+deps.modmenu = "11.0.4"
