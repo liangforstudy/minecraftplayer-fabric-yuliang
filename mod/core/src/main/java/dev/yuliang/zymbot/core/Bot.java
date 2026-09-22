@@ -36,6 +36,8 @@ public final class Bot {
     public static final long RESUME_WARNING_MILLIS = 3_000;
     /** A message from someone not (yet) in the tab list waits this long before it's dropped. */
     public static final long TAB_LIST_GRACE_MILLIS = 10_000;
+    /** Silent this long, then heard again: logged as "back" even within one session. */
+    public static final long AWAY_MILLIS = 5 * 60_000;
 
     private final ZymbotConfig config;
     private final Path configFile;
@@ -61,6 +63,7 @@ public final class Bot {
     private WorldView current;                                   // this tick's snapshot, for the bus handler
     private final List<Pending> pending = new ArrayList<>();
     private int notHere;
+    private final java.util.Set<String> heardThisSession = new java.util.HashSet<>();
 
     /** A message whose sender isn't in the tab list yet — they may have joined a moment ago. */
     private record Pending(Envelope envelope, long since) {}
@@ -98,6 +101,7 @@ public final class Bot {
         this.selfName = selfName;
         this.serverId = serverIdOf(worldKey);
         this.memory = memoryStore.load(memoryFile(), new BotMemory());
+        heardThisSession.clear();
         String where = AutostartPolicy.normalize(address);
         if (!onWhitelist()) {
             log.record("silent", where + " isn't on the server list — /" + config.commandRoot + " start to begin");
@@ -253,9 +257,17 @@ public final class Bot {
     private void handle(Envelope e) {
         if (MessageTypes.HELLO.equals(e.type())) {
             String key = e.sender().toString();
-            boolean known = memory.roster.containsKey(key);
-            memory.roster.put(key, new BotMemory.RosterEntry(e.field(0), clock.getAsLong(), e.x(), e.z(), e.field(1)));
-            if (!known) log.record("met " + e.field(0), "HELLO on the bus at " + e.x() + ", " + e.z());
+            long now = clock.getAsLong();
+            BotMemory.RosterEntry before = memory.roster.get(key);
+            memory.roster.put(key, new BotMemory.RosterEntry(e.field(0), now, e.x(), e.z(), e.field(1)));
+            boolean firstThisSession = heardThisSession.add(key);
+            String what = e.field(0) + " (" + e.field(1) + ")";
+            if (before == null) {
+                log.record("met " + what, "HELLO on the bus at " + e.x() + ", " + e.z());
+            } else if (firstThisSession || now - before.lastSeenMillis > AWAY_MILLIS) {
+                log.record(e.field(0) + " is back" + (before.name.equals(e.field(0)) ? "" : " (was " + before.name + ")")
+                        + " — " + e.field(1), "last heard " + ago(now - before.lastSeenMillis) + ", now at " + e.x() + ", " + e.z());
+            }
         }
     }
 
@@ -376,6 +388,15 @@ public final class Bot {
     public void shutdown() { onLeave(); bus.close(); }
 
     // ------------------------------------------------------------------ helpers
+
+    /** "40s ago", "16 min ago", "3 h ago", "2 days ago". */
+    static String ago(long millis) {
+        long s = Math.max(0, millis / 1000);
+        if (s < 90) return s + "s ago";
+        if (s < 90 * 60) return (s / 60) + " min ago";
+        if (s < 36 * 3600) return (s / 3600) + " h ago";
+        return (s / 86400) + " days ago";
+    }
 
     private Path memoryFile() {
         return dataDir.resolve("memory").resolve(serverId).resolve(selfId + ".json");

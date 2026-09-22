@@ -28,6 +28,20 @@ a Forge port is real; the core doesn't care about the loader.
 objectives", obeys `stop`, pauses on human WASD, sends HELLO over every enabled transport — and
 auto-starts only on a whitelisted server.
 
+**✅ Done — verified in the real game, 2026-09-22 (Zymbot 0.0.5, headless Bot1 + the host's client):**
+
+| check | evidence |
+|---|---|
+| autostart only on listed servers | `started: DISCOVERY — because this account is a Bot, and 127.0.0.1:25565 is on the server list` |
+| HELLO both ways | Bot1's status: `Bot2 — TEAMMATE, last 35s ago`; host client heard Bot1 over the signed + encrypted local bus |
+| `status` | `doing: idle — no objectives` (read from the headless bot via its console: `send.sh bot1 "/zbot status"`) |
+| `stop` / `start` | `stopped — because stopped by /zbot stop`, then back to DISCOVERY |
+| auto-respawn | `doImmediateRespawn false`, `/kill Bot1` → `respawning — because died` in the same second |
+| WASD pause | paused on W, warning 7 s after release, resumed at 10 s; `/zbot stop` returned the host to Teammate |
+
+Found and fixed along the way: vanilla LAN is always online-mode (OfflineLAN), host-vs-guest server
+identity (now the tab list), hmc-specifics needing JLine off, sync touching a running rig.
+
 ---
 
 ## The brain's shape — a sketch

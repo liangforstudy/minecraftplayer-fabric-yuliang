@@ -400,4 +400,35 @@ class BotTest {
         ZymbotConfig again = dev.yuliang.zymbot.core.config.ConfigIO.load(dir.resolve("zymbot.json"));
         assertEquals(ZymbotConfig.Role.TEAMMATE, again.roleOf(me.id));
     }
+
+    @Test
+    void returningTeammatesAreLogged() {
+        FakeBus net = new FakeBus();
+        FakeWorld w1 = new FakeWorld("Bot1"), me = new FakeWorld("Bot2");
+        FakeWorld.sameServer(w1, me);
+        Bot b1 = bot(w1, new ZymbotConfig(), true), human = bot(me, new ZymbotConfig(), true);
+        b1.attachTransport(net.endpoint());
+        human.attachTransport(net.endpoint());
+        b1.onJoin("s", "Bot1");
+        human.onJoin("s", "Bot2");
+        human.start("t");
+        human.tick(me, me);
+        b1.tick(w1, w1);
+        assertTrue(b1.decisions().latest(1).get(0).what().startsWith("met Bot2"));
+
+        b1.onLeave();                                      // a new session, 16 minutes later
+        clock.advance(16 * 60_000);
+        b1.onJoin("s", "Bot1");
+        clock.advance(Bot.HELLO_EVERY_MILLIS);
+        human.tick(me, me);
+        b1.tick(w1, w1);
+        var back = b1.decisions().latest(1).get(0);
+        assertTrue(back.what().startsWith("Bot2 is back"), back.toString());
+        assertTrue(back.why().contains("17 min ago"), back.toString());   // 16 min away + 1 min to the next HELLO
+
+        clock.advance(Bot.HELLO_EVERY_MILLIS);             // the next HELLO a minute later: no spam
+        human.tick(me, me);
+        b1.tick(w1, w1);
+        assertSame(back, b1.decisions().latest(1).get(0));
+    }
 }
