@@ -53,4 +53,11 @@ public class SkillDocTest {
         assertTrue(missing.isEmpty(), "add these /zbot commands to SKILL.md's table: " + missing);
         assertTrue(stale.isEmpty(), "these are in SKILL.md's table but no longer registered — remove them: " + stale);
     }
+
+    @Test
+    void theCopyNextToTheOtherDocs_isTheSame() throws IOException {
+        Path root = repo();
+        assertEquals(Files.readString(root.resolve(".claude/skills/zymbot/SKILL.md")), Files.readString(root.resolve("SKILL.md")),
+                "SKILL.md (repo root) is a copy of .claude/skills/zymbot/SKILL.md — edit one, then copy it over the other");
+    }
 }
