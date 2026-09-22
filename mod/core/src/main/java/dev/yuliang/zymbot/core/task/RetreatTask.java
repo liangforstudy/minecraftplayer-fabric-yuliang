@@ -37,7 +37,7 @@ public final class RetreatTask implements Task {
             if (walk != null) walk.cancel();
             return Status.DONE;
         }
-        if (walk == null) walk = new WalkTask(paths, destination(me), true, 2, report);
+        if (walk == null) walk = new WalkTask(paths, destination(me), true, 2, report).sprinting();   // a walker can't outpace a zombie
         if (++ticks > TIMEOUT_TICKS) {
             walk.cancel();
             failure = "still within " + DISTANCE + " blocks after " + TIMEOUT_TICKS / 20 + "s";

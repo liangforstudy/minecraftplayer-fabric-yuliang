@@ -2,7 +2,7 @@
 
 Status: **built (0.1.9), 82 unit tests.** Tested in game 2026-09-22: walking, water Step A,
 follow-swim, drowning reflex, eating (one bite per eat), critical health, summon / play.sh.
-Still to test live: see FIXLIST (re-tests) and the knockout reflex. Builds on
+Knockout reflex tested live (`/down` → /msg, 15 s, /giveup). Still to re-test: FIXLIST #7. Builds on
 [FOUNDATION.md](FOUNDATION.md) (Phase 0, verified in game).
 
 **Goal:** give the brain senses, hands and survival reflexes, so a bot can walk, follow a player,
@@ -71,7 +71,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 |---|---|---|
 | 0 | player pressed WASD | already built; now also **stops Baritone** immediately |
 | 1a | air ≤ ⅔ while in water (added after a live drowning — FIXLIST #2) | stop the pathfinder, hold jump, swim straight for the nearest dry land within 24 blocks; tread water if there's none |
-| 1 | health ≤ `critical_health` | eat a healing food (SURVIVAL_EARLY_GAME §1.3); if none, walk away from the attacker, toward the nearest human |
+| 1 | health ≤ `critical_health` | eat a healing food (SURVIVAL_EARLY_GAME §1.3); if none, **run** away from the attacker, toward the nearest human — the only sprinting the bot does (0.1.10: a walker can't outpace a zombie) |
 | 5 | nearest human > `leash_blocks` **while working** | pause the task, close the distance |
 | 6 | hunger ≤ `eat_below_hunger` | eat the best food by **Spice of Fabric** value: `nutrition × 0.7^(times in last 11)`, never a hazard food (§1.4) |
 
@@ -82,9 +82,10 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 
 | command | does |
 |---|---|
-| `/zbot goto <x> <z>` or `<x> <y> <z>` | walk there (any height in that column, or that block) |
+| `/zbot goto <x> <z>` or `<x> <y> <z>` | walk there (any height in that column, or that block); `~` / `~10` relative, like vanilla (0.1.11) |
 | `/zbot follow <name>` | follow a player until `/zbot cancel` |
 | `/zbot eat` | eat the best food now |
+| `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
 | `/zbot look <name>` | face a player |
 | `/zbot set leash\|eat\|critical <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them |
 | `/zbot cancel` | drop the current order; the bot keeps running |
@@ -107,7 +108,7 @@ hunger + saturation, which the server sends the client; exhaustion itself isn't 
 | 2 | `follow` | keeps up with you; says "lost sight of you" if you get out of view for 30 s |
 | 3 | `/effect give Bot1 minecraft:hunger` | eats at the threshold, and rotates foods instead of repeating one |
 | 4 | damage to low health | eats a heal, or walks away from the attacker when it has none |
-| 5 | WASD mid-walk — on **your** client with the Bot role (a headless bot has no keys) | Baritone stops at once; walking resumes after the countdown |
+| 5 | WASD mid-walk — on **your** client with the Bot role (a headless bot has no keys) | Baritone stops at once; walking resumes after the countdown — **passed live 2026-09-22** (`/zbot start` on your own client) |
 | 6 | no Baritone installed | loads fine; `goto` fails with a clear reason (unit-tested; both our clients have Baritone) |
 | 7 | disconnect / death mid-walk | no crash; the walk is cancelled and cleaned up |
 

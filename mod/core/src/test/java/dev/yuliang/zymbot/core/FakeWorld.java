@@ -155,9 +155,12 @@ public final class FakeWorld implements WorldView, Hands {
 
         public String name() { return available ? "fake" : "none — install Baritone to walk"; }
         public boolean available() { return available; }
-        public void goTo(BlockPos target, boolean ignoreY, int within, boolean swim) {
+        public boolean sprint;
+
+        public void goTo(BlockPos target, boolean ignoreY, int within, boolean swim, boolean sprint) {
             goal = target;
             this.swim = swim;
+            this.sprint = sprint;
             busy = swim || !onlyWet;
         }
         public void follow(String playerName, boolean swim) { following = playerName; this.swim = swim; busy = true; }

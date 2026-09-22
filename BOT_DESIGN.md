@@ -1145,7 +1145,8 @@ inventory and drop items out of it [R].
 1. **Downed is the top interrupt**, above everything: stop pathing and all actions (they're
    refused anyway), and shout — a bus `DOWNED x z secs` plus a `/msg` to nearby humans. **Give up
    at once unless someone can come** (owner's call, 2026-09-22): being revived, a medic bot near,
-   or a human near for 15 s. Bleeding out is the same death, only a minute later. *Built in 0.1.9.*
+   or a human near for 45 s (owner: 15 was too short to walk over with stitches; `/zbot set downed`).
+   Bleeding out is the same death, only a minute later. *Built in 0.1.9; 45 s in 0.1.10.*
 2. **A fleeing bot at critical health must get away *before* it's downed** — once down it can't
    move, and the next lethal hit is a real death. That's why the reflex timing fix (FIXLIST #7)
    matters so much.

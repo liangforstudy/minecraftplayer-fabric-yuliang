@@ -58,9 +58,9 @@ class DownedTest {
         assertTrue(w.said.stream().anyMatch(s -> s.startsWith("/msg Bot2 I'm knocked out at 0 0")), w.said.toString());
         assertFalse(w.said.contains("/giveup"));
         assertTrue(b.status().get(1).contains("waiting") && b.status().get(1).contains("for a human"), b.status().get(1));
-        ticks(b, w, 15 * 20);
+        ticks(b, w, 45 * 20);
         assertTrue(w.said.contains("/giveup"), "nobody came: " + log(b));
-        assertTrue(log(b).contains("nobody came to revive me in 15s"), log(b));
+        assertTrue(log(b).contains("nobody came to revive me in 45s"), log(b));
     }
 
     @Test

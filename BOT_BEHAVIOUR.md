@@ -32,7 +32,7 @@ Evaluated in order, every tick. First match wins.
 
 | # | trigger | action | why |
 |---|---|---|---|
-| −1 | **knocked out** (civfabric dbno: "Bleeding Out" boss bar) | let go of everything; tell the team (bus `DOWNED`) and each human within 64 blocks (`/msg`); wait only while being revived, a medic bot is near, or a human is near (15 s, `downed_wait_for_humans_seconds`) — otherwise `/giveup` at once | bleeding out and giving up are the same death, so waiting only pays if someone can come — see BOT_DESIGN → Knocked out *(built 0.1.9; medic bots don't exist yet)* |
+| −1 | **knocked out** (civfabric dbno: "Bleeding Out" boss bar) | let go of everything; tell the team (bus `DOWNED`) and each human within 64 blocks (`/msg`); wait only while being revived, a medic bot is near, or a human is near (45 s, `/zbot set downed <s>`) — otherwise `/giveup` at once | bleeding out and giving up are the same death, so waiting only pays if someone can come — see BOT_DESIGN → Knocked out *(built 0.1.9, wait 45 s since 0.1.10; medic bots don't exist yet)* |
 | 0 | player pressed WASD / jump / inventory | → `SUSPENDED`, start resume countdown | R12 — the human always wins |
 | 1a | air ≤ ⅔ while in water | surface, swim for the nearest dry land (or tread water) | a player who presses nothing sinks; drowning has no attacker to run from |
 | 1 | health ≤ critical | eat a healing food; if none, break contact and retreat | no natural regen — damage is not self-correcting |

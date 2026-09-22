@@ -23,6 +23,7 @@ public final class WalkTask implements Task {
     private final Consumer<String> report;
     private boolean started;
     private boolean swimming;
+    private boolean sprint;
     private int ticks;
     private double best = Double.MAX_VALUE;
     private int sinceProgress;
@@ -55,7 +56,7 @@ public final class WalkTask implements Task {
                 swimming = true;
                 report.accept("already in the water");
             }
-            paths.goTo(target, ignoreY, within, swimming);
+            paths.goTo(target, ignoreY, within, swimming, sprint);
             return Status.RUNNING;
         }
         ticks++;
@@ -71,7 +72,7 @@ public final class WalkTask implements Task {
                 swimming = true;
                 report.accept("no dry path to " + where() + " (" + Math.round(d) + " blocks left)");
                 ticks = 0;
-                paths.goTo(target, ignoreY, within, true);
+                paths.goTo(target, ignoreY, within, true, sprint);
                 return Status.RUNNING;
             }
             return fail("no path, even swimming — the pathfinder gave up " + Math.round(d) + " blocks short");
@@ -94,6 +95,12 @@ public final class WalkTask implements Task {
     @Override public void cancel() { if (started) paths.stop(); }
     @Override public String failure() { return failure; }
 
+    /** Run instead of walk — only for getting away (RETREAT); it costs 10× the hunger. */
+    public WalkTask sprinting() {
+        this.sprint = true;
+        return this;
+    }
+
     /** Allowed to swim now (fell back, or started in the water). */
     public boolean swimming() { return swimming; }
 
@@ -103,6 +110,6 @@ public final class WalkTask implements Task {
 
     @Override
     public String describe() {
-        return (swimming ? "walking (swimming if needed) to " : "walking to ") + where();
+        return (sprint ? "running to " : swimming ? "walking (swimming if needed) to " : "walking to ") + where();
     }
 }

@@ -486,7 +486,8 @@ vanilla's 5: `zymlabs` sets `BAKED_POTATO_HUNGER = 4`.)
 | `minecraft:cooked_salmon` / `cooked_mutton` / `cooked_chicken` | 6 | 0.8 / 0.8 / 0.6 | 6.0 / 6.0 / 4.8 | |
 | `minecraft:mushroom_stew` / `beetroot_soup` | 6 | 0.6 | 6.0 | 2 mushrooms + bowl |
 | `minecraft:rabbit_stew` | 10 | 0.6 | 10.0 | |
-| `minecraft:bread` / `baked_potato` / `cooked_cod` | 5 | 0.6 | 5.0 | |
+| `minecraft:bread` / `cooked_cod` | 5 | 0.6 | 5.0 | |
+| `minecraft:baked_potato` | **4** | — | **6.0** saturation points | zymlabs `BAKED_POTATO_HUNGER = 4`; confirmed live by `/zbot foods`, 2026-09-22 |
 | `vinery:jungle_grapes_red` / `_white` | 5 | 0.6 | 5.0 | forageable in jungle, 1/10 chunks |
 | `minecraft:apple` / `farm_and_charm:tomato` | 4 | 0.3 | 2.4 | |
 | `minecraft:carrot` / `farm_and_charm:lettuce` | 3 | 0.6 | 3.0 | |

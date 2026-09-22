@@ -16,7 +16,12 @@ public interface PathProvider {
      * once this close (0 = that exact block). {@code swim}: may enter water — only as a last
      * resort, since swimming costs ~85× walking's hunger per block here.
      */
-    void goTo(BlockPos target, boolean ignoreY, int within, boolean swim);
+    void goTo(BlockPos target, boolean ignoreY, int within, boolean swim, boolean sprint);
+
+    /** Walking pace — the default: sprinting costs 10× the hunger here (R19). */
+    default void goTo(BlockPos target, boolean ignoreY, int within, boolean swim) {
+        goTo(target, ignoreY, within, swim, false);
+    }
 
     /** Keep near this player until {@link #stop()}. {@code swim} as for {@link #goTo}. */
     void follow(String playerName, boolean swim);
@@ -29,7 +34,7 @@ public interface PathProvider {
     PathProvider NONE = new PathProvider() {
         public String name() { return "none — install Baritone to walk"; }
         public boolean available() { return false; }
-        public void goTo(BlockPos target, boolean ignoreY, int within, boolean swim) {}
+        public void goTo(BlockPos target, boolean ignoreY, int within, boolean swim, boolean sprint) {}
         public void follow(String playerName, boolean swim) {}
         public void stop() {}
         public boolean busy() { return false; }

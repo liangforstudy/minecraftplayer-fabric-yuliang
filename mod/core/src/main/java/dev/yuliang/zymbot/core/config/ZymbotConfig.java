@@ -129,17 +129,19 @@ public final class ZymbotConfig {
      * Knocked out with no medic bot near: how long to give a human within 64 blocks to start a
      * revive before giving up (0 = give up at once). Bleeding out takes 60 s anyway.
      */
-    public int downedWaitForHumansSeconds = 15;
+    public int downedWaitForHumansSeconds = 45;
 
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
-            "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19});
+            "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19},
+            "downed", new int[]{0, 55});
 
     public int tunable(String name) {
         return switch (name) {
             case "leash" -> leashBlocks;
             case "eat" -> eatBelowHunger;
             case "critical" -> criticalHealth;
+            case "downed" -> downedWaitForHumansSeconds;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -147,11 +149,12 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, eat or critical";
+        if (range == null) return "unknown setting '" + name + "' — leash, eat, critical or downed";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> leashBlocks = value;
             case "eat" -> eatBelowHunger = value;
+            case "downed" -> downedWaitForHumansSeconds = value;
             default -> criticalHealth = value;
         }
         return null;

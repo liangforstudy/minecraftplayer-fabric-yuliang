@@ -33,7 +33,7 @@ public final class DownedTask implements Task {
     private final BiConsumer<String, String> log;
     private boolean started, gaveUp;
     private int ticks, gaveUpAt;
-    private String state = "down";
+    private String state = "calling for help";
 
     public DownedTask(Hands hands, Help help, Function<WorldView, List<EntityView>> humansNear, int humanGraceTicks,
                       BiConsumer<String, String> log) {

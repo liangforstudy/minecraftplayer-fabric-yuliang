@@ -52,11 +52,9 @@ final class ZymbotCommands {
                         .then(literal("teammate").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.TEAMMATE)))))
                         .then(literal("none").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.NONE))))))
                 .then(literal("goto")
-                        // goto <x> <z>, or goto <x> <y> <z> — the middle number is z or y depending on the count
-                        .then(argument("x", IntegerArgumentType.integer()).then(argument("y_or_z", IntegerArgumentType.integer())
-                                .executes(c -> withBot(c, bot, b -> List.of(b.goTo(i(c, "x"), null, i(c, "y_or_z")))))
-                                .then(argument("z", IntegerArgumentType.integer())
-                                        .executes(c -> withBot(c, bot, b -> List.of(b.goTo(i(c, "x"), i(c, "y_or_z"), i(c, "z")))))))))
+                        // goto <x> <z> or <x> <y> <z>; "~" and "~10" are relative to you, like vanilla
+                        .then(argument("coords", StringArgumentType.greedyString())
+                                .executes(c -> withBot(c, bot, b -> List.of(goTo(c, b, StringArgumentType.getString(c, "coords")))))))
                 .then(literal("follow").then(argument("player", StringArgumentType.word())
                         .suggests((c, sb) -> {
                             c.getSource().getOnlinePlayerNames().forEach(sb::suggest);
@@ -70,6 +68,7 @@ final class ZymbotCommands {
                         })
                         .executes(c -> withBot(c, bot, b -> List.of(b.look(StringArgumentType.getString(c, "player")))))))
                 .then(literal("eat").executes(c -> withBot(c, bot, b -> List.of(b.eat()))))
+                .then(literal("foods").executes(c -> withBot(c, bot, Bot::foods)))
                 .then(literal("cancel").executes(c -> withBot(c, bot, b -> List.of(b.cancel()))))
                 .then(literal("set")
                         .executes(c -> withBot(c, bot, b -> ZymbotConfig.TUNABLES.keySet().stream().sorted()
@@ -111,13 +110,33 @@ final class ZymbotCommands {
                 r + " start / stop — hand control to the bot, or take it back",
                 r + " role bot | teammate | none — what this account is (Bot: the bot plays it; Teammate: you play, it announces)",
                 r + " autostart add | remove | list — servers where Zymbot is active",
-                r + " goto <x> <z>  or  <x> <y> <z> — walk there (needs Baritone)",
+                r + " goto <x> <z>  or  <x> <y> <z> — walk there (~ and ~10 work; needs Baritone)",
                 r + " follow <player> / look <player> / eat — orders; " + r + " cancel drops the order",
-                r + " set leash | eat | critical <n> — body thresholds (also in Mod Menu)",
+                r + " set leash | eat | critical | downed <n> — body thresholds (also in Mod Menu)",
+                r + " foods — the food carried, with the game's live values",
                 r + " summon — bots waiting at their title screen (standby) join you; " + r + " summon auto on|off",
                 r + " lan — open this world to LAN (port 25565, online mode off); " + r + " lan auto on|off — every time it loads",
                 "Settings (team key, accounts, servers): Mod Menu → Zymbot.",
                 "Pressing a movement key pauses the bot; it resumes after a few seconds.");
+    }
+
+    /** "x z" or "x y z", each a number, "~" or "~n" (relative to the player). */
+    private static String goTo(CommandContext<FabricClientCommandSource> c, Bot b, String coords) {
+        String[] p = coords.trim().split("\\s+");
+        if (p.length != 2 && p.length != 3) return "goto <x> <z>  or  goto <x> <y> <z>  (~ and ~10 work)";
+        var at = c.getSource().getPosition();
+        try {
+            int x = coord(p[0], at.x);
+            if (p.length == 2) return b.goTo(x, null, coord(p[1], at.z));
+            return b.goTo(x, coord(p[1], at.y), coord(p[2], at.z));
+        } catch (NumberFormatException e) {
+            return "not a coordinate: " + coords + " — use numbers, ~ or ~10";
+        }
+    }
+
+    static int coord(String s, double here) {
+        if (s.startsWith("~")) return (int) Math.floor(here + (s.length() == 1 ? 0 : Double.parseDouble(s.substring(1))));
+        return (int) Math.floor(Double.parseDouble(s));
     }
 
     private static int i(CommandContext<FabricClientCommandSource> c, String name) {

@@ -564,6 +564,23 @@ def prism_bin():
     sys.exit("Can't find the Prism Launcher program. Set PRISM_BIN to it.")
 
 
+def _game_running(instance):
+    """Is this Prism instance's game already running? Looks for a java process started from it."""
+    marker = os.path.join("instances", instance)
+    try:
+        if IS_WIN:
+            out = subprocess.run(["powershell", "-NoProfile", "-Command",
+                                  "Get-CimInstance Win32_Process -Filter \"Name like 'java%'\" | "
+                                  "Select-Object -ExpandProperty CommandLine"],
+                                 capture_output=True, text=True, timeout=20).stdout
+        else:
+            out = subprocess.run(["ps", "-ax", "-o", "command="], capture_output=True, text=True, timeout=10).stdout
+    except (OSError, subprocess.SubprocessError):
+        return False                                     # can't tell: launch as asked
+    return any(marker in line and "java" in line.lower() and "headless" not in line.lower()
+               for line in out.splitlines())
+
+
 def cmd_play(world, bots):
     """Bots to standby (in the background) and your own game straight into a world. The rest is
     Zymbot on your client, set once in game: /zbot lan auto on (the world opens to LAN by itself)
@@ -581,6 +598,9 @@ def cmd_play(world, bots):
         subprocess.Popen([sys.executable, "-u", os.path.abspath(__file__), "standby", bot],
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         print(f"[{bot}] starting in standby (about a minute)")
+    if _game_running(instance):
+        print(f"[you] '{instance}' is already running — not launching it again")
+        return 0
     subprocess.Popen([prism_bin(), "-l", instance, "-w", world],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
     print(f"[you] launching '{instance}' straight into '{world}'")

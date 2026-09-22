@@ -1564,9 +1564,9 @@
   "total_saturation": 2.4
  },
  "minecraft:baked_potato": {
-  "nutrition": 5,
+  "nutrition": 4,
   "saturation": 0.6,
-  "source": "vanilla",
+  "source": "zymlabs (BAKED_POTATO_HUNGER = 4); live /zbot foods 2026-09-22: 4 hunger, 6.0 saturation points",
   "total_saturation": 5
  },
  "minecraft:beef": {

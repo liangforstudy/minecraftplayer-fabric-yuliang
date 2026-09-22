@@ -46,6 +46,15 @@ final class FabricHands implements Hands {
     }
 
     @Override
+    public void steerToward(Vec3 p, double toleranceDegrees) {
+        if (mc.player == null) return;
+        double dx = p.x() - mc.player.getX(), dz = p.z() - mc.player.getZ();
+        float want = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90);          // Minecraft's yaw convention
+        float off = net.minecraft.util.Mth.wrapDegrees(want - mc.player.getYRot());
+        if (Math.abs(off) > toleranceDegrees) mc.player.setYRot(mc.player.getYRot() + off);
+    }
+
+    @Override
     public void selectSlot(int hotbarSlot) {
         if (mc.player != null && hotbarSlot >= 0 && hotbarSlot < 9) mc.player.getInventory().selected = hotbarSlot;   // sent next tick
     }

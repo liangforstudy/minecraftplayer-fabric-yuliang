@@ -14,6 +14,8 @@ import dev.yuliang.zymbot.core.api.WorldView;
 public final class SurfaceTask implements Task {
     public static final int LAND_RADIUS = 24;
     static final int TIMEOUT_TICKS = 20 * 20;
+    /** Close enough to swim straight at the shore; within this, the mouse is left alone. */
+    static final double STEER_TOLERANCE_DEGREES = 30;
 
     private final Hands hands;
     private final BlockPos land;
@@ -38,7 +40,7 @@ public final class SurfaceTask implements Task {
             hands.holdKeys(false, true);                   // tread water
             return world.air() >= world.maxAir() ? finish() : Status.RUNNING;
         }
-        hands.lookAt(new Vec3(land.x() + 0.5, land.y() + 2, land.z() + 0.5));
+        hands.steerToward(new Vec3(land.x() + 0.5, land.y() + 2, land.z() + 0.5), STEER_TOLERANCE_DEGREES);
         hands.holdKeys(true, true);
         return Status.RUNNING;
     }

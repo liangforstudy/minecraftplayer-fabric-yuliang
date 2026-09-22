@@ -19,6 +19,12 @@ public interface Hands {
 
     default void lookAt(Vec3 point) {}
 
+    /**
+     * Turn left/right toward a point only if more than {@code toleranceDegrees} off, and leave the
+     * pitch alone — for steering while a human may be looking around (the camera is theirs too).
+     */
+    default void steerToward(Vec3 point, double toleranceDegrees) { lookAt(point); }
+
     /** Hold hotbar slot 0–8. */
     default void selectSlot(int hotbarSlot) {}
 

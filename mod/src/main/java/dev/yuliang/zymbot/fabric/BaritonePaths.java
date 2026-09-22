@@ -48,7 +48,7 @@ final class BaritonePaths implements PathProvider {
             return new PathProvider() {
                 public String name() { return "none — Baritone failed to load (" + t.getClass().getSimpleName() + ")"; }
                 public boolean available() { return false; }
-                public void goTo(BlockPos target, boolean ignoreY, int within, boolean swim) {}
+                public void goTo(BlockPos target, boolean ignoreY, int within, boolean swim, boolean sprint) {}
                 public void follow(String playerName, boolean swim) {}
                 public void stop() {}
                 public boolean busy() { return false; }
@@ -63,8 +63,9 @@ final class BaritonePaths implements PathProvider {
     /** We put water on the avoid list — take it off again when we stop, for a human's own Baritone. */
     private boolean bannedWater;
 
-    private void applyServerRules(boolean swim) {
+    private void applyServerRules(boolean swim, boolean sprint) {
         Settings s = BaritoneAPI.getSettings();
+        s.allowSprint.value = sprint;
         List<Block> avoid = new ArrayList<>(s.blocksToAvoid.value);   // keep anyone else's entries
         if (swim) {
             if (bannedWater) avoid.removeAll(WATER);
@@ -75,7 +76,6 @@ final class BaritonePaths implements PathProvider {
             bannedWater = true;
         }
         s.blocksToAvoid.value = avoid;
-        s.allowSprint.value = false;
         s.sprintInWater.value = false;
         s.allowBreak.value = false;
         s.allowPlace.value = false;
@@ -90,8 +90,8 @@ final class BaritonePaths implements PathProvider {
     @Override public boolean available() { return true; }
 
     @Override
-    public void goTo(BlockPos t, boolean ignoreY, int within, boolean swim) {
-        applyServerRules(swim);
+    public void goTo(BlockPos t, boolean ignoreY, int within, boolean swim, boolean sprint) {
+        applyServerRules(swim, sprint);
         Goal goal = ignoreY ? new GoalXZ(t.x(), t.z())
                 : within > 0 ? new GoalNear(new net.minecraft.core.BlockPos(t.x(), t.y(), t.z()), within)
                 : new GoalBlock(t.x(), t.y(), t.z());
@@ -100,7 +100,7 @@ final class BaritonePaths implements PathProvider {
 
     @Override
     public void follow(String playerName, boolean swim) {
-        applyServerRules(swim);
+        applyServerRules(swim, false);
         baritone.getFollowProcess().follow(e -> e instanceof Player p && p.getGameProfile().getName().equalsIgnoreCase(playerName));
     }
 

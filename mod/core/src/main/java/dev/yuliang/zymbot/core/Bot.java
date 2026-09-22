@@ -646,6 +646,34 @@ public final class Bot {
         return "looking at " + name;
     }
 
+    /**
+     * Every food carried, with the values the game reports right now (the server's pack may change
+     * them) and what Spice of Fabric would leave of it after recent meals.
+     */
+    public List<String> foods() {
+        WorldView w = current;
+        if (w == null) return List.of("not in a world");
+        java.util.Map<String, dev.yuliang.zymbot.core.api.ItemView> kinds = new java.util.TreeMap<>();
+        java.util.Map<String, Integer> counts = new java.util.HashMap<>();
+        for (var i : w.inventory()) {
+            if (!i.edible()) continue;
+            kinds.putIfAbsent(i.id(), i);
+            counts.merge(i.id(), i.count(), Integer::sum);
+        }
+        if (kinds.isEmpty()) return List.of("no food carried");
+        List<String> out = new ArrayList<>();
+        out.add("food: hunger / saturation / now (after recent meals)");
+        for (var i : kinds.values()) {
+            var f = i.food();
+            boolean skipped = !FoodChooser.safe(i, config.neverEat);
+            out.add(String.format(Locale.ROOT, "  %d %s: %d / %.1f / %.2f%s%s%s%s", counts.get(i.id()), i.id().replace("minecraft:", ""),
+                    f.nutrition(), f.saturation(), FoodChooser.value(i, memory.recentFoods),
+                    f.heals() ? ", heals (kept for emergencies)" : "", f.canAlwaysEat() ? ", always edible" : "",
+                    f.harmful() ? ", HARMFUL" : "", skipped ? " — never eaten" : ""));
+        }
+        return out;
+    }
+
     /** Drop the current order; the bot stays running. */
     public String cancel() {
         if (!brain.hasOrder()) return "no order to cancel";

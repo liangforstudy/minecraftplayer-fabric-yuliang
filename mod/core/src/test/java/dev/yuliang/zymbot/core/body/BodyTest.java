@@ -159,6 +159,7 @@ class BodyTest {
         ticks(b, w, 2);
         assertNotNull(w.paths.goal, log(b));
         assertTrue(w.paths.goal.x() > 10, "flees east, away from the zombie: " + w.paths.goal);
+        assertTrue(w.paths.sprint, "runs — a walker can't outpace a zombie");
         assertTrue(log(b).contains("hurt by Zombie"), log(b));
 
         w.damage = null;
@@ -203,6 +204,7 @@ class BodyTest {
         b.goTo(50, 64, 0);
         ticks(b, w, 2);
         assertFalse(w.paths.swim, "first try is dry");
+        assertFalse(w.paths.sprint, "ordinary walks never sprint (R19)");
 
         FakeWorld island = new FakeWorld("Bot1");
         island.paths.onlyWet = true;                          // the target is across water
