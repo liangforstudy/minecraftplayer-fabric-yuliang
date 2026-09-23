@@ -4,6 +4,7 @@ headless/bot*/HeadlessMC/
 headless/bot*/run-*.log
 headless/bot*/launcher.pid
 headless/prism-dir.txt
+headless/java-path.txt
 # downloadable jars (links in headless/README.md); the tiny patch jar stays tracked
 headless/headlessmc-launcher-*.jar
 headless/baritone-*.jar
