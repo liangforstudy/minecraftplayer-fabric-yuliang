@@ -186,7 +186,7 @@ final class FabricWorldView implements WorldView {
         String type = src.typeHolder().unwrapKey().map(k -> k.location().toString()).orElse("unknown");
         Entity by = src.getEntity();
         return Optional.of(new Damage(type, by == null ? null : by.getName().getString(),
-                by == null ? null : new Vec3(by.getX(), by.getY(), by.getZ())));
+                by == null ? null : new Vec3(by.getX(), by.getY(), by.getZ()), by == null ? null : by.getUUID()));
     }
 
     @Override

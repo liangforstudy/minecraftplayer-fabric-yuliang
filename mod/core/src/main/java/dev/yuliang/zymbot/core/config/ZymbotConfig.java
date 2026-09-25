@@ -118,6 +118,26 @@ public final class ZymbotConfig {
     /** Health (of 20) at or below which the bot heals or retreats. */
     public int criticalHealth = 8;
     /**
+     * How hard mobs hit, and so when the bot runs. "modpack": at the first hit from a mob, whatever
+     * the health (this pack's zombies took 13 health in 3 s, 2026-09-25 — far past any threshold).
+     * "easy" / "normal" / "hard" (vanilla): only at critical health, which moves with the difficulty
+     * — {@link #criticalFor()}.
+     */
+    public String danger = "modpack";
+    public static final List<String> DANGER_MODES = List.of("modpack", "easy", "normal", "hard");
+
+    /** The health at or below which the bot heals or retreats, for the {@link #danger} mode. */
+    public int criticalFor() {
+        return switch (danger) {
+            case "easy" -> Math.max(1, criticalHealth - 2);
+            case "hard" -> Math.min(19, criticalHealth + 4);
+            default -> criticalHealth;
+        };
+    }
+
+    /** "modpack": run at the first hit from a mob, not only at critical health. */
+    public boolean runsAtFirstHit() { return "modpack".equals(danger); }
+    /**
      * Never eaten, on top of anything with a harmful effect. Dried kelp: the server adds a 10%
      * Poison II chance; chorus fruit teleports (SURVIVAL_EARLY_GAME §1.4).
      */
@@ -256,6 +276,10 @@ public final class ZymbotConfig {
             warnings.add("share_coords_with_humans '" + shareCoordsWithHumans + "' unknown; using 'relative'");
             shareCoordsWithHumans = "relative";
         }
+        if (danger == null || !DANGER_MODES.contains(danger.trim().toLowerCase(Locale.ROOT))) {
+            warnings.add("danger '" + danger + "' unknown; using 'modpack'");
+            danger = "modpack";
+        } else danger = danger.trim().toLowerCase(Locale.ROOT);
         if (humanForecastPrefix == null || humanForecastPrefix.isBlank()) humanForecastPrefix = "!lf";
         if (wherePrefix == null || wherePrefix.isBlank()) wherePrefix = "!where";
         if (helpKeyword == null || helpKeyword.isBlank()) helpKeyword = "help";

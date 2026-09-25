@@ -431,8 +431,8 @@ public final class Bot {
                 + (onWhitelist() ? " (on the server list)" : " (not on the server list)")));
         WorldView w = current;
         if (w != null && address != null) {
-            out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — eats at ≤%d, critical ≤%d, leash %d",
-                    Math.round(w.health()), w.hunger(), w.saturation(), config.eatBelowHunger, config.criticalHealth, config.leashBlocks));
+            out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — eats at ≤%d, critical ≤%d, leash %d, danger %s",
+                    Math.round(w.health()), w.hunger(), w.saturation(), config.eatBelowHunger, config.criticalFor(), config.leashBlocks, config.danger));
         }
         out.add("pathfinder: " + (hands == null ? "?" : hands.paths().name()));
         if (w != null && address != null) {
@@ -802,6 +802,22 @@ public final class Bot {
         ConfigIO.save(configFile, config);
         log.record("set " + name + " = " + value, "changed by a player");
         return name + " = " + value;
+    }
+
+    /** "modpack" (run at the first hit) or vanilla "easy" / "normal" / "hard" (run at critical health). */
+    public String setDanger(String mode) {
+        String m = mode.trim().toLowerCase(Locale.ROOT);
+        if (!ZymbotConfig.DANGER_MODES.contains(m)) return "danger must be one of " + String.join(", ", ZymbotConfig.DANGER_MODES);
+        config.danger = m;
+        ConfigIO.save(configFile, config);
+        log.record("danger = " + m, "changed by a player");
+        return describeDanger();
+    }
+
+    public String describeDanger() {
+        return "danger: " + config.danger + " — " + (config.runsAtFirstHit()
+                ? "runs at the first hit from a mob; heals at health ≤ " + config.criticalFor()
+                : "heals or runs at health ≤ " + config.criticalFor());
     }
 
     /** A line of chat reached this client. */

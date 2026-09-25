@@ -9,12 +9,9 @@ sodium
 sodium-extra
 reeses-sodium-options
 iris
-lithium
 entityculling
 dynamic_fps
 immediatelyfast
-ferritecore
-modernfix
 c2me
 krypton
 moreculling
@@ -63,3 +60,5 @@ placeholder-api
 # --- our own mods: each rig gets the fresh build from mod/, never the host copy ---
 zymbot
 headlessmc         # hmc-specifics (bot-only console remote)
+rrls              # Remove Reloading Screen: lets menus run before textures load (crashes Cobblemon); owner-only
+modernfix         # bot1 crashed in Xaero's World Map (null block model) right after joining, 2026-09-25 - suspected; owner-only

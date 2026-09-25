@@ -6,7 +6,7 @@ Knockout reflex tested live (`/down` → /msg, 15 s, /giveup). Still to re-test:
 [FOUNDATION.md](FOUNDATION.md) (Phase 0, verified in game).
 
 **Goal:** give the brain senses, hands and survival reflexes, so a bot can walk, follow a player,
-eat sensibly and stay alive. No goals of its own yet — the planner stays empty until Phase 2.
+eat sensibly and stay alive. No goals of its own yet — the planner stays empty until Phase 2 ([PHASE2.md](PHASE2.md)).
 
 Everything below lives behind the existing `WorldView` / `Hands` split: the rules are in `core`
 (pure Java, unit-tested with `FakeWorld`), the Minecraft calls are in the Fabric adapter.
@@ -92,6 +92,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
 | `/zbot look <name>` | face a player |
 | `/zbot set leash\|eat\|critical\|downed\|plantime\|lagtps <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them. `plantime` = ms per route search (50–5000), `lagtps` = plan less below this TPS (5–19) |
+| `/zbot danger [modpack\|easy\|normal\|hard]` | when it runs from a mob (0.1.25): `modpack` (default) at the first hit, following the attacker by UUID; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4). Live test deferred until all phases are built |
 | `/zbot cancel` | drop the current order; the bot keeps running |
 
 Orders need the bot running. An interrupt (eating, retreating) pauses an order, which resumes

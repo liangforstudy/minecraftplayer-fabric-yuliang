@@ -6,17 +6,22 @@ import dev.yuliang.zymbot.core.api.Vec3;
 import dev.yuliang.zymbot.core.api.WorldView;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Break contact: walk {@link #DISTANCE} blocks away from what hurt us — bent toward the nearest
- * human when there is one, so help is closer. Done once that far from the attacker.
+ * human when there is one, so help is closer. Done once that far from the attacker. The attacker
+ * is followed live: when it has moved {@link #REPLAN_BLOCKS} from where we planned, plan again.
  */
 public final class RetreatTask implements Task {
     public static final int DISTANCE = 16;
     static final int TIMEOUT_TICKS = 20 * 20;
+    static final double REPLAN_BLOCKS = 6;
 
     private final PathProvider paths;
-    private final Vec3 from;
+    private final Supplier<Vec3> threat;
+    private Vec3 from;          // the attacker now
+    private Vec3 plannedFrom;   // ... when the current walk was planned
     private final Optional<Vec3> toward;
     private final Consumer<String> report;
     private WalkTask walk;
@@ -24,8 +29,14 @@ public final class RetreatTask implements Task {
     private String failure = "";
 
     public RetreatTask(PathProvider paths, Vec3 from, Optional<Vec3> toward, Consumer<String> report) {
+        this(paths, () -> from, toward, report);
+    }
+
+    /** @param threat where the attacker is now (its last known position once out of sight) */
+    public RetreatTask(PathProvider paths, Supplier<Vec3> threat, Optional<Vec3> toward, Consumer<String> report) {
         this.paths = paths;
-        this.from = from;
+        this.threat = threat;
+        this.from = threat.get();
         this.toward = toward;
         this.report = report;
     }
@@ -33,11 +44,20 @@ public final class RetreatTask implements Task {
     @Override
     public Status tick(WorldView world) {
         Vec3 me = world.position();
-        if (me.horizontalDistance(from) >= DISTANCE) {
+        Vec3 now = threat.get();
+        if (me.horizontalDistance(now) >= DISTANCE) {
             if (walk != null) walk.cancel();
             return Status.DONE;
         }
-        if (walk == null) walk = new WalkTask(paths, destination(me), true, 2, report).sprinting();   // a walker can't outpace a zombie
+        from = now;
+        if (walk != null && now.horizontalDistance(plannedFrom) >= REPLAN_BLOCKS) {   // it followed us: run from where it is
+            walk.cancel();
+            walk = null;
+        }
+        if (walk == null) {
+            walk = new WalkTask(paths, destination(me), true, 2, report).sprinting();   // a walker can't outpace a zombie
+            plannedFrom = now;
+        }
         if (++ticks > TIMEOUT_TICKS) {
             walk.cancel();
             failure = "still within " + DISTANCE + " blocks after " + TIMEOUT_TICKS / 20 + "s";

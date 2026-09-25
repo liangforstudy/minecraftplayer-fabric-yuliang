@@ -60,6 +60,21 @@ Known bugs, found in testing, not yet fixed. Remove an entry when its fix is com
   (ties go to the one eaten least lately); values visibly fall after a bite and climb back as meals
   rotate out of Spice's 11. Most likely a read mid-update. The logging stays, so a repeat shows why.
 
+## 9. Died to one zombie: ran too late, too slowly, then stopped running
+
+- **Seen:** 2026-09-25 14:10, 0.1.24, Windows LAN world, Bot1 full health, no food, one summoned
+  zombie 3 blocks away. Health 20 → 7 in 3 s (this pack's zombies hit far harder than vanilla), so
+  the critical-health retreat (≤ 8) started with almost nothing left; it covered ~3 blocks in 5 s;
+  at health 2 it logged "no healing food, and **nothing to run from**" with the zombie still on it —
+  knocked out, died 17 s after the summon.
+- **Why it stopped:** the attacker was remembered as a snapshot of where it stood at the first hit,
+  for 10 s — later hits didn't refresh it, so the memory ran out mid-fight.
+- **0.1.25:** the attacker is remembered by UUID and followed live, every hit (and a chase within
+  16 blocks) refreshes the memory, an unnamed mob hit is pinned on the nearest hostile within 6
+  blocks, the retreat re-plans when the attacker moves 6 blocks, and `/zbot danger` picks when to run:
+  `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` at critical health −2/±0/+4.
+- **Still open:** the slow retreat (~3 blocks in 5 s while "sprinting") — not explained yet.
+- **Re-test:** deferred by the owner until all phases are built — each mode, in this pack and vanilla.
 ## Fixed
 
 Fixed and verified (details in git history, commit "Zymbot 0.1.9"): #1 stale "last heard" after a

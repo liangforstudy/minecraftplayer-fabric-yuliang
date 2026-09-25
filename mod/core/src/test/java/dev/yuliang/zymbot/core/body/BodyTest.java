@@ -7,6 +7,7 @@ import dev.yuliang.zymbot.core.FakeClock;
 import dev.yuliang.zymbot.core.FakeWorld;
 import dev.yuliang.zymbot.core.api.BlockPos;
 import dev.yuliang.zymbot.core.api.Damage;
+import dev.yuliang.zymbot.core.api.EntityView;
 import dev.yuliang.zymbot.core.api.Vec3;
 import dev.yuliang.zymbot.core.brain.Brain;
 import dev.yuliang.zymbot.core.brain.DecisionLog;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -623,5 +625,103 @@ class BodyTest {
         assertTrue(body.recentAttack().isPresent());
         clock.now += Body.ATTACK_MEMORY_MILLIS + 1;
         assertEquals(Optional.empty(), body.recentAttack());
+    }
+
+    // ------------------------------------------------------------------ danger modes, live attacker (2026-09-25)
+
+    static EntityView zombie(FakeWorld w, double x, double z) {
+        EntityView e = new EntityView(900, UUID.nameUUIDFromBytes("zombie".getBytes()), "Zombie", "minecraft:zombie",
+                EntityView.Kind.HOSTILE, new Vec3(x, 64, z));
+        w.nearby.removeIf(n -> n.id() == 900);
+        w.nearby.add(e);
+        return e;
+    }
+
+    @Test
+    void modpackDanger_runsAtTheFirstHit() {
+        FakeWorld w = new FakeWorld("Bot1");                     // full health
+        EntityView z = zombie(w, -2, 0);
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        Bot b = running(w, new ZymbotConfig(), true);           // danger defaults to modpack
+        ticks(b, w, 2);
+        assertNotNull(w.paths.goal, log(b));
+        assertTrue(w.paths.goal.x() > 10, "flees east: " + w.paths.goal);
+        assertTrue(log(b).contains("hit by Zombie (danger: modpack)"), log(b));
+    }
+
+    @Test
+    void vanillaDanger_waitsForCriticalHealth() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView z = zombie(w, -2, 0);
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        ZymbotConfig c = new ZymbotConfig();
+        c.danger = "normal";
+        Bot b = running(w, c, true);
+        ticks(b, w, 2);
+        assertNull(w.paths.goal, "health 20 > 8: stays put " + log(b));
+        w.health = 11;
+        c.danger = "hard";                                      // hard: 8 + 4 = 12
+        ticks(b, w, Brain.RECHECK_TICKS + 2);
+        assertNotNull(w.paths.goal, log(b));
+        assertTrue(log(b).contains("health 11 ≤ 12"), log(b));
+    }
+
+    @Test
+    void criticalMovesWithTheDifficulty() {
+        ZymbotConfig c = new ZymbotConfig();
+        assertEquals(8, c.criticalFor());
+        c.danger = "easy";
+        assertEquals(6, c.criticalFor());
+        c.danger = "hard";
+        assertEquals(12, c.criticalFor());
+        c.danger = "nonsense";
+        c.normalize();
+        assertEquals("modpack", c.danger);
+    }
+
+    @Test
+    void theAttackerIsFollowedByUuid_andAChaseKeepsItRecent() {
+        Body body = new Body(ArrayList::new, id -> false, clock, () -> {});
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView z = zombie(w, 2, 0);
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        body.sense(w);
+        w.damage = null;                                        // no new hit, but it's still after us
+        zombie(w, 5, 5);
+        clock.now += Body.ATTACK_MEMORY_MILLIS - 1000;
+        body.sense(w);
+        assertEquals(new Vec3(5, 64, 5), body.recentAttack().orElseThrow().from(), "runs from where it is now");
+        clock.now += Body.ATTACK_MEMORY_MILLIS - 1000;          // 18 s after the hit, still chasing
+        body.sense(w);
+        assertTrue(body.recentAttack().isPresent(), "a chase isn't forgotten after 10 s");
+    }
+
+    @Test
+    void anUnnamedHitIsPinnedOnTheNearestHostile() {
+        Body body = new Body(ArrayList::new, id -> false, clock, () -> {});
+        FakeWorld w = new FakeWorld("Bot1");
+        zombie(w, 1, 1);
+        w.damage = new Damage("minecraft:mob_attack", null, null);   // the game didn't say who
+        body.sense(w);
+        assertEquals("Zombie", body.recentAttack().orElseThrow().who());
+        Body falls = new Body(ArrayList::new, id -> false, clock, () -> {});
+        w.damage = new Damage("minecraft:fall", null, null);
+        falls.sense(w);
+        assertTrue(falls.recentAttack().isEmpty(), "a fall isn't the zombie's fault");
+    }
+
+    @Test
+    void retreatReplansWhenTheAttackerFollows() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView z = zombie(w, -2, 0);
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, 2);
+        var first = w.paths.goal;
+        assertNotNull(first, log(b));
+        zombie(w, 0, 12);                                       // it came round to the south
+        ticks(b, w, 2);
+        assertNotEquals(first, w.paths.goal, "plans again, away from where it is now");
+        assertTrue(w.paths.goal.z() < 0, "flees north: " + w.paths.goal);
     }
 }

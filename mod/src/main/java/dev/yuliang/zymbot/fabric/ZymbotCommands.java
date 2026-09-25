@@ -116,6 +116,14 @@ final class ZymbotCommands {
                                 })
                                 .then(argument("value", IntegerArgumentType.integer())
                                         .executes(c -> withBot(c, bot, b -> List.of(b.set(StringArgumentType.getString(c, "setting"), i(c, "value"))))))))
+                .then(literal("danger")
+                        .executes(c -> withBot(c, bot, b -> List.of(b.describeDanger())))
+                        .then(argument("mode", StringArgumentType.word())
+                                .suggests((c, sb) -> {
+                                    ZymbotConfig.DANGER_MODES.forEach(sb::suggest);
+                                    return sb.buildFuture();
+                                })
+                                .executes(c -> withBot(c, bot, b -> List.of(b.setDanger(StringArgumentType.getString(c, "mode")))))))
                 .then(literal("summon")
                         .executes(c -> withBot(c, bot, b -> List.of(summon.apply(b))))
                         .then(literal("auto")
@@ -150,6 +158,7 @@ final class ZymbotCommands {
                 r + " follow <player> / come <player> / look <player> / eat — orders; " + r + " cancel drops the order",
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed | plantime | lagtps <n> — thresholds (also in Mod Menu)",
+                r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",
                 r + " foods — the food carried, with the game's live values",
                 r + " grave — walk to the nearest grave (16 blocks) and take our things back",
                 r + " summon — bots waiting at their title screen (standby) join you; " + r + " summon auto on|off",
