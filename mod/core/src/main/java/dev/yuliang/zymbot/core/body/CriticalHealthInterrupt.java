@@ -49,7 +49,7 @@ public final class CriticalHealthInterrupt implements Interrupt {
         }
         var attack = attackerClose(world);
         if (attack.isPresent()) {
-            Optional<EntityView> human = body.nearestHuman(world);
+            Optional<EntityView> human = body.nearestTeammate(world);   // help is a teammate, not a stranger (P2-2)
             Vec3 first = attack.get().from();
             return new RetreatTask(hands.paths(), () -> body.recentAttack().map(Body.Attack::from).orElse(first),
                     human.map(EntityView::pos), body::reportSwim);

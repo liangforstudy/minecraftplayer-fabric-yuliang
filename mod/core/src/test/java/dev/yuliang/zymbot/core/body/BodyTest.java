@@ -825,4 +825,19 @@ class BodyTest {
     int idles(Bot b) {
         return (int) java.util.Arrays.stream(log(b).split("\n")).filter(l -> l.contains("idle — because no objectives")).count();
     }
+
+    // ------------------------------------------------------------------ Phase 2 step 1: teammates only (P2-1, P2-2)
+
+    @Test
+    void onlyAZymbotTeammateIsAnAnchor_notAStrangerNorABot() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView stranger = w.player("Stranger", 3, 0);      // closest, but no Zymbot
+        EntityView bot2 = w.player("Bot2", 5, 0);              // another bot
+        EntityView mate = w.player("Mate", 40, 0);             // the owner's client, Zymbot as Teammate
+        Body body = new Body(ArrayList::new, id -> id.equals(bot2.uuid()), id -> id.equals(mate.uuid()), clock, () -> {});
+        assertEquals("Mate", body.nearestTeammate(w).orElseThrow().name());
+        assertEquals("Stranger", body.nearestHuman(w).orElseThrow().name(), "anyone may still revive us");
+        w.nearby.remove(mate);
+        assertTrue(body.nearestTeammate(w).isEmpty(), "no teammate in sight: nothing to anchor to");
+    }
 }

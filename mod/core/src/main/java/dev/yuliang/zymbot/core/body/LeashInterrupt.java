@@ -12,7 +12,8 @@ import java.util.function.BooleanSupplier;
 
 /**
  * Interrupt #5 — R2: while working on its own objective, the bot stays within the leash of the
- * nearest human. It never applies to an idle bot or to a player's direct order (PHASE1.md P1-2).
+ * nearest Zymbot teammate (PHASE2.md P2-2 — a stranger walking past must not become the anchor).
+ * It never applies to an idle bot or to a player's direct order (PHASE1.md P1-2).
  */
 public final class LeashInterrupt implements Interrupt {
     private final ZymbotConfig config;
@@ -30,20 +31,20 @@ public final class LeashInterrupt implements Interrupt {
     @Override
     public boolean triggered(WorldView world) {
         if (!working.getAsBoolean()) return false;
-        return body.nearestHuman(world).map(h -> distance(world, h) > config.leashBlocks).orElse(false);
+        return body.nearestTeammate(world).map(h -> distance(world, h) > config.leashBlocks).orElse(false);
     }
 
     @Override
     public Task respond(WorldView world, Hands hands) {
-        EntityView h = body.nearestHuman(world).orElseThrow();
+        EntityView h = body.nearestTeammate(world).orElseThrow();
         return new WalkTask(hands.paths(), BlockPos.of(h.pos()), false, config.leashBlocks / 2, body::reportSwim);
     }
 
     @Override
     public String why(WorldView world) {
-        return body.nearestHuman(world)
+        return body.nearestTeammate(world)
                 .map(h -> h.name() + " is " + Math.round(distance(world, h)) + " blocks away (leash " + config.leashBlocks + ")")
-                .orElse("too far from the nearest human");
+                .orElse("too far from the nearest teammate");
     }
 
     private static double distance(WorldView world, EntityView h) {

@@ -136,7 +136,7 @@ public final class Bot {
         this.log = new DecisionLog(50, clock);
         this.bus = new Bus(selfId, config.teamKey, clock);
         this.chatOut = new ChatOut(clock);
-        this.body = new Body(() -> memory.recentFoods, this::isKnownBot, clock, () -> memoryDirty = true);
+        this.body = new Body(() -> memory.recentFoods, this::isKnownBot, this::isTeammate, clock, () -> memoryDirty = true);
         body.onSwim(this::reportSwim);
         // BOT_BEHAVIOUR.md interrupt table, phase 1 rows, in priority order
         DownedTask.Help help = new DownedTask.Help() {
@@ -880,6 +880,17 @@ public final class Bot {
     private boolean isKnownBot(UUID id) {
         BotMemory.RosterEntry r = memory.roster.get(id.toString());
         return r != null && !Phase.TEAMMATE.name().equals(r.phase) && !Phase.STOPPED.name().equals(r.phase);
+    }
+
+    /**
+     * A player whose game runs Zymbot as Teammate: heard announcing it on the bus (signed with the
+     * team key), or listed as one in our accounts. Only these anchor a bot (PHASE2.md P2-1).
+     */
+    private boolean isTeammate(UUID id) {
+        if (id.equals(selfId)) return false;
+        if (config.roleOf(id) == ZymbotConfig.Role.TEAMMATE) return true;
+        BotMemory.RosterEntry r = memory.roster.get(id.toString());
+        return r != null && Phase.TEAMMATE.name().equals(r.phase);
     }
 
     private void saveMemory() {

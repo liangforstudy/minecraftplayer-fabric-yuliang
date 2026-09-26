@@ -28,6 +28,7 @@ public final class Body {
 
     private final Supplier<List<String>> recentFoods;
     private final Predicate<UUID> isBot;
+    private final Predicate<UUID> isTeammate;
     private final LongSupplier clock;
     private final Runnable changed;
     private Consumer<String> swimReport = why -> {};
@@ -39,8 +40,18 @@ public final class Body {
      * @param changed     called when something worth saving changed
      */
     public Body(Supplier<List<String>> recentFoods, Predicate<UUID> isBot, LongSupplier clock, Runnable changed) {
+        this(recentFoods, isBot, id -> !isBot.test(id), clock, changed);
+    }
+
+    /**
+     * @param isTeammate players whose game runs Zymbot as Teammate — the only ones a bot anchors to
+     *                   (PHASE2.md P2-1, P2-2): never a stranger, never another bot
+     */
+    public Body(Supplier<List<String>> recentFoods, Predicate<UUID> isBot, Predicate<UUID> isTeammate,
+                LongSupplier clock, Runnable changed) {
         this.recentFoods = recentFoods;
         this.isBot = isBot;
+        this.isTeammate = isTeammate;
         this.clock = clock;
         this.changed = changed;
     }
@@ -98,6 +109,17 @@ public final class Body {
                 .toList();
     }
 
+    /** The nearest Zymbot teammate in sight — what the leash, retreats and regroup measure to. */
+    public Optional<EntityView> nearestTeammate(WorldView world) {
+        Vec3 me = world.position();
+        return world.nearby().stream()
+                .filter(e -> e.kind() == EntityView.Kind.PLAYER && !e.uuid().equals(world.selfId()) && isTeammate.test(e.uuid()))
+                .min(Comparator.comparingDouble(e -> e.pos().horizontalDistance(me)));
+    }
+
+    public boolean isTeammate(UUID id) { return isTeammate.test(id); }
+
+    /** Any human in sight, teammate or not — for calling for a revive, which anyone can give. */
     public Optional<EntityView> nearestHuman(WorldView world) {
         Vec3 me = world.position();
         return world.nearby().stream()
