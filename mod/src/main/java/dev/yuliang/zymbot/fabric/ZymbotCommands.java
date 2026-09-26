@@ -116,6 +116,7 @@ final class ZymbotCommands {
                                 })
                                 .then(argument("value", IntegerArgumentType.integer())
                                         .executes(c -> withBot(c, bot, b -> List.of(b.set(StringArgumentType.getString(c, "setting"), i(c, "value"))))))))
+                .then(literal("roster").executes(c -> withBot(c, bot, Bot::roster)))
                 .then(literal("regroup").executes(c -> withBot(c, bot, b -> List.of(b.regroupNow()))))
                 .then(literal("danger")
                         .executes(c -> withBot(c, bot, b -> List.of(b.describeDanger())))
@@ -159,6 +160,7 @@ final class ZymbotCommands {
                 r + " follow <player> / come <player> / look <player> / eat — orders; " + r + " cancel drops the order",
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed | regroup | plantime | lagtps <n> — thresholds (also in Mod Menu)",
+                r + " roster — the team: Bot / Teammate, online, last heard, where, how we know",
                 r + " regroup — walk back to the nearest teammate now (automatic on start and after a respawn)",
                 r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",
                 r + " foods — the food carried, with the game's live values",

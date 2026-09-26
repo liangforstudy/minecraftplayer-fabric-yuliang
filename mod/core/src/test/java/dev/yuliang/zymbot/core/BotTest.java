@@ -431,4 +431,36 @@ class BotTest {
         b1.tick(w1, w1);
         assertSame(back, b1.decisions().latest(1).get(0));
     }
+
+    // ------------------------------------------------------------------ Phase 2 step 4: roster (PHASE2.md §2)
+
+    @Test
+    void rosterListsTheTeam_andNoticesLeaversFromTheTabList() {
+        FakeBus net = new FakeBus();
+        FakeWorld w1 = new FakeWorld("Bot1"), me = new FakeWorld("Bot2");
+        FakeWorld.sameServer(w1, me);
+        Bot b1 = bot(w1, new ZymbotConfig(), true), other = bot(me, new ZymbotConfig(), true);
+        b1.attachTransport(net.endpoint());
+        other.attachTransport(net.endpoint());
+        b1.onJoin("s", "Bot1");
+        other.onJoin("s", "Bot2");
+        other.start("t");
+        other.tick(me, me);
+        b1.tick(w1, w1);
+        List<String> r = b1.roster();
+        assertTrue(r.stream().anyMatch(l -> l.contains("Bot2 — Bot, online")), r.toString());
+
+        w1.online.remove(me.id);                           // Bot2 disconnects
+        clock.advance(1000);
+        b1.tick(w1, w1);
+        assertTrue(b1.decisions().latest(3).stream().anyMatch(d -> d.toString().startsWith("Bot2 left — because gone from the tab list")),
+                b1.decisions().latest(3).toString());
+        assertTrue(b1.roster().stream().anyMatch(l -> l.contains("Bot2 — Bot, offline")));
+
+        w1.online.add(me.id);                              // and comes back
+        clock.advance(1000);
+        b1.tick(w1, w1);
+        assertTrue(b1.decisions().latest(3).stream().anyMatch(d -> d.toString().startsWith("Bot2 is back — because in the tab list again")),
+                b1.decisions().latest(3).toString());
+    }
 }

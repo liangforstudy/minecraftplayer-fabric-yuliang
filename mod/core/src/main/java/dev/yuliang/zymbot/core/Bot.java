@@ -104,6 +104,10 @@ public final class Bot {
     private boolean resumeWarned;
     private long nextHello;
     private final dev.yuliang.zymbot.core.team.Regroup regroup;
+    private final java.util.Set<String> inTabList = new java.util.HashSet<>();   // roster members online now
+    private final java.util.Set<String> seenOnline = new java.util.HashSet<>();  // ... at some point this session
+    private long nextRosterCheck;
+    private long nextRosterAsk;
     private long lastRespawn = -RESPAWN_RETRY_MILLIS;
     private WorldView current;                                   // this tick's snapshot, for the bus handler
     private final List<Pending> pending = new ArrayList<>();
@@ -181,6 +185,8 @@ public final class Bot {
         this.serverId = serverIdOf(worldKey);
         this.memory = memoryStore.load(memoryFile(), new BotMemory());
         pendingSummon = null;
+        inTabList.clear();
+        seenOnline.clear();
         lastSummon = null;                                       // we're in: nothing to retry
         saidIgnoringSummons = false;
         knownLastDeath = null;
@@ -276,6 +282,7 @@ public final class Bot {
         this.hands = hands;
         retryPending(now);
         bus.drain();
+        trackTabList(world, now);
         if (memoryDirty && now >= nextSave) saveMemory();
         if (repeatSummon != null && now >= nextSummonRepeat) {
             if (now >= repeatSummonUntil || !config.autoSummonOnLan) repeatSummon = null;   // done, or switched off
@@ -414,6 +421,17 @@ public final class Bot {
             nextHello = 0;
             return;
         }
+        if (MessageTypes.ROSTER.equals(e.type())) {             // someone we don't know yet? ask them all
+            String self = selfId.toString();
+            boolean unknown = java.util.Arrays.stream(e.field(0).split(","))
+                    .anyMatch(id -> !id.isBlank() && !id.equals(self) && !memory.roster.containsKey(id));
+            long now = clock.getAsLong();
+            if (unknown && now >= nextRosterAsk) {
+                nextRosterAsk = now + 30_000;
+                askWhere();
+            }
+            return;
+        }
         if (MessageTypes.DOWNED.equals(e.type())) {
             log.record(e.field(0) + " is knocked out", "at " + e.x() + ", " + e.z() + ", " + e.field(1) + "s to bleed out");
             return;
@@ -429,6 +447,7 @@ public final class Bot {
             if (before == null) {
                 log.record("met " + what, "HELLO on the bus at " + e.x() + ", " + e.z());
                 saveMemory();
+                shareRoster();                                  // a newcomer: tell everyone who we know
             } else if (firstThisSession || now - before.lastSeenMillis > AWAY_MILLIS) {
                 log.record(e.field(0) + " is back" + (before.name.equals(e.field(0)) ? "" : " (was " + before.name + ")")
                         + " — " + e.field(1), "last heard " + ago(now - before.lastSeenMillis) + ", now at " + e.x() + ", " + e.z());
@@ -885,6 +904,58 @@ public final class Bot {
     }
 
     private boolean workingOnItsOwn() { return brain.autonomous() && !regroup.active(); }   // regroup is the walk back
+
+    /**
+     * Who of the team is on this server: the tab list, checked once a second. Says when someone
+     * leaves, and when someone we saw earlier this session comes back (PHASE2.md §2).
+     */
+    private void trackTabList(WorldView world, long now) {
+        if (address == null || now < nextRosterCheck) return;
+        nextRosterCheck = now + 1000;
+        var online = world.onlinePlayers();
+        for (var e : memory.roster.entrySet()) {
+            boolean on;
+            try {
+                on = online.contains(UUID.fromString(e.getKey()));
+            } catch (IllegalArgumentException bad) {
+                continue;
+            }
+            String key = e.getKey(), name = e.getValue().name;
+            if (on && inTabList.add(key)) {
+                if (!seenOnline.add(key)) log.record(name + " is back", "in the tab list again");
+            } else if (!on && inTabList.remove(key)) {
+                log.record(name + " left", "gone from the tab list");
+            }
+        }
+    }
+
+    /** ROSTER on the bus: everyone we know, so early and late joiners converge (BOT_DESIGN §2.23). */
+    private void shareRoster() {
+        WorldView w = current;
+        if (w == null) return;
+        bus.publish(serverId, w.day(), (int) Math.floor(w.position().x()), (int) Math.floor(w.position().z()),
+                MessageTypes.ROSTER, List.of(String.join(",", memory.roster.keySet()), Integer.toString(memory.roster.size())));
+    }
+
+    /** /zbot roster: each member, Bot or Teammate, online or not, last heard, where, and how we know. */
+    public List<String> roster() {
+        if (memory.roster.isEmpty()) return List.of("roster: nobody yet — no HELLO heard on this server");
+        long now = clock.getAsLong();
+        List<String> out = new ArrayList<>();
+        out.add("roster (" + memory.roster.size() + "):");
+        for (var e : memory.roster.entrySet()) {
+            var r = e.getValue();
+            boolean on = inTabList.contains(e.getKey());
+            var seen = current == null ? java.util.Optional.<EntityView>empty()
+                    : current.nearby().stream().filter(p -> p.uuid().toString().equals(e.getKey())).findFirst();
+            String role = Phase.TEAMMATE.name().equals(r.phase) ? "Teammate" : "Bot";
+            String where = seen.map(p -> Math.round(p.pos().x()) + ", " + Math.round(p.pos().z()) + " (seen)")
+                    .orElse(r.x + ", " + r.z + " (bus)");
+            out.add("  " + r.name + " — " + role + ", " + (on ? "online" : "offline") + ", heard "
+                    + ago(now - r.lastSeenMillis) + ", at " + where);
+        }
+        return out;
+    }
 
     /** Ask the team for fresh positions: teammates answer with a HELLO at once. */
     private void askWhere() {

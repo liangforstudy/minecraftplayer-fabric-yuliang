@@ -1,6 +1,6 @@
 # Phase 2 — Discovery and regroup
 
-Status: **scoped 2026-09-23, not built.** Builds on [PHASE1.md](PHASE1.md) (the Body, 0.1.24) and
+Status: **scoped 2026-09-23; 0.1.29 (2026-09-26): built without the live test** — teammates-only anchor (P2-1/P2-2), regroup over the local bus (§1 layer 1, `WHERE`), spawn fallback (§1 layer 3), roster + tab-list online/left + `/zbot roster` (§2). Not yet: the `/msg` probe and chat transport (§1 layer 2, §3), survey (§5), follow via the route planner (§6). Builds on [PHASE1.md](PHASE1.md) (the Body, 0.1.24) and
 [FOUNDATION.md](FOUNDATION.md) (Phase 0: autostart whitelist, local bus, HELLO, remembered roster,
 summon — already built).
 
