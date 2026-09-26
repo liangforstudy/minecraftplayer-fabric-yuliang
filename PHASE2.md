@@ -1,6 +1,8 @@
 # Phase 2 — Discovery and regroup
 
-Status: **scoped 2026-09-23 · partly built in 0.1.29 (2026-09-26) · not live-tested yet.**
+Status: **scoped 2026-09-23 · partly built in 0.1.29 (2026-09-26) · deployed, not live-tested yet.**
+0.1.29 is on both sides since 2026-09-26: the owner's client (`1.21.1 Modpack`) and Bot1 (synced,
+90 mods). Next: the live-test checklist in §8.
 
 | part | status | commit |
 |---|---|---|
@@ -154,9 +156,10 @@ choices as `goto` and `come`.
 
 ### Live-test checklist (0.1.29)
 
-Both sides need 0.1.29 — the owner's client answers `WHERE` and shares the roster. Close the game,
-rebuild (`mod`: `gradlew build`), put the jar in the Modpack's `mods/`, `sync-bots.bat`, then
-`play.bat "New World"`.
+Both sides need 0.1.29 — the owner's client answers `WHERE` and shares the roster. **Done
+2026-09-26** (rebuilt, client jar swapped with the game closed, Bot1 synced). To start a test:
+`play.bat "New World"` (your game first, Bot1 once the world loads), then the checks below. Record
+each result here — pass/fail, the `[decision]` lines that show it, and anything that surprised.
 
 | # | check | can test now? | how |
 |---|---|---|---|
