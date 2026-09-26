@@ -173,7 +173,22 @@ Roughly in order; nothing here is committed.
 4. **Other modpacks.** Extractor → packs → profile.
 5. **User rule system** as above.
 6. **Ports** — more MC versions, then maybe Forge/NeoForge, via new adapters.
-7. ~~`/zbot summon`~~ — **built in 0.1.5**, see headless/README.md → "Summon from the game".
+7. **Let a human without the mod control a bot.** A bot on a normal (non-headless) client hands
+   its orders to a named player who doesn't run Zymbot. Until then only Zymbot teammates can
+   direct a bot (PHASE2.md P2-1).
+8. ~~`/zbot summon`~~ — **built in 0.1.5**, see headless/README.md → "Summon from the game".
+9. **Avoid hostile mobs before they hit.** Today the bot only reacts to damage (0.1.28: run at the
+   first hit, dry ground first — FIXLIST #9). It should keep its distance from hostiles it can see,
+   route around them, and not wander toward them — needed for vanilla servers once this modpack
+   ends, where nothing else protects it. Tuned per `danger` mode (modpack / easy / normal / hard).
+10. **Combat tactics (owner's ideas, from the 2026-09-26 mob tests):**
+    - **Creepers:** react to a swelling (fuse lit) creeper, not the blast — the blast is the only
+      hit, so a damage reflex is always too late (it survived one at 1 damage by luck). Raise a
+      **shield** toward it, or **place a block** between it and the bot, or both.
+    - **Zombies:** lure them into deep water — they sink and drown (seen in the tests).
+    - **Skeletons:** the first-hit retreat works (health 20 → 14, clear in 9 s); cover and shields
+      would do better.
+    These need block placing, shield use and a combat state machine (Phase 5 in BOT_BEHAVIOUR.md).
 
 ### On "it's vibecoded"
 

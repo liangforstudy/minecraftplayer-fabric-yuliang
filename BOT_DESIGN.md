@@ -1066,7 +1066,8 @@ There's a floor set by how fast you need R26 to run, not by comfort.
 2. ~~Class rank / slots / forecast classes~~ — **resolved** (§2.13, §2.16, §2.21).
    Residual: LIBRARIAN and HUNTER are the *known* forecast classes — worth confirming against
    the server's `classes.json` that no third one is configured.
-3. **R2 leash range default**, and behaviour when multiple humans are present — nearest
+3. *Partly resolved 2026-09-23 (PHASE2.md P2-1/P2-2/P2-6): bots regroup to and leash to the
+   **nearest Zymbot teammate** only — never a human without the mod.* **R2 leash range default**, and behaviour when multiple humans are present — nearest
    player, a designated owner, or the centroid? Note this now conflicts with R26 (§2.24):
    a leashed bot cannot range far enough to scout. Does the leash suspend during scouting,
    or do the humans travel with the bot?

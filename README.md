@@ -22,6 +22,9 @@ exactly *what* changed, by reading the pack's data files, configs and bytecode.
 | [BOT_DESIGN.md](BOT_DESIGN.md) | Why it does that — 40 requirements and the verified mechanics behind each |
 | [ROADMAP.md](ROADMAP.md) | Test devices, the port-friendly architecture, per-mod packs, user rules, future work |
 | **[FOUNDATION.md](FOUNDATION.md)** | **Phase 0 spec** — the hard-to-change base: modules, tasks, protocol, command root, autostart whitelist, comms stack |
+| [PHASE1.md](PHASE1.md) | Phase 1 — the Body: walking, water, eating, reflexes (built, 0.1.24) |
+| [PHASE2.md](PHASE2.md) | Phase 2 — Discovery and regroup: find the team after a cold start (scoped) |
+| [SKILL.md](SKILL.md) | Operating manual for agents: the rig, `/zbot` commands, Baritone, safety rules |
 | [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md) | The survival guide: forage, easy kills, loot, where to farm |
 | [survival-data/](survival-data/) | Machine-readable extracts the above rest on |
 | [headless/](headless/) | Headless client rig — **verified working**, the full pack boots with no display |

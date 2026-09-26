@@ -416,7 +416,7 @@ share_coords_with_humans: "relative",   // off | relative | exact
 1. **Body** — walk (Baritone), look, eat, inventory, chat in/out, survival interrupts.
    Scoped in [PHASE1.md](PHASE1.md).
 2. **Discovery and regroup** — whitelist autostart, civilization assessment, `/msg` probe,
-   roster, local bus, world spawn as the fallback meeting point.
+   roster, local bus, world spawn as the fallback meeting point. Scoped in [PHASE2.md](PHASE2.md).
 3. **Early game** — M0–M5 (wood, tools, food, wooden hoe, bed).
 4. **Economy** — FARMER/MINER rules, bed rest, food rotation, forecast.
 5. **Combat → Nether → End.**
