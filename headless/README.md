@@ -84,11 +84,13 @@ your bots sign and encrypt their messages with the same key and can hear each ot
 your client part of the team.
 
 On **Windows** it's the same with `.bat` (`setup.bat`, `sync-bots.bat`, `run-bot.bat bot1 3G
-127.0.0.1:25565`, `stop-bots.bat`). All four are one-line wrappers around **`bots.py`**, which is
-the same code on every OS — see [Moving to another machine](#moving-to-another-machine-windows).
+127.0.0.1:25565`, `stop-bots.bat`, …). Since 2026-09-26 they are one-line wrappers around
+**`bots.ps1`** — a PowerShell port of `bots.py` + `sync_bots.py`, so Windows needs **no Python**
+(Windows PowerShell 5.1 ships with Windows). Same commands, files and exit codes; the `.sh` files
+keep using `bots.py`. **Change logic in both.** See [Moving to another machine](#moving-to-another-machine-windows).
 
 **Run `sync-bots.sh` before every test.** Each rig mirrors a Prism instance named in
-`<rig>/.source` (default: Minimal) — **Bot1 mirrors `…Server Full`**, the instance your world is
+`<rig>/.source` (default: Minimal) — **Bot1 mirrors `1.21.1 Modpack`** (on the Windows machine; `…Server Full` on the Mac), the instance your world is
 hosted from. Mods whose id is in `sync-exclude.txt` (performance, visual-only and UI mods) are
 never copied. A rig containing an `.unsynced` file is skipped and flagged — **Bot3 is held back
 this way** until it joins. The host must run the same pack the rig mirrors, or it gets
@@ -149,8 +151,9 @@ it's swapping hard and a bot should come down.
 |---|---|
 | `headlessmc-launcher-2.10.0.jar` | the launcher (gitignored) |
 | `bot1/`, `bot3/` | one rig per bot: `HeadlessMC/config.properties` + `gamedir/` |
-| `bots.py` | **all the logic**: `setup`, `sync`, `run`, `stop` — cross-platform |
-| `*.sh` / `*.bat` | one-line wrappers (macOS-Linux / Windows) |
+| `bots.py` | **all the logic** on macOS/Linux: `setup`, `sync`, `run`, `stop`, … |
+| `bots.ps1` | the same for Windows, in PowerShell (no Python) — keep the two in step |
+| `*.sh` / `*.bat` | one-line wrappers (macOS-Linux → `bots.py` / Windows → `bots.ps1`) |
 | `sync_bots.py` | the sync rules: mirror each rig's `.source` instance, minus `sync-exclude.txt`; `--check` reports drift |
 | `sync-exclude.txt` | mod ids never copied to a bot |
 | `<rig>/.source`, `<rig>/.unsynced` | which instance a rig mirrors; opt a rig out of syncing |
@@ -180,24 +183,36 @@ Nothing machine-specific is stored. Every `setup`/`run` detects the paths and **
 `HeadlessMC/config.properties`** (`hmc.gamedir`, `hmc.java.versions`), so a copied folder just works.
 
 1. Copy the **whole repo folder** (the patch jar is included prebuilt in `headless/`, so no Gradle build).
-2. Install **Python 3** (python.org — tick *Add to PATH*) and **Java 21** (Temurin, adoptium.net).
+2. Install **Java 21** (Temurin, adoptium.net, or any JDK 21). **No Python on Windows.**
 3. Install Prism and the ZymCiv pack there, with the **same instance name** as `bot1/.source`.
-4. `setup.bat` → `sync-bots.bat` → host your world (OfflineLAN, online mode off) → `run-bot.bat bot1 3G 127.0.0.1:25565`.
+4. If Prism or Java aren't found, write their paths into `headless/prism-dir.txt` /
+   `headless/java-path.txt` (both gitignored, one line each).
+5. `setup.bat` → `sync-bots.bat` → `play.bat "<world>"`, or host your world yourself and
+   `standby.bat bot1` + `connect.bat bot1 127.0.0.1:25565`.
 
 What gets detected, and the override if it guesses wrong:
 
 | thing | Windows | macOS | override |
 |---|---|---|---|
 | Prism data | `%APPDATA%\PrismLauncher` | `~/Library/Application Support/PrismLauncher` | `PRISM_DIR`, or `headless/prism-dir.txt` |
-| Java 21 | `Program Files\{Eclipse Adoptium,Java,Microsoft,Zulu,…}`, Prism's own runtimes, PATH | `java_home -v 21` | `BOTS_JAVA` |
+| Java 21 | `Program Files\{Eclipse Adoptium,Java,Microsoft,Zulu,…}`, Prism's own runtimes, PATH | `java_home -v 21` | `BOTS_JAVA`, or `headless/java-path.txt` (Windows) |
+| Prism program | `prismlauncher.exe` in the Prism data folder (portable), `%LOCALAPPDATA%\Programs`, `Program Files` | `/Applications/Prism Launcher.app` | `PRISM_BIN` |
 | game files | `%APPDATA%\.minecraft` | `~/Library/Application Support/minecraft` | — |
 
 `setup` installs Fabric `0.19.5` for `1.21.1` via HeadlessMC if it's missing; the first launch then
 downloads the game's libraries and assets. `.properties` files treat `\` as an escape, so paths are
 written with `/` — Java accepts that on Windows. `stop` uses PowerShell on Windows, `pgrep` elsewhere.
 
-**Untested on Windows so far** — written for it, verified on the Mac only. Expect the first run
-there to find something.
+**Tested on Windows 2026-09-25/26** (Windows 11, portable Prism at `D:\PrismLauncher`, JDK 21.0.2):
+setup, sync, standby, connect, gui, send, play, stop, team-key all work through `bots.ps1`.
+Windows-only details:
+
+- `play.bat` opens **your game first** and starts the bots once your world is loading — booting both
+  at once on a 6-core laptop took ~3 min each instead of ~1.5.
+- The first join after a boot often **times out** (the host allows 15 s; this pack's config data
+  takes the bot ~16 s). `connect.bat` retries once, and Zymbot 0.1.28+ retries a failed summoned join once.
+- Console commands for the bot are `/zbot …` with **no** space after the slash (`send.bat bot1 /zbot status`).
+- The console relay is a hidden PowerShell process (`bots.ps1 _relay`); `stop-bots.bat` stops it too.
 
 ## Joining a LAN world — what it took (2026-09-22, first successful join)
 

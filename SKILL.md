@@ -28,8 +28,9 @@ the world (Open to LAN). Read `PHASE1.md` (what's built, the test commands) and 
   `/execute if …`). Never `/fill`, `/setblock`, `/clear`, `/kill` to "check" something.
 - **`stop-bots.sh` only kills HeadlessMC processes** (`minecraft.launcher.brand=HeadlessMc`).
   Never `pkill java` / `KnotClient` — that kills the owner's Prism game.
-- **Never `jstack`/`kill -QUIT` a Python PID** — the console relay (`bots.py _relay`) is Python and
-  SIGQUIT kills it. Only jstack the Java game process.
+- **Never `jstack`/`kill -QUIT` the relay PID** — the console relay is Python on macOS/Linux
+  (`bots.py _relay`) and a hidden PowerShell on Windows (`bots.ps1 _relay`); SIGQUIT kills it. Only
+  jstack the Java game process.
 - **Watch logs from background commands**, not long foreground ones (the owner's UI shows
   "a shell command is already running" otherwise).
 - Bugs in other mods (civfabric, Farm & Charm, …) go to the owner as a plain description in their
@@ -37,10 +38,12 @@ the world (Open to LAN). Read `PHASE1.md` (what's built, the test commands) and 
 
 ## The rig (`headless/`)
 
-Two rigs, `bot1/` (Bot1, mirrors Prism instance `1.21.1 ZymCivModded Server Full`) and `bot3/`
-(held back by `bot3/.unsynced`). Each has `HeadlessMC/config.properties`, `gamedir/`
-(mods, `config/zymbot.json`, logs) and `identity.properties` (offline name + UUID). Everything is in
-`bots.py`; the `.sh`/`.bat` files are one-line wrappers. Run them from `headless/`.
+Two rigs, `bot1/` (Bot1, mirrors the Prism instance named in `bot1/.source` — `1.21.1 Modpack` on
+the owner's Windows machine since 2026-09-25) and `bot3/` (held back by `bot3/.unsynced`). Each has
+`HeadlessMC/config.properties`, `gamedir/` (mods, `config/zymbot.json`, logs) and
+`identity.properties` (offline name + UUID). The logic is in `bots.py` (macOS/Linux, `.sh`
+wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two in step. Run them from
+`headless/`. The table uses `.sh`; on Windows use the `.bat` of the same name.
 
 | command | does |
 |---|---|
@@ -53,7 +56,7 @@ Two rigs, `bot1/` (Bot1, mirrors Prism instance `1.21.1 ZymCivModded Server Full
 | `./send.sh bot1 <console command>` | any hmc-specifics console command — see below |
 | `./disconnect.sh bot1` | leave the server, keep running |
 | `./stop-bots.sh` | stop all headless bots (never the Prism client) |
-| `./play.sh "New World"` | bots to standby in the background + Prism straight into that world; skips if the game is already running |
+| `./play.sh "New World"` | bots to standby in the background + Prism straight into that world; skips if the game is already running. `play.bat` (Windows) opens the game first and starts the bots once the world loads |
 | `./team-key.sh` | show the team key (for the owner's own config — don't print it to chat) |
 
 **HeadlessMC settings** (`<rig>/HeadlessMC/config.properties`, rewritten by setup/run):
@@ -65,20 +68,25 @@ that read textures), `hmc.always.lwjgl.flag=true`, `hmc.auto.download.java=false
 
 **Joining:** the host must be offline-mode — `/zbot lan` (or OfflineLAN) opens LAN on 25565 with
 online mode off. Synced-registry mods (Cosy Critters, Xaero's) must stay on the bot, or it's
-dropped with "registry entries that are unknown"; the sync keeps them automatically. Joins can
-stall ~20 s while `Blocks.rebuildCache` runs next to the host on the same Mac (FIXLIST #3) — wait.
+dropped with "registry entries that are unknown"; the sync keeps what it can detect. Not detected
+but required on LAN: `diagonalfences`, `visualworkbench`, `xaeroworldmap` (sync-exclude.txt says
+so). Joins can stall ~20 s while `Blocks.rebuildCache` runs next to the host (FIXLIST #3) — wait.
+The first join after a boot often times out (host allows 15 s, config data takes ~16 s):
+`connect` retries once, and so does Zymbot for a summoned join (0.1.28).
 
 **Updating a bot's Zymbot:** build (`cd mod && ./gradlew build`), then with the bot **stopped**
 replace `headless/bot1/gamedir/mods/zymbot-*.jar` with
 `mod/versions/1.21.1/build/libs/zymbot-<ver>+1.21.1.jar` (remove the old one). The owner's own
-client is `~/Library/Application Support/PrismLauncher/instances/1.21.1 ZymCivModded Server Full/minecraft/mods/`
-— only touch it when asked. Keep `mod.version` (stonecutter.properties.toml) and
+client is `D:\PrismLauncher\instances\1.21.1 Modpack\minecraft\mods\` on Windows
+(`~/Library/Application Support/PrismLauncher/instances/<instance>/minecraft/mods/` on the Mac) —
+only touch it when asked, and only with the game closed. Keep `mod.version` (stonecutter.properties.toml) and
 `core/build.gradle.kts` version in step.
 
 ## Talking to a running bot
 
 `./send.sh bot1 / zbot status` — the hmc-specifics `/` command, **a space after the slash**, runs a
-client command as the bot. `./send.sh bot1 msg <text>` says something in chat. `send` prints the
+client command as the bot (on the Mac). **On Windows it's `send.bat bot1 /zbot status`, no space** —
+the spaced form is rejected there (seen 2026-09-25). `./send.sh bot1 msg <text>` says something in chat. `send` prints the
 console lines from the next ~3 s.
 
 The owner can also type the same `/zbot …` commands in their own game — they act on **their**

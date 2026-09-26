@@ -1,6 +1,19 @@
 # Phase 2 — Discovery and regroup
 
-Status: **scoped 2026-09-23; 0.1.29 (2026-09-26): built without the live test** — teammates-only anchor (P2-1/P2-2), regroup over the local bus (§1 layer 1, `WHERE`), spawn fallback (§1 layer 3), roster + tab-list online/left + `/zbot roster` (§2). Not yet: the `/msg` probe and chat transport (§1 layer 2, §3), survey (§5), follow via the route planner (§6). Builds on [PHASE1.md](PHASE1.md) (the Body, 0.1.24) and
+Status: **scoped 2026-09-23 · partly built in 0.1.29 (2026-09-26) · not live-tested yet.**
+
+| part | status | commit |
+|---|---|---|
+| P2-1 / P2-2 teammates-only anchor (leash, retreat direction) | built, unit-tested | f6f014b |
+| §1 layer 1 — regroup over the local bus (`WHERE`) | built, unit-tested (in-sight path; the bus-only path is live-test only) | 9a51c99 |
+| §1 layer 3 — spawn fallback (`probewait`) | built, unit-tested | 3faefde |
+| §2 roster — `ROSTER`, tab-list left/back, `/zbot roster` | built, unit-tested | 76e629f |
+| §1 layer 2 + §3 — `/msg` probe, team-only chat transport | **not built** (owner: autonomy first, 2026-09-26) | — |
+| §4 leash | coded in Phase 1; now teammates-only — see §8 check 6 | — |
+| §5 survey | **not built** | — |
+| §6 follow via the route planner | **not built** | — |
+
+Builds on [PHASE1.md](PHASE1.md) (the Body, 0.1.24) and
 [FOUNDATION.md](FOUNDATION.md) (Phase 0: autostart whitelist, local bus, HELLO, remembered roster,
 summon — already built).
 
@@ -121,7 +134,8 @@ choices as `goto` and `come`.
 | `/zbot set regroup <n>` | `regroup_within`, blocks (8–256, default 32) |
 | `/zbot set probewait <n>` | `probe_wait_seconds` before going to spawn (5–300, default 30) |
 
-(When built, add each to SKILL.md's command table — `SkillDocTest` checks.)
+(When built, add each to SKILL.md's command table — `SkillDocTest` checks.) **In 0.1.29:** `roster`,
+`regroup`, `set regroup`, `set probewait` — in SKILL.md and `/zbot help`. `survey` is not built.
 
 ## 8. Done means — in the LAN world
 
@@ -137,6 +151,25 @@ choices as `goto` and `come`.
 6. **Leash:** during a regroup-then-idle cycle, walk past `leash_blocks` → it follows back.
 7. **Roster:** Bot1 and Bot3 (when synced) agree on the roster; a leaver is noticed.
 8. **Survey:** next to a bed and a crafting table, `/zbot survey` lists both.
+
+### Live-test checklist (0.1.29)
+
+Both sides need 0.1.29 — the owner's client answers `WHERE` and shares the roster. Close the game,
+rebuild (`mod`: `gradlew build`), put the jar in the Modpack's `mods/`, `sync-bots.bat`, then
+`play.bat "New World"`.
+
+| # | check | can test now? | how |
+|---|---|---|---|
+| 1 | cold start, local bus | yes | `/tp Bot1 ~300 ~ ~`, then `/zbot regroup` (as Bot1: `send.bat bot1 /zbot regroup`) → walks back, stops within ~4 blocks; `[decision] regrouping with …` names the reason |
+| 1b | respawn arms it | yes | `/kill Bot1` far from you → after the respawn it regroups by itself |
+| 1c | out of sight (bus only) | yes | `/tp` it 300+ blocks away, beyond render distance → "(bus, N s ago)" in the reason, `WHERE` asks every 10 s |
+| 2 | moving target | yes | walk off while it regroups → it re-plans when you've moved 8+ blocks |
+| 3 | `/msg` probe | **no** | not built (§3) |
+| 4 | spawn fallback | yes | your client's role None (`/zbot role none`), `/zbot regroup` on Bot1 → after 30 s "going to spawn"; set yourself back to Teammate → it comes to you |
+| 5 | only teammates | needs a 2nd human without the mod | a stranger closer than you is ignored for regroup, leash and retreat direction |
+| 6 | leash | **open question** | after a regroup the bot is idle (P2-3), and the leash only applies to its own objectives — so walking off from an idle bot does nothing by design. Decide: should an idle bot follow at `leash_blocks`, or re-regroup? |
+| 7 | roster | yes (Bot1 + you); Bot3 when synced | `/zbot roster` on both sides; disconnect Bot1 (`disconnect.bat bot1`) → "Bot1 left — gone from the tab list"; reconnect → "is back" |
+| 8 | survey | **no** | not built (§5) |
 
 ## Not in Phase 2
 
