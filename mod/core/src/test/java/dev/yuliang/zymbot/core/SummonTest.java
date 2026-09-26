@@ -187,7 +187,7 @@ class SummonTest {
     }
 
     @Test
-    void aFailedSummonedJoinIsRetriedOnce() {
+    void aFailedSummonedJoinIsRetried_withBackoff_aFewTimes() {
         FakeWorld human = new FakeWorld("Bot2"), bot1 = new FakeWorld("Bot1");
         Bot host = bot(human, team(), false);
         host.onJoin("singleplayer", "singleplayer:w", "Bot2");
@@ -196,7 +196,15 @@ class SummonTest {
         host.summon(SummonTarget.lan(25565, SummonTarget.localIps()));
         waiting.tickOutsideWorld();
         assertEquals(Optional.of("127.0.0.1:25565"), waiting.takeSummon());
-        assertEquals(Optional.of("127.0.0.1:25565"), waiting.retryFailedSummon(), "the join timed out: once more");
-        assertEquals(Optional.empty(), waiting.retryFailedSummon(), "only once");
+        long wait = Bot.SUMMON_RETRY_FIRST_MILLIS;
+        for (int i = 1; i <= Bot.SUMMON_RETRIES; i++, wait *= 2) {
+            assertEquals(Optional.empty(), waiting.retryFailedSummon(), "try " + i + ": the join just failed — wait first");
+            clock.now += wait - 1;
+            assertEquals(Optional.empty(), waiting.retryFailedSummon(), "try " + i + ": not yet");
+            clock.now += 1;
+            assertEquals(Optional.of("127.0.0.1:25565"), waiting.retryFailedSummon(), "try " + i + ": again, " + wait / 1000 + "s on");
+        }
+        clock.now += 10 * 60_000;
+        assertEquals(Optional.empty(), waiting.retryFailedSummon(), "then it stops");
     }
 }

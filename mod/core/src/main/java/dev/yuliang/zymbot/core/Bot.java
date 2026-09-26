@@ -79,6 +79,13 @@ public final class Bot {
      */
     public static final long SUMMON_JOIN_GRACE_MILLIS = 60_000;
     public static final long SUMMON_REPEAT_FOR_MILLIS = 5 * 60_000;
+    /**
+     * A failed summoned join is retried this many times, waiting {@link #SUMMON_RETRY_FIRST_MILLIS}
+     * then twice as long each time: one immediate retry lost both tries to a host still busy
+     * after loading, three starts in a row (2026-09-26).
+     */
+    public static final int SUMMON_RETRIES = 4;
+    public static final long SUMMON_RETRY_FIRST_MILLIS = 10_000;
     /** /zbot come: this close to the person is there (not their exact block). */
     public static final int COME_WITHIN = 4;
     /** A watcher gets our decisions for this long unless they stop sooner. */
@@ -127,8 +134,9 @@ public final class Bot {
     private Hands hands;                                         // last tick's, for status
     private String pendingSummon;                                // an address to join, from a SUMMON
     private long joiningSince = Long.MIN_VALUE / 2;              // when we last acted on a summon
-    private String lastSummon;                                   // where it sent us, for one retry
-    private boolean retriedSummon;
+    private String lastSummon;                                   // where it sent us, for the retries
+    private int summonRetries;                                   // retries used for lastSummon
+    private long nextSummonRetry;                                // not before this (0 = the join hasn't failed yet)
     private boolean saidIgnoringSummons;                         // "already in a world": once per world
     private String knownLastDeath;                               // null until first seen in this world
     private boolean sawDeath;                                    // saw ourselves dead (the slow way)
@@ -648,21 +656,33 @@ public final class Bot {
         if (s != null) {
             joiningSince = clock.getAsLong();
             lastSummon = s;
-            retriedSummon = false;
+            summonRetries = 0;
+            nextSummonRetry = 0;
         }
         return java.util.Optional.ofNullable(s);
     }
 
     /**
-     * The summoned join failed (the client is on the "disconnected" screen): the address to try
-     * once more, or empty. The first join after a boot often times out — the host allows 15 s and
-     * this pack's config data takes the bot ~16 s — and a second try with that data cached works.
+     * The summoned join failed (the client is on the "disconnected" screen, asked every tick): the
+     * address to try again once its wait is up, else empty. The first join after a boot often times
+     * out — the host allows 15 s and this pack's config data takes the bot ~16 s — and a host still
+     * busy after loading drops the next one too, so it backs off: 10 s, 20 s, 40 s, 80 s.
      */
     public java.util.Optional<String> retryFailedSummon() {
-        if (lastSummon == null || retriedSummon) return java.util.Optional.empty();
-        retriedSummon = true;
-        joiningSince = clock.getAsLong();
-        log.record("retrying the summon", "the join to " + lastSummon + " failed");
+        if (lastSummon == null || summonRetries >= SUMMON_RETRIES) return java.util.Optional.empty();
+        long now = clock.getAsLong();
+        if (nextSummonRetry == 0) {                          // just failed: start the wait
+            long wait = SUMMON_RETRY_FIRST_MILLIS << summonRetries;
+            nextSummonRetry = now + wait;
+            log.record("waiting to retry the summon", "the join to " + lastSummon + " failed — trying again in "
+                    + wait / 1000 + "s (" + (summonRetries + 1) + " of " + SUMMON_RETRIES + ")");
+            return java.util.Optional.empty();
+        }
+        if (now < nextSummonRetry) return java.util.Optional.empty();
+        summonRetries++;
+        nextSummonRetry = 0;
+        joiningSince = now;
+        log.record("retrying the summon", "try " + summonRetries + " of " + SUMMON_RETRIES + " to " + lastSummon);
         return java.util.Optional.of(lastSummon);
     }
 
