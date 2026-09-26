@@ -1,6 +1,6 @@
 # Phase 3 — First milestones: gather, craft, feed itself
 
-Status: **scoping 2026-09-26** — owner answered Q2–Q5 (§7); Q1 (M2 campfire half?) and Q6 (Phase 2 leftovers first?) open.
+Status: **scoping 2026-09-26** — owner answered Q1–Q5 (§7); open: Q6 (Phase 2 leftovers first?), taking a bed from an inhabited village, and village trips beyond the 48-block work radius.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).
@@ -11,8 +11,8 @@ surveys what's around, punches wood, crafts the classless toolkit, forages wild 
 rotation going. This is the **planner's first real ladder** — M0 `HAS_TOOL` and M1 `HAS_FOOD` —
 with regroup/follow (Phase 2) still sitting above it.
 
-Out of scope here (Phase 4+): bed + campfire (M2), shelter (M3), farming (M4–M5), classes and
-class XP, mining, combat beyond today's retreat, the lunar forecast.
+In scope (owner, 2026-09-26): M0 tool, M1 food, M2 bed + campfire (bed found in a village/structure). Out of scope (Phase 4+): shelter (M3), farming (M4–M5), class XP grinding and
+ore mining, hunting and combat beyond today's retreat, the lunar forecast.
 
 ---
 
@@ -110,10 +110,10 @@ A table the survey already found counts (don't place a second one next to it —
 
 | # | question | decision |
 |---|---|---|
-| 1 | scope: M2 too? | **Owner decides from this recommendation.** Campfire half of M2 is *not* blocked: campfire = 3 sticks + 3 logs + 1 charcoal, all classless; charcoal = a log smelted in a furnace; furnace = 8 cobblestone (classless craft, 1.25 hunger); cobblestone needs a wooden pickaxe, and plain stone isn't MINER-gated (only ores are, BOT_DESIGN §2.17). The furnace also cooks food → more food types for M1. **Bed is blocked upstream:** 3 wool = killing sheep (hunting/attack — the combat state machine, not built) or shears (**BLACKSMITH 3**); beds are claimed one per player (`BedClaims.OWNED_BED`). **Recommendation:** Phase 3 = M0 + M1 + campfire/furnace/charcoal/cooking; the bed waits for hunting, or for wool handed over by a human. |
+| 1 | scope: M2 too? | **Owner: yes — the bed comes from villages / structures.** Campfire half as below; the bed isn't crafted (no wool without hunting or shears) but **found**: a village bed or one in a structure, broken (it drops as an item) and placed next to its campfire, then claimed (`BedClaims.OWNED_BED`, one per player). Villages also carry food chests and crop plots (SURVIVAL_EARLY_GAME §4–5), so finding one pays M1 too. This pulls in a **village/structure search** — the frontier search from BOT_BEHAVIOUR → Site search, scoped down to "find the nearest village", leashed to the team. Open detail: take a bed from a village with villagers in it (they need beds to breed), or prefer empty structures first? *Original analysis:* Campfire half of M2 is *not* blocked: campfire = 3 sticks + 3 logs + 1 charcoal, all classless; charcoal = a log smelted in a furnace; furnace = 8 cobblestone (classless craft, 1.25 hunger); cobblestone needs a wooden pickaxe, and plain stone isn't MINER-gated (only ores are, BOT_DESIGN §2.17). The furnace also cooks food → more food types for M1. **Bed is blocked upstream:** 3 wool = killing sheep (hunting/attack — the combat state machine, not built) or shears (**BLACKSMITH 3**); beds are claimed one per player (`BedClaims.OWNED_BED`). **Recommendation:** Phase 3 = M0 + M1 + campfire/furnace/charcoal/cooking; the bed waits for hunting, or for wool handed over by a human. |
 | 2 | classes | **Pick FARMER + MINER** (BOT_BEHAVIOUR test profile) so ranks start accruing. Consequence: every craft costs hunger (civfabric), so crafting is planned around the eat threshold and "craft refused — too hungry" means eat first. How a class is chosen (a `/classes` GUI click? a command?) — to find in the civfabric jar before step 3. |
 | 3 | crafting method | **Depends on the anticheat:** the real container screens, the way a human does it (recipe-book click in the screen where allowed, paced like a human), with **manual slot clicks as the fallback**. Never raw packets the vanilla client wouldn't send. The live server's anticheat already rules out crit tricks (BOT_BEHAVIOUR → Combat) — check what it says about inventory click speed. |
-| 4 | trees | **Fell the entire tree.** Skip huge trees (2×2 dark oak / jungle / mega spruce) unless no other tree is nearby — weighed by hunger and time cost. With a wooden axe, zymlabs Treecapitator fells the whole tree from one log (radius 16) — so craft the axe first and most trees become a single break. |
+| 4 | trees | **Fell the entire tree.** Skip huge trees (2×2 dark oak / jungle / mega spruce) unless no other tree is nearby — weighed by hunger and time cost. With a wooden axe, zymlabs Treecapitator fells the whole tree from one log (radius 16) — so craft the axe first and most trees become a single break. **Big oaks** (branching, logs out of reach) need **towering**: pillar up on scaffold blocks (dirt/cobble it carries — jump-place under itself), clear the high logs, then **tidy up: break its own scaffold on the way down** and pick the blocks back up. Remember every block it placed (a per-task list) so it removes exactly those and never a block that was already there. Needs `place` beyond the crafting table, and the fall rule (`maxFallHeightNoWater = 3`) respected on the way down. |
 | 5 | work radius | **48 around the nearest teammate — OK.** |
 | 6 | Phase 2 leftovers first? | *still open* — reviver-as-attacker nit, `revived` log line, Baritone chunk cache (long regroups), `/msg` probe (#3). |
 
@@ -125,5 +125,7 @@ A table the survey already found counts (don't place a second one next to it —
 3. Hands: **craft (2×2)** planks/sticks/table, then **place** the table, then **craft (3×3)** tools.
 4. Planner: the ladder as data (`id, check, owner, min_players`), M0 wired to steps 2–3.
 5. Forage: wild-crop targets from the survey, M1 floor, the "new food type" priority.
-6. CLAIMs on the bus.
-7. Live test (§6), update SKILL.md's command table for every new `/zbot` command.
+6. M2: wooden pickaxe → cobblestone → furnace → charcoal → campfire; cooking. Village/structure search (leash question: a village farther than 48 blocks from the teammate — go only with the team, or ask?), take a bed, place it by the campfire, claim it.
+7. Towering + scaffold tidy-up for big oaks.
+8. CLAIMs on the bus.
+9. Live test (§6), update SKILL.md's command table for every new `/zbot` command.
