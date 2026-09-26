@@ -103,6 +103,7 @@ public final class Bot {
     private long pausedUntil;
     private boolean resumeWarned;
     private long nextHello;
+    private final dev.yuliang.zymbot.core.team.Regroup regroup;
     private long lastRespawn = -RESPAWN_RETRY_MILLIS;
     private WorldView current;                                   // this tick's snapshot, for the bus handler
     private final List<Pending> pending = new ArrayList<>();
@@ -143,13 +144,18 @@ public final class Bot {
             public void callForHelp(WorldView w, List<EntityView> humans) { announceDowned(w, humans); }
             public boolean medicNear(WorldView w) { return false; }   // bots announce their class in a later phase
         };
+        this.regroup = new dev.yuliang.zymbot.core.team.Regroup(config, body, () -> memory.roster, clock,
+                target -> new dev.yuliang.zymbot.core.task.RouteTask(hands.paths(), target, true, COME_WITHIN,
+                        config.routeRadius, config.swimCostBlocks, log::record, "walking back to the team")
+                        .limits(config.planTimeoutMs, config.lagTps),
+                this::askWhere, COME_WITHIN);
         this.brain = new Brain(List.of(
                 new DownedInterrupt(config, body, help, log::record),
                 new DrowningInterrupt(),
                 new CriticalHealthInterrupt(config, body),
                 new StrandedInterrupt(body, this::noOrder),
                 new LeashInterrupt(config, body, this::workingOnItsOwn),
-                new HungerInterrupt(config, body)), Planner.EMPTY, log);
+                new HungerInterrupt(config, body)), regroup, log);
         bus.subscribe(this::onEnvelope);
         log.onRecord(this::toWatchers);
     }
@@ -226,6 +232,7 @@ public final class Bot {
         phase = Phase.DISCOVERY;
         nextHello = 0;                  // say hello on the next tick
         pausedUntil = 0;
+        regroup.arm();                  // first objective: find the team (PHASE2.md §1)
         log.record("started: " + phase, why);
     }
 
@@ -337,6 +344,7 @@ public final class Bot {
             brain.halt("died");
         }
         hungerMeter.settle();
+        regroup.arm();                                           // respawned somewhere else: find the team again
         if (where != null) log.record("died", "respawned at once — last death at " + where);
     }
 
@@ -400,6 +408,10 @@ public final class Bot {
     private void handle(Envelope e) {
         if (MessageTypes.WATCH.equals(e.type())) {
             onWatch(e.field(0), e.field(1), "on".equals(e.field(2)));
+            return;
+        }
+        if (MessageTypes.WHERE.equals(e.type())) {              // a bot is regrouping: tell it where we are now
+            nextHello = 0;
             return;
         }
         if (MessageTypes.DOWNED.equals(e.type())) {
@@ -872,7 +884,23 @@ public final class Bot {
         return new dev.yuliang.zymbot.core.api.Vec3(p.pos().x(), p.pos().y() + 1.62, p.pos().z());
     }
 
-    private boolean workingOnItsOwn() { return brain.autonomous(); }
+    private boolean workingOnItsOwn() { return brain.autonomous() && !regroup.active(); }   // regroup is the walk back
+
+    /** Ask the team for fresh positions: teammates answer with a HELLO at once. */
+    private void askWhere() {
+        WorldView w = current;
+        if (w == null) return;
+        bus.publish(serverId, w.day(), (int) Math.floor(w.position().x()), (int) Math.floor(w.position().z()),
+                MessageTypes.WHERE, List.of(selfName));
+    }
+
+    /** /zbot regroup: look for the team now (normally automatic on start and after a respawn). */
+    public String regroupNow() {
+        String no = needsControl();
+        if (no != null) return no;
+        regroup.arm();
+        return "looking for the team — regrouping unless a teammate is within " + config.regroupWithin + " blocks";
+    }
 
     private boolean noOrder() { return !brain.hasOrder(); }
 

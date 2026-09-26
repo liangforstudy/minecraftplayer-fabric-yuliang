@@ -16,6 +16,8 @@ public final class MessageTypes {
     public static final String DOWNED = "DOWNED";
     /** <watcher> <bot> <on|off> — that bot /msg's its decisions to the watcher. */
     public static final String WATCH = "WATCH";
+    /** <asker name> — a regrouping bot wants fresh positions: answer with a HELLO now (PHASE2.md §1). */
+    public static final String WHERE = "WHERE";
 
     private MessageTypes() {}
 }

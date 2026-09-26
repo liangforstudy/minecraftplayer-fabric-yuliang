@@ -112,8 +112,9 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `terrain <x> <z>` | debug: what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
 | `block <x> <y> <z>` | debug: the block id there |
 | `cancel` | drop the current order |
-| `set [<setting> <n>]` | list, or change a tunable: `leash` 8–1000, `eat` 1–19, `critical` 1–19, `downed` 0–55 s, `plantime` 50–5000 ms, `lagtps` 5–19 (also Mod Menu → Zymbot → Body) |
+| `set [<setting> <n>]` | list, or change a tunable: `leash` 8–1000, `eat` 1–19, `critical` 1–19, `downed` 0–55 s, `regroup` 8–256, `plantime` 50–5000 ms, `lagtps` 5–19 (also Mod Menu → Zymbot → Body) |
 | `danger [modpack\|easy\|normal\|hard]` | when it runs from a mob: `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4) |
+| `regroup` | walk back to the nearest Zymbot teammate now (automatic on start and after a respawn, when none is within `regroup` blocks) |
 | `summon` / `summon auto on\|off` | bots waiting at their title screen join this world (auto: whenever it opens to LAN) |
 | `lan` / `lan auto on\|off` | open this world to LAN, port 25565, online mode off (auto: every time it loads) |
 | `autostart add\|remove\|list` | servers where Zymbot activates by itself |

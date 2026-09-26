@@ -840,4 +840,53 @@ class BodyTest {
         w.nearby.remove(mate);
         assertTrue(body.nearestTeammate(w).isEmpty(), "no teammate in sight: nothing to anchor to");
     }
+
+    // ------------------------------------------------------------------ Phase 2 step 2: regroup (PHASE2.md §1)
+
+    static ZymbotConfig withTeammate(EntityView mate) {
+        ZymbotConfig c = new ZymbotConfig();
+        c.accounts.add(new ZymbotConfig.Account(mate.uuid(), mate.name(), ZymbotConfig.Role.TEAMMATE));
+        return c;
+    }
+
+    @Test
+    void onStart_farFromTheTeam_itWalksBack() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 300, 0);
+        w.online.add(mate.uuid());
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 3);
+        assertNotNull(w.paths.goal, log(b));
+        assertTrue(log(b).contains("nobody from the team within 32 blocks; Mate is at 300, 0 (in sight)"), log(b));
+    }
+
+    @Test
+    void withTheTeamAlready_orOnlyStrangersAround_itStaysPut() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 20, 0);              // within 32
+        w.player("Stranger", 300, 0);                           // far, but not a teammate
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 5);
+        assertNull(w.paths.goal, log(b));
+        assertFalse(log(b).contains("regroup"), log(b));
+    }
+
+    @Test
+    void regroupEndsNextToThem_thenIdle_untilArmedAgain() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 300, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 3);
+        w.pos = new Vec3(298, 64, 0);                           // arrived
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("idle — because no objectives"), log(b));
+        int before = log(b).split("regrouping with").length;
+        w.nearby.clear();
+        mate = w.player("Mate", 600, 0);                        // they walk off: an idle bot stays put (P2-3)
+        ticks(b, w, 5);
+        assertEquals(before, log(b).split("regrouping with").length, log(b));
+        assertTrue(b.regroupNow().startsWith("looking for the team"));
+        ticks(b, w, 3);
+        assertTrue(log(b).split("regrouping with").length > before, "/zbot regroup arms it again: " + log(b));
+    }
 }
