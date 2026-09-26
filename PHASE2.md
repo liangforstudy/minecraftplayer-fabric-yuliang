@@ -1,19 +1,21 @@
 # Phase 2 — Discovery and regroup
 
-Status: **scoped 2026-09-23 · built 0.1.29 · live-tested 2026-09-26 on 0.1.29–0.1.31 · 0.1.32 deployed.**
-0.1.32 is on both sides (owner's client `1.21.1 Modpack` + Bot1), leash 21 / heel 2 in both configs.
-Live results are in §8: roster, regroup (1/1b/1c), spawn fallback, idle follow all PASS on 0.1.30–31.
+Status: **scoped 2026-09-23 · built 0.1.29 · live-tested 2026-09-26 on 0.1.29–0.1.33 · 0.1.34 deployed.**
+0.1.34 is on both sides (owner's client `1.21.1 Modpack` + Bot1), leash 21 / heel 2 in both configs.
+Live results are in §8: roster, regroup (1/1b/1c), spawn fallback, idle follow, heel, settings UI,
+knockout (call for help → give up → respawn → regroup) and revive with stitches all PASS.
 
-**Next session (0.1.32, not live-tested yet):**
-1. Idle follow with the new `heel` 2 — it should come right up to the owner, like a wolf.
-2. Settings Body tab: drag a label / range / box to scrub, ↺ reset (uses `defaultconfigs/zymbot.json`
-   if present), the new "Follow: stop this close" row under Leash.
-3. Fidget watchdog: "holding still — because bobbing/spinning in place …" should appear only when it
-   really bobs/spins in place; watch it doesn't stop a bot jumping to get unstuck.
+**Next session:**
+1. First thing: `play.bat "New World"` and **don't** connect by hand — 0.1.34 retries a failed summoned
+   join 4× with backoff (10/20/40/80 s); expect `waiting to retry the summon … (1 of 4)` then IN THE WORLD.
+2. Fidget watchdog (0.1.32) still unseen live: "holding still — because bobbing/spinning in place …"
+   only when it really bobs/spins; watch it doesn't stop a bot jumping to get unstuck.
+3. Small fixes: a revive should clear a teammate as "last attacker" (Bot1 fled its reviver) and log
+   `revived — because …`.
 4. Open: owner's client seemed to answer only with the 60 s HELLO, not WHERE — check bus stats.
-5. Ideas logged: read Baritone's chunk cache so routes/shore search see past render distance;
-   #3 `/msg` probe and #8 survey still unbuilt; #5 needs a second human without the mod; then the
-   knockout re-test (below).
+5. Bigger: read Baritone's chunk cache so routes/shore search see past render distance (regroups
+   across water gave up at 386–456 blocks); #3 `/msg` probe, #8 survey; #5 needs a second human.
+   Revive testing needs `/setxp medic 640` (undo: `/setxp medic 0`).
 
 | part | status | commit |
 |---|---|---|
