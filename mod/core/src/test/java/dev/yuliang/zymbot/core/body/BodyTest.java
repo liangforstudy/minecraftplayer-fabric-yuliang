@@ -13,6 +13,7 @@ import dev.yuliang.zymbot.core.brain.Brain;
 import dev.yuliang.zymbot.core.brain.DecisionLog;
 import dev.yuliang.zymbot.core.brain.Objective;
 import dev.yuliang.zymbot.core.config.ZymbotConfig;
+import dev.yuliang.zymbot.core.store.BotMemory;
 import dev.yuliang.zymbot.core.task.FollowTask;
 import dev.yuliang.zymbot.core.task.WalkTask;
 import java.nio.file.Path;
@@ -478,7 +479,24 @@ class BodyTest {
         ticks(b, w, 3);
         assertFalse(b.hasOrder(), "the walk died with it: " + log(b));
         assertFalse(w.paths.busy);
-        assertTrue(log(b).contains("died — because respawned at once"), log(b));
+        assertTrue(log(b).contains("respawned — because died and respawned at once — last death at"), log(b));
+    }
+
+    @Test
+    void instantRespawn_neverSeenDead_sameDeathSpot_stillRegroups() {
+        // /kill Bot1 with auto-respawn (2026-09-26): never dead for a tick, last-death spot unchanged,
+        // only a new player body far from the team - it must regroup, not idle 146 blocks away
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 20, 0);              // with the team: no regroup yet
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 5);
+        assertFalse(log(b).contains("regrouping with"), log(b));
+        w.pos = new Vec3(166, 64, 0);                           // the respawn point, 146 blocks off
+        w.lives++;
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("respawned — because died and respawned at once — a new player body"), log(b));
+        assertTrue(log(b).contains("regrouping with Mate"), "respawn arms the regroup: " + log(b));
+        assertNotNull(w.paths.goal, log(b));
     }
 
     @Test
@@ -513,6 +531,31 @@ class BodyTest {
         FakeWorld w = new FakeWorld("Human");
         Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve("h"), w.id, false, clock);
         b.onJoin("x", "Human");
+        String r = b.goTo(1, 2, 3);                             // not a Bot account: never suggest start
+        assertTrue(r.contains("orders only work on a Bot account"), r);
+        assertFalse(r.contains("start"), r);
+    }
+
+    @Test
+    void ordersOnATeammateAccount_sayItsATeammate_andNeverSuggestStart() {
+        FakeWorld w = new FakeWorld("Human");
+        ZymbotConfig c = new ZymbotConfig();
+        c.accounts.add(new ZymbotConfig.Account(w.id, "Human", ZymbotConfig.Role.TEAMMATE));
+        Bot b = new Bot(c, dir.resolve("zymbot.json"), dir.resolve("h"), w.id, false, clock);
+        b.onJoin("x", "Human");
+        String r = b.regroupNow();
+        assertTrue(r.startsWith("this account is a Teammate — orders only work on a Bot account"), r);
+        assertFalse(r.contains("start"), r);
+    }
+
+    @Test
+    void ordersOnAStoppedBotAccount_stillSayStartFirst() {
+        FakeWorld w = new FakeWorld("Bot1");
+        ZymbotConfig c = new ZymbotConfig();
+        c.accounts.add(new ZymbotConfig.Account(w.id, "Bot1", ZymbotConfig.Role.BOT));
+        Bot b = new Bot(c, dir.resolve("zymbot.json"), dir.resolve("h"), w.id, false, clock);
+        b.onJoin("x", "Bot1");
+        b.stop("test");
         assertTrue(b.goTo(1, 2, 3).contains("isn't running"));
     }
 
@@ -541,7 +584,7 @@ class BodyTest {
         brain[0].tick(w, w);                                   // starts its own objective
         brain[0].tick(w, w);                                   // ...and the leash catches it
         assertEquals(new BlockPos(150, 64, 0), w.paths.goal, "working on its own: back toward the human");
-        assertTrue(brain[0].describe().contains("Bot2 is 150 blocks away (leash 100)"), brain[0].describe());
+        assertTrue(brain[0].describe().contains("Bot2 is 150 blocks away (leash 48)"), brain[0].describe());
     }
 
     // ------------------------------------------------------------------ plumbing
@@ -764,6 +807,126 @@ class BodyTest {
         assertFalse(log(b).contains("out of its depth"), log(b));
     }
 
+    // ------------------------------------------------------------------ wading: idle in shallow water (2026-09-26)
+
+    static int count(String log, String what) {
+        return log.split(java.util.regex.Pattern.quote(what), -1).length - 1;
+    }
+
+    /** In one-block shallows at the origin: water around the feet, gravel under them. */
+    static FakeWorld wading() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.inWater = true;
+        w.onGround = false;                                     // bobbing
+        w.blocks.put(new BlockPos(0, 63, 0), "minecraft:gravel");
+        return w;
+    }
+
+    @Test
+    void idleInShallowWater_stepsOntoDryLand_thenStops_noLoop() {
+        // Bot1 ended a regroup idle in the shallows at 80, 63, -63 and bobbed there ("dancing")
+        FakeWorld w = wading();
+        w.dryLand = new BlockPos(3, 63, 1);
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, WadingInterrupt.WET_TICKS / 2);
+        w.onGround = true;                                      // touches the bottom: doesn't restart the count
+        ticks(b, w, 2);
+        w.onGround = false;
+        assertNull(w.paths.goal, "not at once: a splash isn't standing in water: " + log(b));
+        ticks(b, w, WadingInterrupt.WET_TICKS / 2 + 5);
+        assertEquals(new BlockPos(3, 64, 1), w.paths.goal, "onto the land, not into it: " + log(b));
+        assertTrue(log(b).contains("stepping out of the water to 3 1 — because idle, standing in water"), log(b));
+
+        w.paths.arrive();                                       // ashore
+        w.inWater = false;
+        w.onGround = true;
+        ticks(b, w, WadingInterrupt.WET_TICKS * 3);
+        assertEquals(1, count(log(b), "stepping out of the water"), "stops there, no restart: " + log(b));
+        assertTrue(log(b).contains("idle — because no objectives"), log(b));
+    }
+
+    @Test
+    void idleInWater_noSafeLandNearby_saysSoOnce_andStaysPut() {
+        FakeWorld w = wading();                                 // no dry land in reach
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, WadingInterrupt.WET_TICKS + Brain.FAILED_COOLDOWN_TICKS * 2);
+        assertNull(w.paths.goal, log(b));
+        assertEquals(1, count(log(b), "no safe dry land within " + WadingInterrupt.LAND_RADIUS + " blocks"), log(b));
+    }
+
+    @Test
+    void inWaterWithAnOrder_theOrderDecides_noWading() {
+        FakeWorld w = wading();
+        w.dryLand = new BlockPos(3, 63, 1);
+        Bot b = running(w, new ZymbotConfig(), true);
+        b.goTo(200, 64, 0);                                     // wading across on purpose
+        ticks(b, w, WadingInterrupt.WET_TICKS * 2);
+        assertTrue(w.paths.goal != null && w.paths.goal.x() > 3, "the order's way: " + log(b));
+        assertFalse(log(b).contains("stepping out of the water"), log(b));
+    }
+
+    // ------------------------------------------------------------------ idle follow at the leash (check 6, 2026-09-26)
+
+    @Test
+    void idle_teammatePastTheLeash_followsBack_stopsWellInside_noJitter() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 20, 0);              // with the team: no regroup
+        ZymbotConfig cfg = withTeammate(mate);
+        cfg.leashBlocks = 100;                                  // the distances below are for 100
+        Bot b = running(w, cfg, true);
+        ticks(b, w, 3);
+        assertNull(w.paths.goal, log(b));
+        w.nearby.clear();
+        w.player("Mate", 100, 0);                               // right at the leash: not past it
+        ticks(b, w, 5);
+        assertNull(w.paths.goal, "at the line it stays: " + log(b));
+
+        w.nearby.clear();
+        w.player("Mate", 120, 0);                               // past it
+        ticks(b, w, 3);
+        assertEquals(new BlockPos(120, 64, 0), w.paths.goal, log(b));
+        assertTrue(log(b).contains("following Mate — because idle, 120 blocks from Mate (leash 100)"), log(b));
+        int idles = idles(b);
+
+        w.pos = new Vec3(30, 64, 0);                            // 90 blocks: inside the leash, keeps going
+        ticks(b, w, 5);
+        assertEquals(idles, idles(b), "no stop just inside the line: " + log(b));
+        w.pos = new Vec3(75, 64, 0);                            // 45 blocks: within half the leash
+        ticks(b, w, 3);
+        assertEquals(idles + 1, idles(b), "stops: " + log(b));
+
+        w.nearby.clear();
+        w.player("Mate", 170, 0);                               // 95 blocks off: inside the leash
+        ticks(b, w, 20);
+        assertEquals(1, count(log(b), "following Mate"), "no stop-start near the line: " + log(b));
+        assertEquals(idles + 1, idles(b), log(b));
+    }
+
+    @Test
+    void idleFollow_givesWayToAnOrder_andARegroupIsNotAFollow() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 20, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 3);
+        w.nearby.clear();
+        w.player("Mate", 150, 0);
+        ticks(b, w, 3);
+        assertEquals(150, w.paths.goal.x(), log(b));
+        b.goTo(-50, 64, 0);                                     // the owner's order
+        ticks(b, w, 3);
+        assertTrue(w.paths.goal.x() < 0, "the order wins, the follow stops: " + log(b));
+        ticks(b, w, 20);
+        assertTrue(w.paths.goal.x() < 0, "and stays stopped: " + log(b));
+        assertEquals(1, count(log(b), "following Mate"), log(b));
+
+        FakeWorld far = new FakeWorld("Bot9");                  // far off at a start: the regroup's job
+        EntityView m2 = far.player("Mate", 300, 0);
+        Bot b2 = running(far, withTeammate(m2), true);
+        ticks(b2, far, 5);
+        assertTrue(log(b2).contains("nobody from the team within"), log(b2));
+        assertFalse(log(b2).contains("following Mate"), log(b2));
+    }
+
     @Test
     void strandedNeverSwimsBackToTheAttacker() {
         FakeWorld w = afloat();
@@ -882,12 +1045,62 @@ class BodyTest {
         assertTrue(log(b).contains("idle — because no objectives"), log(b));
         int before = log(b).split("regrouping with").length;
         w.nearby.clear();
-        mate = w.player("Mate", 600, 0);                        // they walk off: an idle bot stays put (P2-3)
+        mate = w.player("Mate", 600, 0);                        // they walk off: the idle bot follows (check 6)...
         ticks(b, w, 5);
-        assertEquals(before, log(b).split("regrouping with").length, log(b));
+        assertEquals(before, log(b).split("regrouping with").length, "...on the leash, not a regroup: " + log(b));
+        assertTrue(log(b).contains("following Mate — because idle, 302 blocks from Mate (leash 48)"), log(b));
         assertTrue(b.regroupNow().startsWith("looking for the team"));
         ticks(b, w, 3);
         assertTrue(log(b).split("regrouping with").length > before, "/zbot regroup arms it again: " + log(b));
+    }
+
+    @Test
+    void regroupUnderWay_finishesTheApproach_insideTheRegroupRadius() {
+        FakeWorld w = new FakeWorld("Bot1").give(12, "minecraft:bread", 3, FakeWorld.food(5));
+        EntityView mate = w.player("Mate", 300, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 3);
+        int before = log(b).split("regrouping with").length;
+        w.pos = new Vec3(279, 64, 0);                           // 21 blocks short, inside regroup_within...
+        w.hunger = 14;                                          // ...when a reflex takes the body
+        ticks(b, w, 3);
+        assertTrue(w.useHeld, "eating: " + log(b));
+        w.finishBite();
+        ticks(b, w, 3);
+        assertTrue(log(b).split("regrouping with").length > before, "picks the approach back up: " + log(b));
+        assertFalse(log(b).contains("idle — because no objectives"), log(b));
+        w.pos = new Vec3(298, 64, 0);                           // within the arrival distance
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("idle — because no objectives"), log(b));
+    }
+
+    @Test
+    void regroupInterruptedToEat_farFromTheTeam_resumesAtOnce() {
+        FakeWorld w = new FakeWorld("Bot1").give(12, "minecraft:bread", 3, FakeWorld.food(5));
+        EntityView mate = w.player("Mate", 375, 0);             // far outside regroup_within
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouping with Mate"), log(b));
+        int before = log(b).split("regrouping with").length;
+        w.hunger = 11;                                          // a reflex takes the body mid-walk
+        ticks(b, w, 3);
+        assertTrue(w.useHeld, "eating: " + log(b));
+        w.finishBite();                                         // hunger 16: no second bite
+        ticks(b, w, 3);
+        assertTrue(log(b).split("regrouping with").length > before, "back on the walk at once: " + log(b));
+        assertFalse(log(b).contains("idle — because no objectives"), log(b));
+        assertFalse(log(b).contains("failed: regrouping"), "a cancel is not a failure: " + log(b));
+    }
+
+    @Test
+    void regroupSwimming_isNotStranded() {
+        FakeWorld w = afloat();                                 // out at sea, crossing on purpose
+        w.dryLand = new BlockPos(10, 62, 3);
+        EntityView mate = w.player("Mate", 300, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS * 2);
+        assertTrue(log(b).contains("regrouping with Mate"), log(b));
+        assertFalse(log(b).contains("nothing to do"), log(b));
     }
 
     // ------------------------------------------------------------------ Phase 2 step 3: spawn fallback (P2-5)
@@ -911,5 +1124,107 @@ class BodyTest {
         w.paths.arrive();                                       // at spawn
         ticks(b, w, 3);
         assertTrue(log(b).contains("regrouping with Mate"), log(b));
+    }
+
+    /** A teammate known only from the bus: online, heard {@code agoMillis} ago at x, z. */
+    void heardOnTheBus(Bot b, FakeWorld w, EntityView mate, long agoMillis, int x, int z) {
+        w.online.add(mate.uuid());
+        b.memory().roster.put(mate.uuid().toString(),
+                new BotMemory.RosterEntry(mate.name(), clock.now - agoMillis, x, z, "TEAMMATE"));
+    }
+
+    @Test
+    void teammateSilentOnTheBus_isNoPlaceToRegroup_probeWaitThenSpawn() {
+        // 2026-09-26: role none, silent, walked off; Bot1 "regrouped" with a 144 s old spot where it stood
+        FakeWorld w = new FakeWorld("Bot1");
+        w.spawn = new BlockPos(500, 64, 0);
+        EntityView mate = w.player("Bluetails", 0, 0);
+        w.nearby.remove(mate);                                  // not in sight
+        ZymbotConfig c = new ZymbotConfig();
+        Bot b = running(w, c, true);
+        heardOnTheBus(b, w, mate, 144_000, 0, 0);
+        ticks(b, w, 5);
+        assertFalse(log(b).contains("regrouping with"), log(b));
+        assertNull(w.paths.goal, "asks and waits first: " + log(b));
+        clock.now += c.probeWaitSeconds * 1000L;
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("no teammate answered in 30 s"), log(b));
+        assertNotNull(w.paths.goal, log(b));
+        assertEquals(500, w.paths.goal.x(), log(b));
+        assertFalse(log(b).contains("regrouping with"), log(b));
+    }
+
+    @Test
+    void silentOwnerStandingNextToUs_doesNotCountAsTheTeam() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.spawn = new BlockPos(500, 64, 0);
+        EntityView owner = w.player("Bluetails", 10, 0);        // in sight, within 32 — but role none now
+        ZymbotConfig c = new ZymbotConfig();
+        Bot b = running(w, c, true);
+        heardOnTheBus(b, w, owner, 144_000, 10, 0);
+        ticks(b, w, 5);
+        assertFalse(log(b).contains("regrouping with"), log(b));
+        clock.now += c.probeWaitSeconds * 1000L;
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("no teammate answered in 30 s"), "not with the team: " + log(b));
+    }
+
+    @Test
+    void freshBusPosition_stillLeadsTheRegroup_andItsSpotAloneIsNotArrival() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 300, 0);
+        w.nearby.remove(mate);
+        Bot b = running(w, new ZymbotConfig(), true);
+        heardOnTheBus(b, w, mate, 30_000, 300, 0);              // one HELLO period is well within FRESH_MILLIS
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouping with Mate"), log(b));
+        assertTrue(log(b).contains("(bus, 30 s ago)"), log(b));
+        w.pos = new Vec3(300, 64, 0);                           // at the announced spot, nobody there
+        w.paths.arrive();
+        ticks(b, w, 3);
+        assertFalse(log(b).contains("idle — because no objectives"), "a bus spot alone is not the team: " + log(b));
+    }
+
+    @Test
+    void busOnlyTeammate_comesIntoSight_standingStill_regroupEndsDone() {
+        // 2026-09-26: Bluetails_zym (a Teammate only by a fresh bus entry, not in accounts) stood still;
+        // Bot1 stopped 3.6 blocks away and failed "nothing newer for 60s" — it read the world it started in
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView owner = w.player("Bluetails", 300, 0);
+        w.nearby.remove(owner);                                 // out of sight when the regroup starts
+        Bot b = running(w, new ZymbotConfig(), true);
+        heardOnTheBus(b, w, owner, 5_000, 300, 0);
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouping with Bluetails"), log(b));
+        assertTrue(log(b).contains("(bus, "), log(b));
+        FakeWorld now = new FakeWorld("Bot1");                  // the Fabric side builds a new world view every tick
+        now.online.addAll(w.online);
+        now.pos = new Vec3(297, 64, 0);                         // 3 blocks away...
+        now.nearby.add(owner);                                  // ...and in sight
+        for (int i = 0; i < 20 * 5; i++) {
+            clock.now += 50;
+            b.tick(now, w);
+        }
+        assertFalse(log(b).contains("failed:"), log(b));
+        assertTrue(log(b).contains("idle — because no objectives"), "regrouped: " + log(b));
+    }
+
+    @Test
+    void stationaryTeammate_answeringWithTheSameSpot_isNews_noStaleFailure() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 300, 0);
+        w.nearby.remove(mate);                                  // bus only, never in sight
+        Bot b = running(w, new ZymbotConfig(), true);
+        heardOnTheBus(b, w, mate, 5_000, 300, 0);
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouping with Mate"), log(b));
+        w.paths.arrive();                                       // at the announced spot
+        for (int s = 0; s < 90; s += 10) {                      // 90 s: they answer every 10 s, same spot
+            heardOnTheBus(b, w, mate, 0, 300, 0);
+            ticks(b, w, 20 * 10);
+        }
+        assertFalse(log(b).contains("failed: regrouping"), "a fresh answer is news: " + log(b));
+        ticks(b, w, 20 * 61);                                   // then silence for over 60 s
+        assertTrue(log(b).contains("no word from them for 60s"), log(b));
     }
 }

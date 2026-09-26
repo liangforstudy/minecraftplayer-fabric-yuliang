@@ -55,6 +55,11 @@ public final class ZymbotClient implements ClientModInitializer {
     static final int SETTLED_FOR_TICKS = 5 * 20, SETTLE_AT_MOST_TICKS = 60 * 20;
     private boolean summonHeld;
     private int heldTicks, settledTicks;
+    /** Respawns seen (WorldView.lives): the player object last ticked, its level, and whether it was dead. */
+    private net.minecraft.client.player.LocalPlayer lastPlayer;
+    private net.minecraft.client.multiplayer.ClientLevel lastLevel;
+    private boolean lastPlayerDead;
+    private int lives;
 
     static ZymbotClient get() { return instance; }
     ZymbotConfig config() { return config; }
@@ -217,7 +222,15 @@ public final class ZymbotClient implements ClientModInitializer {
         wasPublished = published;
         wasAutoSummon = autoSummon;
         if (!HEADLESS && !hands.holdingKeys() && humanIsMoving(mc.options)) bot.humanInput(hands);
-        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay()), hands);
+        // a respawn replaces the player object; in the same level (or after it was dead) it was a death,
+        // however quick - the robust signal when neither the death screen nor a new last-death spot shows
+        if (mc.player != lastPlayer) {
+            if (lastPlayer != null && (mc.level == lastLevel || lastPlayerDead)) lives++;
+            lastPlayer = mc.player;
+        }
+        lastLevel = mc.level;
+        lastPlayerDead = mc.player.isDeadOrDying();
+        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay(), lives), hands);
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
     }

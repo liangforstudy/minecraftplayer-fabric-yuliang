@@ -111,8 +111,12 @@ public final class ZymbotConfig {
 
     // ------------------------------------------------------------------ body (PHASE1.md)
 
-    /** While working on its own objective, stay within this many blocks of the nearest human (R2). */
-    public int leashBlocks = 100;
+    /**
+     * Stay within this many blocks of the nearest teammate (R2) — while working, and when idle it
+     * follows past it (PHASE2 check 6). 48, not 100: the idle follow needs the teammate in sight,
+     * and a bot at render distance 6 only sees players within ~96 blocks (owner, 2026-09-26).
+     */
+    public int leashBlocks = 48;
     /** After a start or respawn, regroup unless a Zymbot teammate is within this many blocks (PHASE2.md §1). */
     public int regroupWithin = 32;
     /** Nobody from the team found this many seconds after arming: go to world spawn and wait (P2-5). */

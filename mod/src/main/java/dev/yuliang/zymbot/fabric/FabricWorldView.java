@@ -49,6 +49,7 @@ final class FabricWorldView implements WorldView {
     private final int air, maxAir;
     private final boolean headInWater;
     private final String lastDeath;
+    private final int lives;
     private final int downedSecs;
     private final boolean beingRevived;
     private final long dayTime;
@@ -62,8 +63,9 @@ final class FabricWorldView implements WorldView {
     static final int BLEED_OUT_SECONDS = 60;
 
     FabricWorldView(LocalPlayer player, ClientLevel level, ClientPacketListener connection,
-                    net.minecraft.client.gui.components.BossHealthOverlay bosses) {
+                    net.minecraft.client.gui.components.BossHealthOverlay bosses, int lives) {
         this.player = player;
+        this.lives = lives;
         this.level = level;
         this.id = player.getUUID();
         this.name = player.getName().getString();
@@ -113,6 +115,7 @@ final class FabricWorldView implements WorldView {
     @Override public int maxAir() { return maxAir; }
     @Override public boolean headInWater() { return headInWater; }
     @Override public String lastDeath() { return lastDeath; }
+    @Override public int lives() { return lives; }
     @Override public int downedSecondsLeft() { return downedSecs; }
     @Override public boolean beingRevived() { return beingRevived; }
 

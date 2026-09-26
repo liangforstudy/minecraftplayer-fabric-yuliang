@@ -14,6 +14,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Zymbot settings (via Mod Menu), four tabs:
@@ -252,20 +253,32 @@ final class ZymbotSettingsScreen extends Screen {
     // ------------------------------------------------------------------ body
 
     private static final String[][] TUNABLE_ROWS = {
-            {"leash", "Leash — max blocks from a human while working"},
+            {"leash", "Leash — max blocks from the nearest teammate"},
             {"eat", "Eat when hunger is at or below (of 20)"},
             {"critical", "Critical health — heal or retreat (of 20)"},
             {"downed", "Knocked out: seconds to wait for a human"},
+            {"regroup", "Regroup when no teammate within (blocks)"},
+            {"probewait", "Wait for a teammate's answer (s), then spawn"},
             {"plantime", "Route search time limit (ms)"},
             {"lagtps", "Server lagging below (TPS) — plan less"}};
 
+    private int bodyPage;
+
     private void initBody(int cx, int top) {
+        int perPage = rowsThatFit(top, 0);                 // Save sits beside Done, not below the rows
+        int pages = (TUNABLE_ROWS.length + perPage - 1) / perPage;
+        bodyPage = Math.min(bodyPage, pages - 1);
+        int labelX = cx - 150, boxX = cx + 60;
         int y = top;
-        for (String[] row : TUNABLE_ROWS) {
-            String key = row[0];
+        for (int i = bodyPage * perPage; i < Math.min(TUNABLE_ROWS.length, (bodyPage + 1) * perPage); i++) {
+            String key = TUNABLE_ROWS[i][0], text = TUNABLE_ROWS[i][1];
             int[] range = ZymbotConfig.TUNABLES.get(key);
-            label(row[1], cx - 150, y + 6, WHITE);
-            EditBox box = new EditBox(font, cx + 60, y, 44, 20, Component.literal(row[1]));
+            String fitted = font.width(text) <= boxX - labelX - 6 ? text
+                    : font.plainSubstrByWidth(text, boxX - labelX - 6 - font.width("…")) + "…";
+            label(fitted, labelX, y + 6, WHITE);
+            EditBox box = new ScrubBox(boxX, y, text, range[0], range[1]);
+            box.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
+                    Component.literal(text + "\n§7drag left/right to change (Shift fine, Ctrl coarse)")));
             box.setMaxLength(4);
             box.setFilter(t -> t.chars().allMatch(Character::isDigit));
             box.setValue(tunableDrafts.getOrDefault(key, String.valueOf(cfg().tunable(key))));
@@ -274,16 +287,107 @@ final class ZymbotSettingsScreen extends Screen {
             label(range[0] + "–" + range[1], cx + 110, y + 6, GREY);
             y += ROW_H;
         }
-        y += 6;
-        addRenderableWidget(Button.builder(Component.literal("Save"), b -> saveTunables()).bounds(cx - 50, y, 100, 20).build());
-        contentBottom = y + 20;
+        if (pages > 1) {
+            int p = bodyPage;
+            addRenderableWidget(Button.builder(Component.literal("◀"), b -> { keepDrafts(); bodyPage = p - 1; rebuildWidgets(); })
+                    .bounds(cx - 150, height - 28, 20, 20).build()).active = p > 0;
+            label((p + 1) + "/" + pages, cx - 126, height - 22, GREY);
+            addRenderableWidget(Button.builder(Component.literal("▶"), b -> { keepDrafts(); bodyPage = p + 1; rebuildWidgets(); })
+                    .bounds(cx - 106, height - 28, 20, 20).build()).active = p < pages - 1;
+        }
+        addRenderableWidget(Button.builder(Component.literal("Save"), b -> saveTunables())
+                .bounds(cx + 54, height - 28, 60, 20).build());
+        contentBottom = y;
+    }
+
+    /**
+     * A number box you can also scrub, like Premiere's: press and drag sideways to change the
+     * value. Sensitivity: max(1, range/200) per pixel, so any range spans about 200 px; Shift is
+     * fine (1 per 4 px), Ctrl coarse (×10). Moving under 3 px is a plain click: focus and type.
+     * Only the draft changes — Save still applies it.
+     */
+    private final class ScrubBox extends EditBox {
+        private static final int DEAD_ZONE = 3, FINE_PX = 4, COARSE = 10;
+        private final int min, max;
+        private boolean pressed, scrubbing;
+        private double pressX, pressY, travel, carry;
+
+        ScrubBox(int x, int y, String name, int min, int max) {
+            super(font, x, y, 44, 20, Component.literal(name));
+            this.min = min;
+            this.max = max;
+        }
+
+        boolean scrubbing() { return scrubbing; }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {  // wait: a click or a scrub?
+            pressed = true;
+            scrubbing = false;
+            pressX = mouseX;
+            pressY = mouseY;
+            travel = 0;
+            carry = 0;
+        }
+
+        @Override
+        protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+            if (!pressed) return;
+            travel += dragX;
+            if (!scrubbing) {
+                if (Math.abs(travel) < DEAD_ZONE) return;
+                scrubbing = true;
+                setTextColor(0xFFFF60);
+                dragX = travel;                            // the dead zone counts too
+            }
+            double perPx = hasShiftDown() ? 1.0 / FINE_PX : Math.max(1, (max - min) / 200);
+            if (hasControlDown()) perPx *= COARSE;
+            carry += dragX * perPx;
+            int step = (int) carry;                        // whole steps; the rest waits
+            if (step == 0) return;
+            carry -= step;
+            int now;
+            try { now = Integer.parseInt(getValue()); } catch (NumberFormatException e) { now = min; }
+            setValue(String.valueOf(Math.max(min, Math.min(max, now + step))));
+        }
+
+        @Override
+        public void onRelease(double mouseX, double mouseY) {
+            if (pressed && !scrubbing) super.onClick(pressX, pressY);  // a plain click: place the cursor
+            pressed = false;
+            scrubbing = false;
+            setTextColor(0xE0E0E0);                        // EditBox's default text colour
+        }
+    }
+
+    // the horizontal-resize cursor over scrubbable values; always handed back in removed()
+    private static long resizeCursor;
+    private boolean resizeShown;
+
+    private void updateCursor(int mouseX, int mouseY) {
+        boolean want = false;
+        for (EditBox b : tunableBoxes.values()) {
+            if (b.isMouseOver(mouseX, mouseY) || (b instanceof ScrubBox s && s.scrubbing())) want = true;
+        }
+        if (want == resizeShown) return;
+        if (want && resizeCursor == 0) resizeCursor = GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR);
+        GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), want ? resizeCursor : 0);
+        resizeShown = want;
+    }
+
+    @Override
+    public void removed() {
+        if (resizeShown) GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), 0);
+        resizeShown = false;
+        super.removed();
     }
 
     private void saveTunables() {
         Bot bot = ZymbotClient.get().bot();
         List<String> saved = new ArrayList<>();
-        for (var e : tunableBoxes.entrySet()) {
-            String text = e.getValue().getValue();
+        keepDrafts();                                      // edits on every page, not just this one
+        for (var e : tunableDrafts.entrySet()) {
+            String text = e.getValue();
             if (text.isEmpty()) { say(e.getKey() + ": type a number", RED); return; }
             int v = Integer.parseInt(text);
             if (v == cfg().tunable(e.getKey())) continue;
@@ -317,6 +421,7 @@ final class ZymbotSettingsScreen extends Screen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
+        updateCursor(mouseX, mouseY);
         int cx = width / 2;
         g.drawCenteredString(font, title, cx, 14, WHITE);
         for (RowLabel l : labels) g.drawString(font, l.text(), l.x(), l.y(), l.color());
@@ -338,8 +443,9 @@ final class ZymbotSettingsScreen extends Screen {
                     "Add \"singleplayer\" to include your own worlds."};
             case BODY -> new String[] {
                     "No natural regeneration here: only healing food brings health back.",
-                    "The leash never applies to your direct orders, or to an idle bot.",
-                    "Also: /" + cfg().commandRoot + " set leash|eat|critical <n>"};
+                    "An idle bot follows its nearest teammate past the leash; never your orders.",
+                    "Drag a value sideways to scrub it (Shift fine, Ctrl coarse). Then Save.",
+                    "Also: /" + cfg().commandRoot + " set <setting> <n>"};
         };
         // help and the status message go between the controls and Done — only as much as fits
         int floor = height - 32;

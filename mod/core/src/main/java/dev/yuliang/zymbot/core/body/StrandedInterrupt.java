@@ -14,10 +14,13 @@ import java.util.function.Predicate;
 /**
  * Out of its depth with nothing to do: swim to the nearest safe place to stand. A retreat that
  * ended in a lake left Bot1 treading water for minutes — the drowning reflex only surfaces
- * (2026-09-26). Never while an order runs: a walk may be crossing on purpose.
+ * (2026-09-26). Never while an order runs, or an objective on its way somewhere (a regroup): a walk
+ * may be crossing on purpose. Regrouping across the ocean, Bot1 was pulled off its swim legs to look
+ * for a shore it couldn't find, stalling ~10 s each time (2026-09-26).
  * <ul>
  *   <li>Only out of its depth — the block under the feet is water too — and afloat for
- *       {@link #AFLOAT_TICKS}: in one-block shallows it bobbed off the bottom and kept restarting.</li>
+ *       {@link #AFLOAT_TICKS}: in one-block shallows it bobbed off the bottom and kept restarting.
+ *       Standing in the shallows is {@link WadingInterrupt}'s: it steps ashore once idle.</li>
  *   <li>Never to a shore near the last attacker, or with a hostile on it: it swam straight back to
  *       the zombie it had run from.</li>
  * </ul>
@@ -35,7 +38,7 @@ public final class StrandedInterrupt implements Interrupt {
     private final BooleanSupplier free;
     private int afloat;
 
-    /** @param free true when no order is running */
+    /** @param free true when no order runs and no objective is on its way somewhere (a regroup) */
     public StrandedInterrupt(Body body, BooleanSupplier free) {
         this.body = body;
         this.free = free;
@@ -59,15 +62,20 @@ public final class StrandedInterrupt implements Interrupt {
     @Override
     public Task respond(WorldView world, Hands hands) {
         var attacker = body.recentAttack().map(Body.Attack::from);
-        Predicate<BlockPos> safe = land -> {
+        return world.nearestDryLand(SHORE_RADIUS, safeLand(body, world))
+                .<Task>map(land -> new SurfaceTask(hands, land))
+                .orElse(Task.failed("reach land", "no safe place to stand within " + SHORE_RADIUS + " blocks"
+                        + (attacker.isPresent() ? " (keeping away from the attacker)" : "")));
+    }
+
+    /** Land not near the last attacker and with no hostile on it — shared with {@link WadingInterrupt}. */
+    static Predicate<BlockPos> safeLand(Body body, WorldView world) {
+        var attacker = body.recentAttack().map(Body.Attack::from);
+        return land -> {
             if (attacker.isPresent() && attacker.get().horizontalDistance(land.center()) < SAFE_FROM_ATTACKER) return false;
             return world.nearby().stream().noneMatch(e -> e.kind() == EntityView.Kind.HOSTILE
                     && e.pos().horizontalDistance(land.center()) < SAFE_FROM_HOSTILES);
         };
-        return world.nearestDryLand(SHORE_RADIUS, safe)
-                .<Task>map(land -> new SurfaceTask(hands, land))
-                .orElse(Task.failed("reach land", "no safe place to stand within " + SHORE_RADIUS + " blocks"
-                        + (attacker.isPresent() ? " (keeping away from the attacker)" : "")));
     }
 
     @Override public String why(WorldView world) { return "out of its depth with nothing to do"; }

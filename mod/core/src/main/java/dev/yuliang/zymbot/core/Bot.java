@@ -10,6 +10,7 @@ import dev.yuliang.zymbot.core.body.ChatOut;
 import dev.yuliang.zymbot.core.body.CriticalHealthInterrupt;
 import dev.yuliang.zymbot.core.body.DownedInterrupt;
 import dev.yuliang.zymbot.core.body.StrandedInterrupt;
+import dev.yuliang.zymbot.core.body.WadingInterrupt;
 import dev.yuliang.zymbot.core.task.DownedTask;
 import dev.yuliang.zymbot.core.body.DrowningInterrupt;
 import dev.yuliang.zymbot.core.body.FoodChooser;
@@ -124,6 +125,7 @@ public final class Bot {
     private boolean saidIgnoringSummons;                         // "already in a world": once per world
     private String knownLastDeath;                               // null until first seen in this world
     private boolean sawDeath;                                    // saw ourselves dead (the slow way)
+    private int knownLives = -1;                                 // WorldView.lives(); -1 until first seen in this world
     private final java.util.Map<String, Long> watchers = new java.util.LinkedHashMap<>();   // name → until
     private SummonTarget repeatSummon;                           // auto-summon: say it again for a while
     private long repeatSummonUntil, nextSummonRepeat;
@@ -157,9 +159,10 @@ public final class Bot {
                 new DownedInterrupt(config, body, help, log::record),
                 new DrowningInterrupt(),
                 new CriticalHealthInterrupt(config, body),
-                new StrandedInterrupt(body, this::noOrder),
-                new LeashInterrupt(config, body, this::workingOnItsOwn),
-                new HungerInterrupt(config, body)), regroup, log);
+                new StrandedInterrupt(body, this::nothingToDo),
+                new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, regroup::nearestTeammate),
+                new HungerInterrupt(config, body),
+                new WadingInterrupt(body, this::idleForWading)), regroup, log);
         bus.subscribe(this::onEnvelope);
         log.onRecord(this::toWatchers);
     }
@@ -191,6 +194,7 @@ public final class Bot {
         saidIgnoringSummons = false;
         knownLastDeath = null;
         sawDeath = false;
+        knownLives = -1;
         heardThisSession.clear();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
@@ -296,12 +300,19 @@ public final class Bot {
             if (!sawDeath) died(null);
             sawDeath = true;
         }
+        // died and respawned between two ticks, the death screen never shown: either signal will do -
+        // a new last-death spot, or a new player object (a /kill with auto-respawn logged nothing and
+        // Bot1 idled 146 blocks from its teammate, 2026-09-26)
         String lastDeath = world.lastDeath();
-        if (knownLastDeath == null) {
-            knownLastDeath = lastDeath;                          // baseline for this world
-        } else if (!lastDeath.equals(knownLastDeath)) {
-            knownLastDeath = lastDeath;
-            if (!sawDeath) died(lastDeath);                      // died and respawned between two ticks
+        int lives = world.lives();
+        boolean newDeathSpot = knownLastDeath != null && !lastDeath.equals(knownLastDeath);
+        boolean newLife = knownLives >= 0 && lives != knownLives;
+        knownLastDeath = lastDeath;                              // the first tick in a world sets the baseline
+        knownLives = lives;
+        if (newDeathSpot || newLife) {
+            if (sawDeath) log.record("respawned", "died" + (newDeathSpot ? " at " + lastDeath : ""));
+            else died(newDeathSpot ? "died and respawned at once — last death at " + lastDeath
+                    : "died and respawned at once — a new player body, never seen dead");
             sawDeath = false;
         } else if (!world.isDead()) {
             sawDeath = false;
@@ -324,7 +335,8 @@ public final class Bot {
         if (pausedUntil > now) {
             if (!resumeWarned && pausedUntil - now <= RESUME_WARNING_MILLIS) {
                 resumeWarned = true;
-                hands.notifyLocal("zymbot resumes in 3s — touch a movement key to keep control.");
+                hands.notifyLocal("zymbot resumes in 3s — touch a movement key to keep control, or /"
+                        + config.commandRoot + " stop to stop the bot");
             }
             return;
         }
@@ -344,15 +356,19 @@ public final class Bot {
         chatOut.flush(hands);
     }
 
-    /** Orders die with the bot; so does the hunger meter's baseline (respawn resets food). */
-    private void died(String where) {
+    /**
+     * Orders die with the bot; so does the hunger meter's baseline (respawn resets food). Every death
+     * arms the regroup, however it was noticed. {@code respawnedWhy}: set when only the respawn itself
+     * gave the death away.
+     */
+    private void died(String respawnedWhy) {
         if (phase.controlling()) {
             brain.cancelOrder("died");
             brain.halt("died");
         }
         hungerMeter.settle();
         regroup.arm();                                           // respawned somewhere else: find the team again
-        if (where != null) log.record("died", "respawned at once — last death at " + where);
+        if (respawnedWhy != null) log.record("respawned", respawnedWhy);
     }
 
     /** Knocked out: tell the team on the bus, and each human near us by /msg — once. */
@@ -892,7 +908,13 @@ public final class Bot {
     }
 
     private String needsControl() {
-        return phase.controlling() ? null : "the bot isn't running — /" + config.commandRoot + " start first";
+        if (phase.controlling()) return null;
+        // a human's account: never suggest start - the owner did, and Zymbot took over their own player (2026-09-26)
+        if (role() == ZymbotConfig.Role.TEAMMATE) return "this account is a Teammate — orders only work on a Bot account"
+                + " (send them to the bot, e.g. from its console)";
+        if (role() != ZymbotConfig.Role.BOT) return "this account isn't a Bot account — orders only work on a Bot account"
+                + " (send them to the bot, e.g. from its console)";
+        return "the bot isn't running — /" + config.commandRoot + " start first";
     }
 
     private String pathfinderWarning() {
@@ -974,6 +996,23 @@ public final class Bot {
     }
 
     private boolean noOrder() { return !brain.hasOrder(); }
+
+    /** No order, and no objective crossing on purpose (a regroup may swim) — the stranded reflex may act. */
+    private boolean nothingToDo() { return noOrder() && !regroup.active() && !"leash".equals(brain.runningReflex()); }
+
+    /**
+     * Idle, for the leash's idle follow (PHASE2.md check 6): no order, no regroup armed or under way
+     * (out of sight or far off at a start is the regroup's job), and nothing running but its own follow.
+     */
+    private boolean idleForTheLeash() {
+        return noOrder() && !regroup.armed() && !regroup.active()
+                && (brain.idle() || "leash".equals(brain.runningReflex()));
+    }
+
+    /** Idle, for stepping out of shallow water: nothing to do, and nothing running but its own walk out. */
+    private boolean idleForWading() {
+        return nothingToDo() && (brain.idle() || "wading".equals(brain.runningReflex()));
+    }
 
     /** A player we've heard announce itself as a controlling bot. Everyone else is a human. */
     private boolean isKnownBot(UUID id) {

@@ -32,7 +32,7 @@ only ever stood still.
 |---|---|---|
 | P2-1 | **A bot regroups only to a Zymbot teammate** — a player whose game runs Zymbot as **Teammate** (the owner's client). Never to a human without the mod, never to another Bot | owner, 2026-09-23: the headless bot goes to the player with the client. A human without the mod can't see the bus, answer a probe or give orders |
 | P2-2 | **The leash measures to the nearest Zymbot teammate** too, not to any human (`Body.nearestHuman` today counts every non-bot player) | same reason; a stranger walking past on a grudge server must not become the bot's anchor |
-| P2-3 | **After regrouping, idle = stand still**, as in Phase 1 (P1-2). `follow` / `come` stay explicit orders | owner's choice; predictable |
+| P2-3 | **After regrouping, idle = stand still**, as in Phase 1 (P1-2) — amended 2026-09-26 (check 6): an idle bot follows its nearest teammate once past `leash_blocks`. `follow` / `come` stay explicit orders | owner's choice; predictable |
 | P2-4 | **Whispers only between team members.** The `/msg` probe and the chat transport only ever whisper to players on the roster (Bots and Teammates, all holding the team key), sealed and signed like the local bus. Nobody outside the team is ever whispered to | owner: "only teammates can whisper to each other"; coordinates never appear in plain text |
 | P2-5 | **World spawn is the fallback meeting point** when no teammate can be found | owner: yes, use spawn — it isn't dangerous on the live server |
 | P2-6 | **Nearest teammate wins** when several are online (among Zymbot teammates only, P2-1) | same rule as the leash, no setup needed |
@@ -101,7 +101,8 @@ Already there: `memory.roster` records every bus `HELLO` (name, phase, last hear
 its own. With regroup as the first one it matters: while working on its own objective, a bot more
 than `leash_blocks` from the **nearest Zymbot teammate** (P2-2) walks back. Regroup itself is
 exempt (it's the walk back). No teammate online → the leash can't apply; regroup's spawn layer
-covers that.
+covers that. Decided 2026-09-26 (check 6): an idle bot also follows its nearest teammate in sight
+once past `leash_blocks`, stopping within half the leash; never while an order runs or a regroup is armed.
 
 ## 5. Survey — read only
 
@@ -158,20 +159,28 @@ choices as `goto` and `come`.
 
 Both sides need 0.1.29 — the owner's client answers `WHERE` and shares the roster. **Done
 2026-09-26** (rebuilt, client jar swapped with the game closed, Bot1 synced). To start a test:
-`play.bat "New World"` (your game first, Bot1 once the world loads), then the checks below. Record
+`play.bat "New World"` (your game first, Bot1 once the world loads), then the checks below.
+**Your world must be on your client's autostart list** (`/zbot autostart add singleplayer`) —
+otherwise your Teammate client stays silent and the bot can't find you. Record
 each result here — pass/fail, the `[decision]` lines that show it, and anything that surprised.
 
 | # | check | can test now? | how |
 |---|---|---|---|
 | 1 | cold start, local bus | yes | `/tp Bot1 ~300 ~ ~`, then `/zbot regroup` (as Bot1: `send.bat bot1 /zbot regroup`) → walks back, stops within ~4 blocks; `[decision] regrouping with …` names the reason |
+| 1 result | **PARTIAL 2026-09-26** | | `/tp` +300 into ocean → `regrouping with Bluetails_zym — because nobody from the team within 32 blocks; … (bus, 25 s ago)`; swam back in ~4 min but (a) `StrandedInterrupt` fired between every 49-block swim leg (`failed: reach land … no safe place to stand within 48 blocks`, ~10 s stall, then `swimming to dry land at …`), and (b) went `idle` at 59, -311, **~21 blocks** away up a stone slope: inside the 32-block `regroup` radius the regroup counted as done, so Baritone never pathed the last stretch. Fix in progress (not compiled): regroup continues to ~4 blocks once started; stranded check defers during a swimming objective. Idea: read Baritone's chunk cache so the planner/shore search see past render distance. Also covers **1c** (bus-only reason seen). Note: bus position was ~25–30 s old though the roster heard the owner 0–2 s ago. |
 | 1b | respawn arms it | yes | `/kill Bot1` far from you → after the respawn it regroups by itself |
 | 1c | out of sight (bus only) | yes | `/tp` it 300+ blocks away, beyond render distance → "(bus, N s ago)" in the reason, `WHERE` asks every 10 s |
+| 1b result | **TRIGGER PASS / ARRIVAL FAIL 2026-09-26** | | `/kill Bot1` → `respawning — because died` then at once `regrouping with Bluetails_zym … (bus, 50 s ago)`. Never arrived: respawned in an ocean area, looped swim-out 40 blocks → `swimming to dry land at 287 -37 … out of its depth with nothing to do` (stranded pulls it back) → regroup again; drifted 290 → 375 blocks away. Respawned with no food: `failed: eat … no safe food` every 30 s (foraging is Phase 3). Went `idle — because no objectives` at 14:31:54 with no "failed:" line before it — likely the bus-only teammate entry stopped counting and `best()` fell to the spawn wait (unconfirmed). |
+| 4 retest | **0.1.30: PASS** | | role none, owner 100+ away, `/zbot regroup` 15:02:41 → to last bus spot (33 s old) → 15:02:57 `failed: … lost track of the team — nobody in sight or announcing` → 15:03:57 `going to spawn at 96 -31 — because no teammate answered in 30 s` → idle ~3 blocks from spawn. 76 s order→spawn (60 s retry backoff sits in the middle). Owner back to `role teammate` → Bot1 came to them (owner confirmed). |
+| 4 result | **FAIL 2026-09-26** | | Owner `role none` then walked 100+ away; `/zbot regroup` → `regrouping with Bluetails_zym … at 288, -33 (bus, 144 s ago)` → `idle` at once (the stale spot was where Bot1 stood). No spawn fallback in the next 60 s: a silent teammate's old bus position still counts as knowing where they are. Needs: bus positions older than N s (≈ probewait) don't count as "found"; `role none`/silence should age a teammate out. Also, a teammate in sight within 32 blocks, remembered from the bus, blocks the regroup even after they go silent. |
+| 1 retest | **0.1.30: MOVEMENT PASS / LABEL FAIL** | | stopped 3.6 blocks from the owner, no stranded stalls — but `failed: … reached where Bluetails_zym was last heard; nothing newer for 60s` (regroup kept the start tick's WorldView, so the owner never counted as in sight; a stationary teammate's answers weren't news). Fixed in source, not compiled. Owner's client seems to answer only with the 60 s HELLO, not WHERE — check next build. |
+| 2 result | **0.1.30: PASS with a gap** | | regroup to 84, -63 (bus) → swim 13 → `regrouping … at 77, -62 (in sight)` → idle on arrival. Owner then moved 13 blocks off: idle bot stayed bobbing in shallow water ("dancing") — stranded ignores in-depth water, and an idle bot doesn't follow. Owner decided #6: follow at leash distance; plus idle-in-water → step onto dry land. Both being written. |
 | 2 | moving target | yes | walk off while it regroups → it re-plans when you've moved 8+ blocks |
 | 3 | `/msg` probe | **no** | not built (§3) |
 | 4 | spawn fallback | yes | your client's role None (`/zbot role none`), `/zbot regroup` on Bot1 → after 30 s "going to spawn"; set yourself back to Teammate → it comes to you |
 | 5 | only teammates | needs a 2nd human without the mod | a stranger closer than you is ignored for regroup, leash and retreat direction |
-| 6 | leash | **open question** | after a regroup the bot is idle (P2-3), and the leash only applies to its own objectives — so walking off from an idle bot does nothing by design. Decide: should an idle bot follow at `leash_blocks`, or re-regroup? |
-| 7 | roster | yes (Bot1 + you); Bot3 when synced | `/zbot roster` on both sides; disconnect Bot1 (`disconnect.bat bot1`) → "Bot1 left — gone from the tab list"; reconnect → "is back" |
+| 6 | leash | **decided 2026-09-26: idle bot follows at leash distance — built, not live-tested** | an idle bot (no order, no regroup armed) whose nearest teammate in sight is more than `leash_blocks` away walks back until within half the leash (`LeashInterrupt.comeWithin`); an order stops it at once. Also new: idle in water for 2.5 s → steps onto safe dry land within 8 blocks (`WadingInterrupt`) — built, not live-tested |
+| 7 | roster | **PASS 2026-09-26** (Bot1 + owner) | `/zbot roster` on both sides; disconnect Bot1 (`disconnect.bat bot1`) → "Bot1 left — gone from the tab list"; reconnect → "is back". Seen: each side lists the other online via bus; `[decision] Bot1 left — because gone from the tab list` 1 s after the disconnect, `Bot1 is back — because in the tab list again` on rejoin. Gotcha: the owner's client was silent until `/zbot autostart add singleplayer` — Bot1 saw them offline and fell back to spawn. A stale Mac-era "Bot2" entry lingers in Bot1's roster (harmless). Also 5-min rejoin: "last heard 5 min ago" on both sides. **By design:** "is back" is logged twice (bus + tab list) — each covers the other failing. An offline-account bot rejoins at a new spot near spawn (e.g. 8, 8), not where it left. |
 | 8 | survey | **no** | not built (§5) |
 
 ## Not in Phase 2

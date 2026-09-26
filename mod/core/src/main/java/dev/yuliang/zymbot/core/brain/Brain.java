@@ -36,6 +36,7 @@ public final class Brain {
     private Source source;
     private String currentWhy = NO_OBJECTIVES;
     private String activeInterrupt;
+    private String reflex;                                          // the interrupt whose task is `current`
     private Objective order;
     private long ticks;
     private final Map<String, Long> holdUntil = new HashMap<>();   // after DONE, still triggered: wait
@@ -135,6 +136,14 @@ public final class Brain {
 
     public boolean hasOrder() { return order != null; }
 
+    /** Nothing running at all: no reflex, no order, no objective. */
+    public boolean idle() { return current == null; }
+
+    /** The interrupt whose task is running (also while it finishes after its trigger cleared), or null. */
+    public String runningReflex() {
+        return current != null && source == Source.INTERRUPT ? reflex : null;
+    }
+
     public String describe() {
         return (current == null ? IDLE : current.describe()) + " — " + currentWhy
                 + (order != null && source != Source.ORDER ? " (then: " + order.name() + ")" : "");
@@ -152,6 +161,7 @@ public final class Brain {
         if (current != null && current != task) current.cancel();
         current = task;
         source = from;
+        reflex = from == Source.INTERRUPT ? activeInterrupt : null;
         currentWhy = why;
         log.record(task == null ? IDLE : task.describe(), why);
     }

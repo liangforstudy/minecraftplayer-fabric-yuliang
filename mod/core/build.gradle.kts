@@ -1,11 +1,11 @@
-// The brain — pure Java. If anything here ever needs a net.minecraft import, that's the bug
+// The brain â€” pure Java. If anything here ever needs a net.minecraft import, that's the bug
 // (FOUNDATION.md decision 1). Minecraft isn't on this classpath, so it can't compile anyway.
 plugins {
     `java-library`
 }
 
 group = "dev.yuliang"
-version = "0.1.29"   // keep in step with mod.version in stonecutter.properties.toml
+version = "0.1.31"   // keep in step with mod.version in stonecutter.properties.toml
 
 repositories {
     mavenCentral()

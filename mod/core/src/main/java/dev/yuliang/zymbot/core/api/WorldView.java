@@ -54,6 +54,12 @@ public interface WorldView {
      */
     default String lastDeath() { return ""; }
     /**
+     * Respawns this client has seen in this world: the player object replaced in the same level, or
+     * replaced after it was dead. A change means we respawned, even when neither the death screen nor
+     * a new {@link #lastDeath()} ever showed.
+     */
+    default int lives() { return 0; }
+    /**
      * Knocked out (civfabric "down but not out"): seconds until bleeding out, or -1 when up. Read
      * from the red "Bleeding Out" boss bar — see BOT_DESIGN → Knocked out.
      */

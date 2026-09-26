@@ -1,5 +1,6 @@
 package dev.yuliang.zymbot.core.team;
 
+import dev.yuliang.zymbot.core.Bot;
 import dev.yuliang.zymbot.core.api.BlockPos;
 import dev.yuliang.zymbot.core.api.EntityView;
 import dev.yuliang.zymbot.core.api.Vec3;
@@ -23,6 +24,12 @@ import java.util.function.Supplier;
  * The planner's first objective of its own (PHASE2.md §1): after a start or a respawn, if no Zymbot
  * teammate is within {@code regroup_within} blocks, walk to the nearest one — seen, or announced on
  * the local bus by someone in our tab list. Done within {@code within} of them; then idle (P2-3).
+ * {@code regroup_within} only decides whether a regroup starts: once under way it finishes the
+ * approach — Bot1, swum back from the ocean and interrupted 21 blocks short, counted itself "with
+ * the team" and idled out of reach of its teammate (2026-09-26).
+ * Only a current teammate counts ({@link #FRESH_MILLIS}): Bluetails_zym set role none, went silent
+ * and walked off; Bot1 "regrouped" with a 144 s old bus position where it already stood and never
+ * fell back to spawn (2026-09-26).
  * Armed again by the next start, respawn or {@code /zbot regroup}.
  */
 public final class Regroup implements Planner {
@@ -32,6 +39,14 @@ public final class Regroup implements Planner {
     static final double AT_SPAWN_BLOCKS = 8;
     /** While nobody is found, ask the team where they are this often. */
     static final long ASK_EVERY_MILLIS = 30_000;
+    /**
+     * A bus position (and bus-only teammate-ness) older than this is not knowing where - or whether -
+     * they are: two HELLO periods, so one lost HELLO doesn't drop a live teammate. A teammate answers a
+     * WHERE at once, so a real one is fresh again within a tick or two; a silent one (role none, quit
+     * the mod) goes stale and the probe, then spawn, fallback takes over. Not probe_wait_seconds: at
+     * 30 s it is shorter than the 60 s HELLO period and would drop live teammates half the time.
+     */
+    public static final long FRESH_MILLIS = 2 * Bot.HELLO_EVERY_MILLIS;
 
     private final ZymbotConfig config;
     private final Body body;
@@ -42,6 +57,7 @@ public final class Regroup implements Planner {
     private final int within;
     private boolean armed;
     private boolean active;
+    private boolean underWay;                                   // started, not reached yet: regroup_within no longer counts
     private long retryAt;
     private long armedAt;
     private long nextAsk;
@@ -65,17 +81,24 @@ public final class Regroup implements Planner {
         armedAt = clock.getAsLong();
         nextAsk = 0;                                            // ask the team at once
         saidWaiting = false;
+        underWay = false;
     }
 
     /** Walking back to the team now — the leash leaves this alone (it is the walk back). */
     public boolean active() { return active; }
 
+    /** Looking for the team (started, respawned, /zbot regroup) and not with them yet — the idle follow waits. */
+    public boolean armed() { return armed; }
+
+    /** The nearest current teammate in sight ({@link #current}) — what the leash and the idle follow anchor to. */
+    public Optional<EntityView> nearestTeammate(WorldView world) { return nearestCurrent(world, null); }
+
     @Override
     public Optional<Objective> best(WorldView world) {
         active = false;
         if (!armed || clock.getAsLong() < retryAt) return Optional.empty();
-        Optional<EntityView> seen = body.nearestTeammate(world);
-        if (seen.isPresent() && seen.get().pos().horizontalDistance(world.position()) <= config.regroupWithin) {
+        Optional<EntityView> seen = nearestCurrent(world, null);
+        if (!underWay && seen.isPresent() && seen.get().pos().horizontalDistance(world.position()) <= config.regroupWithin) {
             armed = false;                                      // with the team already
             return Optional.empty();
         }
@@ -88,7 +111,11 @@ public final class Regroup implements Planner {
                 + (f.mate().live() ? " (in sight)" : " (bus, " + Math.max(0, f.ageMillis() / 1000) + " s ago)");
         String who = f.mate().name();
         return Optional.of(Objective.of("regroup with " + who, why, (w, h) -> {
-            RegroupTask walk = new RegroupTask(who, () -> find(w, who).map(Found::mate), route, askWhere, within);
+            underWay = true;                                    // now it ends within `within` of them, or fails
+            // this tick's world, not the one it started in: the Fabric side builds a fresh WorldView (and
+            // its `nearby` snapshot) every tick — reading `w` kept a teammate who came into view "out of
+            // sight" for good; Bot1 stood 3.6 blocks from Bluetails_zym until it failed (2026-09-26)
+            RegroupTask walk = new RegroupTask(who, now -> find(now, who).map(Found::mate), route, askWhere, within);
             return new Task() {                                 // tell the planner how it ended
                 public Status tick(WorldView world) {
                     Status s = walk.tick(world);
@@ -141,7 +168,10 @@ public final class Regroup implements Planner {
     /** The regroup task finished: done with the team, or it failed (try again later). */
     public void finished(boolean reached) {
         active = false;
-        if (reached) armed = false;
+        if (reached) {
+            armed = false;
+            underWay = false;
+        }
         else retryAt = clock.getAsLong() + RETRY_MILLIS;
     }
 
@@ -152,22 +182,42 @@ public final class Regroup implements Planner {
 
     private Optional<Found> find(WorldView world, String only) {
         Vec3 me = world.position();
-        Optional<EntityView> seen = body.nearestTeammate(world)
-                .filter(e -> only == null || e.name().equalsIgnoreCase(only));
-        if (only != null && seen.isEmpty()) {                   // following one person: look for them by name
-            seen = world.nearby().stream().filter(e -> e.kind() == EntityView.Kind.PLAYER && e.name().equalsIgnoreCase(only)
-                    && body.isTeammate(e.uuid())).findFirst();
-        }
-        if (seen.isPresent()) return Optional.of(new Found(new RegroupTask.Mate(seen.get().name(), seen.get().pos(), true), 0));
+        Optional<EntityView> seen = nearestCurrent(world, only);
+        if (seen.isPresent()) return Optional.of(new Found(new RegroupTask.Mate(seen.get().name(), seen.get().pos(), true, clock.getAsLong()), 0));
         long now = clock.getAsLong();
         return roster.get().entrySet().stream()
                 .filter(e -> "TEAMMATE".equals(e.getValue().phase))
+                .filter(e -> fresh(e.getValue(), now))              // an old position is not knowing where they are
                 .filter(e -> only == null || e.getValue().name.equalsIgnoreCase(only))
                 .filter(e -> online(world, e.getKey()))
-                .map(e -> new Found(new RegroupTask.Mate(e.getValue().name, new Vec3(e.getValue().x + 0.5, me.y(), e.getValue().z + 0.5), false),
+                .map(e -> new Found(new RegroupTask.Mate(e.getValue().name, new Vec3(e.getValue().x + 0.5, me.y(), e.getValue().z + 0.5), false,
+                                e.getValue().lastSeenMillis),
                         now - e.getValue().lastSeenMillis))
                 .min(Comparator.comparingDouble(f -> f.mate().pos().horizontalDistance(me)));
     }
+
+    /** The nearest current teammate in sight (optionally only the one named). */
+    private Optional<EntityView> nearestCurrent(WorldView world, String only) {
+        Vec3 me = world.position();
+        return world.nearby().stream()
+                .filter(e -> e.kind() == EntityView.Kind.PLAYER && !e.uuid().equals(world.selfId()))
+                .filter(e -> only == null || e.name().equalsIgnoreCase(only))
+                .filter(e -> body.isTeammate(e.uuid()) && current(e.uuid()))
+                .min(Comparator.comparingDouble(e -> e.pos().horizontalDistance(me)));
+    }
+
+    /**
+     * Still a teammate, not just remembered as one: listed as a Teammate in our accounts, or heard on the
+     * bus within {@link #FRESH_MILLIS}. Someone next to us whose only claim is an old HELLO (role none
+     * now: silent) doesn't count.
+     */
+    private boolean current(UUID id) {
+        if (config.roleOf(id) == ZymbotConfig.Role.TEAMMATE) return true;
+        BotMemory.RosterEntry r = roster.get().get(id.toString());
+        return r != null && fresh(r, clock.getAsLong());
+    }
+
+    private static boolean fresh(BotMemory.RosterEntry r, long now) { return now - r.lastSeenMillis <= FRESH_MILLIS; }
 
     private static boolean online(WorldView world, String uuid) {
         try {
