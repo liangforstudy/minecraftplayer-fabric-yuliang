@@ -28,6 +28,10 @@ import java.util.function.Supplier;
 public final class Regroup implements Planner {
     /** A failed regroup waits this long before trying again. */
     public static final long RETRY_MILLIS = 60_000;
+    /** Close enough to the world spawn to count as waiting there. */
+    static final double AT_SPAWN_BLOCKS = 8;
+    /** While nobody is found, ask the team where they are this often. */
+    static final long ASK_EVERY_MILLIS = 30_000;
 
     private final ZymbotConfig config;
     private final Body body;
@@ -39,6 +43,9 @@ public final class Regroup implements Planner {
     private boolean armed;
     private boolean active;
     private long retryAt;
+    private long armedAt;
+    private long nextAsk;
+    private boolean saidWaiting;
 
     public Regroup(ZymbotConfig config, Body body, Supplier<Map<String, BotMemory.RosterEntry>> roster, LongSupplier clock,
                    Function<BlockPos, Task> route, Runnable askWhere, int within) {
@@ -55,6 +62,9 @@ public final class Regroup implements Planner {
     public void arm() {
         armed = true;
         retryAt = 0;
+        armedAt = clock.getAsLong();
+        nextAsk = 0;                                            // ask the team at once
+        saidWaiting = false;
     }
 
     /** Walking back to the team now — the leash leaves this alone (it is the walk back). */
@@ -70,7 +80,7 @@ public final class Regroup implements Planner {
             return Optional.empty();
         }
         Optional<Found> first = find(world);
-        if (first.isEmpty()) return Optional.empty();           // nobody to go to (step 3: spawn)
+        if (first.isEmpty()) return toSpawn(world);
         active = true;
         Found f = first.get();
         String why = "nobody from the team within " + config.regroupWithin + " blocks; " + f.mate().name() + " is at "
@@ -78,7 +88,7 @@ public final class Regroup implements Planner {
                 + (f.mate().live() ? " (in sight)" : " (bus, " + Math.max(0, f.ageMillis() / 1000) + " s ago)");
         String who = f.mate().name();
         return Optional.of(Objective.of("regroup with " + who, why, (w, h) -> {
-            RegroupTask walk = new RegroupTask(() -> find(w, who).map(Found::mate), route, askWhere, within);
+            RegroupTask walk = new RegroupTask(who, () -> find(w, who).map(Found::mate), route, askWhere, within);
             return new Task() {                                 // tell the planner how it ended
                 public Status tick(WorldView world) {
                     Status s = walk.tick(world);
@@ -88,6 +98,42 @@ public final class Regroup implements Planner {
                 public void cancel() { walk.cancel(); active = false; }
                 public String failure() { return walk.failure(); }
                 public String describe() { return walk.describe(); }
+            };
+        }));
+    }
+
+    /**
+     * Nobody from the team found: keep asking; after {@code probe_wait_seconds}, walk to the world
+     * spawn and wait there, still listening (P2-5) — a teammate heard later wins.
+     */
+    private Optional<Objective> toSpawn(WorldView world) {
+        long now = clock.getAsLong();
+        if (now >= nextAsk) {
+            nextAsk = now + ASK_EVERY_MILLIS;
+            askWhere.run();
+        }
+        if (now - armedAt < config.probeWaitSeconds * 1000L) return Optional.empty();
+        Optional<BlockPos> spawn = world.worldSpawn();
+        if (spawn.isEmpty()) return Optional.empty();
+        BlockPos s = spawn.get();
+        if (world.position().horizontalDistance(s.center()) <= AT_SPAWN_BLOCKS) {
+            saidWaiting = true;                                 // there: idle, still armed and listening
+            return Optional.empty();
+        }
+        active = true;
+        String why = "no teammate answered in " + config.probeWaitSeconds + " s — waiting for the team at spawn";
+        return Optional.of(Objective.of("go to spawn", why, (w, h) -> {
+            Task walk = route.apply(new BlockPos(s.x(), 0, s.z()));
+            return new Task() {
+                public Status tick(WorldView world) {
+                    Status st = walk.tick(world);
+                    if (st != Status.RUNNING) active = false;
+                    if (st == Status.FAILED) retryAt = clock.getAsLong() + RETRY_MILLIS;
+                    return st;                                  // done: still armed, waits at spawn
+                }
+                public void cancel() { walk.cancel(); active = false; }
+                public String failure() { return walk.failure(); }
+                public String describe() { return "going to spawn at " + s.x() + " " + s.z(); }
             };
         }));
     }

@@ -32,14 +32,16 @@ public final class RegroupTask implements Task {
     private int sinceAsk = ASK_EVERY_TICKS;   // ask on the first tick
     private int stale;
     private String failure = "";
-    private String name = "the team";
+    private String name;
 
     /**
+     * @param name     who we are going to (for the log, before the first tick)
      * @param mate     the teammate to reach, re-read every tick (newest position)
      * @param route    builds the walk to a block (the route planner, like {@code come})
      * @param askWhere asks the team for fresh positions (a WHERE on the bus)
      */
-    public RegroupTask(Supplier<Optional<Mate>> mate, Function<BlockPos, Task> route, Runnable askWhere, int within) {
+    public RegroupTask(String name, Supplier<Optional<Mate>> mate, Function<BlockPos, Task> route, Runnable askWhere, int within) {
+        this.name = name;
         this.mate = mate;
         this.route = route;
         this.askWhere = askWhere;

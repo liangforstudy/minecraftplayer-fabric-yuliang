@@ -889,4 +889,27 @@ class BodyTest {
         ticks(b, w, 3);
         assertTrue(log(b).split("regrouping with").length > before, "/zbot regroup arms it again: " + log(b));
     }
+
+    // ------------------------------------------------------------------ Phase 2 step 3: spawn fallback (P2-5)
+
+    @Test
+    void nobodyFound_afterProbeWait_goesToSpawn_andATeammateHeardLaterWins() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.spawn = new BlockPos(500, 64, 0);
+        ZymbotConfig c = new ZymbotConfig();
+        Bot b = running(w, c, true);
+        ticks(b, w, 5);
+        assertNull(w.paths.goal, "waits for answers first: " + log(b));
+        clock.now += c.probeWaitSeconds * 1000L;
+        ticks(b, w, 3);
+        assertNotNull(w.paths.goal, log(b));
+        assertEquals(500, w.paths.goal.x(), log(b));
+        assertTrue(log(b).contains("no teammate answered in 30 s"), log(b));
+
+        EntityView mate = w.player("Mate", -200, 0);            // a teammate turns up
+        c.accounts.add(new ZymbotConfig.Account(mate.uuid(), mate.name(), ZymbotConfig.Role.TEAMMATE));
+        w.paths.arrive();                                       // at spawn
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouping with Mate"), log(b));
+    }
 }

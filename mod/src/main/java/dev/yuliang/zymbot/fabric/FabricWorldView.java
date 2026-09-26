@@ -117,6 +117,12 @@ final class FabricWorldView implements WorldView {
     @Override public boolean beingRevived() { return beingRevived; }
 
     @Override
+    public Optional<BlockPos> worldSpawn() {
+        var s = level.getSharedSpawnPos();
+        return Optional.of(new BlockPos(s.getX(), s.getY(), s.getZ()));
+    }
+
+    @Override
     public Optional<BlockPos> nearestDryLand(int radius) { return nearestDryLand(radius, p -> true); }
 
     @Override

@@ -42,6 +42,8 @@ public interface WorldView {
      * within {@code radius} blocks. The block itself; you stand on top of it.
      */
     default Optional<BlockPos> nearestDryLand(int radius) { return Optional.empty(); }
+    /** The world spawn, as the server sends it — the fallback meeting point (PHASE2.md P2-5). */
+    default Optional<BlockPos> worldSpawn() { return Optional.empty(); }
     /** The nearest place to stand that {@code ok} accepts. */
     default Optional<BlockPos> nearestDryLand(int radius, java.util.function.Predicate<BlockPos> ok) {
         return nearestDryLand(radius).filter(ok);

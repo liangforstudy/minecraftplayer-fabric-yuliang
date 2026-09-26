@@ -115,6 +115,8 @@ public final class ZymbotConfig {
     public int leashBlocks = 100;
     /** After a start or respawn, regroup unless a Zymbot teammate is within this many blocks (PHASE2.md §1). */
     public int regroupWithin = 32;
+    /** Nobody from the team found this many seconds after arming: go to world spawn and wait (P2-5). */
+    public int probeWaitSeconds = 30;
     /** Eat when hunger falls to this (of 20). */
     public int eatBelowHunger = 14;
     /** Health (of 20) at or below which the bot heals or retreats. */
@@ -177,7 +179,7 @@ public final class ZymbotConfig {
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
             "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19},
-            "downed", new int[]{0, 55}, "regroup", new int[]{8, 256},
+            "downed", new int[]{0, 55}, "regroup", new int[]{8, 256}, "probewait", new int[]{5, 300},
             "plantime", new int[]{50, 5000}, "lagtps", new int[]{5, 19});
 
     public int tunable(String name) {
@@ -187,6 +189,7 @@ public final class ZymbotConfig {
             case "critical" -> criticalHealth;
             case "downed" -> downedWaitForHumansSeconds;
             case "regroup" -> regroupWithin;
+            case "probewait" -> probeWaitSeconds;
             case "plantime" -> planTimeoutMs;
             case "lagtps" -> lagTps;
             default -> throw new IllegalArgumentException(name);
@@ -196,13 +199,14 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, eat, critical, downed, regroup, plantime or lagtps";
+        if (range == null) return "unknown setting '" + name + "' — leash, eat, critical, downed, regroup, probewait, plantime or lagtps";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> leashBlocks = value;
             case "eat" -> eatBelowHunger = value;
             case "downed" -> downedWaitForHumansSeconds = value;
             case "regroup" -> regroupWithin = value;
+            case "probewait" -> probeWaitSeconds = value;
             case "plantime" -> planTimeoutMs = value;
             case "lagtps" -> lagTps = value;
             default -> criticalHealth = value;
