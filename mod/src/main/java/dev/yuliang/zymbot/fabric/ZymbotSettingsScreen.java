@@ -307,8 +307,9 @@ final class ZymbotSettingsScreen extends Screen {
             String fitted = !cut ? text : font.plainSubstrByWidth(text, boxX - labelX - 6 - font.width("…")) + "…";
             label(fitted, labelX, y + 6, WHITE);
             ScrubBox box = new ScrubBox(boxX, y, text, range[0], range[1]);
+            String cmd = "/" + cfg().commandRoot + " set " + key + " <n>";          // the same setting as a command
             box.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
-                    Component.literal(text + "\n§7drag left/right to change (Shift fine, Ctrl coarse)")));
+                    Component.literal(text + "\n§7" + cmd + "\n§7drag left/right to change (Shift fine, Ctrl coarse)")));
             box.setMaxLength(4);
             box.setFilter(t -> t.chars().allMatch(Character::isDigit));
             box.setValue(tunableDrafts.getOrDefault(key, String.valueOf(cfg().tunable(key))));
@@ -317,8 +318,8 @@ final class ZymbotSettingsScreen extends Screen {
             String rangeText = range[0] + "–" + range[1];
             label(rangeText, rangeX, y + 6, GREY);
             // the label and the range scrub the box too; the whole row height, text-wide
-            scrubZones.add(new ScrubZone(box, labelX, y, font.width(fitted), ROW_H - 2, cut ? text : null));
-            scrubZones.add(new ScrubZone(box, rangeX, y, font.width(rangeText), ROW_H - 2, null));
+            scrubZones.add(new ScrubZone(box, labelX, y, font.width(fitted), ROW_H - 2, text + "\n§7" + cmd));
+            scrubZones.add(new ScrubZone(box, rangeX, y, font.width(rangeText), ROW_H - 2, cmd));
 
             int def = defaultOf(key);
             Button reset = addRenderableWidget(Button.builder(Component.literal("↺"),
@@ -537,7 +538,7 @@ final class ZymbotSettingsScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         updateCursor(mouseX, mouseY);
-        if (activeZone == null) {                          // a cut-off label shows its full text
+        if (activeZone == null) {                          // label: full name + command; range: the command
             for (ScrubZone z : scrubZones) {
                 if (z.fullText() != null && z.contains(mouseX, mouseY))
                     setTooltipForNextRenderPass(Component.literal(z.fullText()));

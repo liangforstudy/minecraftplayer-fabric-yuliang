@@ -57,6 +57,12 @@ import org.slf4j.LoggerFactory;
 public final class Bot {
     public static final long HELLO_EVERY_MILLIS = 60_000;
     public static final long RESPAWN_RETRY_MILLIS = 2_000;
+    /**
+     * After a respawn nobody saw coming (new body / new death spot, never seen dead), wait this many
+     * ticks before calling it one: civfabric's knockout also swaps the body, and its "bleeding out"
+     * bar may arrive a tick or two either side. Downed within the window → not a respawn.
+     */
+    public static final int RESPAWN_GRACE_TICKS = 20;
     public static final long RESUME_WARNING_MILLIS = 3_000;
     /** A message from someone not (yet) in the tab list waits this long before it's dropped. */
     public static final long TAB_LIST_GRACE_MILLIS = 10_000;
@@ -127,6 +133,8 @@ public final class Bot {
     private String knownLastDeath;                               // null until first seen in this world
     private boolean sawDeath;                                    // saw ourselves dead (the slow way)
     private int knownLives = -1;                                 // WorldView.lives(); -1 until first seen in this world
+    private String pendingRespawn;                               // an unseen respawn's why, until the grace runs out
+    private int pendingRespawnTicks;
     private final java.util.Map<String, Long> watchers = new java.util.LinkedHashMap<>();   // name → until
     private SummonTarget repeatSummon;                           // auto-summon: say it again for a while
     private long repeatSummonUntil, nextSummonRepeat;
@@ -196,6 +204,7 @@ public final class Bot {
         knownLastDeath = null;
         sawDeath = false;
         knownLives = -1;
+        pendingRespawn = null;
         heardThisSession.clear();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
@@ -312,11 +321,24 @@ public final class Bot {
         knownLives = lives;
         if (newDeathSpot || newLife) {
             if (sawDeath) log.record("respawned", "died" + (newDeathSpot ? " at " + lastDeath : ""));
-            else died(newDeathSpot ? "died and respawned at once — last death at " + lastDeath
-                    : "died and respawned at once — a new player body, never seen dead");
+            else {                                               // or knocked out (civfabric): decide after the grace
+                pendingRespawn = newDeathSpot ? "died and respawned at once — last death at " + lastDeath
+                        : "died and respawned at once — a new player body, never seen dead";
+                pendingRespawnTicks = RESPAWN_GRACE_TICKS;
+            }
             sawDeath = false;
         } else if (!world.isDead()) {
             sawDeath = false;
+        }
+        if (pendingRespawn != null) {
+            if (world.downedSecondsLeft() >= 0) {                // the knockout's body swap: the downed reflex has it
+                log.record("not a respawn", "knocked out — " + world.downedSecondsLeft() + "s to bleed out");
+                pendingRespawn = null;
+            } else if (world.isDead() || --pendingRespawnTicks <= 0) {
+                String why = pendingRespawn;
+                pendingRespawn = null;
+                if (!world.isDead()) died(why);                  // dead: the death path already handled it
+            }
         }
 
         if (world.isDead() && config.autoRespawn && (phase.controlling() || headless)

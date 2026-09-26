@@ -476,7 +476,7 @@ class BodyTest {
         ticks(b, w, 3);
         assertTrue(w.paths.busy);
         w.lastDeath = "minecraft:overworld 291, 64, 90";        // server: killed and respawned at once
-        ticks(b, w, 3);
+        ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 3);               // not a knockout: after the grace
         assertFalse(b.hasOrder(), "the walk died with it: " + log(b));
         assertFalse(w.paths.busy);
         assertTrue(log(b).contains("respawned — because died and respawned at once — last death at"), log(b));
@@ -493,10 +493,49 @@ class BodyTest {
         assertFalse(log(b).contains("regrouping with"), log(b));
         w.pos = new Vec3(166, 64, 0);                           // the respawn point, 146 blocks off
         w.lives++;
-        ticks(b, w, 3);
+        ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 3);               // the knockout grace, then the respawn
         assertTrue(log(b).contains("respawned — because died and respawned at once — a new player body"), log(b));
         assertTrue(log(b).contains("regrouping with Mate"), "respawn arms the regroup: " + log(b));
         assertNotNull(w.paths.goal, log(b));
+    }
+
+    @Test
+    void knockedOut_bodySwap_isNotARespawn_thenTheRealRespawnRegroups() {
+        // civfabric dbno (2026-09-26): the knockout swaps the body, and Bot1 regrouped while downed
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 20, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 5);
+        w.pos = new Vec3(166, 64, 0);
+        w.lives++;                                              // new body first...
+        ticks(b, w, 2);
+        w.downed = 58;                                          // ...the bleeding-out bar a tick or two later
+        ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 5);
+        assertFalse(log(b).contains("respawned — because"), log(b));
+        assertFalse(log(b).contains("regrouping with"), "no regroup while downed: " + log(b));
+        assertTrue(log(b).contains("not a respawn — because knocked out"), log(b));
+        assertTrue(b.status().get(1).contains("knocked out"), "the downed reflex runs: " + b.status().get(1));
+
+        w.downed = -1;                                          // bled out / gave up: the real respawn
+        w.lives++;
+        ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 3);
+        assertTrue(log(b).contains("respawned — because died and respawned at once — a new player body"), log(b));
+        assertTrue(log(b).contains("regrouping with Mate"), "the real respawn arms the regroup: " + log(b));
+    }
+
+    @Test
+    void knockedOut_sameTickAsTheBodySwap_isNotARespawn() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 20, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 5);
+        w.pos = new Vec3(166, 64, 0);
+        w.lives++;
+        w.lastDeath = "minecraft:overworld 166, 64, 0";
+        w.downed = 59;
+        ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 5);
+        assertFalse(log(b).contains("respawned — because"), log(b));
+        assertFalse(log(b).contains("regrouping with"), log(b));
     }
 
     @Test
