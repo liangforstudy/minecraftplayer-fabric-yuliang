@@ -15,6 +15,8 @@ public final class WalkTask implements Task {
     /** Baritone needs a moment to plan before "not busy" means "gave up". */
     static final int PLANNING_GRACE_TICKS = 40;
     public static final int STUCK_TICKS = 30 * 20;
+    /** How a {@link #dryOnly()} walk's failure starts when there's only a wet way. */
+    public static final String NO_DRY_PATH = "no dry path";
 
     private final BlockPos target;
     private final boolean ignoreY;
@@ -24,6 +26,7 @@ public final class WalkTask implements Task {
     private boolean started;
     private boolean swimming;
     private boolean sprint;
+    private boolean dryOnly;
     private int ticks;
     private double best = Double.MAX_VALUE;
     private int sinceProgress;
@@ -68,6 +71,7 @@ public final class WalkTask implements Task {
             return fail("stuck — no progress for " + STUCK_TICKS / 20 + "s, " + Math.round(d) + " blocks short");
         }
         if (ticks > PLANNING_GRACE_TICKS && !paths.busy()) {
+            if (!swimming && dryOnly) return fail(NO_DRY_PATH + " to " + where());
             if (!swimming) {                              // last resort: allow water, and say so
                 swimming = true;
                 report.accept("no dry path to " + where() + " (" + Math.round(d) + " blocks left)");
@@ -98,6 +102,12 @@ public final class WalkTask implements Task {
     /** A planned crossing: water allowed from the start (the route already said why). */
     public WalkTask swimFromStart() {
         this.swimming = true;
+        return this;
+    }
+
+    /** Never fall back to swimming: fail with {@link #NO_DRY_PATH} instead, so the caller can try elsewhere. */
+    public WalkTask dryOnly() {
+        this.dryOnly = true;
         return this;
     }
 

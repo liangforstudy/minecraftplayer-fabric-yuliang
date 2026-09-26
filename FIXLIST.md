@@ -73,9 +73,30 @@ Known bugs, found in testing, not yet fixed. Remove an entry when its fix is com
   16 blocks) refreshes the memory, an unnamed mob hit is pinned on the nearest hostile within 6
   blocks, the retreat re-plans when the attacker moves 6 blocks, and `/zbot danger` picks when to run:
   `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` at critical health −2/±0/+4.
-- **Still open:** the slow retreat (~3 blocks in 5 s while "sprinting") — not explained yet.
-- **Re-test:** deferred by the owner until all phases are built — each mode, in this pack and vanilla.
-## Fixed
+- **Live test of 0.1.25 (2026-09-26, test agent):** ran at the first hit and survived (health 11),
+  never "nothing to run from" — but the retreat ended and restarted ~60 times in 36 s (~2 blocks/s):
+  it started under 16 blocks and was done at 16, and a chasing zombie kept it on that line. It also
+  ended in a lake ("no dry path") and then floated for minutes: only the drowning reflex acted, and
+  it just surfaces.
+- **0.1.26:** the retreat is done only at 32 blocks (starts under 16) and logs where it runs to; a new
+  "stranded" reflex swims to the nearest place to stand (48 blocks) whenever the bot is afloat with no
+  order; places to stand = any block with a top that doesn't hurt (gravel, slabs, panes, trapdoors…),
+  including one layer of water on top (owner, 2026-09-26), head clear and dry.
+- **Also:** 0.1.26 ignores repeat summons for 60 s after acting on one — a repeat mid-join (this pack
+  takes 20–35 s to join) restarted the connection; Bot1 needed 7 tries on 2026-09-26.
+- **Live test of 0.1.26 (2026-09-26, night):** one continuous retreat — but down a staircase of 1-4
+  block ledges into the lake (each drop is within Baritone's limit of 3), and the new swim-to-shore
+  reflex swam back to the zombie's shore (health 7), restarted 47 times bobbing in one-block
+  shallows, and the retreat gave up at a fixed 20 s.
+- **0.1.27:** the retreat tries straight away, then ±45°, then ±90° on dry ground only before it may
+  swim, and gives up only after 20 s without gaining distance; "stranded" needs water under the feet
+  too and 2 s afloat, and never picks a shore within 16 blocks of the last attacker (or 8 of a hostile).
+- **Live test of 0.1.28 (13:00, night, healed, no food):** survived at health 11, stayed on dry
+  land (y 72); three separate retreats as the zombie caught up again after each; hunger 11 → 6 from
+  sprinting — a long chase without food is still a problem.
+- **0.1.28:** a summoned join that fails (first join after a boot times out: the host allows 15 s,
+  this pack's config data takes the bot ~16 s) is retried once; `connect.bat` retries once too.
+- **Re-test:** deferred by the owner until all phases are built — each mode, in this pack and vanilla.## Fixed
 
 Fixed and verified (details in git history, commit "Zymbot 0.1.9"): #1 stale "last heard" after a
 hard stop, #2 drowning at the shore, #4 two bites per eat, #6 quick death left the order running

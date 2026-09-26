@@ -117,7 +117,10 @@ final class FabricWorldView implements WorldView {
     @Override public boolean beingRevived() { return beingRevived; }
 
     @Override
-    public Optional<BlockPos> nearestDryLand(int radius) {
+    public Optional<BlockPos> nearestDryLand(int radius) { return nearestDryLand(radius, p -> true); }
+
+    @Override
+    public Optional<BlockPos> nearestDryLand(int radius, java.util.function.Predicate<BlockPos> ok) {
         BlockPos at = BlockPos.of(pos);
         BlockPos best = null;
         long bestD = Long.MAX_VALUE;
@@ -128,10 +131,12 @@ final class FabricWorldView implements WorldView {
             for (int dy = 3; dy >= -4; dy--) {                 // shores near our height
                 mp.set(at.x() + dx, at.y() + dy, at.z() + dz);
                 if (!level.hasChunkAt(mp) || !standable(mp)) continue;
+                BlockPos here = new BlockPos(mp.getX(), mp.getY(), mp.getZ());
+                if (!ok.test(here)) break;                          // the top of this column is unsafe
                 long d = flat + (long) dy * dy;
                 if (d < bestD) {
                     bestD = d;
-                    best = new BlockPos(mp.getX(), mp.getY(), mp.getZ());
+                    best = here;
                 }
                 break;
             }
@@ -139,16 +144,21 @@ final class FabricWorldView implements WorldView {
         return Optional.ofNullable(best);
     }
 
-    /** Solid, dry block with two free, dry blocks above it. */
+    /**
+     * Somewhere to stand, head above water: any block with a top to stand on — full blocks, gravel,
+     * slabs, panes, trapdoors, fences — that doesn't hurt, with room for a player above it. The
+     * block at the feet may hold one layer of water (the owner, 2026-09-26: shallows count as
+     * shore); the one at the head must be free and dry.
+     */
     private boolean standable(net.minecraft.core.BlockPos p) {
         var floor = level.getBlockState(p);
         if (floor.getCollisionShape(level, p).isEmpty() || !floor.getFluidState().isEmpty()) return false;
-        for (int up = 1; up <= 2; up++) {
-            net.minecraft.core.BlockPos q = p.above(up);
-            var s = level.getBlockState(q);
-            if (!s.getCollisionShape(level, q).isEmpty() || !s.getFluidState().isEmpty()) return false;
-        }
-        return true;
+        if (HURTS.contains(floor.getBlock())) return false;
+        net.minecraft.core.BlockPos feet = p.above(), head = p.above(2);
+        var f = level.getBlockState(feet);
+        if (!f.getCollisionShape(level, feet).isEmpty() || f.getFluidState().is(FluidTags.LAVA)) return false;
+        var h = level.getBlockState(head);
+        return h.getCollisionShape(level, head).isEmpty() && h.getFluidState().isEmpty();
     }
     @Override public long timeOfDay() { return Math.floorMod(dayTime, 24000L); }
     @Override public long day() { return Math.floorDiv(dayTime, 24000L); }

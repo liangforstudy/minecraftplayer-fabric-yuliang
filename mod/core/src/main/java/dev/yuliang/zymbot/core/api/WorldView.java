@@ -42,6 +42,10 @@ public interface WorldView {
      * within {@code radius} blocks. The block itself; you stand on top of it.
      */
     default Optional<BlockPos> nearestDryLand(int radius) { return Optional.empty(); }
+    /** The nearest place to stand that {@code ok} accepts. */
+    default Optional<BlockPos> nearestDryLand(int radius, java.util.function.Predicate<BlockPos> ok) {
+        return nearestDryLand(radius).filter(ok);
+    }
     /**
      * Where we last died ("" if never), as the server reports it with each respawn. A change means
      * we died — even when death and respawn were too quick to ever see ourselves dead.

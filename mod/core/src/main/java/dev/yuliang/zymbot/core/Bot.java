@@ -9,6 +9,7 @@ import dev.yuliang.zymbot.core.body.ChatIn;
 import dev.yuliang.zymbot.core.body.ChatOut;
 import dev.yuliang.zymbot.core.body.CriticalHealthInterrupt;
 import dev.yuliang.zymbot.core.body.DownedInterrupt;
+import dev.yuliang.zymbot.core.body.StrandedInterrupt;
 import dev.yuliang.zymbot.core.task.DownedTask;
 import dev.yuliang.zymbot.core.body.DrowningInterrupt;
 import dev.yuliang.zymbot.core.body.FoodChooser;
@@ -65,6 +66,11 @@ public final class Bot {
     public static final long HUNGER_LOG_EVERY_MILLIS = 5 * 60_000;
     /** An auto-summon is repeated this often, for this long — bots still booting catch a later one. */
     public static final long SUMMON_REPEAT_EVERY_MILLIS = 15_000;
+    /**
+     * After acting on a summon, ignore more for this long: joining this pack takes 20-35 s, and a
+     * repeat arriving mid-join started a fresh connection that cancelled it (2026-09-26, 7 tries).
+     */
+    public static final long SUMMON_JOIN_GRACE_MILLIS = 60_000;
     public static final long SUMMON_REPEAT_FOR_MILLIS = 5 * 60_000;
     /** /zbot come: this close to the person is there (not their exact block). */
     public static final int COME_WITHIN = 4;
@@ -107,6 +113,9 @@ public final class Bot {
     private long nextHungerLog;
     private Hands hands;                                         // last tick's, for status
     private String pendingSummon;                                // an address to join, from a SUMMON
+    private long joiningSince = Long.MIN_VALUE / 2;              // when we last acted on a summon
+    private String lastSummon;                                   // where it sent us, for one retry
+    private boolean retriedSummon;
     private boolean saidIgnoringSummons;                         // "already in a world": once per world
     private String knownLastDeath;                               // null until first seen in this world
     private boolean sawDeath;                                    // saw ourselves dead (the slow way)
@@ -138,6 +147,7 @@ public final class Bot {
                 new DownedInterrupt(config, body, help, log::record),
                 new DrowningInterrupt(),
                 new CriticalHealthInterrupt(config, body),
+                new StrandedInterrupt(body, this::noOrder),
                 new LeashInterrupt(config, body, this::workingOnItsOwn),
                 new HungerInterrupt(config, body)), Planner.EMPTY, log);
         bus.subscribe(this::onEnvelope);
@@ -165,6 +175,7 @@ public final class Bot {
         this.serverId = serverIdOf(worldKey);
         this.memory = memoryStore.load(memoryFile(), new BotMemory());
         pendingSummon = null;
+        lastSummon = null;                                       // we're in: nothing to retry
         saidIgnoringSummons = false;
         knownLastDeath = null;
         sawDeath = false;
@@ -544,7 +555,25 @@ public final class Bot {
     public java.util.Optional<String> takeSummon() {
         String s = pendingSummon;
         pendingSummon = null;
+        if (s != null) {
+            joiningSince = clock.getAsLong();
+            lastSummon = s;
+            retriedSummon = false;
+        }
         return java.util.Optional.ofNullable(s);
+    }
+
+    /**
+     * The summoned join failed (the client is on the "disconnected" screen): the address to try
+     * once more, or empty. The first join after a boot often times out — the host allows 15 s and
+     * this pack's config data takes the bot ~16 s — and a second try with that data cached works.
+     */
+    public java.util.Optional<String> retryFailedSummon() {
+        if (lastSummon == null || retriedSummon) return java.util.Optional.empty();
+        retriedSummon = true;
+        joiningSince = clock.getAsLong();
+        log.record("retrying the summon", "the join to " + lastSummon + " failed");
+        return java.util.Optional.of(lastSummon);
     }
 
     /** Ask the team's bots waiting at their title screens to join us there. */
@@ -602,6 +631,7 @@ public final class Bot {
             return;
         }
         if (role() != ZymbotConfig.Role.BOT) return;          // a human's client is never pulled anywhere
+        if (clock.getAsLong() - joiningSince < SUMMON_JOIN_GRACE_MILLIS) return;   // still joining the last one
         var target = SummonTarget.decode(e.field(1));
         if (target.isEmpty()) {
             log.record("ignored a summon from " + who, "unreadable target");
@@ -843,6 +873,8 @@ public final class Bot {
     }
 
     private boolean workingOnItsOwn() { return brain.autonomous(); }
+
+    private boolean noOrder() { return !brain.hasOrder(); }
 
     /** A player we've heard announce itself as a controlling bot. Everyone else is a human. */
     private boolean isKnownBot(UUID id) {

@@ -349,6 +349,10 @@ function Wait-Verdict($bot, $name, $log, $addr, [long]$offset, [int]$timeout) {
             }
             return 2
         }
+        if ($addr -and $nr -match "Client disconnected with reason") {
+            Say "[$name] DROPPED while joining: $((($norealms | Where-Object { $_ -match 'Client disconnected' }) | Select-Object -First 1) -replace '^.*reason: ', '')"
+            return 7
+        }
         if ($addr -and $nr -match "Connection refused|Couldn.t connect|connect\.failed") {
             Say "[$name] could not reach $addr - is the world open to LAN on that port?"; return 3
         }
@@ -499,10 +503,17 @@ function Cmd-Connect($bot, $addr, [bool]$wait, [int]$waitSecs = 900) {
         }
         Start-Sleep -Seconds 2                                  # let the LAN server finish opening
     }
-    $offset = Get-LogSize $c.log
-    Say "[$name] connecting to ${h}:$port"
-    Send-Line $bot "connect $h $port"
-    Wait-Verdict $bot $name $c.log "${h}:$port" $offset 180
+    # The first join after a boot often times out: the host allows 15 s, and the bot spends ~16 s on
+    # the pack's config data (3 times on 2026-09-26). The second try, with that data cached, works.
+    for ($try = 1; $try -le 2; $try++) {
+        $offset = Get-LogSize $c.log
+        Say "[$name] connecting to ${h}:$port$(if ($try -gt 1) { ' (retry)' })"
+        Send-Line $bot "connect $h $port"
+        $v = Wait-Verdict $bot $name $c.log "${h}:$port" $offset 180
+        if ($v -ne 7 -and $v -ne 5) { return $v }
+        Start-Sleep -Seconds 3
+    }
+    $v
 }
 
 # ---------------------------------------------------------------- play
@@ -537,15 +548,29 @@ function Cmd-Play($world, [string[]]$bots) {
         if (Test-Path -LiteralPath $src) { $instance = Read-Trimmed $src }
     }
     if (-not $instance) { Die 'Which Prism instance? Set PRISM_INSTANCE to its folder name.' }
+    # Your game first, bots once your world is loading: booting both at once on this laptop took
+    # ~3 min each instead of ~1.5 (2026-09-26), so the bot joined almost 5 min after launch.
+    if (Test-GameRunning $instance) {
+        Say "[you] '$instance' is already running - not launching it again"
+    } else {
+        $log = Join-Path (Get-PrismDir) "instances\$instance\minecraft\logs\latest.log"
+        $since = Get-Date
+        Start-Process -FilePath (Get-PrismBin) -ArgumentList ('-l "' + $instance + '" -w "' + $world + '"')
+        Say "[you] launching '$instance' straight into '$world' - bots start once your world is loading"
+        $until = $since.AddMinutes(6)
+        while ((Get-Date) -lt $until) {
+            Start-Sleep -Seconds 3
+            if ((Test-Path -LiteralPath $log) -and (Get-Item -LiteralPath $log).LastWriteTime -gt $since -and
+                (Read-LogFrom $log 0) -match 'Starting integrated minecraft server|Game crashed') { break }
+        }
+        if ((Get-Date) -ge $until) { Say "[you] no world after 6 min - starting the bots anyway" }
+    }
     foreach ($b in $bots) {
         if (Get-Console $b) { Say "[$b] already running"; continue }
         Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -ArgumentList (
             '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $SELF + '" standby "' + $b + '"')
-        Say "[$b] starting in standby (about a minute)"
+        Say "[$b] starting in standby (about 1.5 min)"
     }
-    if (Test-GameRunning $instance) { Say "[you] '$instance' is already running - not launching it again"; return 0 }
-    Start-Process -FilePath (Get-PrismBin) -ArgumentList ('-l "' + $instance + '" -w "' + $world + '"')
-    Say "[you] launching '$instance' straight into '$world'"
     Say '      With /zbot lan auto on + /zbot summon auto on set in that world, the rest is automatic.'
     0
 }

@@ -724,4 +724,105 @@ class BodyTest {
         assertNotEquals(first, w.paths.goal, "plans again, away from where it is now");
         assertTrue(w.paths.goal.z() < 0, "flees north: " + w.paths.goal);
     }
+
+    // ------------------------------------------------------------------ stranded, retreat hysteresis (2026-09-26)
+
+    /** Afloat in deep water at the origin: water under the feet too. */
+    static FakeWorld afloat() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.inWater = true;
+        w.onGround = false;
+        w.blocks.put(new BlockPos(0, 63, 0), "minecraft:water");
+        return w;
+    }
+
+    @Test
+    void strandedWithNothingToDo_swimsToTheNearestLand() {
+        FakeWorld w = afloat();
+        w.dryLand = new BlockPos(10, 62, 3);
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS / 2);
+        assertFalse(w.jumpHeld && w.forwardHeld, "not at once: a bob off the bottom isn't stranded");
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS);
+        assertTrue(w.jumpHeld && w.forwardHeld, "swims for it: " + log(b));
+        assertTrue(log(b).contains("swimming to dry land at 10 3 — because out of its depth with nothing to do"), log(b));
+
+        w.onGround = true;                                      // standing in the shallows: good enough
+        ticks(b, w, 2);
+        assertFalse(w.jumpHeld || w.forwardHeld, "lets go once it stands, head above water");
+    }
+
+    @Test
+    void inOneBlockShallows_itJustStands() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.inWater = true;                                       // bobbing, but there's ground under the feet
+        w.onGround = false;
+        w.blocks.put(new BlockPos(0, 63, 0), "minecraft:gravel");
+        w.dryLand = new BlockPos(10, 62, 3);
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS * 2);
+        assertFalse(log(b).contains("out of its depth"), log(b));
+    }
+
+    @Test
+    void strandedNeverSwimsBackToTheAttacker() {
+        FakeWorld w = afloat();
+        w.dryLand = new BlockPos(25, 62, 0);                    // the only shore...
+        EntityView z = zombie(w, 26, 0);                        // ...is where the zombie stands, 26 blocks off
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, 1);
+        w.damage = null;
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS + 2);
+        assertFalse(w.forwardHeld, "stays put: " + log(b));
+        assertTrue(log(b).contains("no safe place to stand"), log(b));
+    }
+
+    @Test
+    void strandedButOrdered_theOrderDecides() {
+        FakeWorld w = afloat();
+        w.dryLand = new BlockPos(10, 62, 3);
+        Bot b = running(w, new ZymbotConfig(), true);
+        b.goTo(200, 64, 0);                                     // a crossing on purpose
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS + 3);
+        assertFalse(log(b).contains("nothing to do"), log(b));
+    }
+
+    @Test
+    void retreatTriesOtherDryDirections_beforeSwimming() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView z = zombie(w, -2, 0);
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        w.paths.onlyWet = true;                                 // straight away (east) is a staircase into the lake
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, 2);
+        var east = w.paths.goal;
+        assertFalse(w.paths.swim, "first try is dry");
+        w.paths.onlyWet = false;                                // the next direction has a dry way
+        ticks(b, w, 50);                                        // Baritone's planning grace, then the turn
+        assertNotEquals(east, w.paths.goal, "tried another direction: " + log(b));
+        assertFalse(w.paths.swim, "still dry");
+        assertFalse(log(b).contains("swimming"), log(b));
+    }
+    @Test
+    void retreatRunsOnPast16_untilClear() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView z = zombie(w, -2, 0);
+        w.damage = new Damage("minecraft:mob_attack", "Zombie", z.pos(), z.uuid());
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, 2);
+        assertNotNull(w.paths.goal, log(b));
+        w.damage = null;
+        int idles = idles(b);
+        w.pos = new Vec3(18, 64, 0);                            // 20 blocks from the zombie: past the trigger line
+        ticks(b, w, 5);
+        assertEquals(idles, idles(b), "keeps running, no stop-start: " + log(b));
+        w.pos = new Vec3(33, 64, 0);                            // 35 blocks: clear
+        ticks(b, w, 5);
+        assertEquals(idles + 1, idles(b), log(b));
+    }
+
+    int idles(Bot b) {
+        return (int) java.util.Arrays.stream(log(b).split("\n")).filter(l -> l.contains("idle — because no objectives")).count();
+    }
 }

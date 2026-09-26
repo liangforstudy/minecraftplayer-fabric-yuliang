@@ -163,4 +163,40 @@ class SummonTest {
         waiting.tickOutsideWorld();
         assertEquals(Optional.of("127.0.0.1:25565"), waiting.takeSummon());
     }
+
+    @Test
+    void aRepeatDoesNotRestartAJoinInProgress() {
+        FakeWorld human = new FakeWorld("Bot2"), bot1 = new FakeWorld("Bot1");
+        Bot host = bot(human, team(), false);
+        host.onJoin("singleplayer", "singleplayer:w", "Bot2");
+        host.setAutoSummon(true);
+        host.lanOpened(25565, List.of());
+        Bot waiting = bot(bot1, team(), true);
+        clock.now += Bot.SUMMON_REPEAT_EVERY_MILLIS;
+        host.tick(human, human);
+        waiting.tickOutsideWorld();
+        assertEquals(Optional.of("127.0.0.1:25565"), waiting.takeSummon());
+        clock.now += Bot.SUMMON_REPEAT_EVERY_MILLIS;           // 15 s later, still joining
+        host.tick(human, human);
+        waiting.tickOutsideWorld();
+        assertEquals(Optional.empty(), waiting.takeSummon(), "a repeat mid-join would cancel the join");
+        clock.now += Bot.SUMMON_JOIN_GRACE_MILLIS;             // the join failed after all: try again
+        host.tick(human, human);
+        waiting.tickOutsideWorld();
+        assertEquals(Optional.of("127.0.0.1:25565"), waiting.takeSummon());
+    }
+
+    @Test
+    void aFailedSummonedJoinIsRetriedOnce() {
+        FakeWorld human = new FakeWorld("Bot2"), bot1 = new FakeWorld("Bot1");
+        Bot host = bot(human, team(), false);
+        host.onJoin("singleplayer", "singleplayer:w", "Bot2");
+        Bot waiting = bot(bot1, team(), true);
+        assertEquals(Optional.empty(), waiting.retryFailedSummon(), "never summoned: nothing to retry");
+        host.summon(SummonTarget.lan(25565, SummonTarget.localIps()));
+        waiting.tickOutsideWorld();
+        assertEquals(Optional.of("127.0.0.1:25565"), waiting.takeSummon());
+        assertEquals(Optional.of("127.0.0.1:25565"), waiting.retryFailedSummon(), "the join timed out: once more");
+        assertEquals(Optional.empty(), waiting.retryFailedSummon(), "only once");
+    }
 }

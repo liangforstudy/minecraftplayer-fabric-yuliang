@@ -34,7 +34,7 @@ public final class SurfaceTask implements Task {
             started = true;
             hands.paths().stop();
         }
-        if (!world.inWater() && world.onGround()) return finish();
+        if (world.onGround() && !world.headInWater()) return finish();   // ashore, or standing in the shallows
         if (++ticks > TIMEOUT_TICKS) return finish();
         if (land == null) {
             hands.holdKeys(false, true);                   // tread water

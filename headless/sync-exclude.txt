@@ -62,3 +62,14 @@ zymbot
 headlessmc         # hmc-specifics (bot-only console remote)
 rrls              # Remove Reloading Screen: lets menus run before textures load (crashes Cobblemon); owner-only
 modernfix         # bot1 crashed in Xaero's World Map (null block model) right after joining, 2026-09-25 - suspected; owner-only
+
+# --- bot trim, 2026-09-26: cut boot time (bot1 took 3+ min to boot next to the host's game) ---
+# Visual / HUD / social mods a headless bot gets nothing from. If the LIVE SERVER ever refuses a bot
+# because one of these is missing, delete its line here and run sync-bots again. (Mods that register
+# synced content are kept automatically anyway - sync prints "keeping ... despite sync-exclude.txt".)
+appleskin           # food HUD
+voicechat           # voice chat client (the server side works without it)
+immersive_paintings # custom paintings
+simplehats          # cosmetic hats
+# NOT trimmable (2026-09-26): diagonalfences, visualworkbench, xaeroworldmap - the LAN host sends
+# their blocks to joiners; without them Bot1 was refused with "139 registry entries unknown".

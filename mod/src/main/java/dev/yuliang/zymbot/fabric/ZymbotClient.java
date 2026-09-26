@@ -21,6 +21,7 @@ import net.minecraft.client.gui.screens.BackupConfirmScreen;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.client.gui.screens.DeathScreen;
+import net.minecraft.client.gui.screens.DisconnectedScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.server.IntegratedServer;
@@ -175,9 +176,11 @@ public final class ZymbotClient implements ClientModInitializer {
         if (mc.player == null || mc.level == null) {
             if (mc.screen instanceof ConnectScreen) return;     // already joining somewhere
             bot.tickOutsideWorld();
-            bot.takeSummon().ifPresent(addr -> {
+            var join = bot.takeSummon();
+            if (join.isEmpty() && mc.screen instanceof DisconnectedScreen) join = bot.retryFailedSummon();
+            join.ifPresent(addr -> {
                 LOG.info("[zymbot] summoned — joining {}", addr);
-                ConnectScreen.startConnecting(mc.screen != null ? mc.screen : new TitleScreen(), mc,
+                ConnectScreen.startConnecting(new TitleScreen(), mc,
                         ServerAddress.parseString(addr), new ServerData("Summoned", addr, ServerData.Type.OTHER), false, null);
             });
             return;
