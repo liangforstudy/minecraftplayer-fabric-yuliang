@@ -1,6 +1,6 @@
 # Phase 3 — First milestones: gather, craft, feed itself
 
-Status: **scoping started 2026-09-26** — draft for the owner to decide the open questions (§7).
+Status: **scoping 2026-09-26** — owner answered Q2–Q5 (§7); Q1 (M2 campfire half?) and Q6 (Phase 2 leftovers first?) open.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).
@@ -106,21 +106,16 @@ A table the survey already found counts (don't place a second one next to it —
 | 7 | knocked out / respawn mid-task → the task is dropped, ladder re-assessed after the respawn |
 | 8 | two bots (Bot3 synced) → CLAIMs keep them off each other's tree |
 
-## 7. Open questions for the owner
+## 7. Decisions (owner, 2026-09-26) and what's still open
 
-1. **Scope cut:** M0 + M1 only (this draft), or also M2 (bed + campfire — needs coal/charcoal →
-   furnace → more crafting)?
-2. **Classes:** stay classless through Phase 3 (crafting stays free), or have the bot pick
-   FARMER + MINER (BOT_BEHAVIOUR's test profile) at M0 so ranks start accruing? Taking a class makes
-   every craft cost hunger.
-3. **Crafting method:** click slots in the real container screens (works everywhere, slower, more
-   code), or use the recipe book "place recipe" (fast, but needs the recipe unlocked/known)?
-4. **Tree felling:** punch only the logs it can reach from the ground (no pillaring, no block
-   placing), accepting tall trees are partly wasted — or allow a 1-block pillar?
-5. **Work radius** 48 around the teammate — OK? And should foraging pause while the teammate is
-   moving (i.e. only work while they're settled somewhere)?
-6. **Leftovers from Phase 2 to fold in first:** reviver-as-attacker nit, `revived` log line,
-   Baritone chunk cache (long regroups), `/msg` probe (#3). Which before Phase 3 starts?
+| # | question | decision |
+|---|---|---|
+| 1 | scope: M2 too? | **Owner decides from this recommendation.** Campfire half of M2 is *not* blocked: campfire = 3 sticks + 3 logs + 1 charcoal, all classless; charcoal = a log smelted in a furnace; furnace = 8 cobblestone (classless craft, 1.25 hunger); cobblestone needs a wooden pickaxe, and plain stone isn't MINER-gated (only ores are, BOT_DESIGN §2.17). The furnace also cooks food → more food types for M1. **Bed is blocked upstream:** 3 wool = killing sheep (hunting/attack — the combat state machine, not built) or shears (**BLACKSMITH 3**); beds are claimed one per player (`BedClaims.OWNED_BED`). **Recommendation:** Phase 3 = M0 + M1 + campfire/furnace/charcoal/cooking; the bed waits for hunting, or for wool handed over by a human. |
+| 2 | classes | **Pick FARMER + MINER** (BOT_BEHAVIOUR test profile) so ranks start accruing. Consequence: every craft costs hunger (civfabric), so crafting is planned around the eat threshold and "craft refused — too hungry" means eat first. How a class is chosen (a `/classes` GUI click? a command?) — to find in the civfabric jar before step 3. |
+| 3 | crafting method | **Depends on the anticheat:** the real container screens, the way a human does it (recipe-book click in the screen where allowed, paced like a human), with **manual slot clicks as the fallback**. Never raw packets the vanilla client wouldn't send. The live server's anticheat already rules out crit tricks (BOT_BEHAVIOUR → Combat) — check what it says about inventory click speed. |
+| 4 | trees | **Fell the entire tree.** Skip huge trees (2×2 dark oak / jungle / mega spruce) unless no other tree is nearby — weighed by hunger and time cost. With a wooden axe, zymlabs Treecapitator fells the whole tree from one log (radius 16) — so craft the axe first and most trees become a single break. |
+| 5 | work radius | **48 around the nearest teammate — OK.** |
+| 6 | Phase 2 leftovers first? | *still open* — reviver-as-attacker nit, `revived` log line, Baritone chunk cache (long regroups), `/msg` probe (#3). |
 
 ## 8. Proposed build steps (each compiled, tested, committed)
 
