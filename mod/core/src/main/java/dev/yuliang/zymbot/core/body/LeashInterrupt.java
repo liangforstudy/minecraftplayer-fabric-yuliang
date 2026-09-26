@@ -19,7 +19,9 @@ import java.util.function.Function;
  *   <li>While working on its own objective: pulled back as soon as it's past the leash.</li>
  *   <li>Idle (PHASE2.md check 6, decided 2026-09-26): it follows the nearest teammate in sight once
  *       they're more than {@code leash_blocks} away. Hysteresis: it starts past the leash and walks
- *       until within {@link #comeWithin} (half the leash), so it doesn't stop-start at the line.
+ *       until within {@code follow_stop_blocks} (default 2, like a wolf coming to heel), so the gap
+ *       leash − stop keeps it from stop-starting at the line. (The working pull-back still stops at
+ *       {@link #comeWithin}, half the leash.)
  *       A teammate out of sight, or far off at a start or respawn, is the regroup's job — the idle
  *       follow stays off while a regroup is armed.</li>
  *   <li>Never a player's direct order (PHASE1.md P1-2): an order stops the idle follow at once.</li>
@@ -52,7 +54,7 @@ public final class LeashInterrupt implements Interrupt {
         this.anchor = anchor;
     }
 
-    /** Where a pull back (or an idle follow) stops: well inside the leash, so it doesn't jitter at the line. */
+    /** Where the working pull-back stops: well inside the leash, so it doesn't jitter at the line. */
     public static int comeWithin(int leash) { return leash / 2; }
 
     @Override public String name() { return "leash"; }
@@ -66,8 +68,9 @@ public final class LeashInterrupt implements Interrupt {
     @Override
     public Task respond(WorldView world, Hands hands) {
         EntityView h = anchor.apply(world).orElseThrow();
-        WalkTask walk = new WalkTask(hands.paths(), BlockPos.of(h.pos()), false, comeWithin(config.leashBlocks), body::reportSwim);
-        if (working.getAsBoolean()) return walk;
+        if (working.getAsBoolean())                             // the Phase 1 pull-back: half the leash
+            return new WalkTask(hands.paths(), BlockPos.of(h.pos()), false, comeWithin(config.leashBlocks), body::reportSwim);
+        WalkTask walk = new WalkTask(hands.paths(), BlockPos.of(h.pos()), false, config.followStopBlocks, body::reportSwim);
         return new Task() {                                     // the idle follow
             public Status tick(WorldView w) {
                 if (!idle.getAsBoolean()) {                     // an order or a regroup came up: theirs now

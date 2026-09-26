@@ -1,8 +1,19 @@
 # Phase 2 — Discovery and regroup
 
-Status: **scoped 2026-09-23 · partly built in 0.1.29 (2026-09-26) · deployed, not live-tested yet.**
-0.1.29 is on both sides since 2026-09-26: the owner's client (`1.21.1 Modpack`) and Bot1 (synced,
-90 mods). Next: the live-test checklist in §8.
+Status: **scoped 2026-09-23 · built 0.1.29 · live-tested 2026-09-26 on 0.1.29–0.1.31 · 0.1.32 deployed.**
+0.1.32 is on both sides (owner's client `1.21.1 Modpack` + Bot1), leash 21 / heel 2 in both configs.
+Live results are in §8: roster, regroup (1/1b/1c), spawn fallback, idle follow all PASS on 0.1.30–31.
+
+**Next session (0.1.32, not live-tested yet):**
+1. Idle follow with the new `heel` 2 — it should come right up to the owner, like a wolf.
+2. Settings Body tab: drag a label / range / box to scrub, ↺ reset (uses `defaultconfigs/zymbot.json`
+   if present), the new "Follow: stop this close" row under Leash.
+3. Fidget watchdog: "holding still — because bobbing/spinning in place …" should appear only when it
+   really bobs/spins in place; watch it doesn't stop a bot jumping to get unstuck.
+4. Open: owner's client seemed to answer only with the 60 s HELLO, not WHERE — check bus stats.
+5. Ideas logged: read Baritone's chunk cache so routes/shore search see past render distance;
+   #3 `/msg` probe and #8 survey still unbuilt; #5 needs a second human without the mod; then the
+   knockout re-test (below).
 
 | part | status | commit |
 |---|---|---|
@@ -171,6 +182,9 @@ each result here — pass/fail, the `[decision]` lines that show it, and anythin
 | 1b | respawn arms it | yes | `/kill Bot1` far from you → after the respawn it regroups by itself |
 | 1c | out of sight (bus only) | yes | `/tp` it 300+ blocks away, beyond render distance → "(bus, N s ago)" in the reason, `WHERE` asks every 10 s |
 | 1b result | **TRIGGER PASS / ARRIVAL FAIL 2026-09-26** | | `/kill Bot1` → `respawning — because died` then at once `regrouping with Bluetails_zym … (bus, 50 s ago)`. Never arrived: respawned in an ocean area, looped swim-out 40 blocks → `swimming to dry land at 287 -37 … out of its depth with nothing to do` (stranded pulls it back) → regroup again; drifted 290 → 375 blocks away. Respawned with no food: `failed: eat … no safe food` every 30 s (foraging is Phase 3). Went `idle — because no objectives` at 14:31:54 with no "failed:" line before it — likely the bus-only teammate entry stopped counting and `best()` fell to the spawn wait (unconfirmed). |
+| 6 result | **0.1.31: PASS** | | leash set to 18 live: `following Bluetails_zym — because idle, 18 blocks … (leash 18)` (distance rounded down in the text) → `idle` ~3–8 s later inside half the leash; re-followed as the owner walked on; no jitter. Owner then chose **21** as the default ("about a dog and a half" — a tamed wolf follows past ~10); changed in source. |
+| 1b retest | **0.1.31: PASS** | | owner 55 blocks from spawn; `/kill Bot1` 15:33:23 → `respawning — because died` → `respawned — because died at … 122, 64, -76` → `regrouping with Bluetails_zym … (bus, 35 s ago)` the same second; swam/walked 81 blocks, `idle` 15:35:56 at ~3.6 blocks, no "failed:". Respawned with no food (hunger 9, `failed: eat`) — foraging is Phase 3. |
+| wading | **0.1.31: OK per owner (no bobbing)** | | Owner: "it didn't bob, no need to chase that down." Log detail kept for reference: `/zbot goto 113 -83` into shallow water → idle → `stepping out of the water to 113 -83` ×3 (its own spot) → `failed: … still in the water after 3 tries — staying put` (gave up cleanly, no endless loop). Stranded's `swimming to dry land at 99 -76` also ended in water, then the same step-out-to-itself. `nearestDryLand` accepts a wet spot. Fix being written. (Owner hit Bot1 → `retreating … hit by Bluetails_zym`, as designed.) |
 | 4 retest | **0.1.30: PASS** | | role none, owner 100+ away, `/zbot regroup` 15:02:41 → to last bus spot (33 s old) → 15:02:57 `failed: … lost track of the team — nobody in sight or announcing` → 15:03:57 `going to spawn at 96 -31 — because no teammate answered in 30 s` → idle ~3 blocks from spawn. 76 s order→spawn (60 s retry backoff sits in the middle). Owner back to `role teammate` → Bot1 came to them (owner confirmed). |
 | 4 result | **FAIL 2026-09-26** | | Owner `role none` then walked 100+ away; `/zbot regroup` → `regrouping with Bluetails_zym … at 288, -33 (bus, 144 s ago)` → `idle` at once (the stale spot was where Bot1 stood). No spawn fallback in the next 60 s: a silent teammate's old bus position still counts as knowing where they are. Needs: bus positions older than N s (≈ probewait) don't count as "found"; `role none`/silence should age a teammate out. Also, a teammate in sight within 32 blocks, remembered from the bus, blocks the regroup even after they go silent. |
 | 1 retest | **0.1.30: MOVEMENT PASS / LABEL FAIL** | | stopped 3.6 blocks from the owner, no stranded stalls — but `failed: … reached where Bluetails_zym was last heard; nothing newer for 60s` (regroup kept the start tick's WorldView, so the owner never counted as in sight; a stationary teammate's answers weren't news). Fixed in source, not compiled. Owner's client seems to answer only with the 60 s HELLO, not WHERE — check next build. |

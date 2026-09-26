@@ -93,6 +93,7 @@ public final class Bot {
                     .migration(1, doc -> doc);                   // 1 → 2: recent_foods, empty by default
     private final Body body;
     private final HungerMeter hungerMeter = new HungerMeter();
+    private final dev.yuliang.zymbot.core.body.FidgetWatchdog fidget = new dev.yuliang.zymbot.core.body.FidgetWatchdog();
     private final ChatIn chatIn = new ChatIn();
     private final ChatOut chatOut;
 
@@ -333,6 +334,7 @@ public final class Bot {
         }
 
         if (pausedUntil > now) {
+            fidget.reset();                                  // a human's turning isn't ours
             if (!resumeWarned && pausedUntil - now <= RESUME_WARNING_MILLIS) {
                 resumeWarned = true;
                 hands.notifyLocal("zymbot resumes in 3s — touch a movement key to keep control, or /"
@@ -352,8 +354,27 @@ public final class Bot {
             if (nextHungerLog != 0) LOG.info("[zymbot] hunger meter: {}", String.join("; ", hungerMeter.lines()));
             nextHungerLog = now + HUNGER_LOG_EVERY_MILLIS;
         }
+        watchForFidgeting(world, hands);
         brain.tick(world, hands);
         chatOut.flush(hands);
+    }
+
+    /**
+     * Bobbing and spinning in place, getting nowhere (FidgetWatchdog): stop the task and the order,
+     * let go of the pathfinder and the keys, and hold still for a minute. A survival reflex at work
+     * (surfacing, retreating) is never judged, and still runs while holding still.
+     */
+    private void watchForFidgeting(WorldView world, Hands hands) {
+        String reflex = brain.runningReflex();
+        if (brain.holdingStill() || (reflex != null && Brain.SURVIVAL.contains(reflex))) {
+            fidget.reset();
+            return;
+        }
+        fidget.sample(world.position(), world.yaw(), !brain.idle()).ifPresent(why -> {
+            brain.holdStill(dev.yuliang.zymbot.core.body.FidgetWatchdog.HOLD_TICKS, why);
+            hands.paths().stop();
+            hands.holdKeys(false, false);
+        });
     }
 
     /**

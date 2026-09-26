@@ -27,6 +27,9 @@ public final class Brain {
     /** A reflex that couldn't help looks again this often — the situation may have changed. */
     public static final int RECHECK_TICKS = 20;
 
+    /** Reflexes that still act while holding still: being knocked out, drowning, dying. */
+    public static final java.util.Set<String> SURVIVAL = java.util.Set.of("downed", "drowning", "critical-health");
+
     public enum Source { INTERRUPT, ORDER, PLANNER }
 
     private final List<Interrupt> interrupts;
@@ -39,6 +42,7 @@ public final class Brain {
     private String reflex;                                          // the interrupt whose task is `current`
     private Objective order;
     private long ticks;
+    private long stillUntil;                                        // holding still (fidgeting) until this tick
     private final Map<String, Long> holdUntil = new HashMap<>();   // after DONE, still triggered: wait
     private final Map<String, Long> skipUntil = new HashMap<>();   // its task FAILED: let others run
     private final Map<String, Long> benchedUntil = new HashMap<>(); // couldn't help: recheck, quietly
@@ -52,6 +56,7 @@ public final class Brain {
     public void tick(WorldView world, Hands hands) {
         ticks++;
         for (Interrupt i : interrupts) {
+            if (holdingStill() && !SURVIVAL.contains(i.name())) continue;
             if (skipUntil.getOrDefault(i.name(), 0L) > ticks || !i.triggered(world)) continue;
             boolean benched = benchedUntil.getOrDefault(i.name(), 0L) > ticks;
             if (benched && ticks % RECHECK_TICKS != 0) continue;
@@ -79,6 +84,7 @@ public final class Brain {
 
         // a reflex that's no longer needed still finishes what it started (don't spit out a bite)
         if (current != null && source == Source.INTERRUPT && runCurrent(world) == Task.Status.RUNNING) return;
+        if (holdingStill()) return;                                // no order, no objective until it's over
 
         if (order != null) {
             if (current == null || source != Source.ORDER) switchTo(order.start(world, hands), order.why(), Source.ORDER);
@@ -128,6 +134,26 @@ public final class Brain {
         if (current != null) switchTo(null, why, null);
         activeInterrupt = null;
     }
+
+    /**
+     * Fidgeting in place (FidgetWatchdog): stop the running task, drop the order, and for
+     * {@code forTicks} run only the {@link #SURVIVAL} reflexes, so nothing else can restart the
+     * dance. Logged once.
+     */
+    public void holdStill(int forTicks, String why) {
+        String dropped = order != null ? order.name() : null;
+        order = null;
+        if (current != null) current.cancel();
+        current = null;
+        source = null;
+        reflex = null;
+        activeInterrupt = null;
+        currentWhy = why;
+        stillUntil = ticks + forTicks;
+        log.record(dropped == null ? "holding still" : "holding still (cancelled the order: " + dropped + ")", why);
+    }
+
+    public boolean holdingStill() { return stillUntil > ticks; }
 
     /** Working on the planner's own objective (not an order, not a reflex) — the leash applies. */
     public boolean autonomous() {

@@ -80,7 +80,11 @@ replace `headless/bot1/gamedir/mods/zymbot-*.jar` with
 client is `D:\PrismLauncher\instances\1.21.1 Modpack\minecraft\mods\` on Windows
 (`~/Library/Application Support/PrismLauncher/instances/<instance>/minecraft/mods/` on the Mac) —
 only touch it when asked, and only with the game closed. Keep `mod.version` (stonecutter.properties.toml) and
-`core/build.gradle.kts` version in step.
+`core/build.gradle.kts` version in step. **On Windows** set `JAVA_HOME=D:\Downloads\jdk-21.0.2`,
+bump versions with `sed` or the Edit tool — PowerShell 5.1 `Set-Content -Encoding utf8` writes a BOM
+that breaks `stonecutter.properties.toml` — and there's **no Python**: tell every subagent so.
+A Prism launch straight into the world: `play.bat "New World"` (a bare `--launch` stops at the title
+screen); with Bot1 running too the owner may get Prism's "Low free memory" prompt.
 
 ## Talking to a running bot
 
@@ -90,7 +94,15 @@ the spaced form is rejected there (seen 2026-09-25). `./send.sh bot1 msg <text>`
 console lines from the next ~3 s.
 
 The owner can also type the same `/zbot …` commands in their own game — they act on **their**
-client's Zymbot (e.g. `/zbot summon`, `/zbot watch Bot1`).
+client's Zymbot (e.g. `/zbot summon`, `/zbot watch Bot1`). Gotchas seen 2026-09-26:
+- A Teammate client is **silent** unless the world is on its autostart list
+  (`/zbot autostart add singleplayer`) — the bots then can't find the owner and fall back to spawn.
+- `/zbot role none` removes the account from `accounts`; put it back with `role teammate`.
+- `/zbot start` on the owner's own client makes Zymbot **play their account** (`/zbot stop` to
+  hand it back) — orders on a Teammate account now say so instead of suggesting `start` (0.1.31).
+- `/kill`, `/tp`, `/give`, `/data get` work from the bot's console (`send.bat bot1 /kill Bot1`) in the
+  owner's LAN world with cheats on. Offline-account bots rejoin/respawn at a new spot, often near
+  spawn, and respawn with no food (foraging is Phase 3) — `/give Bot1 minecraft:bread 16`.
 
 **Logs:** `headless/bot1/run-HHMMSS.log` (newest = current run). Useful greps:
 `[decision]` (every choice with its reason: `[decision] walking to … — because …`),
@@ -120,9 +132,9 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `terrain <x> <z>` | debug: what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
 | `block <x> <y> <z>` | debug: the block id there |
 | `cancel` | drop the current order |
-| `set [<setting> <n>]` | list, or change a tunable: `leash` 8–1000, `eat` 1–19, `critical` 1–19, `downed` 0–55 s, `regroup` 8–256, `probewait` 5–300 s, `plantime` 50–5000 ms, `lagtps` 5–19 (also Mod Menu → Zymbot → Body) |
+| `set [<setting> <n>]` | list, or change a tunable: `leash` 8–1000, `heel` 1–256 (idle follow stops this close; below the leash), `eat` 1–19, `critical` 1–19, `downed` 0–55 s, `regroup` 8–256, `probewait` 5–300 s, `plantime` 50–5000 ms, `lagtps` 5–19 (also Mod Menu → Zymbot → Body) |
 | `danger [modpack\|easy\|normal\|hard]` | when it runs from a mob: `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4) |
-| `regroup` | walk back to the nearest Zymbot teammate now (automatic on start and after a respawn, when none is within `regroup` blocks) |
+| `regroup` | walk back to the nearest Zymbot teammate now (automatic on start and after a respawn, when none is within `regroup` blocks); once started it goes all the way (~4 blocks); a bus position older than 120 s doesn't count, so a silent team → spawn after `probewait`. An idle bot also follows past `leash` (default 21) and stops at `heel` (default 2), like a wolf |
 | `roster` | the team list: each Bot / Teammate, online or not (tab list), last heard, where, and how (bus / seen) |
 | `summon` / `summon auto on\|off` | bots waiting at their title screen join this world (auto: whenever it opens to LAN) |
 | `lan` / `lan auto on\|off` | open this world to LAN, port 25565, online mode off (auto: every time it loads) |
@@ -141,7 +153,11 @@ Baritone 1.11.3` in the log confirms it. Settings Zymbot applies (`BaritonePaths
 `maxFallHeightNoWater = 3`, `sprintInWater = false`, no water-bucket falls, and **water is banned by
 adding it to `blocksToAvoid`** (removed again on stop). Baritone walks whole trips; Zymbot's own
 A* (`core/route/RoutePlanner`, cost = hunger, water ×3) looks ahead every 64 blocks on a background
-thread and takes over only for a water crossing. Each search has a `plantime` budget; below
+thread and takes over only for a water crossing (it only sees loaded chunks — idea: read Baritone's
+chunk cache, `gamedir/baritone/<server>/`, to see past render distance). Reflexes around water:
+stranded (out of its depth, idle) swims to shore; wading (idle, standing in water 2.5 s) steps out,
+giving up after 3 tries; a fidget watchdog holds it still for 60 s if it bobs/spins in place for
+10 s (survival reflexes still run). Each search has a `plantime` budget; below
 `lagtps` it looks ahead less often and plans gently. Baritone's own chat commands (`#…`) exist but
 Zymbot doesn't use them — drive it through `/zbot`.
 
@@ -151,4 +167,7 @@ Zymbot doesn't use them — drive it through `/zbot`.
 2. Owner hosts; `./standby.sh bot1` in the background; owner does `/zbot summon` (or you
    `./connect.sh bot1 127.0.0.1:25565 --wait`).
 3. Give orders with `./send.sh bot1 / zbot …`; confirm via `[decision]` lines, not assumptions.
-4. Record results in PHASE1.md / FIXLIST.md (living docs); stop the bot when the owner says.
+4. Record results in PHASE1.md / PHASE2.md / FIXLIST.md (living docs); stop the bot when the owner says.
+5. The owner's working style: while testing, code/doc edits go to a background subagent ("write,
+   don't compile") so testing continues; once the game is closed, build, test, swap jars and commit
+   yourself, inline — no agent.

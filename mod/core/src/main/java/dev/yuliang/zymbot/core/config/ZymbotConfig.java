@@ -113,10 +113,17 @@ public final class ZymbotConfig {
 
     /**
      * Stay within this many blocks of the nearest teammate (R2) — while working, and when idle it
-     * follows past it (PHASE2 check 6). 48, not 100: the idle follow needs the teammate in sight,
-     * and a bot at render distance 6 only sees players within ~96 blocks (owner, 2026-09-26).
+     * follows past it (PHASE2 check 6). 21 — owner-picked, about a dog and a half (a tamed wolf follows past ~10);
+     * well inside sight range (render distance 6 ≈ 96 blocks), which the idle follow needs (2026-09-26).
      */
-    public int leashBlocks = 48;
+    public int leashBlocks = 21;
+    /**
+     * The idle follow (PHASE2 check 6) walks until within this many blocks of the teammate — like a
+     * tamed wolf, it comes right up close (owner, 2026-09-26). Always below {@code leash_blocks}: the
+     * gap between them is the hysteresis that stops stop-start at the line. Not used by the pull-back
+     * while working, which still stops at half the leash.
+     */
+    public int followStopBlocks = 2;
     /** After a start or respawn, regroup unless a Zymbot teammate is within this many blocks (PHASE2.md §1). */
     public int regroupWithin = 32;
     /** Nobody from the team found this many seconds after arming: go to world spawn and wait (P2-5). */
@@ -184,7 +191,7 @@ public final class ZymbotConfig {
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
             "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19},
             "downed", new int[]{0, 55}, "regroup", new int[]{8, 256}, "probewait", new int[]{5, 300},
-            "plantime", new int[]{50, 5000}, "lagtps", new int[]{5, 19});
+            "plantime", new int[]{50, 5000}, "lagtps", new int[]{5, 19}, "heel", new int[]{1, 256});
 
     public int tunable(String name) {
         return switch (name) {
@@ -196,6 +203,7 @@ public final class ZymbotConfig {
             case "probewait" -> probeWaitSeconds;
             case "plantime" -> planTimeoutMs;
             case "lagtps" -> lagTps;
+            case "heel" -> followStopBlocks;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -203,10 +211,17 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, eat, critical, downed, regroup, probewait, plantime or lagtps";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime or lagtps";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
-            case "leash" -> leashBlocks = value;
+            case "leash" -> {
+                leashBlocks = value;
+                if (followStopBlocks >= value) followStopBlocks = value - 1;   // keep heel below the leash
+            }
+            case "heel" -> {
+                if (value >= leashBlocks) return "heel must be below the leash (" + leashBlocks + ")";
+                followStopBlocks = value;
+            }
             case "eat" -> eatBelowHunger = value;
             case "downed" -> downedWaitForHumansSeconds = value;
             case "regroup" -> regroupWithin = value;
@@ -305,6 +320,10 @@ public final class ZymbotConfig {
                 warnings.add(t.getKey() + " " + v + " out of range " + lo + "–" + hi + "; using " + fixed);
                 setTunable(t.getKey(), fixed);
             }
+        }
+        if (followStopBlocks >= leashBlocks) {              // heel must sit inside the leash (hysteresis)
+            warnings.add("follow_stop_blocks " + followStopBlocks + " is not below leash_blocks " + leashBlocks + "; using " + (leashBlocks - 1));
+            followStopBlocks = leashBlocks - 1;
         }
         if (neverEat == null) neverEat = new ArrayList<>();
         if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();

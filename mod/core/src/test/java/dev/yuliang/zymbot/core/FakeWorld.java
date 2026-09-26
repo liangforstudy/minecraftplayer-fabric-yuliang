@@ -31,6 +31,7 @@ public final class FakeWorld implements WorldView, Hands {
     public float health = 20;
     public int hunger = 20;
     public float saturation = 5;
+    public float yaw;
     public boolean dead;
     public boolean inWater;
     public boolean sprinting;
@@ -107,6 +108,7 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public float health() { return health; }
     @Override public int hunger() { return hunger; }
     @Override public float saturation() { return saturation; }
+    @Override public float yaw() { return yaw; }
     @Override public boolean isDead() { return dead; }
     @Override public boolean inWater() { return inWater; }
     @Override public boolean sprinting() { return sprinting; }

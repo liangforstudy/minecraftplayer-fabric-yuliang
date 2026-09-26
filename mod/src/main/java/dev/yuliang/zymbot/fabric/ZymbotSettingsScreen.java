@@ -42,7 +42,7 @@ final class ZymbotSettingsScreen extends Screen {
     private int messageColor = GREY;
     private final List<RowLabel> labels = new ArrayList<>();
     private final java.util.Map<String, EditBox> tunableBoxes = new java.util.LinkedHashMap<>();
-    private final java.util.Map<String, String> tunableDrafts = new java.util.HashMap<>();
+    private final java.util.Map<String, String> tunableDrafts = new java.util.LinkedHashMap<>();
     private int contentBottom;                             // lowest y used by this tab's controls
 
     /** Space-aware layout: how many list rows fit above the add-controls and the Done button. */
@@ -69,6 +69,8 @@ final class ZymbotSettingsScreen extends Screen {
         keyBox = null;
         serverBox = null;
         tunableBoxes.clear();
+        scrubZones.clear();
+        activeZone = null;
         labels.clear();
         int cx = width / 2;
         tabButton("Team key", Tab.KEY, cx - 153, 36);
@@ -254,6 +256,7 @@ final class ZymbotSettingsScreen extends Screen {
 
     private static final String[][] TUNABLE_ROWS = {
             {"leash", "Leash — max blocks from the nearest teammate"},
+            {"heel", "Follow: stop this close to the teammate"},
             {"eat", "Eat when hunger is at or below (of 20)"},
             {"critical", "Critical health — heal or retreat (of 20)"},
             {"downed", "Knocked out: seconds to wait for a human"},
@@ -263,20 +266,47 @@ final class ZymbotSettingsScreen extends Screen {
             {"lagtps", "Server lagging below (TPS) — plan less"}};
 
     private int bodyPage;
+    private java.util.Map<String, Integer> defaults;       // read once per screen open
+
+    /**
+     * What "reset" goes back to. A modpack's {@code defaultconfigs/zymbot.json} (the folder that
+     * default-config mods ship) wins where present; anything it lacks keeps the built-in default,
+     * since Gson leaves unmentioned fields at their initial values. Read only — never written, so
+     * this parses directly instead of ConfigIO.load (which saves the file back).
+     */
+    private int defaultOf(String key) {
+        if (defaults == null) {
+            ZymbotConfig d = new ZymbotConfig();
+            java.nio.file.Path pack = net.fabricmc.loader.api.FabricLoader.getInstance().getGameDir()
+                    .resolve("defaultconfigs").resolve("zymbot.json");
+            if (java.nio.file.Files.isRegularFile(pack)) {
+                try (java.io.Reader r = java.nio.file.Files.newBufferedReader(pack, java.nio.charset.StandardCharsets.UTF_8)) {
+                    ZymbotConfig read = dev.yuliang.zymbot.core.config.ConfigIO.GSON.fromJson(r, ZymbotConfig.class);
+                    if (read != null) { read.normalize(); d = read; }
+                } catch (Exception e) {
+                    org.slf4j.LoggerFactory.getLogger("zymbot").warn("[zymbot] can't read {} — reset uses built-in defaults: {}", pack, e.getMessage());
+                }
+            }
+            defaults = new java.util.HashMap<>();
+            for (String k : ZymbotConfig.TUNABLES.keySet()) defaults.put(k, d.tunable(k));
+        }
+        return defaults.get(key);
+    }
 
     private void initBody(int cx, int top) {
         int perPage = rowsThatFit(top, 0);                 // Save sits beside Done, not below the rows
         int pages = (TUNABLE_ROWS.length + perPage - 1) / perPage;
         bodyPage = Math.min(bodyPage, pages - 1);
-        int labelX = cx - 150, boxX = cx + 60;
+        // label | box (44) | range ("50–5000" is the widest, ~40 px) | reset (20): all inside cx ± 150
+        int labelX = cx - 150, boxX = cx + 36, rangeX = cx + 86, resetX = cx + 130;
         int y = top;
         for (int i = bodyPage * perPage; i < Math.min(TUNABLE_ROWS.length, (bodyPage + 1) * perPage); i++) {
             String key = TUNABLE_ROWS[i][0], text = TUNABLE_ROWS[i][1];
             int[] range = ZymbotConfig.TUNABLES.get(key);
-            String fitted = font.width(text) <= boxX - labelX - 6 ? text
-                    : font.plainSubstrByWidth(text, boxX - labelX - 6 - font.width("…")) + "…";
+            boolean cut = font.width(text) > boxX - labelX - 6;
+            String fitted = !cut ? text : font.plainSubstrByWidth(text, boxX - labelX - 6 - font.width("…")) + "…";
             label(fitted, labelX, y + 6, WHITE);
-            EditBox box = new ScrubBox(boxX, y, text, range[0], range[1]);
+            ScrubBox box = new ScrubBox(boxX, y, text, range[0], range[1]);
             box.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
                     Component.literal(text + "\n§7drag left/right to change (Shift fine, Ctrl coarse)")));
             box.setMaxLength(4);
@@ -284,7 +314,21 @@ final class ZymbotSettingsScreen extends Screen {
             box.setValue(tunableDrafts.getOrDefault(key, String.valueOf(cfg().tunable(key))));
             addRenderableWidget(box);
             tunableBoxes.put(key, box);
-            label(range[0] + "–" + range[1], cx + 110, y + 6, GREY);
+            String rangeText = range[0] + "–" + range[1];
+            label(rangeText, rangeX, y + 6, GREY);
+            // the label and the range scrub the box too; the whole row height, text-wide
+            scrubZones.add(new ScrubZone(box, labelX, y, font.width(fitted), ROW_H - 2, cut ? text : null));
+            scrubZones.add(new ScrubZone(box, rangeX, y, font.width(rangeText), ROW_H - 2, null));
+
+            int def = defaultOf(key);
+            Button reset = addRenderableWidget(Button.builder(Component.literal("↺"),
+                    b -> box.setValue(String.valueOf(def)))       // draft only, like scrubbing
+                    .bounds(resetX, y, 20, 20)
+                    .tooltip(net.minecraft.client.gui.components.Tooltip.create(
+                            Component.literal("reset to default (" + def + ")")))
+                    .build());
+            box.setResponder(v -> reset.active = !v.equals(String.valueOf(def)));
+            reset.active = !box.getValue().equals(String.valueOf(def));
             y += ROW_H;
         }
         if (pages > 1) {
@@ -307,57 +351,124 @@ final class ZymbotSettingsScreen extends Screen {
      * Only the draft changes — Save still applies it.
      */
     private final class ScrubBox extends EditBox {
-        private static final int DEAD_ZONE = 3, FINE_PX = 4, COARSE = 10;
-        private final int min, max;
-        private boolean pressed, scrubbing;
-        private double pressX, pressY, travel, carry;
+        final Scrub scrub;
+        private double pressX, pressY;
 
         ScrubBox(int x, int y, String name, int min, int max) {
             super(font, x, y, 44, 20, Component.literal(name));
+            this.scrub = new Scrub(this, min, max);
+        }
+
+        @Override
+        public void onClick(double mouseX, double mouseY) {  // wait: a click or a scrub?
+            pressX = mouseX;
+            pressY = mouseY;
+            scrub.press();
+        }
+
+        @Override
+        protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+            scrub.drag(dragX);
+        }
+
+        @Override
+        public void onRelease(double mouseX, double mouseY) {
+            if (scrub.release()) super.onClick(pressX, pressY);  // a plain click: place the cursor
+        }
+    }
+
+    /** The scrub accumulator, shared by the box itself and its row's label and range text. */
+    private static final class Scrub {
+        private static final int DEAD_ZONE = 3, FINE_PX = 4, COARSE = 10;
+        private final EditBox box;
+        private final int min, max;
+        private boolean pressed, scrubbing;
+        private double travel, carry;
+
+        Scrub(EditBox box, int min, int max) {
+            this.box = box;
             this.min = min;
             this.max = max;
         }
 
         boolean scrubbing() { return scrubbing; }
 
-        @Override
-        public void onClick(double mouseX, double mouseY) {  // wait: a click or a scrub?
+        void press() {
             pressed = true;
             scrubbing = false;
-            pressX = mouseX;
-            pressY = mouseY;
             travel = 0;
             carry = 0;
         }
 
-        @Override
-        protected void onDrag(double mouseX, double mouseY, double dragX, double dragY) {
+        void drag(double dragX) {
             if (!pressed) return;
             travel += dragX;
             if (!scrubbing) {
                 if (Math.abs(travel) < DEAD_ZONE) return;
                 scrubbing = true;
-                setTextColor(0xFFFF60);
+                box.setTextColor(0xFFFF60);
                 dragX = travel;                            // the dead zone counts too
             }
-            double perPx = hasShiftDown() ? 1.0 / FINE_PX : Math.max(1, (max - min) / 200);
-            if (hasControlDown()) perPx *= COARSE;
+            double perPx = Screen.hasShiftDown() ? 1.0 / FINE_PX : Math.max(1, (max - min) / 200);
+            if (Screen.hasControlDown()) perPx *= COARSE;
             carry += dragX * perPx;
             int step = (int) carry;                        // whole steps; the rest waits
             if (step == 0) return;
             carry -= step;
             int now;
-            try { now = Integer.parseInt(getValue()); } catch (NumberFormatException e) { now = min; }
-            setValue(String.valueOf(Math.max(min, Math.min(max, now + step))));
+            try { now = Integer.parseInt(box.getValue()); } catch (NumberFormatException e) { now = min; }
+            box.setValue(String.valueOf(Math.max(min, Math.min(max, now + step))));
         }
 
-        @Override
-        public void onRelease(double mouseX, double mouseY) {
-            if (pressed && !scrubbing) super.onClick(pressX, pressY);  // a plain click: place the cursor
+        /** @return true if it was a plain click (pressed, never scrubbed). */
+        boolean release() {
+            boolean click = pressed && !scrubbing;
             pressed = false;
             scrubbing = false;
-            setTextColor(0xE0E0E0);                        // EditBox's default text colour
+            box.setTextColor(0xE0E0E0);                    // EditBox's default text colour
+            return click;
         }
+    }
+
+    /** A row's label or range text: dragging there scrubs its box; a plain click focuses the box. */
+    private record ScrubZone(ScrubBox box, int x, int y, int w, int h, String fullText) {
+        boolean contains(double mx, double my) { return mx >= x && mx < x + w && my >= y && my < y + h; }
+    }
+
+    private final List<ScrubZone> scrubZones = new ArrayList<>();
+    private ScrubZone activeZone;
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+            for (ScrubZone z : scrubZones) {
+                if (!z.contains(mouseX, mouseY)) continue;
+                activeZone = z;
+                z.box().scrub.press();
+                return true;
+            }
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (activeZone != null) {
+            activeZone.box().scrub.drag(dragX);
+            return true;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (activeZone != null && button == 0) {
+            ScrubBox box = activeZone.box();
+            activeZone = null;
+            if (box.scrub.release()) setFocused(box);      // a plain click: focus the box to type
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     // the horizontal-resize cursor over scrubbable values; always handed back in removed()
@@ -367,8 +478,10 @@ final class ZymbotSettingsScreen extends Screen {
     private void updateCursor(int mouseX, int mouseY) {
         boolean want = false;
         for (EditBox b : tunableBoxes.values()) {
-            if (b.isMouseOver(mouseX, mouseY) || (b instanceof ScrubBox s && s.scrubbing())) want = true;
+            if (b.isMouseOver(mouseX, mouseY) || (b instanceof ScrubBox s && s.scrub.scrubbing())) want = true;
         }
+        for (ScrubZone z : scrubZones) if (z.contains(mouseX, mouseY)) want = true;
+        if (activeZone != null) want = true;
         if (want == resizeShown) return;
         if (want && resizeCursor == 0) resizeCursor = GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR);
         GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), want ? resizeCursor : 0);
@@ -386,7 +499,9 @@ final class ZymbotSettingsScreen extends Screen {
         Bot bot = ZymbotClient.get().bot();
         List<String> saved = new ArrayList<>();
         keepDrafts();                                      // edits on every page, not just this one
-        for (var e : tunableDrafts.entrySet()) {
+        List<java.util.Map.Entry<String, String>> drafts = new ArrayList<>(tunableDrafts.entrySet());
+        drafts.sort(java.util.Comparator.comparing((java.util.Map.Entry<String, String> e) -> !e.getKey().equals("leash")));   // leash first: heel must fit under the new leash
+        for (var e : drafts) {
             String text = e.getValue();
             if (text.isEmpty()) { say(e.getKey() + ": type a number", RED); return; }
             int v = Integer.parseInt(text);
@@ -422,6 +537,12 @@ final class ZymbotSettingsScreen extends Screen {
     public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
         super.render(g, mouseX, mouseY, partialTick);
         updateCursor(mouseX, mouseY);
+        if (activeZone == null) {                          // a cut-off label shows its full text
+            for (ScrubZone z : scrubZones) {
+                if (z.fullText() != null && z.contains(mouseX, mouseY))
+                    setTooltipForNextRenderPass(Component.literal(z.fullText()));
+            }
+        }
         int cx = width / 2;
         g.drawCenteredString(font, title, cx, 14, WHITE);
         for (RowLabel l : labels) g.drawString(font, l.text(), l.x(), l.y(), l.color());
@@ -444,8 +565,8 @@ final class ZymbotSettingsScreen extends Screen {
             case BODY -> new String[] {
                     "No natural regeneration here: only healing food brings health back.",
                     "An idle bot follows its nearest teammate past the leash; never your orders.",
-                    "Drag a value sideways to scrub it (Shift fine, Ctrl coarse). Then Save.",
-                    "Also: /" + cfg().commandRoot + " set <setting> <n>"};
+                    "Drag a value, name or range sideways to scrub (Shift fine, Ctrl coarse).",
+                    "↺ resets to default. Then Save. Also: /" + cfg().commandRoot + " set <setting> <n>"};
         };
         // help and the status message go between the controls and Done — only as much as fits
         int floor = height - 32;

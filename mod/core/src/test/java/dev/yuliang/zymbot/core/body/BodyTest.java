@@ -584,7 +584,7 @@ class BodyTest {
         brain[0].tick(w, w);                                   // starts its own objective
         brain[0].tick(w, w);                                   // ...and the leash catches it
         assertEquals(new BlockPos(150, 64, 0), w.paths.goal, "working on its own: back toward the human");
-        assertTrue(brain[0].describe().contains("Bot2 is 150 blocks away (leash 48)"), brain[0].describe());
+        assertTrue(brain[0].describe().contains("Bot2 is 150 blocks away (leash 21)"), brain[0].describe());
     }
 
     // ------------------------------------------------------------------ plumbing
@@ -657,6 +657,20 @@ class BodyTest {
         bad.leashBlocks = 5000;
         assertFalse(bad.normalize().isEmpty());
         assertEquals(1000, bad.leashBlocks);
+
+        assertEquals(2, new ZymbotConfig().followStopBlocks);  // heel: 1–256, always below the leash
+        assertTrue(b.set("heel", 0).contains("1–256"));
+        assertTrue(b.set("heel", 21).contains("below the leash"), "not at the leash of 21");
+        assertEquals("heel = 5", b.set("heel", 5));
+        assertEquals(5, b.config().followStopBlocks);
+        ZymbotConfig tight = new ZymbotConfig();
+        tight.followStopBlocks = 30;                            // at or past the leash (21) in the file
+        assertFalse(tight.normalize().isEmpty());
+        assertEquals(20, tight.followStopBlocks);
+        ZymbotConfig shrink = new ZymbotConfig();
+        shrink.followStopBlocks = 15;
+        assertNull(shrink.setTunable("leash", 10));             // a shorter leash pulls heel under it
+        assertEquals(9, shrink.followStopBlocks);
     }
 
     @Test
@@ -873,6 +887,7 @@ class BodyTest {
         EntityView mate = w.player("Mate", 20, 0);              // with the team: no regroup
         ZymbotConfig cfg = withTeammate(mate);
         cfg.leashBlocks = 100;                                  // the distances below are for 100
+        cfg.followStopBlocks = 50;                              // and a stop at half of it
         Bot b = running(w, cfg, true);
         ticks(b, w, 3);
         assertNull(w.paths.goal, log(b));
@@ -891,7 +906,7 @@ class BodyTest {
         w.pos = new Vec3(30, 64, 0);                            // 90 blocks: inside the leash, keeps going
         ticks(b, w, 5);
         assertEquals(idles, idles(b), "no stop just inside the line: " + log(b));
-        w.pos = new Vec3(75, 64, 0);                            // 45 blocks: within half the leash
+        w.pos = new Vec3(75, 64, 0);                            // 45 blocks: within the stop distance (50)
         ticks(b, w, 3);
         assertEquals(idles + 1, idles(b), "stops: " + log(b));
 
@@ -900,6 +915,33 @@ class BodyTest {
         ticks(b, w, 20);
         assertEquals(1, count(log(b), "following Mate"), "no stop-start near the line: " + log(b));
         assertEquals(idles + 1, idles(b), log(b));
+    }
+
+    @Test
+    void idle_followsLikeAWolf_pastTheLeash_rightUpClose() {
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 10, 0);
+        ZymbotConfig cfg = withTeammate(mate);
+        cfg.leashBlocks = 21;
+        cfg.followStopBlocks = 2;
+        Bot b = running(w, cfg, true);
+        ticks(b, w, 3);
+        assertNull(w.paths.goal, log(b));
+
+        w.nearby.clear();
+        w.player("Mate", 25, 0);                                // past the leash of 21
+        ticks(b, w, 3);
+        assertEquals(new BlockPos(25, 64, 0), w.paths.goal, log(b));
+        assertTrue(log(b).contains("following Mate — because idle, 25 blocks from Mate (leash 21)"), log(b));
+        int idles = idles(b);
+
+        w.pos = new Vec3(15, 64, 0);                            // 10 blocks: well inside the leash, keeps going
+        ticks(b, w, 5);
+        assertEquals(idles, idles(b), "no stop at half the leash any more: " + log(b));
+        w.pos = new Vec3(24, 64, 0);                            // 1 block: within the heel distance
+        ticks(b, w, 3);
+        assertEquals(idles + 1, idles(b), "stops right up close: " + log(b));
+        assertEquals(1, count(log(b), "following Mate"), log(b));
     }
 
     @Test
@@ -1048,7 +1090,7 @@ class BodyTest {
         mate = w.player("Mate", 600, 0);                        // they walk off: the idle bot follows (check 6)...
         ticks(b, w, 5);
         assertEquals(before, log(b).split("regrouping with").length, "...on the leash, not a regroup: " + log(b));
-        assertTrue(log(b).contains("following Mate — because idle, 302 blocks from Mate (leash 48)"), log(b));
+        assertTrue(log(b).contains("following Mate — because idle, 302 blocks from Mate (leash 21)"), log(b));
         assertTrue(b.regroupNow().startsWith("looking for the team"));
         ticks(b, w, 3);
         assertTrue(log(b).split("regrouping with").length > before, "/zbot regroup arms it again: " + log(b));
@@ -1226,5 +1268,99 @@ class BodyTest {
         assertFalse(log(b).contains("failed: regrouping"), "a fresh answer is news: " + log(b));
         ticks(b, w, 20 * 61);                                   // then silence for over 60 s
         assertTrue(log(b).contains("no word from them for 60s"), log(b));
+    }
+
+    // ------------------------------------------------------------------ fidget watchdog (2026-09-26 "dancing")
+
+    /** One tick of dancing: turn 15°, bob ±0.1 around y 64, stay on the spot. */
+    void fidget(Bot b, FakeWorld w, int n) {
+        for (int i = 0; i < n; i++) {
+            w.yaw += 15;
+            w.pos = new Vec3(0.5, 64 + 0.1 * Math.sin(clock.now / 50 * 0.6), 0.5);
+            ticks(b, w, 1);
+        }
+    }
+
+    Bot dancingWhileFollowing(FakeWorld w) {
+        w.dryLand = new BlockPos(3, 63, 1);
+        Bot b = running(w, new ZymbotConfig(), true);
+        b.follow("Bot2");
+        w.player("Bot2", 3, 0);
+        fidget(b, w, FidgetWatchdog.WINDOW_TICKS + 20);
+        return b;
+    }
+
+    @Test
+    void bobbingAndSpinningInPlace_stopsEverything_logsOnce_andStaysStillForTheCooldown() {
+        FakeWorld w = wading();
+        Bot b = dancingWhileFollowing(w);
+        assertTrue(log(b).contains("holding still (cancelled the order: follow Bot2) — because bobbing/spinning in place for 10 s (turned"),
+                log(b));
+        assertFalse(b.hasOrder(), "the order is cancelled");
+        assertFalse(w.paths.busy, "the pathfinder is stopped");
+        assertNull(w.paths.following);
+        assertFalse(w.jumpHeld || w.forwardHeld, "the keys are let go");
+
+        fidget(b, w, FidgetWatchdog.HOLD_TICKS - 100);          // still dancing (the water does it): quiet
+        assertEquals(1, count(log(b), "holding still"), log(b));
+        assertFalse(log(b).contains("stepping out of the water"), "the wading reflex waits out the cooldown: " + log(b));
+        assertNull(w.paths.goal, log(b));
+    }
+
+    @Test
+    void swimmingSteadilyForward_isNotFidgeting() {
+        FakeWorld w = wading();
+        Bot b = running(w, new ZymbotConfig(), true);
+        b.follow("Bot2");
+        for (int i = 0; i < FidgetWatchdog.WINDOW_TICKS * 3; i++) {
+            double x = i * 0.1;                                  // 2 blocks a second
+            w.yaw += (i % 2 == 0 ? 1 : -1);                      // steering jitter
+            w.pos = new Vec3(x, 64 + 0.1 * Math.sin(i * 0.6), 0.5);
+            w.nearby.clear();
+            w.player("Bot2", x + 3, 0);
+            ticks(b, w, 1);
+        }
+        assertFalse(log(b).contains("holding still"), log(b));
+        // (the follow itself may end on its own; only the watchdog is judged here)
+    }
+
+    @Test
+    void standingStillEating_isNotFidgeting() {
+        FakeWorld w = new FakeWorld("Bot1").give(0, "minecraft:bread", 64, FakeWorld.food(5));
+        w.hunger = 10;
+        Bot b = running(w, new ZymbotConfig(), true);
+        for (int i = 0; i < FidgetWatchdog.WINDOW_TICKS * 3; i++) {
+            ticks(b, w, 1);
+            if (i % 40 == 39 && w.usingItem) w.finishBite();
+        }
+        assertTrue(log(b).contains("eating minecraft:bread"), log(b));
+        assertFalse(log(b).contains("holding still"), log(b));
+    }
+
+    @Test
+    void holdingStill_theDrowningReflexStillSurfaces() {
+        FakeWorld w = wading();
+        Bot b = dancingWhileFollowing(w);
+        assertTrue(log(b).contains("holding still"), log(b));
+        w.headInWater = true;                                    // sinking while holding still
+        w.air = 150;
+        ticks(b, w, 2);
+        assertTrue(w.jumpHeld, "swims up: " + log(b));
+        assertTrue(log(b).contains("swimming to dry land at 3 1 — because air"), log(b));
+    }
+
+    @Test
+    void watchdog_aSingleTurnOrAHop_isNotFidgeting() {
+        FidgetWatchdog dog = new FidgetWatchdog();
+        Vec3 here = new Vec3(0, 64, 0);
+        for (int i = 0; i < FidgetWatchdog.WINDOW_TICKS * 2; i++) {
+            float yaw = i < 10 ? i * 18 : 180;                   // /zbot look: one half turn, then steady
+            double y = i >= 50 && i < 56 ? 64 + 0.2 * Math.sin((i - 50) * Math.PI / 6) : 64;   // one hop
+            assertTrue(dog.sample(new Vec3(0, y, 0), yaw, true).isEmpty(), "tick " + i);
+        }
+        assertTrue(dog.sample(here, 180, false).isEmpty());
+        for (int i = 0; i < FidgetWatchdog.WINDOW_TICKS - 1; i++) dog.sample(here, 180 + i * 10, false);
+        dog.reset();
+        assertTrue(dog.sample(here, 0, false).isEmpty(), "a reset forgets the spin");
     }
 }

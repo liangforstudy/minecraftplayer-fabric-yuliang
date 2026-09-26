@@ -104,6 +104,7 @@ final class FabricWorldView implements WorldView {
     @Override public float health() { return health; }
     @Override public int hunger() { return hunger; }
     @Override public float saturation() { return saturation; }
+    @Override public float yaw() { return player.getYRot(); }
     @Override public boolean isDead() { return dead; }
     @Override public boolean inWater() { return inWater; }
     @Override public boolean onGround() { return onGround; }

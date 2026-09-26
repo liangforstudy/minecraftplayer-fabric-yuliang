@@ -27,6 +27,8 @@ public interface WorldView {
     // ------------------------------------------------------------------ body (phase 1)
 
     default float saturation() { return 0; }
+    /** Where the body faces, in degrees (Minecraft yaw; unbounded, wraps every 360). */
+    default float yaw() { return 0; }
     default boolean inWater() { return false; }
     default boolean onGround() { return true; }
     default boolean sprinting() { return false; }
