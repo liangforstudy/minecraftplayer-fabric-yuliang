@@ -90,6 +90,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot grave` | take our things back from civfabric's grave: the nearest within 16 blocks (walk up, empty hand, right-click, check it's gone), else walk back to where we last died first — **passed live 2026-09-22** (0.1.19–20) |
 | `/zbot block <x> <y> <z>` | debug: what this client sees at a block |
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
+| `/zbot survey` | read only: what is around (trees, wild food, tables, furnaces, chests, beds, campfires), the bot itself, and the world (biome, day, spawn) — also run on start and after a respawn (Phase 3 §2) |
 | `/zbot look <name>` | face a player |
 | `/zbot set leash\|heel\|eat\|critical\|downed\|plantime\|lagtps <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them. `heel` = how close the idle follow comes to the teammate (1–256, below the leash; default 2), `plantime` = ms per route search (50–5000), `lagtps` = plan less below this TPS (5–19) |
 | `/zbot danger [modpack\|easy\|normal\|hard]` | when it runs from a mob (0.1.25): `modpack` (default) at the first hit, following the attacker by UUID; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4). Live test deferred until all phases are built |

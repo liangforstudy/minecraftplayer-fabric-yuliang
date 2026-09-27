@@ -119,7 +119,7 @@ A table the survey already found counts (don't place a second one next to it —
 
 ## 8. Proposed build steps (each compiled, tested, committed)
 
-1. Survey (§2) + `/zbot survey` — read-only, safe first step.
+1. Survey (§2) + `/zbot survey` — read-only, safe first step. **Built** (core/survey: `Survey`, `Surveyor`, `SurveyCatalog`).
 2. Hands: **break + collect** (a `BreakTask`), tested on "punch 3 logs" via a debug order
    (`/zbot punch <x> <y> <z>`).
 3. Hands: **craft (2×2)** planks/sticks/table, then **place** the table, then **craft (3×3)** tools.
