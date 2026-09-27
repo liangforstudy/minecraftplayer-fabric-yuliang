@@ -1,6 +1,6 @@
 # Phase 3 — First milestones: gather, craft, feed itself
 
-Status: **building 2026-09-27** — steps 1–2 on main (0.1.35). Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
+Status: **building 2026-09-27** — steps 1–2 on main; 0.1.35 live-tested 2026-09-27 (survey + punch work, bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)); 0.1.36 fixes them, installed, not yet live-tested. Next: live-test 0.1.36, then step 3 (crafting). Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).

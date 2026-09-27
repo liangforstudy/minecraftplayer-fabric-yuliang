@@ -1,30 +1,37 @@
 # Phase 3 fixlist
 
-Bugs and changes found while live-testing Phase 3. Living doc — delete an entry once it is fully
-fixed (git history keeps it).
+Bugs and changes found while live-testing Phase 3. Living doc: delete an entry once it is fully
+fixed **and** live-tested (git history keeps it).
 
-## 2. `/zbot start` on the owner's client — what's left (2026-09-27)
+Status: **0.1.36 built, committed (`0cb9adf`, not pushed) and installed on both sides (owner's
+client + Bot1), 2026-09-27. Nothing below is live-tested yet.**
 
-Role vs state is built (see "Built, needs live test"): a started Teammate still announces as a
-Teammate, and one-shot orders no longer need `start` (#6). Still open for the owner:
-- a) Should `/zbot start` on a Teammate account ask to confirm?
-- b) Should regroup also walk to a **Bot** when no Teammate is around (today it only walks to
-  Teammates, so two bots each go to spawn)?
+## Built in 0.1.36, needs a live test
+
+Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
+
+| # | what | how to test | pass when |
+|---|---|---|---|
+| 1 | `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
+| 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
+| 2 | HELLO carries the role (3rd field) | owner `/zbot start` on their own client, then Bot1 `/zbot roster` | owner shows as "Teammate (bot driving)", not "Bot"; Bot1's regroup still walks to them |
+| 3 | `/zbot debug survey` prints the new scan when done | Bot1 walks somewhere, then `/zbot debug survey` | old one labelled "Ns ago, N blocks X of here", new one arrives in chat |
+| 4 | `/zbot debug punch` waits for the drop to arrive (5 s backstop), no guessed delay | punch a grass block | `picked up 1 dirt`, not "picked up nothing" |
+| 5 | regroup asks WHERE first when the bus position is > 10 s old; logs the arrival | owner walks > 32 blocks away, `/zbot regroup` | reason gives the owner's *current* spot; ends with `regrouped with Bluetails_zym` |
+| 6 | one-shot orders on a Teammate: `goto` / `come` / `punch` / `grave` / `grave loot` borrow the controls | owner types `/zbot debug punch ~1 ~-1 ~` on their own client, no `/zbot start` | `borrowed the controls` … `gave the controls back`; a movement key ends it early; `follow` still refused |
+| 7 | pause wording | owner `/zbot start`, then press W | "zymbot paused — you can move yourself around for now. It goes back to automation mode 10s after you stop, or /zbot stop to stop the bot." |
+| 8 | `/zbot debug …` group; `/zbot see` = status; `/zbot see <bot>` over the bus | owner `/zbot see Bot1` | Bot1's status lines in the owner's chat within a second; `see Nobody` → "no answer … in 5s" after 5 s |
+
+## Open questions for the owner
+
+From #2 (`/zbot start` on a Teammate account):
+- a) Should `/zbot start` on a Teammate account ask to confirm first?
+- b) Should regroup also walk to a **Bot** when no Teammate is around? Today two bots each go to spawn.
 - d) An on-screen "bot is driving" indicator?
 
-## 4. `/zbot punch` "picked up nothing" the tick the block broke — built, needs live test
+## Notes
 
-Drops reach the client a few ticks after the block goes; BreakTask now waits for the drop (or the pickup) to arrive, up to the 5 s collect window,
-before deciding there are none — no guessed delay (owner: lag and networking vary). Blocks that drop nothing wait the full 5 s; tree felling should skip it per leaf. Delete once live-tested.
-
-
-## Built, needs live test (0.1.36)
-
-- #4 `/zbot debug punch` waits for the drop, see above.
-- #3 `/zbot debug survey`: the background scan prints in chat when done; an old one is labelled "Ns ago, N blocks X of here".
-- #7 pause message: new wording (`notifyLocal`), unit-tested.
-- #8 `/zbot debug …` (terrain, block, foods, punch, survey), `/zbot see` = status, `/zbot see <bot>` over the bus (STATUS → STATUS_LINE, 5 s backstop) — both clients need the new build; check roster autocomplete.
-- #1 `/zbot grave` = our own grave only (owner = the grave block entity's `owner`/`owner_id`, sent to clients in its update tag); `grave loot [except] [<player> …]` shift-clicks other players' graves; no pause while any screen is open. Check the owner reads right, and a stranger's grave is skipped.
-- #2 HELLO carries the role (3rd field; old clients still parse): roster shows "Teammate (bot driving)", regroup picks by role.
-- #5 A bus position > 10 s old is asked about (WHERE) before the regroup sets off (5 s backstop); arrival logs `regrouped with <name>`.
-- #6 On a Teammate, `goto`/`come`/`punch`/`grave`/`grave loot` borrow the controls for that order (`borrowed the controls` … `gave the controls back`); a movement key ends it.
+- Tree felling (Phase 3) should skip the drop wait per leaf: most leaves drop nothing, and each would
+  wait out the 5 s backstop.
+- The new Fabric code compiles, but only a live test proves the grave owner is read right
+  (`saveWithoutMetadata` → `owner` / `owner_id`).
