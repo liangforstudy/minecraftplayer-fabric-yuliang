@@ -148,6 +148,9 @@ public final class Bot {
     private final java.util.Map<String, Long> watchers = new java.util.LinkedHashMap<>();   // name → until
     private SummonTarget repeatSummon;                           // auto-summon: say it again for a while
     private long repeatSummonUntil, nextSummonRepeat;
+    private String surveyWanted;                                 // why a survey is due (start, respawn, command), until taken
+    private java.util.concurrent.CompletableFuture<dev.yuliang.zymbot.core.survey.Survey> surveying;
+    private dev.yuliang.zymbot.core.survey.Survey survey;        // the latest, for the planner and /zbot survey
 
     /** A message whose sender isn't in the tab list yet — they may have joined a moment ago. */
     private record Pending(Envelope envelope, long since) {}
@@ -259,6 +262,9 @@ public final class Bot {
         if (address != null) saveMemory();
         address = null;
         repeatSummon = null;
+        survey = null;                                           // another world's surroundings
+        surveying = null;
+        surveyWanted = null;
     }
 
     /** The bot takes control. Works for any role when asked by hand. */
@@ -268,6 +274,7 @@ public final class Bot {
         nextHello = 0;                  // say hello on the next tick
         pausedUntil = 0;
         regroup.arm();                  // first objective: find the team (PHASE2.md §1)
+        surveyWanted = "started";       // and look around (PHASE3.md §2)
         log.record("started: " + phase, why);
     }
 
@@ -365,6 +372,7 @@ public final class Bot {
             hungerMeter.settle();
             return;
         }
+        pollSurvey(world, now);
         if (phase == Phase.STOPPED || world.isDead()) return;
         if (phase == Phase.TEAMMATE) {                       // announce only; a human is playing
             maybeHello(world, now);
@@ -457,6 +465,7 @@ public final class Bot {
         }
         hungerMeter.settle();
         regroup.arm();                                           // respawned somewhere else: find the team again
+        if (phase.controlling()) surveyWanted = "respawned";      // somewhere new: look around again
         if (respawnedWhy != null) log.record("respawned", respawnedWhy);
     }
 
@@ -1102,6 +1111,44 @@ public final class Bot {
     }
 
     /** /zbot regroup: look for the team now (normally automatic on start and after a respawn). */
+    // ------------------------------------------------------------------ survey (PHASE3.md §2)
+
+    /** The latest survey, if one has finished. What the planner asks "nearest tree?" of. */
+    public java.util.Optional<dev.yuliang.zymbot.core.survey.Survey> survey() { return java.util.Optional.ofNullable(survey); }
+
+    /** A finished survey is kept and logged; a wanted one starts once we're alive and up. */
+    private void pollSurvey(WorldView world, long now) {
+        if (surveying != null && surveying.isDone()) {
+            try {
+                survey = surveying.join();
+                log.record("surveyed", survey.why() + " : " + survey.summary());
+            } catch (RuntimeException e) {
+                LOG.warn("[zymbot] survey failed: {}", e.toString());
+            }
+            surveying = null;
+        }
+        if (surveyWanted != null && surveying == null && address != null && !world.isDead() && world.downedSecondsLeft() < 0) {
+            String why = surveyWanted;
+            surveyWanted = null;
+            surveying = dev.yuliang.zymbot.core.survey.Surveyor.take(world, why, now, config.planTimeoutMs);
+            if (surveying.isDone()) pollSurvey(world, now);      // tests: grouped at once
+        }
+    }
+
+    /** /zbot survey: look around now, and print what was found. Read only. */
+    public List<String> surveyNow() {
+        WorldView w = current;
+        if (w == null || address == null) return List.of("not in a world");
+        surveyWanted = "asked by /" + config.commandRoot + " survey";
+        dev.yuliang.zymbot.core.survey.Survey before = survey;
+        pollSurvey(w, clock.getAsLong());
+        if (survey != null && survey != before) return survey.lines(clock.getAsLong());
+        List<String> out = new ArrayList<>();
+        out.add("surveying in the background — /" + config.commandRoot + " survey again in a moment for the new one");
+        if (before != null) out.addAll(before.lines(clock.getAsLong()));
+        return out;
+    }
+
     public String regroupNow() {
         String no = needsControl();
         if (no != null) return no;

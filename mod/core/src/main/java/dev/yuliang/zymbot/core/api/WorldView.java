@@ -103,4 +103,20 @@ public interface WorldView {
 
     /** Nearest known place with this tag ("bed", "village", ...). Empty until the map exists. */
     default Optional<BlockPos> nearest(String placeTag) { return Optional.empty(); }
+
+    // ------------------------------------------------------------------ survey (phase 3)
+
+    /** Registry id of the biome at our feet ("minecraft:plains"), or "unknown". */
+    default String biome() { return "unknown"; }
+
+    /**
+     * Every loaded block within {@code radius} blocks across and {@code below}..{@code above} of our
+     * feet whose registry id {@code wanted} accepts, at most {@code max} of them. Read now, on the
+     * calling (game) thread: only the matching positions are copied, so the result is safe to search
+     * from any other thread (the survey's grouping runs off the game thread, like the route planner).
+     */
+    default List<BlockHit> scanBlocks(int radius, int below, int above, int max,
+                                      java.util.function.Predicate<String> wanted) {
+        return List.of();
+    }
 }

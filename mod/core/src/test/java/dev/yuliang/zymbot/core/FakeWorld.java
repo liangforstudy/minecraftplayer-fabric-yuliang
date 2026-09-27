@@ -23,6 +23,37 @@ import java.util.UUID;
 public final class FakeWorld implements WorldView, Hands {
     static {
         dev.yuliang.zymbot.core.task.RouteTask.PLANNER = Runnable::run;   // plans finish at once in tests
+        dev.yuliang.zymbot.core.survey.Surveyor.EXECUTOR = Runnable::run; // so do surveys
+    }
+
+    public String biome = "minecraft:plains";
+
+    @Override public String biome() { return biome; }
+
+    /** The scripted {@link #blocks}, filtered like the real scan (a cube around us, capped). */
+    @Override
+    public List<dev.yuliang.zymbot.core.api.BlockHit> scanBlocks(int radius, int below, int above, int max,
+                                                                 java.util.function.Predicate<String> wanted) {
+        BlockPos at = BlockPos.of(pos);
+        return blocks.entrySet().stream()
+                .filter(e -> Math.abs(e.getKey().x() - at.x()) <= radius && Math.abs(e.getKey().z() - at.z()) <= radius
+                        && e.getKey().y() >= at.y() - below && e.getKey().y() <= at.y() + above && wanted.test(e.getValue()))
+                .limit(max)
+                .map(e -> new dev.yuliang.zymbot.core.api.BlockHit(e.getKey(), e.getValue()))
+                .toList();
+    }
+
+    /** A straight trunk of {@code height} logs standing on (x, y, z); {@code huge}: a 2×2 trunk. */
+    public FakeWorld tree(int x, int y, int z, int height, String log, boolean huge) {
+        for (int h = 0; h < height; h++) {
+            blocks.put(new BlockPos(x, y + h, z), log);
+            if (huge) {
+                blocks.put(new BlockPos(x + 1, y + h, z), log);
+                blocks.put(new BlockPos(x, y + h, z + 1), log);
+                blocks.put(new BlockPos(x + 1, y + h, z + 1), log);
+            }
+        }
+        return this;
     }
 
     public final UUID id;

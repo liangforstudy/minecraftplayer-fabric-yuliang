@@ -324,6 +324,60 @@ final class FabricWorldView implements WorldView {
     }
 
     @Override
+    public String biome() {
+        return level.getBiome(player.blockPosition()).unwrapKey().map(k -> k.location().toString()).orElse("unknown");
+    }
+
+    /** Per block type: does the survey want it? Asked once per type, not once per block. */
+    private static final java.util.Map<net.minecraft.world.level.block.Block, Boolean> WANTED =
+            new java.util.concurrent.ConcurrentHashMap<>();
+
+    /**
+     * Game thread, kept cheap: walks the loaded chunk sections in range, skips any section whose
+     * palette holds nothing the survey wants (most of them — stone, dirt, air), and only reads the
+     * blocks of the rest. Copies positions + ids, nothing else.
+     */
+    @Override
+    public List<dev.yuliang.zymbot.core.api.BlockHit> scanBlocks(int radius, int below, int above, int max,
+                                                                 java.util.function.Predicate<String> wanted) {
+        java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> want = st -> WANTED.computeIfAbsent(
+                st.getBlock(), b -> wanted.test(BuiltInRegistries.BLOCK.getKey(b).toString()));
+        BlockPos at = BlockPos.of(pos);
+        int minY = Math.max(level.getMinBuildHeight(), at.y() - below), maxY = Math.min(level.getMaxBuildHeight() - 1, at.y() + above);
+        List<dev.yuliang.zymbot.core.api.BlockHit> out = new ArrayList<>();
+        for (int cx = (at.x() - radius) >> 4; cx <= (at.x() + radius) >> 4; cx++) {
+            for (int cz = (at.z() - radius) >> 4; cz <= (at.z() + radius) >> 4; cz++) {
+                if (!level.hasChunk(cx, cz)) continue;
+                var chunk = level.getChunk(cx, cz);
+                for (int sy = minY >> 4; sy <= maxY >> 4; sy++) {
+                    int idx = level.getSectionIndexFromSectionY(sy);
+                    if (idx < 0 || idx >= chunk.getSections().length) continue;
+                    var section = chunk.getSections()[idx];
+                    if (section.hasOnlyAir() || !section.maybeHas(want)) continue;
+                    for (int ly = 0; ly < 16; ly++) {
+                        int y = (sy << 4) + ly;
+                        if (y < minY || y > maxY) continue;
+                        for (int lx = 0; lx < 16; lx++) {
+                            int x = (cx << 4) + lx;
+                            if (Math.abs(x - at.x()) > radius) continue;
+                            for (int lz = 0; lz < 16; lz++) {
+                                int z = (cz << 4) + lz;
+                                if (Math.abs(z - at.z()) > radius) continue;
+                                var st = section.getBlockState(lx, ly, lz);
+                                if (!want.test(st)) continue;
+                                out.add(new dev.yuliang.zymbot.core.api.BlockHit(new BlockPos(x, y, z),
+                                        BuiltInRegistries.BLOCK.getKey(st.getBlock()).toString()));
+                                if (out.size() >= max) return out;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    @Override
     public Optional<BlockPos> findBlock(String blockId, int radius) {
         int r = Math.min(radius, 32);
         BlockPos at = BlockPos.of(pos);
