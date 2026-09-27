@@ -110,7 +110,9 @@ class BotTest {
 
         b.humanInput(w);
         assertTrue(b.status().get(0).contains("paused"));
-        assertTrue(w.notices.get(0).contains("paused"));
+        assertTrue(w.notices.get(0).startsWith("zymbot paused — you can move yourself around for now. It goes back to automation mode "),
+                w.notices.get(0));
+        assertTrue(w.notices.get(0).endsWith("s after you stop, or /zbot stop to stop the bot."), w.notices.get(0));
 
         clock.advance(7_500);
         b.tick(w, w);

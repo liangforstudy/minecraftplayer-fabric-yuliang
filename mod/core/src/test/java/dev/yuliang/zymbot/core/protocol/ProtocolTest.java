@@ -23,6 +23,21 @@ class ProtocolTest {
     }
 
     @Test
+    void statusRequestAndLines_roundTrip_andALongLineStillFitsOnePacket() {
+        Signer s = new Signer("key");
+        Envelope ask = new Envelope("id2", a, "srv", 5, 1, 0, 0, MessageTypes.STATUS, List.of("Owner", "Bot1", "ab12cd34"));
+        assertEquals(Optional.of(ask), Envelope.decode(ask.encode(s), s));
+        String line = "body: health 20, hunger 18/20 (+4.5 saturation) — eats at ≤14, critical ≤8, leash 21, danger modpack "
+                + "x".repeat(300 - 104);
+        Envelope reply = new Envelope("id3", b, "srv", 5, 1, -338, 244, MessageTypes.STATUS_LINE,
+                List.of("Bot1", "Owner", "ab12cd34", "3", "12", line));
+        assertEquals(Optional.of(reply), Envelope.decode(reply.encode(s), s));
+        String sealed = new Sealer("team-key").seal(reply.encode(s));
+        assertTrue(sealed.getBytes(java.nio.charset.StandardCharsets.UTF_8).length < 1400,
+                "a 300-char status line fits the local bus's packet: " + sealed.length());
+    }
+
+    @Test
     void tamperedOrWrongKeyIsRejected() {
         Signer s = new Signer("key");
         String line = new Envelope("id1", a, "srv", 5, 1, 0, 0, "READ", List.of("blood", "0.7")).encode(s);

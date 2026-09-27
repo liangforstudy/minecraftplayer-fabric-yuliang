@@ -151,6 +151,12 @@ public final class Bot {
     private String surveyWanted;                                 // why a survey is due (start, respawn, command), until taken
     private java.util.concurrent.CompletableFuture<dev.yuliang.zymbot.core.survey.Survey> surveying;
     private dev.yuliang.zymbot.core.survey.Survey survey;        // the latest, for the planner and /zbot survey
+    private String surveyToChat;                                 // the why of an asked-for survey still running: print it when done
+    /** /zbot see <bot> asks still waiting for their lines, by request id. */
+    private final java.util.Map<String, SeeAsk> seeAsks = new java.util.LinkedHashMap<>();
+    private record SeeAsk(String bot, long deadline, String[] lines) {}
+    /** Backstop only: the answer normally arrives within a tick or two over the local bus. */
+    static final long SEE_TIMEOUT_MILLIS = 5_000;
 
     /** A message whose sender isn't in the tab list yet — they may have joined a moment ago. */
     private record Pending(Envelope envelope, long since) {}
@@ -265,6 +271,8 @@ public final class Bot {
         survey = null;                                           // another world's surroundings
         surveying = null;
         surveyWanted = null;
+        surveyToChat = null;
+        seeAsks.clear();
     }
 
     /** The bot takes control. Works for any role when asked by hand. */
@@ -303,8 +311,8 @@ public final class Bot {
         if (now >= pausedUntil) {
             brain.halt("a human took the controls");
             log.record("paused", "a human took the controls");
-            hands.notifyLocal("zymbot paused — you have the controls. It resumes " + config.humanPauseSeconds
-                    + "s after you stop.");
+            hands.notifyLocal("zymbot paused — you can move yourself around for now. It goes back to automation mode "
+                    + config.humanPauseSeconds + "s after you stop, or /" + config.commandRoot + " stop to stop the bot.");
         }
         pausedUntil = now + config.humanPauseSeconds * 1000L;
         resumeWarned = false;
@@ -318,6 +326,7 @@ public final class Bot {
         this.hands = hands;
         retryPending(now);
         bus.drain();
+        expireSeeAsks(now);
         trackTabList(world, now);
         if (memoryDirty && now >= nextSave) saveMemory();
         if (repeatSummon != null && now >= nextSummonRepeat) {
@@ -533,6 +542,14 @@ public final class Bot {
         }
         if (MessageTypes.WHERE.equals(e.type())) {              // a bot is regrouping: tell it where we are now
             nextHello = 0;
+            return;
+        }
+        if (MessageTypes.STATUS.equals(e.type())) {             // someone ran /zbot see <us>
+            answerStatus(e.field(0), e.field(1), e.field(2));
+            return;
+        }
+        if (MessageTypes.STATUS_LINE.equals(e.type())) {
+            onStatusLine(e);
             return;
         }
         if (MessageTypes.ROSTER.equals(e.type())) {             // someone we don't know yet? ask them all
@@ -909,6 +926,80 @@ public final class Bot {
         return "coming to " + name + " at " + x + " " + z + (seen ? "" : " (where they last announced)") + pathfinderWarning();
     }
 
+    /**
+     * /zbot see &lt;bot&gt;: ask that bot for its status over the bus — its state lives on its own
+     * client, so a Teammate can't read it locally. The lines are printed as they complete.
+     */
+    public List<String> see(String botName) {
+        if (address == null) return List.of("not in a world");
+        if (botName.equalsIgnoreCase(selfName)) return status();
+        WorldView w = current;
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
+        String reqId = UUID.randomUUID().toString().substring(0, 8);
+        seeAsks.put(reqId, new SeeAsk(botName, clock.getAsLong() + SEE_TIMEOUT_MILLIS, null));
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS, List.of(selfName, botName, reqId));
+        return List.of("asking " + botName + " for its status…");
+    }
+
+    private void answerStatus(String asker, String botName, String reqId) {
+        if (!botName.equalsIgnoreCase(selfName) || asker.equalsIgnoreCase(selfName)) return;
+        WorldView w = current;
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
+        List<String> lines = status();
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (line.length() > 300) line = line.substring(0, 300) + "…";   // one line per packet, well under the 1400-byte cap
+            bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS_LINE,
+                    List.of(selfName, asker, reqId, Integer.toString(i), Integer.toString(lines.size()), line));
+        }
+        log.record("told " + asker + " my status", "asked by /" + config.commandRoot + " see " + selfName);
+    }
+
+    /** Lines may arrive out of order (UDP): hold them until the set is complete, then print in order. */
+    private void onStatusLine(Envelope e) {
+        if (!e.field(1).equalsIgnoreCase(selfName)) return;
+        SeeAsk ask = seeAsks.get(e.field(2));
+        if (ask == null) return;                                // timed out already, or not ours
+        int i, n;
+        try {
+            i = Integer.parseInt(e.field(3));
+            n = Integer.parseInt(e.field(4));
+        } catch (NumberFormatException ex) {
+            return;
+        }
+        if (n <= 0 || n > 100 || i < 0 || i >= n) return;
+        String[] lines = ask.lines();
+        if (lines == null || lines.length != n) {
+            lines = new String[n];
+            seeAsks.put(e.field(2), ask = new SeeAsk(ask.bot(), ask.deadline(), lines));
+        }
+        lines[i] = e.field(5);
+        if (java.util.Arrays.stream(lines).anyMatch(java.util.Objects::isNull)) return;
+        seeAsks.remove(e.field(2));
+        if (hands == null) return;
+        hands.notifyLocal(e.field(0) + " status:");
+        for (String l : lines) hands.notifyLocal("  " + l);
+    }
+
+    /** The backstop: no (complete) answer in time. */
+    private void expireSeeAsks(long now) {
+        if (seeAsks.isEmpty()) return;
+        var it = seeAsks.values().iterator();
+        while (it.hasNext()) {
+            SeeAsk a = it.next();
+            if (now < a.deadline()) continue;
+            it.remove();
+            if (hands == null) continue;
+            if (a.lines() == null) {
+                hands.notifyLocal("no answer from " + a.bot() + " in " + SEE_TIMEOUT_MILLIS / 1000
+                        + "s — not online, not on the local bus, or on another team key");
+            } else {
+                hands.notifyLocal(a.bot() + " status (some lines lost on the way):");
+                for (String l : a.lines()) if (l != null) hands.notifyLocal("  " + l);
+            }
+        }
+    }
+
     /** Ask a bot (by name) to /msg us its decisions, or to stop. */
     public String watch(String botName, boolean on) {
         if (address == null) return "not in a world";
@@ -943,7 +1034,7 @@ public final class Bot {
         if (no != null) return no;
         BlockPos target = new BlockPos(x, y, z);
         String where = x + " " + y + " " + z;
-        String why = "ordered by /" + config.commandRoot + " punch";
+        String why = "ordered by /" + config.commandRoot + " debug punch";
         brain.order(Objective.of("break the block at " + where, why,
                 (world, h) -> new dev.yuliang.zymbot.core.task.BreakTask(h, target, why, log::record)));
         String id = current == null ? "the block" : current.blockAt(target);
@@ -1122,6 +1213,12 @@ public final class Bot {
             try {
                 survey = surveying.join();
                 log.record("surveyed", survey.why() + " : " + survey.summary());
+                // the asker saw only "surveying in the background"; the new one used to reach the log
+                // alone, leaving the old one in chat (2026-09-27): print it to them now
+                if (survey.why().equals(surveyToChat) && hands != null) {
+                    surveyToChat = null;
+                    survey.lines(now, BlockPos.of(world.position())).forEach(hands::notifyLocal);
+                }
             } catch (RuntimeException e) {
                 LOG.warn("[zymbot] survey failed: {}", e.toString());
             }
@@ -1135,17 +1232,24 @@ public final class Bot {
         }
     }
 
-    /** /zbot survey: look around now, and print what was found. Read only. */
+    /** /zbot debug survey: look around now, and print what was found. Read only. */
     public List<String> surveyNow() {
         WorldView w = current;
         if (w == null || address == null) return List.of("not in a world");
-        surveyWanted = "asked by /" + config.commandRoot + " survey";
+        String why = "asked by /" + config.commandRoot + " debug survey";
+        surveyWanted = why;
         dev.yuliang.zymbot.core.survey.Survey before = survey;
-        pollSurvey(w, clock.getAsLong());
-        if (survey != null && survey != before) return survey.lines(clock.getAsLong());
+        long now = clock.getAsLong();
+        BlockPos here = BlockPos.of(w.position());
+        pollSurvey(w, now);
+        if (survey != null && survey != before) return survey.lines(now, here);
+        surveyToChat = why;                                      // pollSurvey prints it when the scan finishes
         List<String> out = new ArrayList<>();
-        out.add("surveying in the background — /" + config.commandRoot + " survey again in a moment for the new one");
-        if (before != null) out.addAll(before.lines(clock.getAsLong()));
+        out.add("surveying in the background — it'll show here when done");
+        if (before != null) {
+            out.add("meanwhile, the last one:");
+            out.addAll(before.lines(now, here));
+        }
         return out;
     }
 

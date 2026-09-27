@@ -127,6 +127,38 @@ class SurveyTest {
                 b.status().toString());
         List<String> out = b.surveyNow();
         assertTrue(out.get(0).startsWith("survey ("), out.toString());
-        assertTrue(out.get(0).contains("asked by /zbot survey"), out.toString());
+        assertTrue(out.get(0).contains("asked by /zbot debug survey"), out.toString());
+    }
+
+    /** 2026-09-27: the command showed the old survey, taken 85 blocks away, and the new one only reached the log. */
+    @Test
+    void aBackgroundSurvey_isPrintedWhenDone_andAnOldOneSaysWhereItWasTaken() {
+        FakeWorld w = new FakeWorld("Bot1");
+        FakeClock clock = new FakeClock();
+        Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve("Bot1"), w.id, true, clock);
+        b.onJoin("x", "Bot1");
+        b.start("test");
+        b.tick(w, w);                                          // the start survey, at 0.5 64 0.5
+        List<Runnable> queued = new java.util.ArrayList<>();
+        java.util.concurrent.Executor was = Surveyor.EXECUTOR;
+        Surveyor.EXECUTOR = queued::add;                       // the grouping waits, like the real thread
+        try {
+            w.pos = new dev.yuliang.zymbot.core.api.Vec3(-84.5, 64, 0.5);
+            clock.now += 838_000;
+            List<String> out = b.surveyNow();
+            assertEquals("surveying in the background — it'll show here when done", out.get(0), out.toString());
+            assertTrue(out.stream().anyMatch(l -> l.startsWith("survey (838s ago, 85 blocks E of here, started")), out.toString());
+            b.tick(w, w);
+            assertTrue(w.notices.stream().noneMatch(l -> l.startsWith("survey (")), "not done yet");
+            queued.forEach(Runnable::run);
+            b.tick(w, w);
+            assertTrue(w.notices.stream().anyMatch(l -> l.startsWith("survey (0s ago, taken here, asked by /zbot debug survey)")),
+                    w.notices.toString());
+            int n = w.notices.size();
+            b.tick(w, w);
+            assertEquals(n, w.notices.size(), "printed once");
+        } finally {
+            Surveyor.EXECUTOR = was;
+        }
     }
 }

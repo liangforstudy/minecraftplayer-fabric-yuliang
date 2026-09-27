@@ -40,13 +40,6 @@ to confirm (or debug orders like `punch`/`survey` work without starting).
 - d) Something feels missing after `/zbot start` on a Teammate (owner can't name it yet). Ideas: an
   on-screen "bot is driving" indicator; the roster saying "Teammate (bot driving)" rather than "Bot".
 
-## 3. `/zbot survey` prints the old survey, not the new one (2026-09-27, 0.1.35)
-
-**Seen:** Bot1 at spawn typed `/zbot survey`: chat showed the survey from 838 s ago, taken where it
-joined 85 blocks E — "spawn 85 blocks W", "tree 32 blocks NE" were true *there*, not here. The new
-one (1 tree, 52 blocks NE) only reached the log. **Fix:** when the background scan finishes, print
-it to whoever asked; label an old one with where it was taken ("838 s ago, 85 blocks E of here").
-
 ## 4. ~~`/zbot punch` "picked up nothing" the tick the block broke~~ — fixed in source, not yet built
 
 Drops reach the client a few ticks after the block goes; BreakTask now waits for the drop (or the pickup) to arrive, up to the 5 s collect window,
@@ -67,17 +60,8 @@ pick it up" is a handy errand. Proposal: on a Teammate, a one-shot order (`grave
 you touch a key), with no `/zbot start` and without announcing as a Bot. Standing jobs
 (`follow`, the planner) still need `start`. May be the "something missing" of #2 d.
 
-## 7. Pause message wording (2026-09-27)
+## Built, needs live test
 
-Now: "zymbot paused — you have the controls. It resumes 10s after you stop." Owner's wording:
-"zymbot paused — you can move yourself around for now. It goes back to automation mode 10s after you
-stop, or /zbot stop to stop the bot." The "resumes in 3s" line stays as is.
-
-## 8. Command tidy-up (2026-09-27, owner suggestion, not a blocker)
-
-- Debug commands under `/zbot debug …`: `terrain`, `block`, `foods`, `punch`, `survey` (owner named
-  terrain + food; the rest to confirm).
-- `/zbot see` = `/zbot status`.
-- `/zbot see <bot>`: a Teammate reads a bot's status. Needs a new bus request/reply (STATUS), since the
-  bot's state lives on the bot; the answer is shown in the asker's chat. Autocomplete from the roster.
-- Update SKILL.md (both copies), PHASE1.md and `help()` together (SkillDocTest).
+- #3 `/zbot debug survey`: the background scan prints in chat when done; an old one is labelled "Ns ago, N blocks X of here".
+- #7 pause message: new wording (`notifyLocal`), unit-tested.
+- #8 `/zbot debug …` (terrain, block, foods, punch, survey), `/zbot see` = status, `/zbot see <bot>` over the bus (STATUS → STATUS_LINE, 5 s backstop) — both clients need the new build; check roster autocomplete.

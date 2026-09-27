@@ -97,9 +97,17 @@ public record Survey(String why, long takenAtMillis, BlockPos at, String biome, 
     }
 
     /** A few lines, for /zbot survey. */
-    public List<String> lines(long nowMillis) {
+    public List<String> lines(long nowMillis) { return lines(nowMillis, null); }
+
+    /**
+     * As {@link #lines(long)}, saying where it was taken relative to {@code here}: every distance
+     * in it is from *there*, and an old one read at spawn looked like it was about spawn (2026-09-27:
+     * "838s ago", taken 85 blocks E). Null {@code here}: don't say.
+     */
+    public List<String> lines(long nowMillis, BlockPos here) {
         List<String> out = new ArrayList<>();
-        out.add("survey (" + Math.max(0, (nowMillis - takenAtMillis) / 1000) + "s ago, " + why + "):");
+        out.add("survey (" + Math.max(0, (nowMillis - takenAtMillis) / 1000) + "s ago, "
+                + (here == null ? "" : takenWhere(here) + ", ") + why + "):");
         out.add("  around: " + summary());
         List<String> others = new ArrayList<>();
         for (Kind k : Kind.values()) {
@@ -117,6 +125,12 @@ public record Survey(String why, long takenAtMillis, BlockPos at, String biome, 
         out.add(String.format(Locale.ROOT, "  scan: %d blocks within %d across, %d below to %d above; grouped in %d ms off the game thread%s",
                 blocksSeen, SurveyCatalog.RADIUS, SurveyCatalog.BELOW, SurveyCatalog.ABOVE, searchMs, truncated ? " — cut short" : ""));
         return out;
+    }
+
+    /** "taken here" or "85 blocks E of here" (flat distance, as spawn's). */
+    public String takenWhere(BlockPos here) {
+        long d = Math.round(Math.hypot(at.x() - here.x(), at.z() - here.z()));
+        return d == 0 ? "taken here" : d + " blocks " + direction(here, at) + " of here";
     }
 
     private String spawnWords() {

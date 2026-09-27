@@ -18,6 +18,10 @@ public final class MessageTypes {
     public static final String WATCH = "WATCH";
     /** <asker name> — a regrouping bot wants fresh positions: answer with a HELLO now (PHASE2.md §1). */
     public static final String WHERE = "WHERE";
+    /** <asker> <bot> <reqId> — /zbot see <bot>: that bot answers with its status, one STATUS_LINE per line. */
+    public static final String STATUS = "STATUS";
+    /** <bot> <asker> <reqId> <index> <count> <line> — one status line; one per packet keeps each well under the local bus's packet cap. */
+    public static final String STATUS_LINE = "STATUS_LINE";
 
     private MessageTypes() {}
 }

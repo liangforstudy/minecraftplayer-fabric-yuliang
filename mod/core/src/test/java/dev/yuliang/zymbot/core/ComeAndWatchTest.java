@@ -81,6 +81,45 @@ class ComeAndWatchTest {
     }
 
     @Test
+    void see_asksTheBotOverTheBus_andPrintsItsStatus() {
+        FakeBus net = new FakeBus();
+        ZymbotConfig a = new ZymbotConfig(), c = new ZymbotConfig();
+        a.teamKey = c.teamKey = "shared-team-key-123";
+        FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Bot2");
+        FakeWorld.sameServer(w1, w2);
+        Bot bot = running(w1, a);
+        Bot human = new Bot(c, dir.resolve("h.json"), dir.resolve("h"), w2.id, false, clock);
+        human.onJoin("127.0.0.1:25565", "Bot2");
+        bot.attachTransport(net.endpoint());
+        human.attachTransport(net.endpoint());
+        human.tick(w2, w2);
+        assertEquals(java.util.List.of("asking Bot1 for its status…"), human.see("Bot1"));
+        ticks(bot, w1, 1);                                     // the bot answers
+        human.tick(w2, w2);                                    // the asker prints it
+        assertEquals("Bot1 status:", w2.notices.get(0), w2.notices.toString());
+        assertTrue(w2.notices.stream().anyMatch(s -> s.startsWith("  phase: ")), w2.notices.toString());
+        assertEquals(1, w2.notices.stream().filter(s -> s.startsWith("  phase: ")).count(), "printed once");
+        assertTrue(w2.notices.size() > 5, "every line: " + w2.notices);
+        assertTrue(w1.notices.isEmpty(), "nothing shown on the bot's own screen");
+    }
+
+    @Test
+    void see_saysNoAnswer_afterTheTimeout() {
+        FakeWorld w2 = new FakeWorld("Bot2");
+        Bot human = new Bot(new ZymbotConfig(), dir.resolve("h.json"), dir.resolve("h"), w2.id, false, clock);
+        human.onJoin("127.0.0.1:25565", "Bot2");
+        human.tick(w2, w2);
+        human.see("Bot9");
+        clock.now += Bot.SEE_TIMEOUT_MILLIS - 100;
+        human.tick(w2, w2);
+        assertTrue(w2.notices.isEmpty(), "not yet");
+        clock.now += 200;
+        human.tick(w2, w2);
+        assertEquals(1, w2.notices.size(), w2.notices.toString());
+        assertTrue(w2.notices.get(0).startsWith("no answer from Bot9 in 5s"), w2.notices.toString());
+    }
+
+    @Test
     void grave_walkOver_rightClickWithAnEmptyHand_untilItsGone() {
         FakeWorld w = new FakeWorld("Bot1");
         w.give(0, "minecraft:stick", 1, null);

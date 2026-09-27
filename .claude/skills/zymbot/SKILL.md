@@ -118,7 +118,8 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | command | does |
 |---|---|
 | `help` | list the commands (also bare `/zbot`) |
-| `status` | phase, current task and why, interrupts |
+| `status` / `see` | phase, current task and why, interrupts |
+| `see <bot>` | that bot's status, asked over the team bus (STATUS → STATUS_LINE); for a Teammate reading a bot; "no answer" after 5 s |
 | `start` / `stop` | hand control to the bot / take it back |
 | `role bot\|teammate\|none` | what this account is (Bot: bot plays it; Teammate: human plays, it announces) |
 | `goto <x> <z>` / `goto <x> <y> <z>` | walk there via the route planner + Baritone |
@@ -127,16 +128,16 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `watch <bot> [off]` | that bot /msg's you its decisions for 30 min |
 | `look <player>` | face a player |
 | `eat` | eat the best food now |
-| `foods` | the food carried, with the game's live (Spice of Fabric–decayed) values |
 | `grave` | walk to the nearest civfabric grave (16 blocks; else the death spot) and take the items back |
-| `terrain <x> <z>` | debug: what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
-| `block <x> <y> <z>` | debug: the block id there |
-| `punch <x> <y> <z>` | order: break that block like a player (walk into reach, best hotbar tool, else bare hands) and pick up the drops (5 s); `~` works |
+| `debug terrain <x> <z>` | what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
+| `debug block <x> <y> <z>` | the block id there |
+| `debug foods` | the food carried, with the game's live (Spice of Fabric–decayed) values |
+| `debug punch <x> <y> <z>` | order: break that block like a player (walk into reach, best hotbar tool, else bare hands) and pick up the drops (5 s); `~` works |
 | `cancel` | drop the current order |
 | `set [<setting> <n>]` | list, or change a tunable: `leash` 8–1000, `heel` 1–256 (idle follow stops this close; below the leash), `eat` 1–19, `critical` 1–19, `downed` 0–55 s, `regroup` 8–256, `probewait` 5–300 s, `plantime` 50–5000 ms, `lagtps` 5–19 (also Mod Menu → Zymbot → Body) |
 | `danger [modpack\|easy\|normal\|hard]` | when it runs from a mob: `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4) |
 | `regroup` | walk back to the nearest Zymbot teammate now (automatic on start and after a respawn, when none is within `regroup` blocks); once started it goes all the way (~4 blocks); a bus position older than 120 s doesn't count, so a silent team → spawn after `probewait`. An idle bot also follows past `leash` (default 21) and stops at `heel` (default 2), like a wolf |
-| `survey` | read only: look around now and print it — trees (nearest, huge = 2×2 trunk), wild food patches, crafting tables, furnaces, chests/barrels, beds, campfires within 56 blocks (16 below to 24 above), plus inventory, health/hunger, food carried with live values, biome, day/time, spawn distance. Automatic on start and after a respawn; logged as `[decision] surveyed — because …` |
+| `debug survey` | read only: look around now; the new one prints in chat when the background scan finishes (an old one meanwhile, labelled with its age and where it was taken) — trees (nearest, huge = 2×2 trunk), wild food patches, crafting tables, furnaces, chests/barrels, beds, campfires within 56 blocks (16 below to 24 above), plus inventory, health/hunger, food carried with live values, biome, day/time, spawn distance. Automatic on start and after a respawn; logged as `[decision] surveyed — because …` |
 | `roster` | the team list: each Bot / Teammate, online or not (tab list), last heard, where, and how (bus / seen) |
 | `summon` / `summon auto on\|off` | bots waiting at their title screen join this world (auto: whenever it opens to LAN) |
 | `lan` / `lan auto on\|off` | open this world to LAN, port 25565, online mode off (auto: every time it loads) |
