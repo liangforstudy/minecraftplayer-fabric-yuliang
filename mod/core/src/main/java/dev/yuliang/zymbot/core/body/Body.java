@@ -83,6 +83,11 @@ public final class Body {
                 .min(Comparator.comparingDouble(e -> e.pos().horizontalDistance(me)));
     }
 
+    /** Drop the attack memory if the attacker is a teammate (after a revive). */
+    public void forgetTeammateAttacker() {
+        if (lastAttack != null && lastAttack.id() != null && isTeammate.test(lastAttack.id())) lastAttack = null;
+    }
+
     public Optional<Attack> recentAttack() {
         return Optional.ofNullable(lastAttack).filter(a -> clock.getAsLong() - a.at() <= ATTACK_MEMORY_MILLIS);
     }

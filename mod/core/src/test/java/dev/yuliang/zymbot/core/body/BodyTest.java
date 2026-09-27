@@ -521,6 +521,7 @@ class BodyTest {
         ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 3);
         assertTrue(log(b).contains("respawned — because died and respawned at once — a new player body"), log(b));
         assertTrue(log(b).contains("regrouping with Mate"), "the real respawn arms the regroup: " + log(b));
+        assertFalse(log(b).contains("revived — because"), "a respawn after bleeding out is no revive: " + log(b));
     }
 
     @Test
@@ -536,6 +537,28 @@ class BodyTest {
         ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 5);
         assertFalse(log(b).contains("respawned — because"), log(b));
         assertFalse(log(b).contains("regrouping with"), log(b));
+    }
+
+    @Test
+    void revivedByTheTeammateWhoHurtUs_logsIt_andDoesntRunFromThem() {
+        // 2026-09-26: /damage by the owner, then their stitches — Bot1 got up and fled from its reviver
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 3, 0);
+        Bot b = running(w, withTeammate(mate), true);
+        ticks(b, w, 3);
+        w.damage = new Damage("minecraft:player_attack", "Mate", mate.pos(), mate.uuid());
+        w.health = 1;
+        w.downed = 59;
+        ticks(b, w, 2);
+        w.damage = null;
+        w.beingRevived = true;
+        ticks(b, w, 20);
+        w.beingRevived = false;
+        w.downed = -1;                                          // back up, same body, not dead
+        w.health = 2;
+        ticks(b, w, Bot.RESPAWN_GRACE_TICKS + 3);
+        assertTrue(log(b).contains("revived — because someone treated my injuries"), log(b));
+        assertFalse(log(b).contains("retreating from"), "no running from the reviver: " + log(b));
     }
 
     @Test
@@ -1101,7 +1124,7 @@ class BodyTest {
         Bot b = running(w, withTeammate(mate), true);
         ticks(b, w, 3);
         assertNotNull(w.paths.goal, log(b));
-        assertTrue(log(b).contains("nobody from the team within 32 blocks; Mate is at 300, 0 (in sight)"), log(b));
+        assertTrue(log(b).contains("nobody from the team within 32 blocks; Mate was at 300, 0 (in sight)"), log(b));
     }
 
     @Test

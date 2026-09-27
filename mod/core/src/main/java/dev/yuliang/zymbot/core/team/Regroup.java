@@ -106,7 +106,9 @@ public final class Regroup implements Planner {
         if (first.isEmpty()) return toSpawn(world);
         active = true;
         Found f = first.get();
-        String why = "nobody from the team within " + config.regroupWithin + " blocks; " + f.mate().name() + " is at "
+        // "was at": the reason stays as it started, while the task's describe() follows them live —
+        // status read "at 175 -58 … Bluetails_zym is at 306, 58" after they moved (2026-09-27)
+        String why = "nobody from the team within " + config.regroupWithin + " blocks; " + f.mate().name() + " was at "
                 + Math.round(f.mate().pos().x()) + ", " + Math.round(f.mate().pos().z())
                 + (f.mate().live() ? " (in sight)" : " (bus, " + Math.max(0, f.ageMillis() / 1000) + " s ago)");
         String who = f.mate().name();

@@ -31,6 +31,7 @@ Known bugs, found in testing, not yet fixed. Remove an entry when its fix is com
   can't help; the keep-alive mixin was removed again in 0.1.16.
 - **Warm-up tried and dropped (0.1.15):** running the rebuild twice at startup took **6.0 s and 6.1 s** —
   no JIT gain, so it can't make a join's rebuild quicker. Removed in 0.1.16.
+- **0.1.34 (2026-09-27):** a failed summoned join retries 4× with backoff (10/20/40/80 s); after `play.bat` Bot1 got in on the first retry by itself.
 - **So the real cause:** alone the rebuild is ~6 s; during joins it stalled ~20 s — the host game
   running on the same Mac at the same time (the owner's guess, now measured). Joins with the
   auto-summon's retries still get in. Expected to mostly vanish with bots on their own machine
@@ -103,3 +104,11 @@ hard stop, #2 drowning at the shore, #4 two bites per eat, #6 quick death left t
 (re-tested live 2026-09-22: `goto`, `/kill` mid-walk → order cancelled, idle after respawn), #7 a
 benched reflex blind to a new attacker (re-tested: retreat 2 s after a provoked zombie's hit —
 but it walked, and the zombie kept up; 0.1.10 runs instead).
+
+## 10. Regroups across water give up past render distance
+
+- **Seen:** 2026-09-26, `failed: regrouping … — no path, even swimming — the pathfinder gave up 386 blocks
+  short` (and 456) — the teammate was across the sea, beyond the loaded chunks.
+- **Why:** the route planner and Baritone only see loaded chunks (render distance 6 ≈ 96 blocks).
+- **Idea:** read Baritone's chunk cache (`gamedir/baritone/<server>/…`) so the planner sees terrain the
+  bot has visited before. Unvisited ocean stays unknown either way.

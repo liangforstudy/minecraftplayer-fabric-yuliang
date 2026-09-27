@@ -143,6 +143,8 @@ public final class Bot {
     private int knownLives = -1;                                 // WorldView.lives(); -1 until first seen in this world
     private String pendingRespawn;                               // an unseen respawn's why, until the grace runs out
     private int pendingRespawnTicks;
+    private boolean wasDowned, sawRevive;                        // knocked out last tick; saw "Being Revived"
+    private int reviveCheckTicks, livesWhenUp;                   // >0: up again, a revive unless it turns out a death
     private final java.util.Map<String, Long> watchers = new java.util.LinkedHashMap<>();   // name → until
     private SummonTarget repeatSummon;                           // auto-summon: say it again for a while
     private long repeatSummonUntil, nextSummonRepeat;
@@ -166,6 +168,9 @@ public final class Bot {
         DownedTask.Help help = new DownedTask.Help() {
             public void callForHelp(WorldView w, List<EntityView> humans) { announceDowned(w, humans); }
             public boolean medicNear(WorldView w) { return false; }   // bots announce their class in a later phase
+            // a teammate who hurt us (a test /damage, friendly fire) and then revived us isn't a threat:
+            // Bot1 ran from its reviver straight after getting up (2026-09-26)
+            public void revived(WorldView w) { body.forgetTeammateAttacker(); }
         };
         this.regroup = new dev.yuliang.zymbot.core.team.Regroup(config, body, () -> memory.roster, clock,
                 target -> new dev.yuliang.zymbot.core.task.RouteTask(hands.paths(), target, true, COME_WITHIN,
@@ -213,6 +218,8 @@ public final class Bot {
         sawDeath = false;
         knownLives = -1;
         pendingRespawn = null;
+        wasDowned = sawRevive = false;
+        reviveCheckTicks = 0;
         heardThisSession.clear();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
@@ -348,6 +355,7 @@ public final class Bot {
                 if (!world.isDead()) died(why);                  // dead: the death path already handled it
             }
         }
+        watchForRevive(world, lives);
 
         if (world.isDead() && config.autoRespawn && (phase.controlling() || headless)
                 && now - lastRespawn >= RESPAWN_RETRY_MILLIS) {
@@ -405,6 +413,36 @@ public final class Bot {
             hands.paths().stop();
             hands.holdKeys(false, false);
         });
+    }
+
+    /**
+     * Knocked out, then up again: a revive — unless it turns out to be the respawn after bleeding out or
+     * /giveup (dead, or a new body, within the grace). The downed reflex can't say so itself: once the
+     * bleeding-out bar is gone its task never ticks again. A teammate who hurt us is forgotten at once —
+     * the critical-health retreat fires the same tick, and Bot1 fled from its reviver (2026-09-26).
+     */
+    private void watchForRevive(WorldView world, int lives) {
+        boolean downed = world.downedSecondsLeft() >= 0;
+        if (downed) {
+            wasDowned = true;
+            if (world.beingRevived()) sawRevive = true;
+            reviveCheckTicks = 0;
+            return;
+        }
+        if (wasDowned) {                                         // just got up (or died)
+            wasDowned = false;
+            body.forgetTeammateAttacker();
+            reviveCheckTicks = RESPAWN_GRACE_TICKS;
+            livesWhenUp = lives;
+        }
+        if (reviveCheckTicks <= 0) return;
+        if (world.isDead() || lives != livesWhenUp || pendingRespawn != null) {
+            reviveCheckTicks = 0;                                // a death after all: the respawn path has it
+            sawRevive = false;
+        } else if (--reviveCheckTicks == 0) {
+            log.record("revived", sawRevive ? "someone treated my injuries" : "back up without dying");
+            sawRevive = false;
+        }
     }
 
     /**

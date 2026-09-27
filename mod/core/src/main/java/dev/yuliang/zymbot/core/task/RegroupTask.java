@@ -38,6 +38,7 @@ public final class RegroupTask implements Task {
     private long lastHeard = Long.MIN_VALUE;
     private String failure = "";
     private String name;
+    private boolean inSight;                                    // how we last knew where they are
 
     /**
      * @param name     who we are going to (for the log, before the first tick)
@@ -59,6 +60,7 @@ public final class RegroupTask implements Task {
         if (m.isEmpty()) return fail("lost track of the team — nobody in sight or announcing");
         Mate t = m.get();
         name = t.name();
+        inSight = t.live();
         if (t.live() && world.position().horizontalDistance(t.pos()) <= within) {
             if (walk != null) walk.cancel();
             return Status.DONE;
@@ -102,6 +104,7 @@ public final class RegroupTask implements Task {
 
     @Override
     public String describe() {
-        return "regrouping with " + name + (plannedTo == null ? "" : " at " + Math.round(plannedTo.x()) + " " + Math.round(plannedTo.z()));
+        return "regrouping with " + name + (plannedTo == null ? "" : " now at " + Math.round(plannedTo.x()) + " " + Math.round(plannedTo.z())
+                + (inSight ? " (in sight)" : " (bus)"));
     }
 }
