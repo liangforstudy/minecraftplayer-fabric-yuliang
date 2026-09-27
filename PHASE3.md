@@ -1,6 +1,6 @@
 # Phase 3 — First milestones: gather, craft, feed itself
 
-Status: **scoping 2026-09-26** — owner answered Q1–Q5 (§7); open: Q6 (Phase 2 leftovers first?), taking a bed from an inhabited village, and village trips beyond the 48-block work radius.
+Status: **building 2026-09-27** — steps 1–2 on main (0.1.35). Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).
