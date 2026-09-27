@@ -316,6 +316,45 @@ final class FabricWorldView implements WorldView {
         return out;
     }
 
+    /**
+     * civfabric's GraveBlockEntity isn't on our classpath, so its data is read by key: the server's
+     * update tag for a grave carries {@code owner} (name) and {@code owner_id} (UUID) — it renders its
+     * owner's head (civfabric 0.4.2, GraveBlockEntity.getUpdateTag) — and the client's copy loads
+     * both (loadAdditional), so saving the client copy gives them back. Empty until that data arrives.
+     */
+    @Override
+    public Optional<dev.yuliang.zymbot.core.api.GraveOwner> graveOwner(BlockPos p) {
+        var mp = new net.minecraft.core.BlockPos(p.x(), p.y(), p.z());
+        if (!level.hasChunkAt(mp)) return Optional.empty();
+        var be = level.getBlockEntity(mp);
+        if (be == null) return Optional.empty();
+        try {
+            var tag = be.saveWithoutMetadata(level.registryAccess());
+            String owner = tag.getString("owner");
+            UUID ownerId = tag.hasUUID("owner_id") ? tag.getUUID("owner_id") : null;
+            if (owner.isEmpty() && ownerId == null) return Optional.empty();
+            return Optional.of(new dev.yuliang.zymbot.core.api.GraveOwner(owner, ownerId));
+        } catch (RuntimeException e) {                          // someone else's block entity: no owner to read
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * The open container's own filled slots (not our inventory's). Not open (yet) until its contents
+     * have arrived: the menu's state id is 0 until the server's first full contents packet, so an
+     * empty-looking grave the tick it opens isn't read as "already empty".
+     */
+    @Override
+    public int openContainerFilled() {
+        var menu = player.containerMenu;
+        if (menu == null || menu == player.inventoryMenu || menu.getStateId() == 0) return -1;
+        int filled = 0;
+        for (var slot : menu.slots) {
+            if (slot.container != player.getInventory() && slot.hasItem()) filled++;
+        }
+        return filled;
+    }
+
     @Override
     public String blockAt(BlockPos p) {
         net.minecraft.core.BlockPos mp = new net.minecraft.core.BlockPos(p.x(), p.y(), p.z());

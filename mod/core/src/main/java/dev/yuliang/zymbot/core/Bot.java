@@ -34,6 +34,7 @@ import dev.yuliang.zymbot.core.store.BotMemory;
 import dev.yuliang.zymbot.core.store.VersionedStore;
 import dev.yuliang.zymbot.core.task.EatTask;
 import dev.yuliang.zymbot.core.task.FollowTask;
+import dev.yuliang.zymbot.core.task.GraveTask;
 import dev.yuliang.zymbot.core.task.Task;
 import dev.yuliang.zymbot.core.task.WalkTask;
 import java.nio.charset.StandardCharsets;
@@ -103,7 +104,8 @@ public final class Bot {
     private final Brain brain;
     private final VersionedStore<BotMemory> memoryStore =
             new VersionedStore<>(ConfigIO.GSON, BotMemory.class, BotMemory.SCHEMA_VERSION)
-                    .migration(1, doc -> doc);                   // 1 → 2: recent_foods, empty by default
+                    .migration(1, doc -> doc)                    // 1 → 2: recent_foods, empty by default
+                    .migration(2, doc -> doc);                   // 2 → 3: roster role, null (read from the phase) until heard again
     private final Body body;
     private final HungerMeter hungerMeter = new HungerMeter();
     private final dev.yuliang.zymbot.core.body.FidgetWatchdog fidget = new dev.yuliang.zymbot.core.body.FidgetWatchdog();
@@ -151,6 +153,12 @@ public final class Bot {
     private String surveyWanted;                                 // why a survey is due (start, respawn, command), until taken
     private java.util.concurrent.CompletableFuture<dev.yuliang.zymbot.core.survey.Survey> surveying;
     private dev.yuliang.zymbot.core.survey.Survey survey;        // the latest, for the planner and /zbot survey
+    /**
+     * A Teammate lent us its controls for one order (goto, come, punch, grave): its name, until the
+     * order ends or the human touches a movement key; null otherwise. The phase stays TEAMMATE — it
+     * keeps announcing as one (PHASE3_FIXLIST #6, 2026-09-27).
+     */
+    private String borrowedFor;
 
     /** A message whose sender isn't in the tab list yet — they may have joined a moment ago. */
     private record Pending(Envelope envelope, long since) {}
@@ -179,7 +187,7 @@ public final class Bot {
                 target -> new dev.yuliang.zymbot.core.task.RouteTask(hands.paths(), target, true, COME_WITHIN,
                         config.routeRadius, config.swimCostBlocks, log::record, "walking back to the team")
                         .limits(config.planTimeoutMs, config.lagTps),
-                this::askWhere, COME_WITHIN);
+                this::askWhere, COME_WITHIN, log::record);
         this.brain = new Brain(List.of(
                 new DownedInterrupt(config, body, help, log::record),
                 new DrowningInterrupt(),
@@ -256,6 +264,7 @@ public final class Bot {
 
     public void onLeave() {
         brain.cancelOrder("left the world");
+        if (borrowedFor != null) giveControlsBack("left the world");
         if (phase.controlling()) brain.halt("left the world");
         if (phase != Phase.STOPPED) log.record("stopped", "left the world");
         phase = Phase.STOPPED;
@@ -270,6 +279,10 @@ public final class Bot {
     /** The bot takes control. Works for any role when asked by hand. */
     public void start(String why) {
         if (phase.controlling()) return;
+        if (borrowedFor != null) {                               // a full start takes over the borrowed order too
+            log.record("keeping the controls", "started — no longer just borrowed for " + borrowedFor);
+            borrowedFor = null;
+        }
         phase = Phase.DISCOVERY;
         nextHello = 0;                  // say hello on the next tick
         pausedUntil = 0;
@@ -283,6 +296,11 @@ public final class Bot {
      * other role) goes fully silent.
      */
     public void stop(String why) {
+        if (borrowedFor != null) {                               // a Teammate's errand: hand back, keep announcing
+            brain.cancelOrder(why);
+            giveControlsBack(why);
+            return;
+        }
         if (phase == Phase.STOPPED) return;
         if (phase.controlling()) {
             brain.cancelOrder("stopped");
@@ -298,7 +316,13 @@ public final class Bot {
 
     /** A human pressed a movement key. Headless clients have no humans. */
     public void humanInput(Hands hands) {
-        if (!phase.controlling() || headless) return;
+        if (headless) return;
+        if (borrowedFor != null) {                               // borrowed: the human wants them back — no pause, no resume
+            brain.cancelOrder("you touched a movement key");
+            giveControlsBack("you touched a movement key");
+            return;
+        }
+        if (!phase.controlling()) return;
         long now = clock.getAsLong();
         if (now >= pausedUntil) {
             brain.halt("a human took the controls");
@@ -373,9 +397,10 @@ public final class Bot {
             return;
         }
         pollSurvey(world, now);
-        if (phase == Phase.STOPPED || world.isDead()) return;
-        if (phase == Phase.TEAMMATE) {                       // announce only; a human is playing
-            maybeHello(world, now);
+        if ((phase == Phase.STOPPED && borrowedFor == null) || world.isDead()) return;
+        if (!phase.controlling()) {                          // announce only; a human is playing
+            if (phase == Phase.TEAMMATE) maybeHello(world, now);
+            if (borrowedFor != null) tickBorrowed(world, hands);   // ...who lent us the controls for one order
             return;
         }
 
@@ -403,6 +428,32 @@ public final class Bot {
         watchForFidgeting(world, hands);
         brain.tick(world, hands);
         chatOut.flush(hands);
+    }
+
+    /**
+     * One tick of a borrowed order: the brain runs it as on a Bot (reflexes included — the body is
+     * the same), and the controls go back the moment the order is over, however it ended.
+     */
+    private void tickBorrowed(WorldView world, Hands hands) {
+        if (brain.hasOrder()) {
+            body.sense(world);
+            brain.tick(world, hands);
+            chatOut.flush(hands);
+        }
+        if (!brain.hasOrder()) giveControlsBack("the order is over");
+    }
+
+    /** End a borrow: stop whatever runs, and tell the human the controls are theirs. */
+    private void giveControlsBack(String why) {
+        String what = borrowedFor;
+        borrowedFor = null;
+        brain.halt(why);
+        if (hands != null) {
+            hands.paths().stop();
+            hands.holdKeys(false, false);
+            hands.notifyLocal("the controls are yours again — " + why);
+        }
+        log.record("gave the controls back", why + " (borrowed for " + what + ")");
     }
 
     /**
@@ -459,7 +510,7 @@ public final class Bot {
      * gave the death away.
      */
     private void died(String respawnedWhy) {
-        if (phase.controlling()) {
+        if (phase.controlling() || borrowedFor != null) {        // a borrow ends with it (given back once up)
             brain.cancelOrder("died");
             brain.halt("died");
         }
@@ -489,7 +540,7 @@ public final class Bot {
         nextHello = now + HELLO_EVERY_MILLIS;
         var p = world.position();
         bus.publish(serverId, world.day(), (int) Math.floor(p.x()), (int) Math.floor(p.z()),
-                MessageTypes.HELLO, List.of(selfName, phase.name()));
+                MessageTypes.HELLO, List.of(selfName, phase.name(), role().name()));
     }
 
     // ------------------------------------------------------------------ bus
@@ -554,7 +605,9 @@ public final class Bot {
             String key = e.sender().toString();
             long now = clock.getAsLong();
             BotMemory.RosterEntry before = memory.roster.get(key);
-            memory.roster.put(key, new BotMemory.RosterEntry(e.field(0), now, e.x(), e.z(), e.field(1)));
+            // field 2, the role, is new (2026-09-27): an older client leaves it out, "" here
+            memory.roster.put(key, new BotMemory.RosterEntry(e.field(0), now, e.x(), e.z(), e.field(1),
+                    e.field(2).isEmpty() ? null : e.field(2)));
             boolean firstThisSession = heardThisSession.add(key);
             String what = e.field(0) + " (" + e.field(1) + ")";
             memoryDirty = true;
@@ -575,12 +628,13 @@ public final class Bot {
     public List<String> status() {
         long now = clock.getAsLong();
         List<String> out = new ArrayList<>();
-        out.add("phase: " + phase + (pausedUntil > now ? " (paused " + ((pausedUntil - now + 999) / 1000) + "s — human)" : ""));
-        out.add("doing: " + switch (phase) {
+        out.add("phase: " + phase + (pausedUntil > now ? " (paused " + ((pausedUntil - now + 999) / 1000) + "s — human)" : "")
+                + (borrowedFor != null ? " (controls borrowed for: " + borrowedFor + ")" : ""));
+        out.add("doing: " + (borrowedFor != null ? brain.describe() : switch (phase) {
             case STOPPED -> "nothing — silent";
             case TEAMMATE -> "announcing to the team — never takes control";
             default -> brain.describe();
-        });
+        }));
         out.add("role: " + role().label() + (config.roleOf(selfId) == ZymbotConfig.Role.NONE && role() == ZymbotConfig.Role.BOT
                 ? " (headless, no accounts listed)" : ""));
         out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
@@ -611,7 +665,7 @@ public final class Bot {
             out.add("bots heard: none yet");
         } else {
             out.add("bots heard:");
-            memory.roster.values().forEach(r -> out.add("  " + r.name + " — " + r.phase + ", last "
+            memory.roster.values().forEach(r -> out.add("  " + r.name + " — " + r.label() + ", " + r.phase + ", last "
                     + ((now - r.lastSeenMillis) / 1000) + "s ago near " + r.x + ", " + r.z));
         }
         log.latest(3).forEach(d -> out.add("  · " + d));
@@ -802,14 +856,14 @@ public final class Bot {
 
     /** Walk to a block, or with {@code y == null} to any height in that column. */
     public String goTo(int x, Integer y, int z) {
-        String no = needsControl();
+        String no = oneShotRefusal();
         if (no != null) return no;
         BlockPos target = new BlockPos(x, y == null ? 0 : y, z);
         String where = x + (y == null ? "" : " " + y) + " " + z;
-        brain.order(Objective.of("walk to " + where, "ordered by /" + config.commandRoot + " goto",
+        String lent = oneShot(Objective.of("walk to " + where, "ordered by /" + config.commandRoot + " goto",
                 (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), target, y == null,
                         config.routeRadius, config.swimCostBlocks, log::record).limits(config.planTimeoutMs, config.lagTps)));
-        return "walking to " + where + pathfinderWarning();
+        return "walking to " + where + pathfinderWarning() + lent;
     }
 
     public String follow(String name) {
@@ -835,27 +889,52 @@ public final class Bot {
     }
 
     /**
-     * Take our things back from the grave: the nearest one if it's close, otherwise walk back to
-     * where we last died (the server tells us) and look there.
+     * Take our things back from our own grave: the nearest one of ours if it's close, otherwise walk
+     * back to where we last died (the server tells us) and look there. Someone else's grave is never
+     * opened — that is {@link #graveLoot}, on purpose (2026-09-27: it opened a stranger's grave).
      */
     public String grave() {
-        String no = needsControl();
+        return grave(GraveTask.Filter.mine(), "grave", true);
+    }
+
+    /**
+     * Take from other players' graves, on purpose only: any nearby grave but ours ({@code names}
+     * empty), only these players' ({@code except} false), or anyone's but theirs ({@code except}
+     * true). Our own name in the list is {@code /zbot grave} without the walk to the death spot.
+     */
+    public String graveLoot(List<String> names, boolean except) {
+        List<String> clean = names.stream().map(String::strip).filter(n -> !n.isEmpty()).toList();
+        if (except && clean.isEmpty()) return "grave loot except <player> [<player> …] — whose graves to leave alone";
+        GraveTask.Filter f = clean.isEmpty() ? GraveTask.Filter.others()
+                : except ? GraveTask.Filter.except(clean) : GraveTask.Filter.only(clean);
+        return grave(f, "grave loot" + (except ? " except" : "") + (clean.isEmpty() ? "" : " " + String.join(" ", clean)), false);
+    }
+
+    private String grave(GraveTask.Filter filter, String command, boolean walkToDeath) {
+        String no = oneShotRefusal();
         if (no != null) return no;
         if (current == null) return "not in a world";
-        var at = current.findBlock(dev.yuliang.zymbot.core.task.GraveTask.GRAVE, dev.yuliang.zymbot.core.task.GraveTask.SEARCH_RADIUS);
-        if (at.isPresent()) {
-            BlockPos g = at.get();
-            brain.order(Objective.of("pick up my grave", "ordered by /" + config.commandRoot + " grave",
-                    (world, h) -> new dev.yuliang.zymbot.core.task.GraveTask(h, g)));
-            return "going to the grave at " + g.x() + " " + g.y() + " " + g.z();
+        String why = "ordered by /" + config.commandRoot + " " + command;
+        List<String> skipped = new ArrayList<>();
+        var pick = GraveTask.pick(current, filter, skipped);
+        String others = skipped.isEmpty() ? "" : " (skipped: " + String.join(", ", skipped) + ")";
+        if (pick.isPresent()) {
+            GraveTask.Pick g = pick.get();
+            boolean mine = filter.onlyMine(selfName) || (g.owner() != null && g.owner().is(selfId, selfName));
+            String name = mine ? "pick up my grave" : "loot " + g.whose() + " grave";
+            log.record("chose " + g.whose() + " grave at " + g.pos().x() + " " + g.pos().y() + " " + g.pos().z(),
+                    "wanted a " + filter.describe() + (g.owner() == null ? "; its owner hasn't reached this client, the click will tell" : "") + others);
+            String lent = oneShot(Objective.of(name, why, (world, h) -> new GraveTask(h, g, !mine, log::record)));
+            return "going to " + (mine ? "my" : g.whose()) + " grave at " + g.pos().x() + " " + g.pos().y() + " " + g.pos().z() + others + lent;
         }
-        var death = deathSpot(current.lastDeath());
-        if (death == null) return "no grave within " + dev.yuliang.zymbot.core.task.GraveTask.SEARCH_RADIUS + " blocks, and no death on record";
-        brain.order(Objective.of("walk back to where I died", "ordered by /" + config.commandRoot + " grave — then look for the grave",
+        var death = walkToDeath ? deathSpot(current.lastDeath()) : null;
+        if (death == null) return "no " + filter.describe() + " within " + GraveTask.SEARCH_RADIUS + " blocks"
+                + (walkToDeath ? ", and no death on record" : "") + others;
+        String lent = oneShot(Objective.of("walk back to where I died", why + " — then look for the grave",
                 (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), death, false, 3,
                         config.routeRadius, config.swimCostBlocks, log::record, "walking back to where I died").limits(config.planTimeoutMs, config.lagTps)));
-        return "no grave in sight — walking back to where I died (" + death.x() + " " + death.y() + " " + death.z()
-                + "); run it again there";
+        return "no grave of mine in sight" + others + " — walking back to where I died (" + death.x() + " " + death.y() + " " + death.z()
+                + "); run it again there" + lent;
     }
 
     /** "minecraft:overworld -65, 66, -268" → the block; null if none or another dimension. */
@@ -888,7 +967,7 @@ public final class Bot {
 
     /** Walk to a player — to within {@link #COME_WITHIN} blocks: where we see them, else where they last announced. */
     public String come(String name) {
-        String no = needsControl();
+        String no = oneShotRefusal();
         if (no != null) return no;
         int x, z;
         boolean seen = current != null && current.player(name).isPresent();
@@ -903,10 +982,10 @@ public final class Bot {
             z = heard.get().z;
         }
         BlockPos target = new BlockPos(x, 0, z);
-        brain.order(Objective.of("come to " + name, "ordered by /" + config.commandRoot + " come",
+        String lent = oneShot(Objective.of("come to " + name, "ordered by /" + config.commandRoot + " come",
                 (world, h) -> new dev.yuliang.zymbot.core.task.RouteTask(h.paths(), target, true, COME_WITHIN,
                         config.routeRadius, config.swimCostBlocks, log::record, "coming to " + name).limits(config.planTimeoutMs, config.lagTps)));
-        return "coming to " + name + " at " + x + " " + z + (seen ? "" : " (where they last announced)") + pathfinderWarning();
+        return "coming to " + name + " at " + x + " " + z + (seen ? "" : " (where they last announced)") + pathfinderWarning() + lent;
     }
 
     /** Ask a bot (by name) to /msg us its decisions, or to stop. */
@@ -939,15 +1018,15 @@ public final class Bot {
 
     /** Break one block like a player and pick up what drops (PHASE3.md build step 2, a debug order). */
     public String punch(int x, int y, int z) {
-        String no = needsControl();
+        String no = oneShotRefusal();
         if (no != null) return no;
         BlockPos target = new BlockPos(x, y, z);
         String where = x + " " + y + " " + z;
         String why = "ordered by /" + config.commandRoot + " punch";
-        brain.order(Objective.of("break the block at " + where, why,
+        String lent = oneShot(Objective.of("break the block at " + where, why,
                 (world, h) -> new dev.yuliang.zymbot.core.task.BreakTask(h, target, why, log::record)));
         String id = current == null ? "the block" : current.blockAt(target);
-        return "breaking " + id + " at " + where + pathfinderWarning();
+        return "breaking " + id + " at " + where + pathfinderWarning() + lent;
     }
 
     public String look(String name) {
@@ -1033,12 +1112,39 @@ public final class Bot {
     private String needsControl() {
         if (phase.controlling()) return null;
         // a human's account: never suggest start - the owner did, and Zymbot took over their own player (2026-09-26)
-        if (role() == ZymbotConfig.Role.TEAMMATE) return "this account is a Teammate — orders only work on a Bot account"
-                + " (send them to the bot, e.g. from its console)";
+        if (role() == ZymbotConfig.Role.TEAMMATE) return "this account is a Teammate — here only one-shot orders work"
+                + " (goto, come, punch, grave), each borrowing your controls for that one task; send standing orders to a bot";
         if (role() != ZymbotConfig.Role.BOT) return "this account isn't a Bot account — orders only work on a Bot account"
                 + " (send them to the bot, e.g. from its console)";
         return "the bot isn't running — /" + config.commandRoot + " start first";
     }
+
+    /**
+     * Null if a one-shot order (goto, come, punch, grave) may run now: the bot is running, or this is
+     * a Teammate account in a world — it lends the controls for that one order (PHASE3_FIXLIST #6:
+     * "walk me to my grave" is a handy errand for a human, and /zbot start would take their player
+     * over for good). Standing jobs (follow, the planner) still need a start.
+     */
+    private String oneShotRefusal() {
+        if (phase.controlling()) return null;
+        if (role() == ZymbotConfig.Role.TEAMMATE && address != null) return null;
+        return needsControl();
+    }
+
+    /** Give the brain a one-shot order, borrowing a Teammate's controls for it; the reply's tail. */
+    private String oneShot(Objective order) {
+        boolean borrow = !phase.controlling();
+        if (borrow) {
+            if (borrowedFor == null) log.record("borrowed the controls", "this Teammate account ordered \"" + order.name()
+                    + "\" — only until it's done, or a movement key is touched");
+            borrowedFor = order.name();
+        }
+        brain.order(order);
+        return borrow ? " — borrowing your controls for this; touch a movement key to take them back" : "";
+    }
+
+    /** The controls are lent for one order right now (a Teammate account). */
+    public boolean isBorrowing() { return borrowedFor != null; }
 
     private String pathfinderWarning() {
         return hands != null && !hands.paths().available() ? " — but " + hands.paths().name() : "";
@@ -1093,7 +1199,7 @@ public final class Bot {
             boolean on = inTabList.contains(e.getKey());
             var seen = current == null ? java.util.Optional.<EntityView>empty()
                     : current.nearby().stream().filter(p -> p.uuid().toString().equals(e.getKey())).findFirst();
-            String role = Phase.TEAMMATE.name().equals(r.phase) ? "Teammate" : "Bot";
+            String role = r.label();                              // by role: "Teammate (bot driving)", not "Bot"
             String where = seen.map(p -> Math.round(p.pos().x()) + ", " + Math.round(p.pos().z()) + " (seen)")
                     .orElse(r.x + ", " + r.z + " (bus)");
             out.add("  " + r.name + " — " + role + ", " + (on ? "online" : "offline") + ", heard "
@@ -1175,10 +1281,13 @@ public final class Bot {
         return nothingToDo() && (brain.idle() || "wading".equals(brain.runningReflex()));
     }
 
-    /** A player we've heard announce itself as a controlling bot. Everyone else is a human. */
+    /**
+     * A player we've heard announce itself as a controlling bot. Everyone else is a human — a
+     * Teammate account with the bot driving too: it's still the owner's player.
+     */
     private boolean isKnownBot(UUID id) {
         BotMemory.RosterEntry r = memory.roster.get(id.toString());
-        return r != null && !Phase.TEAMMATE.name().equals(r.phase) && !Phase.STOPPED.name().equals(r.phase);
+        return r != null && !r.teammate() && r.botDriving();
     }
 
     /**
@@ -1189,7 +1298,7 @@ public final class Bot {
         if (id.equals(selfId)) return false;
         if (config.roleOf(id) == ZymbotConfig.Role.TEAMMATE) return true;
         BotMemory.RosterEntry r = memory.roster.get(id.toString());
-        return r != null && Phase.TEAMMATE.name().equals(r.phase);
+        return r != null && r.teammate();
     }
 
     private void saveMemory() {

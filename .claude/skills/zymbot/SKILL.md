@@ -100,6 +100,12 @@ client's Zymbot (e.g. `/zbot summon`, `/zbot watch Bot1`). Gotchas seen 2026-09-
 - `/zbot role none` removes the account from `accounts`; put it back with `role teammate`.
 - `/zbot start` on the owner's own client makes Zymbot **play their account** (`/zbot stop` to
   hand it back) — orders on a Teammate account now say so instead of suggesting `start` (0.1.31).
+  It still announces its **role** (Teammate) separately from the phase, so the roster shows
+  "Teammate (bot driving)" and bots still regroup with it.
+- One-shot orders on a Teammate account (`goto`, `come`, `punch`, `grave`, `grave loot …`)
+  **borrow the controls** for that one task, no `start` needed: they're given back when it ends or
+  the moment a movement key is touched (`[decision] borrowed the controls` / `gave the controls back`).
+  Standing jobs (`follow`, `eat`, `look`, `regroup`, the planner) still need `start`.
 - `/kill`, `/tp`, `/give`, `/data get` work from the bot's console (`send.bat bot1 /kill Bot1`) in the
   owner's LAN world with cheats on. Offline-account bots rejoin/respawn at a new spot, often near
   spawn, and respawn with no food (foraging is Phase 3) — `/give Bot1 minecraft:bread 16`.
@@ -128,7 +134,8 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `look <player>` | face a player |
 | `eat` | eat the best food now |
 | `foods` | the food carried, with the game's live (Spice of Fabric–decayed) values |
-| `grave` | walk to the nearest civfabric grave (16 blocks; else the death spot) and take the items back |
+| `grave` | walk to **our own** nearest civfabric grave (16 blocks; owner read from the grave's block entity; else the death spot) and take the items back — never opens anyone else's |
+| `grave loot` / `grave loot <player> […]` / `grave loot except <player> […]` | take from other players' graves, on purpose only: any nearby grave but ours / only those players' / any but theirs (names autocomplete; nothing saved); shift-clicks everything that fits, then closes the screen. `grave loot <me>` = `grave` without the death-spot walk |
 | `terrain <x> <z>` | debug: what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
 | `block <x> <y> <z>` | debug: the block id there |
 | `punch <x> <y> <z>` | order: break that block like a player (walk into reach, best hotbar tool, else bare hands) and pick up the drops (5 s); `~` works |
@@ -137,7 +144,7 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `danger [modpack\|easy\|normal\|hard]` | when it runs from a mob: `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4) |
 | `regroup` | walk back to the nearest Zymbot teammate now (automatic on start and after a respawn, when none is within `regroup` blocks); once started it goes all the way (~4 blocks); a bus position older than 120 s doesn't count, so a silent team → spawn after `probewait`. An idle bot also follows past `leash` (default 21) and stops at `heel` (default 2), like a wolf |
 | `survey` | read only: look around now and print it — trees (nearest, huge = 2×2 trunk), wild food patches, crafting tables, furnaces, chests/barrels, beds, campfires within 56 blocks (16 below to 24 above), plus inventory, health/hunger, food carried with live values, biome, day/time, spawn distance. Automatic on start and after a respawn; logged as `[decision] surveyed — because …` |
-| `roster` | the team list: each Bot / Teammate, online or not (tab list), last heard, where, and how (bus / seen) |
+| `roster` | the team list: each Bot / Teammate / "Teammate (bot driving)" (by the account's announced role, not its phase), online or not (tab list), last heard, where, and how (bus / seen) |
 | `summon` / `summon auto on\|off` | bots waiting at their title screen join this world (auto: whenever it opens to LAN) |
 | `lan` / `lan auto on\|off` | open this world to LAN, port 25565, online mode off (auto: every time it loads) |
 | `autostart add\|remove\|list` | servers where Zymbot activates by itself |

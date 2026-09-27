@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -47,6 +48,14 @@ public final class Regroup implements Planner {
      * 30 s it is shorter than the 60 s HELLO period and would drop live teammates half the time.
      */
     public static final long FRESH_MILLIS = 2 * Bot.HELLO_EVERY_MILLIS;
+    /**
+     * A bus position older than this is asked about (WHERE) before the regroup sets off, so the
+     * reason names where they are, not where they were: Bot1's said "was at 101, -33 (bus, 35 s ago)",
+     * the owner's spot from half a minute before (2026-09-27).
+     */
+    static final long ASK_IF_OLDER_MILLIS = 10_000;
+    /** Waiting for that answer: a teammate answers within a tick or two; this is only the backstop. */
+    static final long ANSWER_WAIT_MILLIS = 5_000;
 
     private final ZymbotConfig config;
     private final Body body;
@@ -55,6 +64,8 @@ public final class Regroup implements Planner {
     private final Function<BlockPos, Task> route;
     private final Runnable askWhere;
     private final int within;
+    private final BiConsumer<String, String> log;
+    private long askedAt = -1;                                  // asked where a bus-only teammate is now; -1: not yet
     private boolean armed;
     private boolean active;
     private boolean underWay;                                   // started, not reached yet: regroup_within no longer counts
@@ -64,7 +75,8 @@ public final class Regroup implements Planner {
     private boolean saidWaiting;
 
     public Regroup(ZymbotConfig config, Body body, Supplier<Map<String, BotMemory.RosterEntry>> roster, LongSupplier clock,
-                   Function<BlockPos, Task> route, Runnable askWhere, int within) {
+                   Function<BlockPos, Task> route, Runnable askWhere, int within, BiConsumer<String, String> log) {
+        this.log = log;
         this.config = config;
         this.body = body;
         this.roster = roster;
@@ -82,6 +94,7 @@ public final class Regroup implements Planner {
         nextAsk = 0;                                            // ask the team at once
         saidWaiting = false;
         underWay = false;
+        askedAt = -1;
     }
 
     /** Walking back to the team now — the leash leaves this alone (it is the walk back). */
@@ -104,8 +117,18 @@ public final class Regroup implements Planner {
         }
         Optional<Found> first = find(world);
         if (first.isEmpty()) return toSpawn(world);
-        active = true;
         Found f = first.get();
+        if (!f.mate().live() && f.ageMillis() > ASK_IF_OLDER_MILLIS) {     // freshest first: in sight, then a new answer
+            long now = clock.getAsLong();
+            if (askedAt < 0) {
+                askedAt = now;
+                askWhere.run();
+                return Optional.empty();
+            }
+            if (f.mate().heardAt() < askedAt && now - askedAt < ANSWER_WAIT_MILLIS) return Optional.empty();
+        }
+        askedAt = -1;                                           // the next regroup asks afresh
+        active = true;
         // "was at": the reason stays as it started, while the task's describe() follows them live —
         // status read "at 175 -58 … Bluetails_zym is at 306, 58" after they moved (2026-09-27)
         String why = "nobody from the team within " + config.regroupWithin + " blocks; " + f.mate().name() + " was at "
@@ -121,6 +144,8 @@ public final class Regroup implements Planner {
             return new Task() {                                 // tell the planner how it ended
                 public Status tick(WorldView world) {
                     Status s = walk.tick(world);
+                    // a planner objective ends silently in "idle" — say that it got there (2026-09-27)
+                    if (s == Status.DONE) log.accept("regrouped with " + who, "in sight, within " + within + " blocks of them");
                     if (s != Status.RUNNING) finished(s == Status.DONE);
                     return s;
                 }
@@ -188,7 +213,8 @@ public final class Regroup implements Planner {
         if (seen.isPresent()) return Optional.of(new Found(new RegroupTask.Mate(seen.get().name(), seen.get().pos(), true, clock.getAsLong()), 0));
         long now = clock.getAsLong();
         return roster.get().entrySet().stream()
-                .filter(e -> "TEAMMATE".equals(e.getValue().phase))
+                // by role, not phase: a Teammate whose owner ran /zbot start is still the owner (2026-09-27)
+                .filter(e -> e.getValue().teammate())
                 .filter(e -> fresh(e.getValue(), now))              // an old position is not knowing where they are
                 .filter(e -> only == null || e.getValue().name.equalsIgnoreCase(only))
                 .filter(e -> online(world, e.getKey()))

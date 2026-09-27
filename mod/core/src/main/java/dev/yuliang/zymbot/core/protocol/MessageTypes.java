@@ -2,7 +2,7 @@ package dev.yuliang.zymbot.core.protocol;
 
 /** Bus message types (BOT_BEHAVIOUR.md → Bus messages). Unknown types are ignored by receivers. */
 public final class MessageTypes {
-    public static final String HELLO = "HELLO";          // <name> <phase>
+    public static final String HELLO = "HELLO";          // <name> <phase> [<role>] — role since 2026-09-27; older clients omit it
     public static final String ROSTER = "ROSTER";
     public static final String READ = "READ";
     public static final String AMEND = "AMEND";

@@ -87,7 +87,8 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot come <name>` | walk to a player — to within 4 blocks: where it sees them, else where they last announced (0.1.16) |
 | `/zbot watch <bot> [off]` | that bot `/msg`s you each decision for 30 min — over the team bus, so only teammates can ask (0.1.16) |
 | `/zbot eat` | eat the best food now |
-| `/zbot grave` | take our things back from civfabric's grave: the nearest within 16 blocks (walk up, empty hand, right-click, check it's gone), else walk back to where we last died first — **passed live 2026-09-22** (0.1.19–20) |
+| `/zbot grave` | take our things back from civfabric's grave: the nearest within 16 blocks (walk up, empty hand, right-click, check it's gone), else walk back to where we last died first — **passed live 2026-09-22** (0.1.19–20). Since 2026-09-27 only **our own** grave (owner from the grave's block entity data); someone else's is skipped |
+| `/zbot grave loot` / `grave loot <player> […]` / `grave loot except <player> […]` | take from other players' graves on purpose: any nearby but ours / only theirs / any but theirs; names autocomplete (tab list + roster). `grave loot <me>` = `grave` without the death-spot walk (2026-09-27, not yet live-tested) |
 | `/zbot block <x> <y> <z>` | debug: what this client sees at a block |
 | `/zbot punch <x> <y> <z>` | order (PHASE3 step 2): walk into reach, look at the block (turning a little per tick), hold the best hotbar tool, dig it like a held mouse, then walk over the drops until picked up or 5 s; `~` works |
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |

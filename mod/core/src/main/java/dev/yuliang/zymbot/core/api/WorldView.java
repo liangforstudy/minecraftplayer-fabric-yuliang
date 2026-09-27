@@ -89,6 +89,13 @@ public interface WorldView {
     default int bestToolSlot(BlockPos b) { return -1; }
     /** Items lying on the ground within ~32 blocks. */
     default List<DroppedItem> droppedItems() { return List.of(); }
+    /** Whose civfabric grave is at {@code p}; empty if it isn't one, or its data hasn't reached us. */
+    default Optional<GraveOwner> graveOwner(BlockPos p) { return Optional.empty(); }
+    /**
+     * A container screen (a chest, someone else's grave) is open: how many of its own slots — not
+     * our inventory's — hold something. -1 when none is open.
+     */
+    default int openContainerFilled() { return -1; }
 
     default Optional<EntityView> player(String name) {
         return nearby().stream()
