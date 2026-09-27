@@ -272,6 +272,50 @@ final class FabricWorldView implements WorldView {
             net.minecraft.world.level.block.Blocks.SWEET_BERRY_BUSH, net.minecraft.world.level.block.Blocks.POWDER_SNOW,
             net.minecraft.world.level.block.Blocks.WITHER_ROSE, net.minecraft.world.level.block.Blocks.POINTED_DRIPSTONE);
 
+    /** Reach from the eyes to the block's centre, and nothing else's outline in the way. */
+    @Override
+    public boolean canReach(BlockPos b) {
+        net.minecraft.core.BlockPos mp = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
+        if (!level.hasChunkAt(mp)) return false;
+        net.minecraft.world.phys.Vec3 eye = player.getEyePosition();
+        net.minecraft.world.phys.Vec3 centre = net.minecraft.world.phys.Vec3.atCenterOf(mp);
+        if (eye.distanceTo(centre) > player.blockInteractionRange()) return false;
+        var hit = level.clip(new net.minecraft.world.level.ClipContext(eye, centre,
+                net.minecraft.world.level.ClipContext.Block.OUTLINE, net.minecraft.world.level.ClipContext.Fluid.NONE, player));
+        return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS || hit.getBlockPos().equals(mp);
+    }
+
+    /** The hotbar item that digs this block fastest, if faster than a hand; a correct tool (drops) wins ties. */
+    @Override
+    public int bestToolSlot(BlockPos b) {
+        var state = level.getBlockState(new net.minecraft.core.BlockPos(b.x(), b.y(), b.z()));
+        int best = -1;
+        float bestSpeed = 1.0f;
+        for (int slot = 0; slot < 9; slot++) {
+            ItemStack s = player.getInventory().getItem(slot);
+            if (s.isEmpty()) continue;
+            float speed = s.getDestroySpeed(state) + (s.isCorrectToolForDrops(state) ? 0.01f : 0);
+            if (speed > bestSpeed) {
+                bestSpeed = speed;
+                best = slot;
+            }
+        }
+        return best;
+    }
+
+    @Override
+    public List<dev.yuliang.zymbot.core.api.DroppedItem> droppedItems() {
+        List<dev.yuliang.zymbot.core.api.DroppedItem> out = new ArrayList<>();
+        for (Entity e : level.entitiesForRendering()) {
+            if (!(e instanceof net.minecraft.world.entity.item.ItemEntity item) || !item.isAlive()) continue;
+            if (e.distanceToSqr(player) > NEARBY * NEARBY) continue;
+            ItemStack s = item.getItem();
+            out.add(new dev.yuliang.zymbot.core.api.DroppedItem(e.getId(), BuiltInRegistries.ITEM.getKey(s.getItem()).toString(),
+                    s.getCount(), new Vec3(e.getX(), e.getY(), e.getZ())));
+        }
+        return out;
+    }
+
     @Override
     public String blockAt(BlockPos p) {
         net.minecraft.core.BlockPos mp = new net.minecraft.core.BlockPos(p.x(), p.y(), p.z());

@@ -928,6 +928,19 @@ public final class Bot {
         for (String w : watchers.keySet()) chatOut.whisper(w, entry.toString());
     }
 
+    /** Break one block like a player and pick up what drops (PHASE3.md build step 2, a debug order). */
+    public String punch(int x, int y, int z) {
+        String no = needsControl();
+        if (no != null) return no;
+        BlockPos target = new BlockPos(x, y, z);
+        String where = x + " " + y + " " + z;
+        String why = "ordered by /" + config.commandRoot + " punch";
+        brain.order(Objective.of("break the block at " + where, why,
+                (world, h) -> new dev.yuliang.zymbot.core.task.BreakTask(h, target, why, log::record)));
+        String id = current == null ? "the block" : current.blockAt(target);
+        return "breaking " + id + " at " + where + pathfinderWarning();
+    }
+
     public String look(String name) {
         String no = needsControl();
         if (no != null) return no;

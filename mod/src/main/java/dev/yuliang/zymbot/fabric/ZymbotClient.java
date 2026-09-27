@@ -179,6 +179,7 @@ public final class ZymbotClient implements ClientModInitializer {
         if (config.skipExperimentalWorldWarning && mc.screen instanceof BackupConfirmScreen s) skipExperimentalWarning(s);
         if (bot == null) return;
         if (mc.player == null || mc.level == null) {
+            BotDigging.active = false;                         // no world, nothing being dug
             if (mc.screen instanceof ConnectScreen) return;     // already joining somewhere
             bot.tickOutsideWorld();
             var join = bot.takeSummon();
@@ -231,6 +232,7 @@ public final class ZymbotClient implements ClientModInitializer {
         lastLevel = mc.level;
         lastPlayerDead = mc.player.isDeadOrDying();
         bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay(), lives), hands);
+        hands.endTick();                                         // never leave attack held past a tick without a mine()
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
     }

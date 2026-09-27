@@ -138,6 +138,60 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public long day() { return day; }
     @Override public Set<UUID> onlinePlayers() { return online; }
 
+    // ------------------------------------------------------------------ digging (phase 3)
+
+    public final List<dev.yuliang.zymbot.core.api.DroppedItem> drops = new ArrayList<>();
+    /** Blocks that can't be seen from anywhere (behind a wall). */
+    public final Set<BlockPos> hidden = new HashSet<>();
+    /** Ticks of {@link #mine} a block takes; the fake ignores tools. */
+    public int digTicks = 3;
+    /** The block being dug right now, null when attack isn't held. */
+    public BlockPos mining;
+    public int dug;
+    public int stopMiningCalls;
+
+    @Override public boolean canReach(BlockPos b) {
+        if (hidden.contains(b)) return false;
+        double dx = b.x() + 0.5 - pos.x(), dy = b.y() + 0.5 - (pos.y() + 1.62), dz = b.z() + 0.5 - pos.z();
+        return Math.sqrt(dx * dx + dy * dy + dz * dz) <= 4.5;
+    }
+    @Override public int bestToolSlot(BlockPos b) {
+        if (!blockAt(b).endsWith("_log")) return -1;
+        return inventory.stream().filter(i -> i.inHotbar() && i.id().endsWith("_axe")).mapToInt(ItemView::slot).findFirst().orElse(-1);
+    }
+    @Override public List<dev.yuliang.zymbot.core.api.DroppedItem> droppedItems() { return List.copyOf(drops); }
+
+    @Override
+    public boolean mine(BlockPos b) {
+        if (!b.equals(mining)) dug = 0;
+        mining = b;
+        if (++dug >= digTicks) {
+            String id = blockAt(b);
+            blocks.put(b, "minecraft:air");
+            drops.add(new dev.yuliang.zymbot.core.api.DroppedItem(500 + drops.size(), id, 1,
+                    new Vec3(b.x() + 0.5, b.y(), b.z() + 0.5)));
+            mining = null;
+        }
+        return true;
+    }
+
+    @Override public void stopMining() { mining = null; dug = 0; stopMiningCalls++; }
+
+    /** What the client does walking over drops: everything within a block goes into the inventory. */
+    public void pickUpNear() {
+        for (var d : List.copyOf(drops)) {
+            if (d.pos().horizontalDistance(pos) > 1.0) continue;
+            drops.remove(d);
+            int slot = 0;
+            while (true) {
+                final int s = slot;
+                if (inventory.stream().noneMatch(i -> i.slot() == s)) break;
+                slot++;
+            }
+            inventory.add(new ItemView(slot, d.item(), d.count(), null));
+        }
+    }
+
     @Override public void respawn() { respawns++; dead = false; health = 20; }
     @Override public void notifyLocal(String message) { notices.add(message); }
     @Override public PathProvider paths() { return paths; }

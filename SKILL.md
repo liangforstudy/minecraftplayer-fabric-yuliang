@@ -131,6 +131,7 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `grave` | walk to the nearest civfabric grave (16 blocks; else the death spot) and take the items back |
 | `terrain <x> <z>` | debug: what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
 | `block <x> <y> <z>` | debug: the block id there |
+| `punch <x> <y> <z>` | order: break that block like a player (walk into reach, best hotbar tool, else bare hands) and pick up the drops (5 s); `~` works |
 | `cancel` | drop the current order |
 | `set [<setting> <n>]` | list, or change a tunable: `leash` 8–1000, `heel` 1–256 (idle follow stops this close; below the leash), `eat` 1–19, `critical` 1–19, `downed` 0–55 s, `regroup` 8–256, `probewait` 5–300 s, `plantime` 50–5000 ms, `lagtps` 5–19 (also Mod Menu → Zymbot → Body) |
 | `danger [modpack\|easy\|normal\|hard]` | when it runs from a mob: `modpack` (default) at the first hit; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4) |

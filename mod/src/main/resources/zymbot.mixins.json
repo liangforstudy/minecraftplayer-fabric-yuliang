@@ -5,6 +5,7 @@
   "compatibilityLevel": "${java}",
   "client": [
     "BossHealthOverlayAccessor",
+    "ContinueAttackMixin",
     "MinecraftAccessor",
     "ServerTimeMixin"
   ],
