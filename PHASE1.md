@@ -89,6 +89,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot eat` | eat the best food now |
 | `/zbot grave` | take our things back from civfabric's grave: the nearest within 16 blocks (walk up, empty hand, right-click, check it's gone), else walk back to where we last died first — **passed live 2026-09-22** (0.1.19–20) |
 | `/zbot block <x> <y> <z>` | debug: what this client sees at a block |
+| `/zbot punch <x> <y> <z>` | order (PHASE3 step 2): walk into reach, look at the block (turning a little per tick), hold the best hotbar tool, dig it like a held mouse, then walk over the drops until picked up or 5 s; `~` works |
 | `/zbot foods` | the food carried, with the game's live hunger/saturation values and what Spice of Fabric leaves of them |
 | `/zbot look <name>` | face a player |
 | `/zbot set leash\|heel\|eat\|critical\|downed\|plantime\|lagtps <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them. `heel` = how close the idle follow comes to the teammate (1–256, below the leash; default 2), `plantime` = ms per route search (50–5000), `lagtps` = plan less below this TPS (5–19) |

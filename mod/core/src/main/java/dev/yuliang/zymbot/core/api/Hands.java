@@ -48,6 +48,19 @@ public interface Hands {
     /** Right-click a block with what's in hand (an empty hand for a grave). */
     default void useOn(BlockPos block) {}
 
+    // ------------------------------------------------------------------ hands (phase 3)
+
+    /**
+     * Dig at this block like a player holding the attack button, for this one tick: turn toward it
+     * a little (a wrist, not a snap), and once the crosshair is on it keep digging. Call every tick
+     * while breaking — a tick without a call lets go (the Fabric side never leaves attack held).
+     * Returns true while the crosshair is on the block and digging.
+     */
+    default boolean mine(BlockPos block) { return false; }
+
+    /** Let go of the attack (a half-broken block is abandoned). Safe to call when not mining. */
+    default void stopMining() {}
+
     /** Public chat. Callers go through ChatOut, which rate-limits. */
     default void chat(String message) {}
 

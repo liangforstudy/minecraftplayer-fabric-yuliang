@@ -81,6 +81,15 @@ public interface WorldView {
     /** Nearest block with this registry id within {@code radius} blocks. */
     default Optional<BlockPos> findBlock(String id, int radius) { return Optional.empty(); }
 
+    // ------------------------------------------------------------------ hands (phase 3)
+
+    /** Within reach (~4.5 blocks from the eyes) with a clear line of sight to the block. */
+    default boolean canReach(BlockPos b) { return false; }
+    /** The hotbar slot whose item digs this block faster than a bare hand, the fastest; -1 if none. */
+    default int bestToolSlot(BlockPos b) { return -1; }
+    /** Items lying on the ground within ~32 blocks. */
+    default List<DroppedItem> droppedItems() { return List.of(); }
+
     default Optional<EntityView> player(String name) {
         return nearby().stream()
                 .filter(e -> e.kind() == EntityView.Kind.PLAYER && e.name().equalsIgnoreCase(name))

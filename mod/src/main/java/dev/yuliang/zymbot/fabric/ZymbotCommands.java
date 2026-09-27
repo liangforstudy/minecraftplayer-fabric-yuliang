@@ -105,6 +105,17 @@ final class ZymbotCommands {
                                 return List.of("not a coordinate");
                             }
                         }))))
+                .then(literal("punch").then(argument("coords", StringArgumentType.greedyString())
+                        .executes(c -> withBot(c, bot, b -> {
+                            String[] p = StringArgumentType.getString(c, "coords").trim().split("\\s+");
+                            if (p.length != 3) return List.of("punch <x> <y> <z>  (~ works)");
+                            var at = c.getSource().getPosition();
+                            try {
+                                return List.of(b.punch(coord(p[0], at.x), coord(p[1], at.y), coord(p[2], at.z)));
+                            } catch (NumberFormatException e) {
+                                return List.of("not a coordinate");
+                            }
+                        }))))
                 .then(literal("cancel").executes(c -> withBot(c, bot, b -> List.of(b.cancel()))))
                 .then(literal("set")
                         .executes(c -> withBot(c, bot, b -> ZymbotConfig.TUNABLES.keySet().stream().sorted()
@@ -158,6 +169,7 @@ final class ZymbotCommands {
                 r + " autostart add | remove | list — servers where Zymbot is active",
                 r + " goto <x> <z>  or  <x> <y> <z> — walk there (~ and ~10 work; needs Baritone)",
                 r + " follow <player> / come <player> / look <player> / eat — orders; " + r + " cancel drops the order",
+                r + " punch <x> <y> <z> — break that block like a player (best hotbar tool) and pick up the drops (~ works); an order",
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed | regroup | plantime | lagtps <n> — thresholds (also in Mod Menu)",
                 r + " roster — the team: Bot / Teammate, online, last heard, where, how we know",

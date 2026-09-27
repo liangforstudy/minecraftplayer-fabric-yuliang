@@ -109,6 +109,80 @@ final class FabricHands implements Hands {
         mc.player.swing(InteractionHand.MAIN_HAND);
     }
 
+    // ------------------------------------------------------------------ digging
+
+    /** Most a wrist turns in one tick (degrees); a big turn takes a few ticks, easing in at the end. */
+    static final float MAX_TURN_PER_TICK = 25f;
+    /** Share of the remaining angle turned per tick, before the cap. */
+    static final float TURN_SHARE = 0.4f;
+    private boolean digging;                                   // a destroy is in progress on our behalf
+    private boolean minedThisTick;
+    private final java.util.Random jitter = new java.util.Random();
+
+    /**
+     * One tick of a held left mouse button on this block, as vanilla's Minecraft.startAttack /
+     * continueAttack do it: turn toward the block, pick along the view (the crosshair), and only if
+     * it's on this block call MultiPlayerGameMode.startDestroyBlock (first tick) then
+     * continueDestroyBlock, with the crack particles and arm swing. No packets of our own.
+     */
+    @Override
+    public boolean mine(dev.yuliang.zymbot.core.api.BlockPos b) {
+        if (mc.player == null || mc.gameMode == null) return false;
+        minedThisTick = true;
+        var pos = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
+        turnToward(net.minecraft.world.phys.Vec3.atCenterOf(pos));
+        var hit = mc.player.pick(mc.player.blockInteractionRange(), 1.0f, false);
+        if (!(hit instanceof net.minecraft.world.phys.BlockHitResult bh) || hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK
+                || !bh.getBlockPos().equals(pos) || mc.player.isUsingItem()) {
+            stopMining();                                      // crosshair not on it (yet): nothing held
+            return false;
+        }
+        BotDigging.active = true;
+        boolean first = !digging;
+        digging = true;
+        boolean hitting = first ? mc.gameMode.startDestroyBlock(pos, bh.getDirection())
+                : mc.gameMode.continueDestroyBlock(pos, bh.getDirection());
+        if (hitting && !first) mc.particleEngine.crack(pos, bh.getDirection());
+        if (first || hitting) mc.player.swing(InteractionHand.MAIN_HAND);
+        return true;
+    }
+
+    @Override
+    public void stopMining() {
+        if (digging && mc.gameMode != null) mc.gameMode.stopDestroyBlock();
+        digging = false;
+        BotDigging.active = false;
+    }
+
+    /**
+     * After the brain's tick: if nothing called {@link #mine} this tick (task done, cancelled, the
+     * brain halted, paused, died...), let go — attack is never left held.
+     */
+    void endTick() {
+        if (!minedThisTick && (digging || BotDigging.active)) stopMining();
+        minedThisTick = false;
+    }
+
+    /** A wrist, not a snap: part of the way per tick, capped, with a hair of wobble. */
+    private void turnToward(net.minecraft.world.phys.Vec3 p) {
+        var eye = mc.player.getEyePosition();
+        double dx = p.x - eye.x, dy = p.y - eye.y, dz = p.z - eye.z;
+        float wantYaw = (float) (Math.toDegrees(Math.atan2(dz, dx)) - 90);
+        float wantPitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+        float dYaw = net.minecraft.util.Mth.wrapDegrees(wantYaw - mc.player.getYRot());
+        float dPitch = wantPitch - mc.player.getXRot();
+        mc.player.setYRot(mc.player.getYRot() + step(dYaw));
+        mc.player.setXRot(net.minecraft.util.Mth.clamp(mc.player.getXRot() + step(dPitch), -90f, 90f));
+    }
+
+    private float step(float off) {
+        float a = Math.abs(off);
+        if (a < 0.5f) return off;                              // close enough: settle
+        float s = Math.min(MAX_TURN_PER_TICK, Math.max(Math.min(a, 2f), a * TURN_SHARE));
+        s += (jitter.nextFloat() - 0.5f) * 0.6f;               // ±0.3°: never the same curve twice
+        return Math.copySign(Math.min(a, Math.max(0f, s)), off);
+    }
+
     @Override
     public void chat(String message) {
         if (mc.getConnection() != null) mc.getConnection().sendChat(message);
