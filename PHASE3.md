@@ -129,3 +129,25 @@ A table the survey already found counts (don't place a second one next to it —
 7. Towering + scaffold tidy-up for big oaks.
 8. CLAIMs on the bus.
 9. Live test (§6), update SKILL.md's command table for every new `/zbot` command.
+
+## 9. Research findings (2026-09-27, read from civfabric-0.4.2 bytecode and the pack's jars)
+
+**Classes aren't chosen — they're earned.** civfabric stores only XP per class; rank comes from XP,
+and a player's "specialisations" are simply their **top N classes by XP** (N = `specialisationSlots`,
+default 2 — the live server may override). There's no join action, no cost, no cooldown; the
+`/classes` GUI is read-only (clicks are reverted). The catch: once N classes each reach ~85 % of rank 1
+the **drain arms** and every award drains the off-classes — so locking in is effectively one-way.
+→ "Pick FARMER + MINER" (owner, Q2) means **earn FARMER and MINER XP first**, before anything else
+arms the drain: harvesting crops (FARMER) and mining (MINER). Chopping wood / crafting may award
+other classes (unverified which) — watch `/classes` in the live test.
+
+**Classless crafting is free only for tagged items**, not everything: `CraftingHunger` waives the cost
+while classless (all ranks 0) *and* the item carries one of a set of tags (list not yet extracted).
+Otherwise cost = `craft_hunger.json` (crafting table 1.0, chest 1.25, …) or a shape × material formula
+(wooden pickaxe ×0.35 …), scaled by rank; "You're too hungry to craft" refuses it.
+
+**No anticheat in the client pack.** Nothing in the mods (civfabric / zymlabs-rules police gameplay,
+not behaviour). The "Criticals is flagged" note and hidden F3 coords come from the **live server
+only** — its limits (click speed, break speed, rotations, recipe-book packets) can't be read from here.
+Defaults until the owner confirms: only packets the vanilla client would send, slot clicks paced at
+human speed (≥ 50–150 ms apart), smooth rotations, never faster than vanilla break progress.
