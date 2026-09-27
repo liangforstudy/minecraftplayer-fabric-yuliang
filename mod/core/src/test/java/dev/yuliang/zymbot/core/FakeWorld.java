@@ -154,6 +154,20 @@ public final class FakeWorld implements WorldView, Hands {
         return blocks.entrySet().stream().filter(e -> e.getValue().equals(id)).map(java.util.Map.Entry::getKey).findFirst();
     }
     @Override public void useOn(BlockPos b) { used.add(b); }
+
+    // ------------------------------------------------------------------ graves (PHASE3_FIXLIST #1)
+
+    public final java.util.Map<BlockPos, dev.yuliang.zymbot.core.api.GraveOwner> graveOwners = new java.util.HashMap<>();
+    /** The open container's filled slots; -1: no screen. Tests script what the server does. */
+    public int containerFilled = -1;
+    public int takeAlls, closes;
+
+    @Override public Optional<dev.yuliang.zymbot.core.api.GraveOwner> graveOwner(BlockPos p) {
+        return Optional.ofNullable(graveOwners.get(p));
+    }
+    @Override public int openContainerFilled() { return containerFilled; }
+    @Override public void takeAllFromContainer() { takeAlls++; }
+    @Override public void closeContainer() { if (containerFilled >= 0) closes++; containerFilled = -1; }
     @Override public dev.yuliang.zymbot.core.api.Terrain terrain() { return terrain; }
     @Override public double serverTps() { return tps; }
     @Override public int downedSecondsLeft() { return downed; }

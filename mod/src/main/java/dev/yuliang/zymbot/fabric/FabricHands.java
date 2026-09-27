@@ -109,6 +109,24 @@ final class FabricHands implements Hands {
         mc.player.swing(InteractionHand.MAIN_HAND);
     }
 
+    /** Shift-click each filled slot of the open container (not our own inventory's) — what fits moves over. */
+    @Override
+    public void takeAllFromContainer() {
+        if (mc.player == null || mc.gameMode == null) return;
+        var menu = mc.player.containerMenu;
+        if (menu == mc.player.inventoryMenu) return;
+        for (var slot : menu.slots) {
+            if (slot.container == mc.player.getInventory() || !slot.hasItem()) continue;
+            mc.gameMode.handleInventoryMouseClick(menu.containerId, slot.index, 0, ClickType.QUICK_MOVE, mc.player);
+        }
+    }
+
+    /** Close the container as Esc does: tells the server, and clears the screen. */
+    @Override
+    public void closeContainer() {
+        if (mc.player != null && mc.player.containerMenu != mc.player.inventoryMenu) mc.player.closeContainer();
+    }
+
     // ------------------------------------------------------------------ digging
 
     /** Most a wrist turns in one tick (degrees); a big turn takes a few ticks, easing in at the end. */

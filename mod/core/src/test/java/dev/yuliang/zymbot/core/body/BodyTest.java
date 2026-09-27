@@ -605,9 +605,58 @@ class BodyTest {
         c.accounts.add(new ZymbotConfig.Account(w.id, "Human", ZymbotConfig.Role.TEAMMATE));
         Bot b = new Bot(c, dir.resolve("zymbot.json"), dir.resolve("h"), w.id, false, clock);
         b.onJoin("x", "Human");
-        String r = b.regroupNow();
-        assertTrue(r.startsWith("this account is a Teammate — orders only work on a Bot account"), r);
+        String r = b.regroupNow();                              // a standing job: not lent
+        assertTrue(r.startsWith("this account is a Teammate — here only one-shot orders work"), r);
         assertFalse(r.contains("start"), r);
+        assertTrue(b.follow("Bot2").startsWith("this account is a Teammate"));
+    }
+
+    // ------------------------------------------------------------------ PHASE3_FIXLIST #6: one-shot orders on a Teammate
+
+    Bot teammate(FakeWorld w) {
+        ZymbotConfig c = new ZymbotConfig();
+        c.accounts.add(new ZymbotConfig.Account(w.id, w.name, ZymbotConfig.Role.TEAMMATE));
+        c.autostartServers.add("x");
+        Bot b = new Bot(c, dir.resolve("zymbot.json"), dir.resolve("h"), w.id, false, clock);
+        b.onJoin("x", w.name);
+        return b;
+    }
+
+    @Test
+    void teammate_goto_borrowsTheControls_andGivesThemBackWhenDone() {
+        FakeWorld w = new FakeWorld("Human");
+        Bot b = teammate(w);
+        assertEquals(dev.yuliang.zymbot.core.brain.Phase.TEAMMATE, b.phase());
+        String r = b.goTo(20, null, 0);
+        assertTrue(r.contains("borrowing your controls"), r);
+        assertTrue(b.isBorrowing());
+        ticks(b, w, 3);
+        assertNotNull(w.paths.goal, log(b));
+        assertEquals(dev.yuliang.zymbot.core.brain.Phase.TEAMMATE, b.phase(), "still announcing as a Teammate");
+        assertFalse(b.isRunning(), "not started");
+        w.paths.arrive();
+        ticks(b, w, 3);
+        assertFalse(b.isBorrowing(), log(b));
+        assertTrue(log(b).contains("borrowed the controls"), log(b));
+        assertTrue(log(b).contains("gave the controls back — because the order is over"), log(b));
+        assertTrue(w.notices.stream().anyMatch(n -> n.startsWith("the controls are yours again")), w.notices.toString());
+    }
+
+    @Test
+    void teammate_borrowedOrder_aMovementKeyTakesTheControlsBack_noPause() {
+        FakeWorld w = new FakeWorld("Human");
+        Bot b = teammate(w);
+        b.goTo(200, null, 0);
+        ticks(b, w, 3);
+        b.humanInput(w);
+        assertFalse(b.isBorrowing());
+        assertFalse(b.hasOrder(), "the errand is dropped, not resumed later");
+        assertFalse(log(b).contains("paused"), log(b));
+        assertTrue(log(b).contains("gave the controls back — because you touched a movement key"), log(b));
+        int stops = w.paths.stops;
+        ticks(b, w, 20 * 20);
+        assertEquals(stops, w.paths.stops, "nothing drives afterwards");
+        assertFalse(w.paths.busy);
     }
 
     @Test
@@ -1274,6 +1323,45 @@ class BodyTest {
     }
 
     @Test
+    void oldBusPosition_asksFirst_andTheAnswerIsTheReason_thenArrivalIsLogged() {
+        // 2026-09-27: "was at 101, -33 (bus, 35 s ago)" — where the owner had been — and no arrival line
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView mate = w.player("Mate", 300, 0);
+        w.nearby.remove(mate);
+        Bot b = running(w, new ZymbotConfig(), true);
+        heardOnTheBus(b, w, mate, 35_000, 100, -33);
+        ticks(b, w, 3);
+        assertFalse(log(b).contains("regrouping with Mate"), log(b));
+        heardOnTheBus(b, w, mate, 0, 300, 0);                   // the answer to our WHERE
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("Mate was at 301, 1 (bus, 0 s ago)"), log(b));
+        assertFalse(log(b).contains("(bus, 35 s ago)"), log(b));
+        w.pos = new Vec3(298, 64, 0);
+        w.nearby.add(mate);                                     // there, and in sight
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouped with Mate — because in sight"), log(b));
+    }
+
+    @Test
+    void teammateWhoRanStart_isStillATeammate_byRole() {
+        // 2026-09-27: the owner's /zbot start announced DISCOVERY; Bot1 saw no Teammate and went to spawn
+        FakeWorld w = new FakeWorld("Bot1");
+        EntityView owner = w.player("Owner", 300, 0);
+        w.nearby.remove(owner);
+        Bot b = running(w, new ZymbotConfig(), true);
+        w.online.add(owner.uuid());
+        b.memory().roster.put(owner.uuid().toString(),
+                new BotMemory.RosterEntry("Owner", clock.now, 300, 0, "DISCOVERY", "TEAMMATE"));
+        ticks(b, w, 3);
+        assertTrue(log(b).contains("regrouping with Owner"), log(b));
+        assertTrue(b.roster().stream().anyMatch(l -> l.contains("Owner — Teammate (bot driving)")), b.roster().toString());
+        var oldBot = new BotMemory.RosterEntry("Bot2", 0, 0, 0, "DISCOVERY");   // an older client: no role sent
+        assertFalse(oldBot.teammate());
+        assertEquals("Bot", oldBot.label());
+        assertTrue(new BotMemory.RosterEntry("Old", 0, 0, 0, "TEAMMATE").teammate());
+    }
+
+    @Test
     void freshBusPosition_stillLeadsTheRegroup_andItsSpotAloneIsNotArrival() {
         FakeWorld w = new FakeWorld("Bot1");
         EntityView mate = w.player("Mate", 300, 0);
@@ -1281,8 +1369,10 @@ class BodyTest {
         Bot b = running(w, new ZymbotConfig(), true);
         heardOnTheBus(b, w, mate, 30_000, 300, 0);              // one HELLO period is well within FRESH_MILLIS
         ticks(b, w, 3);
+        assertFalse(log(b).contains("regrouping with Mate"), "asks where they are now first: " + log(b));
+        ticks(b, w, 5 * 20);                                    // no answer: the backstop, then the old spot
         assertTrue(log(b).contains("regrouping with Mate"), log(b));
-        assertTrue(log(b).contains("(bus, 30 s ago)"), log(b));
+        assertTrue(log(b).contains("(bus, 35 s ago)"), log(b));
         w.pos = new Vec3(300, 64, 0);                           // at the announced spot, nobody there
         w.paths.arrive();
         ticks(b, w, 3);

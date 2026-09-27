@@ -42,6 +42,10 @@ final class ZymbotCommands {
                     return List.of("started — phase " + b.phase());
                 })))
                 .then(literal("stop").executes(c -> withBot(c, bot, b -> {
+                    if (b.isBorrowing()) {                     // a Teammate's one-shot order: hand the controls back
+                        b.stop("stopped by /" + root + " stop");
+                        return List.of("gave the controls back");
+                    }
                     if (!b.isRunning()) return List.of("already stopped");
                     b.stop("stopped by /" + root + " stop");
                     return List.of("stopped");
@@ -81,7 +85,6 @@ final class ZymbotCommands {
                         })
                         .executes(c -> withBot(c, bot, b -> List.of(b.look(StringArgumentType.getString(c, "player")))))))
                 .then(literal("eat").executes(c -> withBot(c, bot, b -> List.of(b.eat()))))
-                .then(literal("grave").executes(c -> withBot(c, bot, b -> List.of(b.grave()))))
                 // debug readouts and test orders, out of the everyday list (owner, 2026-09-27)
                 .then(literal("debug")
                         .then(literal("terrain").then(argument("coords", StringArgumentType.greedyString())
@@ -128,6 +131,13 @@ final class ZymbotCommands {
                                     return sb.buildFuture();
                                 })
                                 .executes(c -> withBot(c, bot, b -> b.see(StringArgumentType.getString(c, "bot"))))))
+                .then(literal("grave").executes(c -> withBot(c, bot, b -> List.of(b.grave())))
+                        // loot [except] <player> […]: other players' graves, on purpose only (PHASE3_FIXLIST #1)
+                        .then(literal("loot")
+                                .executes(c -> withBot(c, bot, b -> List.of(b.graveLoot(List.of(), false))))
+                                .then(argument("players", StringArgumentType.greedyString())
+                                        .suggests((c, sb) -> suggestPlayers(c, sb, bot))
+                                        .executes(c -> withBot(c, bot, b -> List.of(graveLoot(b, StringArgumentType.getString(c, "players"))))))))
                 .then(literal("cancel").executes(c -> withBot(c, bot, b -> List.of(b.cancel()))))
                 .then(literal("set")
                         .executes(c -> withBot(c, bot, b -> ZymbotConfig.TUNABLES.keySet().stream().sorted()
@@ -188,7 +198,9 @@ final class ZymbotCommands {
                 r + " regroup — walk back to the nearest teammate now (automatic on start and after a respawn)",
                 r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",
                 r + " debug terrain <x> <z> | block <x> <y> <z> | punch <x> <y> <z> | foods | survey — readouts and test orders",
-                r + " grave — walk to the nearest grave (16 blocks) and take our things back",
+                r + " grave — walk to our own nearest grave (16 blocks; else where we died) and take our things back",
+                r + " grave loot [except] [<player> …] — take from other players' graves: any but ours, only theirs, or any but theirs",
+                "On a Teammate account, goto / come / punch / grave borrow your controls for that one order (a movement key takes them back).",
                 r + " summon — bots waiting at their title screen (standby) join you; " + r + " summon auto on|off",
                 r + " lan — open this world to LAN (port 25565, online mode off); " + r + " lan auto on|off — every time it loads",
                 "Settings (team key, accounts, servers): Mod Menu → Zymbot.",
@@ -207,6 +219,29 @@ final class ZymbotCommands {
         } catch (NumberFormatException e) {
             return "not a coordinate: " + coords + " — use numbers, ~ or ~10";
         }
+    }
+
+    /** "Alice Bob" → only their graves; "except Alice Bob" → any but theirs (and ours). */
+    private static String graveLoot(Bot b, String players) {
+        List<String> p = List.of(players.trim().split("\\s+"));
+        boolean except = !p.isEmpty() && p.get(0).equalsIgnoreCase("except");
+        return b.graveLoot(except ? p.subList(1, p.size()) : p, except);
+    }
+
+    /** Player names for the last word typed: the tab list and the roster ("except" first). */
+    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> suggestPlayers(
+            CommandContext<FabricClientCommandSource> c, com.mojang.brigadier.suggestion.SuggestionsBuilder sb, Supplier<Bot> bot) {
+        String typed = sb.getRemaining();
+        int cut = typed.lastIndexOf(' ') + 1;
+        var last = sb.createOffset(sb.getStart() + cut);
+        String prefix = typed.substring(cut).toLowerCase(java.util.Locale.ROOT);
+        java.util.Set<String> names = new java.util.TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        names.addAll(c.getSource().getOnlinePlayerNames());
+        Bot b = bot.get();
+        if (b != null) b.memory().roster.values().forEach(r -> { if (r.name != null) names.add(r.name); });
+        if (cut == 0) names.add("except");
+        for (String n : names) if (n.toLowerCase(java.util.Locale.ROOT).startsWith(prefix)) last.suggest(n);
+        return last.buildFuture();
     }
 
     static int coord(String s, double here) {

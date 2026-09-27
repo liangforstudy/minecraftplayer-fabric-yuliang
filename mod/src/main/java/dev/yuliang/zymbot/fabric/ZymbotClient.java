@@ -222,7 +222,9 @@ public final class ZymbotClient implements ClientModInitializer {
         }
         wasPublished = published;
         wasAutoSummon = autoSummon;
-        if (!HEADLESS && !hands.holdingKeys() && humanIsMoving(mc.options)) bot.humanInput(hands);
+        // with a screen open (chat, a grave the bot opened) nobody can be walking: key states then are
+        // stale, not a human — /zbot grave opened a grave and the bot paused itself (2026-09-27)
+        if (!HEADLESS && mc.screen == null && !hands.holdingKeys() && humanIsMoving(mc.options)) bot.humanInput(hands);
         // a respawn replaces the player object; in the same level (or after it was dead) it was a death,
         // however quick - the robust signal when neither the death screen nor a new last-death spot shows
         if (mc.player != lastPlayer) {

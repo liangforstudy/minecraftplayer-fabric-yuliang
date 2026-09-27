@@ -48,6 +48,12 @@ public interface Hands {
     /** Right-click a block with what's in hand (an empty hand for a grave). */
     default void useOn(BlockPos block) {}
 
+    /** Shift-click every filled slot of the open container into our inventory (what fits). */
+    default void takeAllFromContainer() {}
+
+    /** Close the open container screen, as Esc does. */
+    default void closeContainer() {}
+
     // ------------------------------------------------------------------ hands (phase 3)
 
     /**
