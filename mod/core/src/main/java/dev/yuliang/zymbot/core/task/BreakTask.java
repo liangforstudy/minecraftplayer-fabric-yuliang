@@ -148,8 +148,13 @@ public final class BreakTask implements Task {
                 .filter(d -> dist(d.pos(), c) <= DROP_RADIUS)
                 .sorted(Comparator.comparingDouble(d -> dist(d.pos(), me)))
                 .toList();
-        if (drops.isEmpty()) return finish(world, "");
-        if (++collectTicks > COLLECT_TICKS) {
+        // no drops yet is not "no drops": wait for the item entity (or the pickup) to actually arrive, not a
+        // guessed delay — lag and the network decide when it comes. Bot1 broke grass and logged "picked up
+        // nothing" the same tick (2026-09-27). A block that drops nothing waits out COLLECT_TICKS (leaves:
+        // tree felling should skip the collect per leaf).
+        collectTicks++;
+        if (drops.isEmpty()) return collectTicks > COLLECT_TICKS || picked(world) ? finish(world, "") : Status.RUNNING;
+        if (collectTicks > COLLECT_TICKS) {
             return finish(world, " — left " + drops.size() + " item stack(s) after " + COLLECT_TICKS / 20 + " s");
         }
         DroppedItem next = drops.get(0);
@@ -160,6 +165,11 @@ public final class BreakTask implements Task {
             hands.paths().goTo(BlockPos.of(next.pos()), false, 0, false);
         }
         return Status.RUNNING;
+    }
+
+    /** Something new in the inventory already: the drops came and went (picked up standing still). */
+    private boolean picked(WorldView world) {
+        return counts(world).entrySet().stream().anyMatch(e -> e.getValue() > before.getOrDefault(e.getKey(), 0));
     }
 
     private Status finish(WorldView world, String note) {
