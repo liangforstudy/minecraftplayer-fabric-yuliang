@@ -27,7 +27,65 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 From #2 (`/zbot start` on a Teammate account):
 - a) Should `/zbot start` on a Teammate account ask to confirm first?
 - b) Should regroup also walk to a **Bot** when no Teammate is around? Today two bots each go to spawn.
-- d) An on-screen "bot is driving" indicator?
+
+## 9. "Bot is driving" indicator + `/zbot history` (owner, 2026-09-27) — planned, not built
+
+Answers #2 d. Two parts: the **action bar** says what the bot is doing *now*; a **history screen**
+shows what it *was* thinking. Chat stays clean: nothing is printed there, and nothing is ever sent
+to the server. (Silent chat lines were considered and dropped: vanilla keeps only 100 chat lines,
+so decisions would push real chat out, and the pack has no chat-history mod.)
+
+### 9a. Action bar
+- While Zymbot has this client's controls (`/zbot start`, or a one-shot order borrowing them):
+  "Zymbot driving — <current task describe()>", refreshed about once a second (only when the text
+  changes, plus a re-send before vanilla's ~3 s fade).
+- While paused: "paused — resumes in 7s · /zbot stop to stop the bot". Gone when the human has the
+  controls for good (stopped, or a Teammate not borrowing).
+- `player.displayClientMessage(text, true)`: client-side only.
+- Config `indicator_action_bar` (default on).
+
+### 9b. History log (core, pure Java)
+- New `core/brain/History`, fed by `DecisionLog.onRecord` plus new sources. Entries carry a **kind**:
+  - DECISION: started / done / failed / other, from the verb
+  - CONTROL: took the controls, paused, resumed, gave them back, borrowed / returned
+  - TEAM: bus traffic worth seeing, e.g. heard HELLO/WHERE answers, see/watch asks, summons
+- A ring buffer of `history_size` entries (default 2000, range 100–20000).
+- Saved per world/server to `config/zymbot/history-<server>.log` (one line per entry, appended, and
+  trimmed on load), so it survives a restart. Config `history_save` (default on).
+- Search and filter are plain functions: `filter(kinds, text)` → entries, unit-tested.
+
+### 9c. The screen (Fabric)
+- `/zbot history`, plus a customizable keybind **left unbound by default** (owner: H is taken by
+  Simple Voice Chat; set it in Options → Controls → Key Binds → Zymbot) opens
+  `ZymbotHistoryScreen`, styled like `ZymbotSettingsScreen`.
+- Rows, newest first:
+  - time
+  - icon: → started, ✔ done, ✖ failed, ⏸ control, 📡 team
+  - the decision, with the "because" line dimmed underneath
+  - long lines wrap
+- Top: filter tabs [All] [Decisions] [Control] [Team], a search box (live filter) and ⟳ refresh. It
+  also updates live while open.
+- Bottom: "N entries · kept: last 2000", [Copy] (the visible entries to the clipboard, as plain text
+  for bug reports) and [Done].
+- Scroll with the mouse wheel or the scrollbar; Esc closes. A GUI scale / phone-narrow check isn't
+  needed, but it must fit at GUI scale 4 on 1080p.
+
+### 9d. Another bot's history: `/zbot history <bot>` (later, optional)
+- Over the bus, like `see <bot>`: HISTORY request → the last N (e.g. 200) entries back as numbered
+  lines. It opens the same screen, titled "Bot1 — what it was thinking". Needs both clients updated.
+- Only if 9a–9c prove useful. The headless bot's own log already has everything.
+
+### Settings
+- `indicator_action_bar`, `history_size`, `history_save`: in Mod Menu → Zymbot, on a **new "Display" tab** (owner, 2026-09-28)
+  and `/zbot set`, with ↺ reset like the other rows.
+
+### Build order and tests
+1. 9b core plus tests: ring buffer, kinds from verbs, filter/search, save/load with trimming.
+2. 9a action bar. Test: a fake `Hands` notified on state changes.
+3. 9c screen, then docs: SKILL.md (both copies), PHASE1.md, `help()`.
+4. Live test: `/zbot start` → action bar; W → paused countdown; `/zbot history` shows the lot;
+   search "grave"; restart the game → history still there.
+5. 9d only if asked.
 
 ## Notes
 
