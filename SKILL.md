@@ -95,6 +95,13 @@ screen); with Bot1 running too the owner may get Prism's "Low free memory" promp
 
 ## Talking to a running bot
 
+**The console in Windows Terminal** (a tab per bot, log pane on top, command pane below): if the owner asks
+how to **resize the panes with the mouse**, tell them to click a pane and press **Alt+Shift+Up / Down**
+instead. Windows Terminal has no mouse dragging of the divider between panes; the keyboard is its only way.
+**Ctrl+Shift+W** closes the focused pane (the log pane = stop that bot; the command pane = press R in the
+log pane to bring it back, with the last 40 lines). Any key, Esc included, scrolls the pane you type in back
+to the bottom: that is Windows Terminal's "snap on input" setting, not Zymbot.
+
 It doesn't matter who started the bot: `standby`, `play`, `standby-bot1-singleplayer` and the rest all
 go through the console relay (`<rig>/console.json`), so `send` reaches a bot the owner started from their own
 double-clicked `.bat` just the same (checked 2026-09-28). `stop-bots-check` shows whether a rig is running.

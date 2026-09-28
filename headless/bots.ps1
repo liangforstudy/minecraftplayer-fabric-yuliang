@@ -959,14 +959,27 @@ function Invoke-Guard($bot, [int]$logPid) {
     if (Get-Console $bot) { Cmd-StopBot $bot | Out-Null }
 }
 
-function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick) {
-    # Follow the bot's log from its current end; $show gets each new whole line; $everyTick runs each loop
-    # and returns $false to stop.
+function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick, [scriptblock]$wanted = $null, [int]$backlog = 0) {
+    # Follow the bot's log from its current end; $show gets each new whole line; $everyTick runs every 30 ms
+    # (keys) and returns $false to stop; the log is read every ~300 ms. At 300 ms per loop, typing showed
+    # up only every few characters (owner, 2026-09-28). $backlog: first show the last N lines $wanted
+    # accepts, so a reopened pane isn't empty.
     $c = Get-Console $bot
     if (-not $c) { Say "[$bot] isn't running - start it: standby-bot1-singleplayer.bat"; return }
     $log = $c.log; $pos = Get-LogSize $log; $carry = ''
+    if ($backlog -gt 0 -and $wanted) {
+        $old = Read-LogFrom $log 0
+        if ($old) {
+            $keep = @(($old.Substring(0, [Math]::Min($old.Length, $old.LastIndexOf("`n") + 1)) -split "\r?\n") |
+                      Where-Object { $_ -and (& $wanted $_) } | Select-Object -Last $backlog)
+            foreach ($l in $keep) { & $show $l }
+            if ($keep.Count) { Write-Host "-- (the last $($keep.Count) lines before this pane opened; live from here) --" -ForegroundColor DarkGray }
+        }
+    }
+    $tick = 0
     while ($true) {
         if (-not (& $everyTick)) { return }
+        if ((++$tick % 10) -ne 0) { Start-Sleep -Milliseconds 30; continue }
         $size = Get-LogSize $log
         if ($size -gt $pos) {
             $text = $carry + (Read-LogFrom $log $pos); $pos = $size
@@ -976,7 +989,7 @@ function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick) {
                 $carry = $text.Substring($cut + 1)
             } else { $carry = $text }
         }
-        Start-Sleep -Milliseconds 300
+        Start-Sleep -Milliseconds 30
     }
 }
 
@@ -999,6 +1012,7 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
     if (-not $pane) { Open-BotWindow $bot }                     # in a tab, the split below is the bot pane
     Say "[$name] the full log. Below / window 1: decisions, chat, and a prompt for commands."
     Say "        Close this (or the tab) to stop $name. Press R here to reopen the command pane. stop-bots.bat stops every bot."
+    if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes a pane (this one = stop $name), Alt+Shift+Up/Down moves the divider." }
     $noise = Get-Noise
     $script:warned = $false
     $script:seenBot = $false
@@ -1039,15 +1053,17 @@ function Cmd-Console($bot) {
     $name = Get-BotName $bot
     $Host.UI.RawUI.WindowTitle = "$name - bot (type a command, Enter)"
     Set-Window $bot 'bot' $PID
-    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status"
+    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Esc clears it)"
+    if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (no mouse drag)." }
     $script:typed = ''
     $prompt = '> '
     $clear = { [Console]::Write("`r" + (' ' * [Math]::Max(1, [Console]::BufferWidth - 1)) + "`r") }
     $redraw = { [Console]::Write($prompt + $script:typed) }
     & $redraw
+    $wanted = { param($l) $l -match '\[decision\]|\[CHAT\]|\[zymbot\]|IN THE WORLD' }
     Watch-Lines $bot {
         param($l)
-        if ($l -notmatch '\[decision\]|\[CHAT\]|\[zymbot\]|IN THE WORLD') { return }
+        if (-not (& $wanted $l)) { return }
         $t = if ($l -match '^\[(\d\d:\d\d:\d\d)\]') { $Matches[1] } else { '' }
         $msg = (($l -replace '^\[[^\]]*\] \[[^\]]*\]: ', '') -replace '\[decision\] ', '') -replace '\x1b\[[0-9;]*m|\[m|\u00A7.', ''
         $color = if ($msg -match '^failed:|CRASH|knocked out|giving up|refused') { 'Red' }
@@ -1084,7 +1100,7 @@ function Cmd-Console($bot) {
         }
         if (-not (Get-Console $bot)) { & $clear; Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
         $true
-    }
+    } $wanted 40
 }
 
 # ---------------------------------------------------------------- main
