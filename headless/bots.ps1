@@ -995,17 +995,23 @@ function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick, [scriptb
     }
 }
 
+function Wait-BotConsole($bot, $name) {
+    # play.bat starts the bot in the background and opens the tab at once: wait (90 s) for its console to
+    # exist. Only the log pane waited, so the command pane found no bot, said so and closed (owner, 2026-09-28).
+    $until = (Get-Date).AddSeconds(90)
+    if (-not (Get-Console $bot)) { Say "[$name] waiting for $name to start..." }
+    while (-not (Get-Console $bot)) {
+        if ((Get-Date) -gt $until) { Say "[$name] didn't start within 90 s - check $bot\run-*.log"; Start-Sleep 5; return $false }
+        Start-Sleep -Seconds 1
+    }
+    $true
+}
+
 function Cmd-ConsoleLog($bot, [switch]$pane) {
     # The log (window 2 / top pane): everything the bot logs, minus log-noise.txt, coloured: ERROR red, WARN
     # yellow, network cyan. It owns the bot: once it is closed (or its tab), the guard stops the bot.
     $name = Get-BotName $bot
-    # play.bat starts the bot in the background and comes here at once: wait for its console to exist
-    $until = (Get-Date).AddSeconds(90)
-    if (-not (Get-Console $bot)) { Say "[$name] waiting for $name to start..." }
-    while (-not (Get-Console $bot)) {
-        if ((Get-Date) -gt $until) { Say "[$name] didn't start within 90 s - check $bot\run-*.log"; return }
-        Start-Sleep -Seconds 1
-    }
+    if (-not (Wait-BotConsole $bot $name)) { return }
     $Host.UI.RawUI.WindowTitle = "$name - log (close = stop $name)"
     Set-Window $bot 'log' $PID
     $w = Get-Windows $bot                                        # a stale one from last time isn't "closed";
@@ -1058,6 +1064,7 @@ function Cmd-Console($bot) {
     $name = Get-BotName $bot
     $Host.UI.RawUI.WindowTitle = "$name - bot (type a command, Enter)"
     Set-Window $bot 'bot' $PID
+    if (-not (Wait-BotConsole $bot $name)) { return }
     Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Esc clears it)"
     if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (no mouse drag)." }
     $script:typed = ''
