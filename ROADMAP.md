@@ -235,6 +235,15 @@ Roughly in order; nothing here is committed.
       2. mods from Modrinth
       3. a window
       4. the `.exe`
+    - **Testing is required** before any of this ships (owner, 2026-09-28). Each step needs a live
+      test on a clean machine or user account with no repo, no Prism and no Java, and on one that
+      has them:
+      - the Java scan and the Java download
+      - the HeadlessMC and Fabric download
+      - the Modrinth mod list against the server, so the bot isn't dropped for a mod mismatch
+      - the bot reaching standby and joining
+      - SmartScreen with the `.exe`
+      - Windows first, then macOS and Linux
 
 ### On "it's vibecoded"
 
