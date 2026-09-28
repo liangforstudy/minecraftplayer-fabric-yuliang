@@ -87,19 +87,9 @@ so decisions would push real chat out, and the pack has no chat-history mod.)
    search "grave"; restart the game → history still there.
 5. 9d only if asked.
 
-## 10. `play.bat` skips a bot that is not running: stale `console.json` (2026-09-28) — to fix
-
-`play.bat "New World"` printed `[bot1] already running`, but no bot was running. `bot1/console.json`
-was left from the previous day's run, and its `relay_pid` (13584) belonged to another process by then
-(Windows reuses PIDs, and there was a reboot or overnight gap). `Get-Console` in `headless/bots.ps1` only checks
-that *some* process has that PID. Workaround used: delete `console.json`, then `standby.bat bot1`.
-
-**Fix:** also check it is really our relay. The process must be `powershell` and its command line must
-contain `bots.ps1` and `_relay` (and/or a TCP connect to the port with the token). Otherwise treat the
-file as stale and delete it. Do the same in `bots.py` (macOS/Linux: check the PID's cmdline for
-`bots.py _relay`), keeping the two in step.
-
 ## Notes
+
+- #10 (fixed 2026-09-28): `bots.ps1` / `bots.py` now check that `console.json`'s PID really is our relay for that bot, not just some process, because PIDs get reused. The Windows side was tested with a fake stale file; `bots.py` is untested (no Python on this PC), so check it on the Mac.
 
 - Tree felling (Phase 3) should skip the drop wait per leaf: most leaves drop nothing, and each would
   wait out the 5 s backstop.

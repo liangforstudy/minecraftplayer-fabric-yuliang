@@ -439,11 +439,20 @@ function Invoke-Relay($bot, $java, $heap, $log) {
     }
 }
 
+function Test-Relay([int]$procId, $bot) {
+    # Is this PID our console relay for this bot (bots.ps1/bots.py _relay "<bot>")?
+    $p = Get-CimInstance Win32_Process -Filter "ProcessId=$procId" -ErrorAction SilentlyContinue
+    [bool]($p -and $p.CommandLine -and
+           $p.CommandLine -match ('bots\.(py|ps1)"?\s+_relay\s+"?' + [regex]::Escape($bot) + '\b'))
+}
+
 function Get-Console($bot) {
     # The running bot's relay info, or $null.
     $info = Join-Path $HERE "$bot\console.json"
     try { $c = [IO.File]::ReadAllText($info) | ConvertFrom-Json } catch { return $null }
-    if (-not $c.relay_pid -or -not (Get-Process -Id ([int]$c.relay_pid) -ErrorAction SilentlyContinue)) {
+    # Not just "a process with that PID": Windows reuses PIDs, and a console.json left from yesterday
+    # pointed at some other program, so play.bat said "[bot1] already running" and skipped it (2026-09-28).
+    if (-not $c.relay_pid -or -not (Test-Relay ([int]$c.relay_pid) $bot)) {
         Remove-Item -LiteralPath $info -Force -ErrorAction SilentlyContinue
         return $null
     }

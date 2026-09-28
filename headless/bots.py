@@ -469,13 +469,32 @@ def _console(bot):
         c = json.load(open(info))
     except (OSError, ValueError):
         return None
-    if not _pid_alive(c.get("relay_pid", 0)):
+    # not just "a process with that PID": PIDs get reused, and a console.json left from yesterday
+    # pointed at some other program, so play said "[bot1] already running" and skipped it (2026-09-28)
+    if not _is_relay(c.get("relay_pid", 0), bot):
         try:
             os.remove(info)
         except OSError:
             pass
         return None
     return c
+
+
+def _is_relay(pid, bot):
+    """Is this PID our console relay for this bot (bots.py/bots.ps1 _relay <bot>)?"""
+    import re
+    if not _pid_alive(pid):
+        return False
+    try:
+        if IS_WIN:
+            cmd = subprocess.run(["powershell", "-NoProfile", "-Command",
+                                  f"(Get-CimInstance Win32_Process -Filter 'ProcessId={int(pid)}').CommandLine"],
+                                 capture_output=True, text=True).stdout
+        else:
+            cmd = subprocess.run(["ps", "-o", "command=", "-p", str(int(pid))], capture_output=True, text=True).stdout
+    except OSError:
+        return True                                         # can't tell: trust the PID, as before
+    return re.search(r'bots\.(py|ps1)"?\s+_relay\s+"?' + re.escape(bot) + r'\b', cmd) is not None
 
 
 def _pid_alive(pid):
