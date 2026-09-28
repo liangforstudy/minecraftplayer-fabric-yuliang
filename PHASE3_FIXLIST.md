@@ -3,8 +3,9 @@
 Bugs and changes found while live-testing Phase 3. Living doc: delete an entry once it is fully
 fixed **and** live-tested (git history keeps it).
 
-Status: **0.1.36 built, committed (`0cb9adf`, not pushed) and installed on both sides (owner's
-client + Bot1), 2026-09-27. Nothing below is live-tested yet.**
+Status: **0.1.37 built, committed (`3485b38`, not pushed) and installed on both sides (owner's client +
+Bot1), 2026-09-28.** It has the shallow-water fix. The 0.1.36 tests all passed live on 2026-09-28 except
+`/zbot see Nobody`.
 
 ## Built in 0.1.36, needs a live test
 
@@ -24,7 +25,7 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
   water") still counts them as water. So it walked into the shallows at 97 -50 (sand at y 61, water at 62),
   was still wet, bobbed, and gave up after 3 tries, several times today. Owner spotted it ("probably the 1
   block water"). Now WadingInterrupt only accepts land with dry feet; the drowning and stranded reflexes
-  still accept shallows. Test: `idleInWater_onlyShallowsNearby_doesntWalkIntoThem`. Live test in 0.1.37.
+  still accept shallows. Test: `idleInWater_onlyShallowsNearby_doesntWalkIntoThem`. Built into 0.1.37; live test next session.
 - `/zbot grave` falls back to a very old death spot (29 70 -191, far away). Consider forgetting a death spot once its grave has been picked up, or after N minutes, or asking first when it is far.
 
 ## Survey: give positions, and walk to what it found (2026-09-28) - to build
