@@ -50,7 +50,7 @@ wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two 
 | `./setup.sh` | once per machine: finds Java 21 + Prism, writes rig configs, installs Fabric 0.19.5 |
 | `./sync-bots.sh` [`--check`] | mirror the Prism pack's mods + config into the rigs (refuses a running rig) |
 | `./standby.sh bot1` | boot to the title screen and wait (~1 min) — the usual way to start |
-| `standby-bot1-singleplayer.bat` | Bot1 to standby, joins your singleplayer world (`127.0.0.1:25565`, waits for it), then **two windows** (Windows only): this one becomes window 2 = the full log minus `log-noise.txt`, coloured (ERROR red, WARN yellow, network cyan); it opens window 1 = decisions, chat and whispers, short and coloured, **plus a prompt**: a typed line goes to the bot like `send.bat`. Close window 2 = close window 1 and stop Bot1; close window 1 = press R in window 2 (or double-click `console.bat`) to reopen it. The `.sh` twin boots and joins only |
+| `standby-bot1-singleplayer.bat` | Bot1 to standby, joins your singleplayer world (`127.0.0.1:25565`, waits for it), then the **console**: Windows Terminal, a tab per bot, split log (top; close = stop the bot) and commands (bottom; typed line stays pinned). No wt.exe or `ZBOT_CONSOLE=windows`: two separate windows. See headless/README.md. The `.sh` twin boots and joins only |
 | `./connect.sh bot1 127.0.0.1:25565` [`--wait`] | join now, or as soon as the world opens |
 | `./run-bot.sh bot1 3G 127.0.0.1:25565` | boot and join in one go; prints IN THE WORLD / REJECTED / MOD MISMATCH / CONNECTED THEN DROPPED / CRASHED |
 | `./gui.sh bot1` | what's on the bot's screen (buttons, text) |

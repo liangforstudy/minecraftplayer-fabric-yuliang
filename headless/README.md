@@ -274,19 +274,26 @@ prompt already in this folder, for typing rig commands.
 title screen, then joins your singleplayer world on `127.0.0.1:25565` once it is open to LAN. If
 your world has `/zbot summon auto on`, the summon may pull Bot1 in first; both end in the same place.
 
-### The two console windows (Windows, `standby-bot1-singleplayer.bat`)
+### The console (Windows): a tab per bot in Windows Terminal
 
-Once Bot1 is in the world, the `.bat` window becomes **window 2** and opens **window 1**:
+`play.bat`, `play-with-arg.bat` and `standby-bot1-singleplayer.bat` end by opening one Windows
+Terminal window, **zymbot**, with **a tab per bot**, each split in two:
 
-| window | shows | you can |
+| pane | shows | you can |
 |---|---|---|
-| 1 `Bot1 - bot` | decisions, chat, whispers and Zymbot's own lines; short time stamps; red = failed / knocked out, yellow = paused / waiting, green = done / regrouped, cyan = chat | type any command and press Enter: it goes to the bot like `send.bat` (`/zbot status`, `msg hi`) |
-| 2 `Bot1 - log` | the whole log, minus the patterns in `log-noise.txt`; ERROR red, WARN yellow, network (joins, disconnects, LAN, bus, summons) cyan | read; **close it to stop Bot1** (window 1 closes too) |
+| top: `Bot1 - log` | the whole log, minus the patterns in `log-noise.txt`; ERROR red, WARN yellow, network (joins, disconnects, LAN, bus, summons) cyan | read; **close it (or the tab) to stop that bot**; press **R** to reopen the pane below |
+| bottom: `Bot1 - bot` | decisions, chat, whispers and Zymbot's own lines; short time stamps; red = failed / knocked out, yellow = paused / waiting, green = done / regrouped, cyan = chat | type a command after `> ` and press Enter: it goes to the bot like `send.bat`. Your typed line stays pinned under new output; Esc clears it |
 
-Closed window 1 by accident? Window 2 says so: press **R** in window 2, or double-click `console.bat`
-(it picks the running bot; `console.bat bot3` for another). `stop-bot1.bat`
-stops just Bot1; `stop-bots.bat` stops every bot. I (Claude) can still `send.bat` to the bot while
-the windows are open. The log file keeps everything; `log-noise.txt` only filters window 2.
+Each pane scrolls on its own (mouse wheel over it, or Ctrl+Shift+Up/Down/PgUp/PgDn); scrolled up, new
+lines don't pull you down; typing jumps the bottom pane back down. A hidden guard stops the bot once its
+log pane is gone, so closing the tab works too. `console.bat` (double-click: the running bot) reopens the
+command pane in its own window. `stop-bot1.bat` stops just Bot1; `stop-bots.bat` every bot. I (Claude)
+can still `send.bat` to the bot meanwhile. The log file keeps everything; `log-noise.txt` only filters
+the log pane.
+
+**No Windows Terminal, or `set ZBOT_CONSOLE=windows`:** the older two separate windows (the `.bat`
+window becomes the log, and opens the command window). To go back to that version entirely:
+`git checkout console-separate-windows -- headless` (a git tag).
 
 ## Fully automatic: `play` (0.1.6)
 
