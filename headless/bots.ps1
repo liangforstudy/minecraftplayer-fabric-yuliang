@@ -926,6 +926,13 @@ function Cmd-ConsoleLog($bot) {
     # Window 2: everything the bot logs, minus log-noise.txt, coloured: ERROR red, WARN yellow, network cyan.
     # This window owns the bot: closing it closes window 1 and stops the bot (owner, 2026-09-28).
     $name = Get-BotName $bot
+    # play.bat starts the bot in the background and comes here at once: wait for its console to exist
+    $until = (Get-Date).AddSeconds(90)
+    if (-not (Get-Console $bot)) { Say "[$name] waiting for $name to start..." }
+    while (-not (Get-Console $bot)) {
+        if ((Get-Date) -gt $until) { Say "[$name] didn't start within 90 s - check $bot\run-*.log"; return }
+        Start-Sleep -Seconds 1
+    }
     $Host.UI.RawUI.WindowTitle = "$name - log (close = stop $name)"
     Set-Window $bot 'log' $PID
     Open-BotWindow $bot
