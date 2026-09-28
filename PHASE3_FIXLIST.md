@@ -89,7 +89,7 @@ so decisions would push real chat out, and the pack has no chat-history mod.)
 
 ## Notes
 
-- #10 (fixed 2026-09-28): `bots.ps1` / `bots.py` now check that `console.json`'s PID really is our relay for that bot, not just some process, because PIDs get reused. The Windows side was tested with a fake stale file; `bots.py` is untested (no Python on this PC), so check it on the Mac.
+- #10 (fixed 2026-09-28): `bots.ps1` / `bots.py` now check that `console.json`'s PID really is our relay for that bot, not just some process, because PIDs get reused. Both were tested on Windows with a fake stale file (Python 3.12 installed 2026-09-28); the `ps` branch of `bots.py` (Mac/Linux) is still untested.
 
 - Tree felling (Phase 3) should skip the drop wait per leaf: most leaves drop nothing, and each would
   wait out the 5 s backstop.

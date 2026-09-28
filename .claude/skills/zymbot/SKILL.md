@@ -82,7 +82,7 @@ client is `D:\PrismLauncher\instances\1.21.1 Modpack\minecraft\mods\` on Windows
 only touch it when asked, and only with the game closed. Keep `mod.version` (stonecutter.properties.toml) and
 `core/build.gradle.kts` version in step. **On Windows** set `JAVA_HOME=D:\Downloads\jdk-21.0.2`,
 bump versions with `sed` or the Edit tool — PowerShell 5.1 `Set-Content -Encoding utf8` writes a BOM
-that breaks `stonecutter.properties.toml` — and there's **no Python**: tell every subagent so.
+that breaks `stonecutter.properties.toml`. Python 3.12 is installed since 2026-09-28.
 A Prism launch straight into the world: `play.bat "New World"` (a bare `--launch` stops at the title
 screen); with Bot1 running too the owner may get Prism's "Low free memory" prompt.
 
