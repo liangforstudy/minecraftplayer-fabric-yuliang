@@ -1,4 +1,4 @@
-# minecraftplayer-fabric-yuliang
+# civbot-yuliang
 
 A client-side Fabric bot that plays the **1.21.1 ZymCiv modded server** — foraging, farming and
 surviving alongside human players, with the end goal of **beating the game**.
