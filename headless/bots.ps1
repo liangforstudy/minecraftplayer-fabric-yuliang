@@ -533,6 +533,13 @@ function Cmd-Connect($bot, $addr, [bool]$wait, [int]$waitSecs = 900) {
     $name = Get-BotName $bot
     $c = Get-Console $bot
     if (-not $c) { Die "[$bot] isn't running (start it: standby.bat $bot)" }
+    $start = Get-LogSize $c.log                                 # a summon after this point counts
+    # Already in a world (the last "started:" is newer than the last "stopped")? Don't kick it out to rejoin.
+    $all = Read-LogFrom $c.log 0
+    if ($all -and $all.LastIndexOf('[decision] started:') -gt [math]::Max($all.LastIndexOf('[decision] stopped'), -1) -and
+        $all.LastIndexOf('[decision] started:') -ge 0) {
+        Say "[$name] already in a world - not connecting again (disconnect.bat $bot first to switch)"; return 0
+    }
     if ($wait) {
         Say "[$name] waiting for ${h}:$port to open (up to $([int]($waitSecs / 60)) min)..."
         $until = (Get-Date).AddSeconds($waitSecs)
@@ -544,12 +551,27 @@ function Cmd-Connect($bot, $addr, [bool]$wait, [int]$waitSecs = 900) {
     }
     # The first join after a boot often times out: the host allows 15 s, and the bot spends ~16 s on
     # the pack's config data (3 times on 2026-09-26). The second try, with that data cached, works.
+    # A summon (/zbot summon auto on in the host's world) may be joining the bot already. A second
+    # "connect" on top of a join still loading collided with it: "Failed to decode packet
+    # 'clientbound/minecraft:update_recipes'", kicked, and standby-bot1-singleplayer.bat gave up while the
+    # summon got Bot1 in 10 s later (2026-09-28). So before each try, look: in already -> done; a summon
+    # joining -> wait for that join instead of sending another.
+    $seen = $start
     for ($try = 1; $try -le 2; $try++) {
         $offset = Get-LogSize $c.log
-        Say "[$name] connecting to ${h}:$port$(if ($try -gt 1) { ' (retry)' })"
-        Send-Line $bot "connect $h $port"
+        $since = Read-LogFrom $c.log $seen
+        if ($since -match '\[decision\] started:|joined the game') {
+            Say "[$name] already in the world (summoned)"; return 0
+        }
+        if ($since -match '\[zymbot\] summoned') {
+            Say "[$name] a summon is already joining it - waiting for that join instead of connecting again"
+        } else {
+            Say "[$name] connecting to ${h}:$port$(if ($try -gt 1) { ' (retry)' })"
+            Send-Line $bot "connect $h $port"
+        }
         $v = Wait-Verdict $bot $name $c.log "${h}:$port" $offset 180
         if ($v -ne 7 -and $v -ne 5) { return $v }
+        $seen = Get-LogSize $c.log
         Start-Sleep -Seconds 3
     }
     $v

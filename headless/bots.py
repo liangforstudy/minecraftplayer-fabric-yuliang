@@ -623,6 +623,11 @@ def cmd_connect(bot, addr, wait=False, wait_secs=900):
     c = _console(bot)
     if not c:
         sys.exit(f"[{bot}] isn't running (start it: bots.py standby {bot})")
+    all_ = open(c["log"], encoding="utf-8", errors="replace").read()
+    start = len(all_)                                   # a summon after this counts
+    # already in a world (last "started:" newer than the last "stopped")? don't kick it out to rejoin
+    if all_.rfind("[decision] started:") > all_.rfind("[decision] stopped"):
+        print(f"[{name}] already in a world - not connecting again (disconnect {bot} first to switch)"); return 0
     if wait:
         print(f"[{name}] waiting for {host}:{port} to open (up to {wait_secs // 60} min)...")
         until = time.time() + wait_secs
@@ -636,8 +641,16 @@ def cmd_connect(bot, addr, wait=False, wait_secs=900):
                 time.sleep(3)
         time.sleep(2)                                   # let the LAN server finish opening
     offset = os.path.getsize(c["log"])
-    print(f"[{name}] connecting to {host}:{port}")
-    _send_line(bot, f"connect {host} {port}")
+    # a summon may be joining the bot already: a second "connect" on top of it collided and got it kicked
+    # ("Failed to decode packet ... update_recipes", 2026-09-28) - so look first
+    since = open(c["log"], encoding="utf-8", errors="replace").read()[start:]
+    if re.search(r"\[decision\] started:|joined the game", since):
+        print(f"[{name}] already in the world (summoned)"); return 0
+    if "[zymbot] summoned" in since:
+        print(f"[{name}] a summon is already joining it - waiting for that join instead of connecting again")
+    else:
+        print(f"[{name}] connecting to {host}:{port}")
+        _send_line(bot, f"connect {host} {port}")
     return _await_verdict(bot, name, c["log"], f"{host}:{port}", offset, timeout=180)
 
 
