@@ -880,10 +880,14 @@ function Get-Windows($bot) {
     try { [IO.File]::ReadAllText((Join-Path $HERE "$bot\windows.json")) | ConvertFrom-Json } catch { $null }
 }
 function Set-Window($bot, $which, [int]$id) {
-    $w = Get-Windows $bot; $h = @{ log = 0; bot = 0 }
-    if ($w) { $h.log = [int]$w.log; $h.bot = [int]$w.bot }
-    $h[$which] = $id
-    [IO.File]::WriteAllText((Join-Path $HERE "$bot\windows.json"), (ConvertTo-Json $h))
+    for ($i = 0; $i -lt 10; $i++) {                              # both panes start together: retry a busy file
+        try {
+            $w = Get-Windows $bot; $h = @{ log = 0; bot = 0 }
+            if ($w) { $h.log = [int]$w.log; $h.bot = [int]$w.bot }
+            $h[$which] = $id
+            [IO.File]::WriteAllText((Join-Path $HERE "$bot\windows.json"), (ConvertTo-Json $h)); return
+        } catch { Start-Sleep -Milliseconds (50 + (Get-Random -Maximum 150)) }
+    }
 }
 function Test-Alive([int]$id) { [bool]($id -and (Get-Process -Id $id -ErrorAction SilentlyContinue)) }
 
@@ -895,10 +899,61 @@ function Get-Noise {
 }
 
 function Open-BotWindow($bot) {
-    # Window 1 in its own console window.
-    $p = Start-Process -FilePath 'powershell.exe' -PassThru -ArgumentList (
-        '-NoProfile -ExecutionPolicy Bypass -File "' + $SELF + '" console "' + $bot + '"')
-    Set-Window $bot 'bot' $p.Id
+    # Window 1 again: a pane under this one in Windows Terminal, else its own console window.
+    $cmd = '-NoProfile -ExecutionPolicy Bypass -File "' + $SELF + '" console "' + $bot + '"'
+    if ($env:WT_SESSION -and (Get-Wt)) {
+        Start-Process -FilePath (Get-Wt) -ArgumentList ('-w 0 split-pane -H --size 0.4 powershell.exe ' + $cmd)
+    } else {
+        $p = Start-Process -FilePath 'powershell.exe' -PassThru -ArgumentList $cmd
+        Set-Window $bot 'bot' $p.Id
+    }
+}
+
+function Get-Wt {
+    # Windows Terminal, unless ZBOT_CONSOLE=windows asks for the old separate windows.
+    if ($env:ZBOT_CONSOLE -eq 'windows') { return $null }
+    $c = Get-Command wt.exe -ErrorAction SilentlyContinue
+    if ($c) { return $c.Source }
+    $null
+}
+
+function Cmd-Consoles([string[]]$argv) {
+    # The console for each bot (owner, 2026-09-28): one Windows Terminal window "zymbot", a tab per bot,
+    # each split - the log on top, decisions + a prompt below. No Windows Terminal (or ZBOT_CONSOLE=windows):
+    # the old separate windows, this one becoming the log window of the first bot.
+    # Returns 10 when Windows Terminal took over, so the .bat can close without "Press any key".
+    $bots = @($argv | Where-Object { $_ -match '^bot\d+$' })
+    if (-not $bots.Count) { $bots = @('bot1') }
+    $wt = Get-Wt
+    if (-not $wt) {
+        foreach ($b in ($bots | Select-Object -Skip 1)) {
+            Start-Process -FilePath 'powershell.exe' -ArgumentList ('-NoProfile -ExecutionPolicy Bypass -File "' + $SELF + '" console-log "' + $b + '"')
+        }
+        Cmd-ConsoleLog $bots[0]
+        return 0
+    }
+    $parts = @()
+    foreach ($b in $bots) {
+        $name = Get-BotName $b
+        $run = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -File "' + $SELF + '" '
+        $parts += ('new-tab --title "' + $name + '" ' + $run + 'console-log "' + $b + '" --pane')
+        $parts += ('split-pane -H --size 0.4 --title "' + $name + ' - bot" ' + $run + 'console "' + $b + '"')
+    }
+    Start-Process -FilePath $wt -ArgumentList ('-w zymbot ' + ($parts -join ' ; '))
+    Say "opened the Zymbot console in Windows Terminal: a tab per bot ($($bots -join ', ')), log on top, commands below"
+    10
+}
+
+function Start-Guard($bot) {
+    # A hidden watcher of its own (it survives the tab closing): once the log pane/window is gone, stop the
+    # bot. Closing the whole tab kills both panes at once, so neither could do it itself.
+    Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -ArgumentList (
+        '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $SELF + '" _guard "' + $bot + '" ' + $PID)
+}
+
+function Invoke-Guard($bot, [int]$logPid) {
+    while ((Test-Alive $logPid) -and (Get-Console $bot)) { Start-Sleep -Seconds 1 }
+    if (Get-Console $bot) { Cmd-StopBot $bot | Out-Null }
 }
 
 function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick) {
@@ -922,9 +977,9 @@ function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick) {
     }
 }
 
-function Cmd-ConsoleLog($bot) {
-    # Window 2: everything the bot logs, minus log-noise.txt, coloured: ERROR red, WARN yellow, network cyan.
-    # This window owns the bot: closing it closes window 1 and stops the bot (owner, 2026-09-28).
+function Cmd-ConsoleLog($bot, [switch]$pane) {
+    # The log (window 2 / top pane): everything the bot logs, minus log-noise.txt, coloured: ERROR red, WARN
+    # yellow, network cyan. It owns the bot: once it is closed (or its tab), the guard stops the bot.
     $name = Get-BotName $bot
     # play.bat starts the bot in the background and comes here at once: wait for its console to exist
     $until = (Get-Date).AddSeconds(90)
@@ -935,11 +990,15 @@ function Cmd-ConsoleLog($bot) {
     }
     $Host.UI.RawUI.WindowTitle = "$name - log (close = stop $name)"
     Set-Window $bot 'log' $PID
-    Open-BotWindow $bot
-    Say "[$name] this window: the full log. Window 1 ($name - bot): decisions, chat, and a prompt for commands."
-    Say "        Close THIS window to stop $name. Press R here to reopen window 1. stop-bots.bat stops every bot."
+    $w = Get-Windows $bot                                        # a stale one from last time isn't "closed";
+    if ($w -and -not (Test-Alive ([int]$w.bot))) { Set-Window $bot 'bot' 0 }   # a pane that just started stays
+    Start-Guard $bot
+    if (-not $pane) { Open-BotWindow $bot }                     # in a tab, the split below is the bot pane
+    Say "[$name] the full log. Below / window 1: decisions, chat, and a prompt for commands."
+    Say "        Close this (or the tab) to stop $name. Press R here to reopen the command pane. stop-bots.bat stops every bot."
     $noise = Get-Noise
     $script:warned = $false
+    $script:seenBot = $false
     Watch-Lines $bot {
         param($l)
         foreach ($n in $noise) { if ($l -match $n) { return } }
@@ -949,35 +1008,40 @@ function Cmd-ConsoleLog($bot) {
                  else { 'Gray' }
         Write-Host $l -ForegroundColor $color
     } {
-        while ([Console]::KeyAvailable) {                        # R: reopen window 1
+        while ([Console]::KeyAvailable) {                        # R: reopen the command pane / window 1
             $k = [Console]::ReadKey($true)
             if ($k.Key -eq 'R') {
                 $w = Get-Windows $bot
-                if ($w -and (Test-Alive ([int]$w.bot))) { Write-Host "== window 1 is already open" -ForegroundColor Magenta }
-                else { Open-BotWindow $bot; Write-Host "== reopened window 1 ($name - bot)" -ForegroundColor Magenta }
+                if ($w -and (Test-Alive ([int]$w.bot))) { Write-Host "== the command pane is already open" -ForegroundColor Magenta }
+                else { Open-BotWindow $bot; Write-Host "== reopened the command pane ($name - bot)" -ForegroundColor Magenta }
             }
         }
         $w = Get-Windows $bot
-        if (-not ($w -and (Test-Alive ([int]$w.bot)))) {
-            if (-not $script:warned) {
-                Write-Host "== window 1 ($name - bot) was closed. Press R here to reopen it (or double-click console.bat)" -ForegroundColor Magenta
-                $script:warned = $true
-            }
-        } else { $script:warned = $false }
+        $botAlive = $w -and [int]$w.bot -and (Test-Alive ([int]$w.bot))
+        if ($botAlive) { $script:seenBot = $true; $script:warned = $false }
+        elseif ($script:seenBot -and -not $script:warned) {      # only once it had been open
+            Write-Host "== the command pane ($name - bot) was closed. Press R here to reopen it (or double-click console.bat)" -ForegroundColor Magenta
+            $script:warned = $true
+        }
         if (-not (Get-Console $bot)) { Write-Host "== $name stopped." -ForegroundColor Magenta; return $false }
         $true
     }
 }
 
 function Cmd-Console($bot) {
-    # Window 1: the bot's decisions, chat and whispers, Zymbot's own lines - short and coloured - and a prompt:
-    # a typed line goes to the bot like send.bat (/zbot status, msg hi, ...). The log window (2) owns the bot:
-    # once it is gone, this one stops the bot and closes.
+    # Decisions pane / window 1: the bot's decisions, chat and whispers, Zymbot's own lines - short and
+    # coloured - and a prompt: a typed line goes to the bot like send.bat (/zbot status, msg hi, ...).
+    # The line being typed stays pinned under the output: an incoming line clears it, prints, and puts it
+    # back - it used to land in the middle of what you were typing (owner, 2026-09-28).
     $name = Get-BotName $bot
     $Host.UI.RawUI.WindowTitle = "$name - bot (type a command, Enter)"
     Set-Window $bot 'bot' $PID
     Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status"
     $script:typed = ''
+    $prompt = '> '
+    $clear = { [Console]::Write("`r" + (' ' * [Math]::Max(1, [Console]::BufferWidth - 1)) + "`r") }
+    $redraw = { [Console]::Write($prompt + $script:typed) }
+    & $redraw
     Watch-Lines $bot {
         param($l)
         if ($l -notmatch '\[decision\]|\[CHAT\]|\[zymbot\]|IN THE WORLD') { return }
@@ -988,24 +1052,34 @@ function Cmd-Console($bot) {
                  elseif ($msg -match '^done:|^regrouped|revived|IN THE WORLD|picked up|looted') { 'Green' }
                  elseif ($l -match '\[CHAT\]') { 'Cyan' }
                  else { 'White' }
+        & $clear
         Write-Host "$t $msg" -ForegroundColor $color
+        & $redraw
     } {
         while ([Console]::KeyAvailable) {
             $k = [Console]::ReadKey($true)
             if ($k.Key -eq 'Enter') {
-                $line = $script:typed.Trim(); $script:typed = ''; [Console]::WriteLine()
-                if ($line) { try { Send-Line $bot $line } catch { Write-Host "  (not sent: $_)" -ForegroundColor Red } }
+                $line = $script:typed.Trim(); $script:typed = ''
+                & $clear
+                if ($line) {
+                    Write-Host "$prompt$line" -ForegroundColor DarkGray
+                    try { Send-Line $bot $line } catch { Write-Host "  (not sent: $_)" -ForegroundColor Red }
+                }
+                & $redraw
             } elseif ($k.Key -eq 'Backspace') {
                 if ($script:typed.Length) { $script:typed = $script:typed.Substring(0, $script:typed.Length - 1); [Console]::Write("`b `b") }
+            } elseif ($k.Key -eq 'Escape') {
+                $script:typed = ''; & $clear; & $redraw
             } elseif ($k.KeyChar -ge ' ') { $script:typed += $k.KeyChar; [Console]::Write($k.KeyChar) }
         }
         $w = Get-Windows $bot
         if ($w -and [int]$w.log -and -not (Test-Alive ([int]$w.log))) {
-            Write-Host "== the log window was closed - stopping $name" -ForegroundColor Magenta
-            Cmd-StopBot $bot | Out-Null
+            & $clear
+            Write-Host "== the log was closed - $name is being stopped" -ForegroundColor Magenta
+            Start-Sleep 2
             return $false
         }
-        if (-not (Get-Console $bot)) { Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
+        if (-not (Get-Console $bot)) { & $clear; Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
         $true
     }
 }
@@ -1060,7 +1134,10 @@ function Invoke-Main([string[]]$a) {
                            $run = @(Get-Rigs | Where-Object { Get-Console $_ })
                            if ($run.Count -eq 1) { $run[0] } else { 'bot1' } }
                        Cmd-Console $b; return 0 }
-        'console-log'{ if (-not $rest.Count) { Die 'usage: bots.ps1 console-log <bot>' }; Cmd-ConsoleLog $rest[0]; return 0 }
+        'console-log'{ if (-not $rest.Count) { Die 'usage: bots.ps1 console-log <bot> [--pane]' }
+                       Cmd-ConsoleLog $rest[0] -pane:($rest -contains '--pane'); return 0 }
+        'consoles'   { return Cmd-Consoles $rest }
+        '_guard'     { Invoke-Guard $rest[0] ([int]$rest[1]); return 0 }
     }
     Die "unknown command '$cmd' - try: setup, sync, run, stop"
 }
