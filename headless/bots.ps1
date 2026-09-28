@@ -401,7 +401,7 @@ function Wait-Verdict($bot, $name, $log, $addr, [long]$offset, [int]$timeout) {
             return 0
         }
         if (-not $addr -and $text.Contains('Realms')) {
-            Say "[$name] at title screen - standing by. Next: connect.bat $bot <host:port> [--wait]"
+            Say "[$name] at title screen - standing by. Next: connect-bot1.bat (or connect-with-arg.bat $bot <host:port> [--wait])"
             return 0
         }
     }
@@ -538,7 +538,7 @@ function Cmd-Connect($bot, $addr, [bool]$wait, [int]$waitSecs = 900) {
     $all = Read-LogFrom $c.log 0
     if ($all -and $all.LastIndexOf('[decision] started:') -gt [math]::Max($all.LastIndexOf('[decision] stopped'), -1) -and
         $all.LastIndexOf('[decision] started:') -ge 0) {
-        Say "[$name] already in a world - not connecting again (disconnect.bat $bot first to switch)"; return 0
+        Say "[$name] already in a world - not connecting again (disconnect-with-arg.bat $bot first to switch)"; return 0
     }
     if ($wait) {
         Say "[$name] waiting for ${h}:$port to open (up to $([int]($waitSecs / 60)) min)..."
@@ -1142,9 +1142,9 @@ function Invoke-Main([string[]]$a) {
                        return Cmd-Run $rest[0] $rest[1] $rest[2] }
         'standby'    { if (-not $rest.Count) { Die 'usage: standby.bat <bot> [heap]' }
                        return Cmd-Run $rest[0] $rest[1] $null }
-        'connect'    { if ($rest.Count -lt 2) { Die 'usage: connect-with-arg.bat <bot> <host:port> [--wait]  (connect.bat = bot1 to 127.0.0.1:25565, waiting)' }
+        'connect'    { if ($rest.Count -lt 2) { Die 'usage: connect-with-arg.bat <bot> <host:port> [--wait]  (connect-bot1.bat = bot1 to 127.0.0.1:25565, waiting)' }
                        return Cmd-Connect $rest[0] $rest[1] ($rest -contains '--wait') }
-        'disconnect' { if (-not $rest.Count) { Die 'usage: disconnect.bat <bot>' }; return Cmd-Send $rest[0] @('disconnect') }
+        'disconnect' { if (-not $rest.Count) { Die 'usage: disconnect-with-arg.bat <bot>  (disconnect-bot1.bat = bot1)' }; return Cmd-Send $rest[0] @('disconnect') }
         'gui'        { if (-not $rest.Count) { Die 'usage: gui.bat <bot>' }; return Cmd-Send $rest[0] @('gui') }
         'send'       { if ($rest.Count -lt 2) { Die 'usage: send.bat <bot> <console command...>' }
                        return Cmd-Send $rest[0] @($rest | Select-Object -Skip 1) }

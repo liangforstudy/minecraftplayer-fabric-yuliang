@@ -1,5 +1,6 @@
 @echo off
-rem Thin wrapper - all logic is in bots.ps1 (Windows PowerShell, no Python needed). macOS/Linux: the .sh files.
+rem disconnect-bot1.bat with your own argument: disconnect-with-arg.bat <bot>
+rem The bot leaves the world and waits at its title screen (still running). Logic in bots.ps1. macOS/Linux: disconnect.sh
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bots.ps1" disconnect %*
 set "ZBOT_RC=%errorlevel%"
 rem Double-clicked from Explorer: keep the window open so the output can be read (owner, 2026-09-28).

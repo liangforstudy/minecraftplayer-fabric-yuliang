@@ -188,7 +188,7 @@ Nothing machine-specific is stored. Every `setup`/`run` detects the paths and **
 4. If Prism or Java aren't found, write their paths into `headless/prism-dir.txt` /
    `headless/java-path.txt` (both gitignored, one line each).
 5. `setup.bat` → `sync-bots.bat` → `play.bat "<world>"`, or host your world yourself and
-   `standby.bat bot1` + `connect.bat bot1 127.0.0.1:25565`.
+   `standby.bat bot1` + `connect-bot1.bat` (or `connect-with-arg.bat bot1 127.0.0.1:25565`).
 
 What gets detected, and the override if it guesses wrong:
 
@@ -210,7 +210,7 @@ Windows-only details:
 - `play.bat` opens **your game first** and starts the bots once your world is loading — booting both
   at once on a 6-core laptop took ~3 min each instead of ~1.5.
 - The first join after a boot often **times out** (the host allows 15 s; this pack's config data
-  takes the bot ~16 s). `connect.bat` retries once, and Zymbot 0.1.28+ retries a failed summoned join once.
+  takes the bot ~16 s). `connect-bot1.bat` / `connect-with-arg.bat` retry once, and Zymbot 0.1.28+ retries a failed summoned join once.
 - Console commands for the bot are `/zbot …` with **no** space after the slash (`send.bat bot1 /zbot status`).
 - The console relay is a hidden PowerShell process (`bots.ps1 _relay`); `stop-bots.bat` stops it too.
 
