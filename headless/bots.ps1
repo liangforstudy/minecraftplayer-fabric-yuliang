@@ -619,7 +619,10 @@ function Cmd-Play($world, [string[]]$bots, [switch]$gameOnly) {
         $since = Get-Date
         Start-Process -FilePath (Get-PrismBin) -ArgumentList ('-l "' + $instance + '" -w "' + $world + '"')
         if ($gameOnly) { Say "[you] launching '$instance' straight into '$world' (no bots)"; return 0 }
-        Say "[you] launching '$instance' straight into '$world' - bots start once your world is loading"
+        Say "[you] Prism is starting your game (instance '$instance') and loading the singleplayer world '$world'."
+        Say "      The bots start once that world is loading; the Zymbot console opens after."
+        Say "      Your game's live log: in Prism, right-click '$instance' -> Edit -> Minecraft Log"
+        Say "      (to open it with every launch: Prism Settings -> Minecraft -> show the console while the game is running)."
         $until = $since.AddMinutes(6)
         while ((Get-Date) -lt $until) {
             Start-Sleep -Seconds 3
