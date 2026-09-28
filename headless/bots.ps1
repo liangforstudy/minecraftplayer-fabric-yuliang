@@ -549,7 +549,8 @@ function Test-GameRunning($instance) {
     $false
 }
 
-function Cmd-Play($world, [string[]]$bots) {
+function Cmd-Play($world, [string[]]$bots, [switch]$gameOnly) {
+    # $gameOnly: prism.bat - just your game into the world, no bots (owner, 2026-09-28)
     if (-not $bots -or $bots.Count -eq 0) { $bots = @('bot1') }
     $instance = $env:PRISM_INSTANCE
     if (-not $instance) {
@@ -565,6 +566,7 @@ function Cmd-Play($world, [string[]]$bots) {
         $log = Join-Path (Get-PrismDir) "instances\$instance\minecraft\logs\latest.log"
         $since = Get-Date
         Start-Process -FilePath (Get-PrismBin) -ArgumentList ('-l "' + $instance + '" -w "' + $world + '"')
+        if ($gameOnly) { Say "[you] launching '$instance' straight into '$world' (no bots)"; return 0 }
         Say "[you] launching '$instance' straight into '$world' - bots start once your world is loading"
         $until = $since.AddMinutes(6)
         while ((Get-Date) -lt $until) {
@@ -574,6 +576,7 @@ function Cmd-Play($world, [string[]]$bots) {
         }
         if ((Get-Date) -ge $until) { Say "[you] no world after 6 min - starting the bots anyway" }
     }
+    if ($gameOnly) { return 0 }
     foreach ($b in $bots) {
         if (Get-Console $b) { Say "[$b] already running"; continue }
         Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -ArgumentList (
@@ -823,6 +826,8 @@ function Invoke-Main([string[]]$a) {
         '_relay'     { Invoke-Relay $rest[0] $rest[1] $rest[2] $rest[3]; return 0 }
         'play'       { if (-not $rest.Count) { Die 'usage: play.bat "<world name>" [bot1 bot3 ...]' }
                        return Cmd-Play $rest[0] @($rest | Select-Object -Skip 1) }
+        'prism'      { if (-not $rest.Count) { Die 'usage: prism.bat "<world name>"  (your game only, no bots)' }
+                       return Cmd-Play $rest[0] @() -gameOnly }
         'stop'       { return Cmd-Stop }
     }
     Die "unknown command '$cmd' - try: setup, sync, run, stop"

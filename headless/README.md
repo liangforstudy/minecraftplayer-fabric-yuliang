@@ -251,6 +251,15 @@ Only **Bot** accounts answer — a Teammate's client (a human) is never pulled a
 already in a world ignores it. The message is signed and encrypted with the team key, so nobody
 without it can summon your bots.
 
+## Just your game: `prism`
+
+```bash
+./prism.sh "New World"      # Windows: prism.bat "New World"
+```
+
+Prism straight into that world, and **no bots**. Use it to play or test on your own; start bots later
+with `standby` if you want them.
+
 ## Fully automatic: `play` (0.1.6)
 
 ```bash

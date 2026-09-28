@@ -600,7 +600,7 @@ def _game_running(instance):
                for line in out.splitlines())
 
 
-def cmd_play(world, bots):
+def cmd_play(world, bots, game_only=False):
     """Bots to standby (in the background) and your own game straight into a world. The rest is
     Zymbot on your client, set once in game: /zbot lan auto on (the world opens to LAN by itself)
     and /zbot summon auto on (waiting bots are called in, repeatedly for 5 minutes)."""
@@ -610,7 +610,7 @@ def cmd_play(world, bots):
         instance = open(src).read().strip() if os.path.exists(src) else None
     if not instance:
         sys.exit("Which Prism instance? Set PRISM_INSTANCE to its folder name.")
-    for bot in bots or ["bot1"]:
+    for bot in [] if game_only else bots or ["bot1"]:     # game_only: prism - no bots (owner, 2026-09-28)
         if _console(bot):
             print(f"[{bot}] already running")
             continue
@@ -622,7 +622,7 @@ def cmd_play(world, bots):
         return 0
     subprocess.Popen([prism_bin(), "-l", instance, "-w", world],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-    print(f"[you] launching '{instance}' straight into '{world}'")
+    print(f"[you] launching '{instance}' straight into '{world}'" + (" (no bots)" if game_only else ""))
     print("      With /zbot lan auto on + /zbot summon auto on set in that world, the rest is automatic.")
     return 0
 
@@ -664,6 +664,10 @@ def main(argv):
         if not rest:
             sys.exit('usage: bots.py play "<world name>" [bot1 bot3 ...]')
         return cmd_play(rest[0], rest[1:])
+    if cmd == "prism":
+        if not rest:
+            sys.exit('usage: bots.py prism "<world name>"  (your game only, no bots)')
+        return cmd_play(rest[0], [], game_only=True)
     if cmd == "stop":
         cmd_stop(); return 0
     sys.exit(f"unknown command '{cmd}' — try: setup, sync, run, stop")
