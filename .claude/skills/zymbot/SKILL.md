@@ -50,6 +50,7 @@ wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two 
 | `./setup.sh` | once per machine: finds Java 21 + Prism, writes rig configs, installs Fabric 0.19.5 |
 | `./sync-bots.sh` [`--check`] | mirror the Prism pack's mods + config into the rigs (refuses a running rig) |
 | `./standby.sh bot1` | boot to the title screen and wait (~1 min) — the usual way to start |
+| `./standby-singleplayer.sh` | standby with everything filled in: Bot1 to its title screen, then `connect bot1 127.0.0.1:25565 --wait` (your singleplayer world open to LAN) |
 | `./connect.sh bot1 127.0.0.1:25565` [`--wait`] | join now, or as soon as the world opens |
 | `./run-bot.sh bot1 3G 127.0.0.1:25565` | boot and join in one go; prints IN THE WORLD / REJECTED / MOD MISMATCH / CONNECTED THEN DROPPED / CRASHED |
 | `./gui.sh bot1` | what's on the bot's screen (buttons, text) |

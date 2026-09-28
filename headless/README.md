@@ -266,6 +266,10 @@ console they exit at once (`ZBOT_NO_PAUSE=1` skips the wait too). Every command 
 starting before any slow step, and `stop-bots` only reports "stopped" once nothing is left running;
 `stop-bots-check` lists what it would stop without stopping anything.
 
+`standby-singleplayer` (`.bat` / `.sh`) is `standby` with everything filled in: Bot1 boots to its
+title screen, then joins your singleplayer world on `127.0.0.1:25565` once it is open to LAN. If
+your world has `/zbot summon auto on`, the summon may pull Bot1 in first; both end in the same place.
+
 ## Fully automatic: `play` (0.1.6)
 
 ```bash
