@@ -14,10 +14,7 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 |---|---|---|---|
 | 1 | **PASS 2026-09-28** (own grave: Bot1 `chose Bot1's grave` → picked up at once, bread back; stranger's: owner got `no grave of mine in sight (skipped: Bot1) — walking back to where I died`, no pause) — `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
 | 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
-| 2 | HELLO carries the role (3rd field) | owner `/zbot start` on their own client, then Bot1 `/zbot roster` | owner shows as "Teammate (bot driving)", not "Bot"; Bot1's regroup still walks to them |
 | 5 | regroup asks WHERE first when the bus position is > 10 s old; logs the arrival | owner walks > 32 blocks away, `/zbot regroup` | reason gives the owner's *current* spot; ends with `regrouped with Bluetails_zym` |
-| 6 | **half PASS 2026-09-28**: `borrowed the controls — because this Teammate account ordered "walk back to where I died"`; still to see: a movement key giving them back, `follow` refused — one-shot orders on a Teammate: `goto` / `come` / `punch` / `grave` / `grave loot` borrow the controls | owner types `/zbot debug punch ~1 ~-1 ~` on their own client, no `/zbot start` | `borrowed the controls` … `gave the controls back`; a movement key ends it early; `follow` still refused |
-| 7 | pause wording | owner `/zbot start`, then press W | "zymbot paused — you can move yourself around for now. It goes back to automation mode 10s after you stop, or /zbot stop to stop the bot." |
 | 8 | `/zbot debug …` group; `/zbot see` = status; `/zbot see <bot>` over the bus | owner `/zbot see Bot1` | Bot1's status lines in the owner's chat within a second; `see Nobody` → "no answer … in 5s" after 5 s |
 
 ## Seen in the 2026-09-28 test (not fixed)
@@ -58,6 +55,10 @@ walking there"), because swinging at air could look odd to a server's anticheat 
   can be someone's build: breaking it is griefing. Gathering should prefer natural blocks (whole trees
   with leaves, away from builds) and leave blocks near other players' builds and claims alone.
   Fits Phase 3's CLAIMs and tree rules.
+
+Passed live 2026-09-28 and removed from the table: #2 (roster: "Teammate (bot driving)"), #6 (borrow, then a
+movement key: "gave the controls back", no pause), #7 (pause wording, "resumes in 3s", resumed after 10 s).
+Still to test: #5, #8.
 
 ## Open questions for the owner
 
