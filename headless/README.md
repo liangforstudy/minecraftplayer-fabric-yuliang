@@ -267,7 +267,7 @@ starting before any slow step, and `stop-bots` only reports "stopped" once nothi
 `stop-bots-check` lists what it would stop without stopping anything.
 
 On Windows, `play.bat` is the everyday start with everything filled in ("New World" + Bot1);
-`play-with-arg.bat "<world>" [bot1 bot3 ...]` takes your own. `cmd-here.bat` opens a command
+`play-with-arg.bat "<world>" [bot1 bot3 ...]` takes your own. `open-terminal-here.bat` opens a command
 prompt already in this folder, for typing rig commands.
 
 `standby-bot1-singleplayer` (`.bat` / `.sh`) is `standby` with everything filled in: Bot1 boots to its
