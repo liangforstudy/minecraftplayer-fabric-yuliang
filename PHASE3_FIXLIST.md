@@ -14,7 +14,6 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 |---|---|---|---|
 | 1 | **PASS 2026-09-28** (own grave: Bot1 `chose Bot1's grave` → picked up at once, bread back; stranger's: owner got `no grave of mine in sight (skipped: Bot1) — walking back to where I died`, no pause) — `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
 | 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
-| 5 | regroup asks WHERE first when the bus position is > 10 s old; logs the arrival | owner walks > 32 blocks away, `/zbot regroup` | reason gives the owner's *current* spot; ends with `regrouped with Bluetails_zym` |
 | 8 | `/zbot debug …` group; `/zbot see` = status; `/zbot see <bot>` over the bus | owner `/zbot see Bot1` | Bot1's status lines in the owner's chat within a second; `see Nobody` → "no answer … in 5s" after 5 s |
 
 ## Seen in the 2026-09-28 test (not fixed)
@@ -57,8 +56,16 @@ walking there"), because swinging at air could look odd to a server's anticheat 
   Fits Phase 3's CLAIMs and tree rules.
 
 Passed live 2026-09-28 and removed from the table: #2 (roster: "Teammate (bot driving)"), #6 (borrow, then a
-movement key: "gave the controls back", no pause), #7 (pause wording, "resumes in 3s", resumed after 10 s).
-Still to test: #5, #8.
+movement key: "gave the controls back", no pause), #7 (pause wording, "resumes in 3s", resumed after 10 s),
+#5 (a 46 s old bus position -> asked first -> "was at 201, -26 (bus, 0 s ago)" -> "regrouped with
+Bluetails_zym"), #8 half (`/zbot see Bot1`: all status lines in the owner's chat the same second).
+Still to test: #8 `see Nobody` (the 5 s "no answer").
+
+## Regroup says nothing when the team is already near (2026-09-28) - to build
+
+`/zbot regroup` with the owner 6 or 20 blocks away (in sight, within `regroup` 32) prints "looking for
+the team — regrouping unless a teammate is within 32 blocks", then logs nothing at all, so it looked
+ignored twice in the live test. Log it: `with the team already — Bluetails_zym 6 blocks away (within 32)`.
 
 ## Open questions for the owner
 
