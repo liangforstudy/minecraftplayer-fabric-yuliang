@@ -967,7 +967,7 @@ function Cmd-Console($bot) {
         param($l)
         if ($l -notmatch '\[decision\]|\[CHAT\]|\[zymbot\]|IN THE WORLD') { return }
         $t = if ($l -match '^\[(\d\d:\d\d:\d\d)\]') { $Matches[1] } else { '' }
-        $msg = (($l -replace '^\[[^\]]*\] \[[^\]]*\]: ', '') -replace '\[decision\] ', '') -replace '\x1b\[[0-9;]*m|\[m|§.', ''
+        $msg = (($l -replace '^\[[^\]]*\] \[[^\]]*\]: ', '') -replace '\[decision\] ', '') -replace '\x1b\[[0-9;]*m|\[m|\u00A7.', ''
         $color = if ($msg -match '^failed:|CRASH|knocked out|giving up|refused') { 'Red' }
                  elseif ($msg -match '^paused|retreat|waiting|fleeing|resumes') { 'Yellow' }
                  elseif ($msg -match '^done:|^regrouped|revived|IN THE WORLD|picked up|looted') { 'Green' }
