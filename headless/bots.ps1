@@ -339,11 +339,22 @@ function Cmd-Run($bot, $heap, $addr) {
 function Wait-Verdict($bot, $name, $log, $addr, [long]$offset, [int]$timeout) {
     # Watch the log from $offset until the join (or title screen) succeeds or fails.
     $since = $null
+    $shown = 0                                                   # ZBOT_SHOW_LOG: how much of $text is printed
     $until = (Get-Date).AddSeconds($timeout)
     while ((Get-Date) -lt $until) {
         Start-Sleep -Seconds 2
         $text = Read-LogFrom $log $offset
         if ($null -eq $text) { continue }
+        # ZBOT_SHOW_LOG=1: echo the bot's HeadlessMC log live while we wait, so a double-clicked
+        # standby-bot1-singleplayer.bat shows what the bot is doing (owner, 2026-09-28)
+        if ($env:ZBOT_SHOW_LOG -and $text.Length -gt $shown) {
+            $new = $text.Substring($shown)
+            $cut = $new.LastIndexOf("`n")                        # whole lines only; the rest next time
+            if ($cut -ge 0) {
+                foreach ($l in ($new.Substring(0, $cut) -split "\r?\n")) { if ($l) { Write-Host "  | $l" -ForegroundColor DarkGray } }
+                $shown += $cut + 1
+            }
+        }
         $lines = $text -split "\r?\n"
         $norealms = @($lines | Where-Object { $_ -notmatch 'realms' })
         $nr = $norealms -join "`n"

@@ -372,6 +372,7 @@ def _await_verdict(bot, name, log, addr, offset, timeout=300):
     """Watch the log from `offset` until the join (or title screen) succeeds or fails. Covers every
     failure path we've met, not just success."""
     since = None
+    shown = 0                                               # ZBOT_SHOW_LOG: how much of `text` is printed
     until = time.time() + timeout
     while time.time() < until:
         time.sleep(2)
@@ -379,6 +380,14 @@ def _await_verdict(bot, name, log, addr, offset, timeout=300):
             text = open(log, encoding="utf-8", errors="replace").read()[offset:]
         except FileNotFoundError:
             continue
+        # ZBOT_SHOW_LOG=1: echo the bot's HeadlessMC log live while we wait (owner, 2026-09-28)
+        if os.environ.get("ZBOT_SHOW_LOG") and len(text) > shown:
+            cut = text.rfind("\n", shown)                  # whole lines only; the rest next time
+            if cut >= 0:
+                for l in text[shown:cut].splitlines():
+                    if l:
+                        print(f"  | {l}", flush=True)
+                shown = cut + 1
         norealms = "\n".join(l for l in text.splitlines() if "realms" not in l.lower())
         if _grep(text, r"Game crashed|OutOfMemory", 0):
             print(f"[{name}] CRASHED — see {log} and {bot}/gamedir/crash-reports/"); return 1
