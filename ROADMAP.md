@@ -189,6 +189,19 @@ Roughly in order; nothing here is committed.
     - **Skeletons:** the first-hit retreat works (health 20 → 14, clear in 9 s); cover and shields
       would do better.
     These need block placing, shield use and a combat state machine (Phase 5 in BOT_BEHAVIOUR.md).
+11. **Maybe later: HeadlessMC launcher-wrapper** (2026-09-28). The rig runs the plain
+    `headlessmc-launcher-2.10.0.jar`, so HeadlessMC warns "Not running from the
+    headlessmc-launcher-wrapper. No plugin support and in-memory launching." (headless/README.md,
+    Known rough edges). The wrapper jar would run the game inside the launcher's own Java process
+    (one process per bot instead of two, roughly 100-200 MB less RAM each) and allow launcher plugins,
+    which we don't use: hmc-specifics is a game mod, not a plugin.
+    - **Why not now:** a small gain next to about 3 GB per bot. Switching needs:
+      - moving the heap and flags to the launcher JVM
+      - retesting the console relay's piped stdin
+      - updating the stop and check code, which looks for the launcher's command line
+      - a new download, which needs the owner's OK
+      - accepting that a game crash then also takes the launcher down
+    - **Revisit if** several bots run at once and RAM gets tight.
 
 ### On "it's vibecoded"
 
