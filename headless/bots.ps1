@@ -634,11 +634,13 @@ function Cmd-Play($world, [string[]]$bots, [switch]$gameOnly) {
     if ($gameOnly) { return 0 }
     foreach ($b in $bots) {
         if (Get-Console $b) { Say "[$b] already running"; continue }
+        # standby, then join by itself: with your game already open, its auto-summon had long finished and
+        # Bot1 sat at its title screen (owner, 2026-09-28). A summon arriving first is fine: connect waits for it.
         Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -ArgumentList (
-            '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $SELF + '" standby "' + $b + '"')
-        Say "[$b] starting in standby (about 1.5 min)"
+            '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $SELF + '" _standby-join "' + $b + '"')
+        Say "[$b] starting in standby (about 1.5 min), then joining 127.0.0.1:25565"
     }
-    Say '      With /zbot lan auto on + /zbot summon auto on set in that world, the rest is automatic.'
+    Say '      Your world opens to LAN by itself with /zbot lan auto on; the bots join it once it is open.'
     0
 }
 
@@ -1016,6 +1018,7 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
     $noise = Get-Noise
     $script:warned = $false
     $script:seenBot = $false
+    $script:n = 0
     Watch-Lines $bot {
         param($l)
         foreach ($n in $noise) { if ($l -match $n) { return } }
@@ -1033,6 +1036,7 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
                 else { Open-BotWindow $bot; Write-Host "== reopened the command pane ($name - bot)" -ForegroundColor Magenta }
             }
         }
+        if ((++$script:n % 10) -ne 0) { return $true }         # keys every 30 ms; the rest every ~300 ms
         $w = Get-Windows $bot
         $botAlive = $w -and [int]$w.bot -and (Test-Alive ([int]$w.bot))
         if ($botAlive) { $script:seenBot = $true; $script:warned = $false }
@@ -1040,7 +1044,8 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
             Write-Host "== the command pane ($name - bot) was closed. Press R here to reopen it (or double-click console.bat)" -ForegroundColor Magenta
             $script:warned = $true
         }
-        if (-not (Get-Console $bot)) { Write-Host "== $name stopped." -ForegroundColor Magenta; return $false }
+        if (($script:n % 100) -eq 0 -and -not (Get-Console $bot)) {   # ~3 s: Get-Console scans processes
+            Write-Host "== $name stopped." -ForegroundColor Magenta; return $false }
         $true
     }
 }
@@ -1056,6 +1061,7 @@ function Cmd-Console($bot) {
     Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Esc clears it)"
     if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (no mouse drag)." }
     $script:typed = ''
+    $script:n = 0
     $prompt = '> '
     $clear = { [Console]::Write("`r" + (' ' * [Math]::Max(1, [Console]::BufferWidth - 1)) + "`r") }
     $redraw = { [Console]::Write($prompt + $script:typed) }
@@ -1091,6 +1097,7 @@ function Cmd-Console($bot) {
                 $script:typed = ''; & $clear; & $redraw
             } elseif ($k.KeyChar -ge ' ') { $script:typed += $k.KeyChar; [Console]::Write($k.KeyChar) }
         }
+        if ((++$script:n % 10) -ne 0) { return $true }         # keys every 30 ms; the rest every ~300 ms
         $w = Get-Windows $bot
         if ($w -and [int]$w.log -and -not (Test-Alive ([int]$w.log))) {
             & $clear
@@ -1098,7 +1105,8 @@ function Cmd-Console($bot) {
             Start-Sleep 2
             return $false
         }
-        if (-not (Get-Console $bot)) { & $clear; Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
+        if (($script:n % 100) -eq 0 -and -not (Get-Console $bot)) {   # ~3 s: Get-Console scans processes
+            & $clear; Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
         $true
     } $wanted 40
 }
@@ -1134,7 +1142,7 @@ function Invoke-Main([string[]]$a) {
                        return Cmd-Run $rest[0] $rest[1] $rest[2] }
         'standby'    { if (-not $rest.Count) { Die 'usage: standby.bat <bot> [heap]' }
                        return Cmd-Run $rest[0] $rest[1] $null }
-        'connect'    { if ($rest.Count -lt 2) { Die 'usage: connect.bat <bot> <host:port> [--wait]' }
+        'connect'    { if ($rest.Count -lt 2) { Die 'usage: connect-with-arg.bat <bot> <host:port> [--wait]  (connect.bat = bot1 to 127.0.0.1:25565, waiting)' }
                        return Cmd-Connect $rest[0] $rest[1] ($rest -contains '--wait') }
         'disconnect' { if (-not $rest.Count) { Die 'usage: disconnect.bat <bot>' }; return Cmd-Send $rest[0] @('disconnect') }
         'gui'        { if (-not $rest.Count) { Die 'usage: gui.bat <bot>' }; return Cmd-Send $rest[0] @('gui') }
@@ -1156,6 +1164,7 @@ function Invoke-Main([string[]]$a) {
         'console-log'{ if (-not $rest.Count) { Die 'usage: bots.ps1 console-log <bot> [--pane]' }
                        Cmd-ConsoleLog $rest[0] -pane:($rest -contains '--pane'); return 0 }
         'consoles'   { return Cmd-Consoles $rest }
+        '_standby-join' { $r = Cmd-Run $rest[0] $null $null; if ($r -eq 0) { $r = Cmd-Connect $rest[0] '127.0.0.1:25565' $true }; return $r }
         '_guard'     { Invoke-Guard $rest[0] ([int]$rest[1]); return 0 }
     }
     Die "unknown command '$cmd' - try: setup, sync, run, stop"
