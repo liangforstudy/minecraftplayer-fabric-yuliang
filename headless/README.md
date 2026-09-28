@@ -266,6 +266,10 @@ console they exit at once (`ZBOT_NO_PAUSE=1` skips the wait too). Every command 
 starting before any slow step, and `stop-bots` only reports "stopped" once nothing is left running;
 `stop-bots-check` lists what it would stop without stopping anything.
 
+On Windows, `play.bat` is the everyday start with everything filled in ("New World" + Bot1);
+`play-with-arg.bat "<world>" [bot1 bot3 ...]` takes your own. `cmd-here.bat` opens a command
+prompt already in this folder, for typing rig commands.
+
 `standby-bot1-singleplayer` (`.bat` / `.sh`) is `standby` with everything filled in: Bot1 boots to its
 title screen, then joins your singleplayer world on `127.0.0.1:25565` once it is open to LAN. If
 your world has `/zbot summon auto on`, the summon may pull Bot1 in first; both end in the same place.

@@ -1042,7 +1042,7 @@ function Invoke-Main([string[]]$a) {
                        return Cmd-Send $rest[0] @($rest | Select-Object -Skip 1) }
         'team-key'   { return Cmd-TeamKey }
         '_relay'     { Invoke-Relay $rest[0] $rest[1] $rest[2] $rest[3]; return 0 }
-        'play'       { if (-not $rest.Count) { Die 'usage: play.bat "<world name>" [bot1 bot3 ...]' }
+        'play'       { if (-not $rest.Count) { Die 'usage: play-with-arg.bat "<world name>" [bot1 bot3 ...]  (play.bat = New World + bot1)' }
                        return Cmd-Play $rest[0] @($rest | Select-Object -Skip 1) }
         'prism'      { if (-not $rest.Count) { Die 'usage: start-singleplayer-server-no-arg.bat "<world name>"  (your game only, no bots; start-singleplayer-server.bat = New World)' }
                        return Cmd-Play $rest[0] @() -gameOnly }

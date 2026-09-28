@@ -61,6 +61,8 @@ wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two 
 | `./stop-bot1.sh` | stop **just Bot1** (relay, launcher, game), waits until gone; other bots and Prism untouched (`bots.py stop-bot <bot>`) |
 | `console.bat [<bot>]` | (Windows) window 1 for a running bot: decisions + chat + a command prompt; no name = the running bot (Bot1 if several), so a double-click works |
 | `./play.sh "New World"` | bots to standby in the background + Prism straight into that world; skips if the game is already running. `play.bat` (Windows) opens the game first and starts the bots once the world loads |
+| `play.bat` / `play-with-arg.bat "<world>" [bots]` | (Windows) `play.bat` = everything filled in: "New World" + bot1; `play-with-arg.bat` takes your own world and bots |
+| `cmd-here.bat` | (Windows) a command prompt already in `headless\`, to type rig commands |
 | `./start-singleplayer-server.sh` | **your game only**, straight into "New World" (everything filled in), no bots; skips if the game is already running. Another world: `./start-singleplayer-server-no-arg.sh "<world>"`. (`.bat` on Windows) |
 | `./team-key.sh` | show the team key (for the owner's own config — don't print it to chat) |
 
