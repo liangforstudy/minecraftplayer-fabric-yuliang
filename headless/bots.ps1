@@ -930,7 +930,7 @@ function Cmd-ConsoleLog($bot) {
     Set-Window $bot 'log' $PID
     Open-BotWindow $bot
     Say "[$name] this window: the full log. Window 1 ($name - bot): decisions, chat, and a prompt for commands."
-    Say "        Close THIS window to stop $name. stop-bots.bat stops every bot."
+    Say "        Close THIS window to stop $name. Press R here to reopen window 1. stop-bots.bat stops every bot."
     $noise = Get-Noise
     $script:warned = $false
     Watch-Lines $bot {
@@ -942,10 +942,18 @@ function Cmd-ConsoleLog($bot) {
                  else { 'Gray' }
         Write-Host $l -ForegroundColor $color
     } {
+        while ([Console]::KeyAvailable) {                        # R: reopen window 1
+            $k = [Console]::ReadKey($true)
+            if ($k.Key -eq 'R') {
+                $w = Get-Windows $bot
+                if ($w -and (Test-Alive ([int]$w.bot))) { Write-Host "== window 1 is already open" -ForegroundColor Magenta }
+                else { Open-BotWindow $bot; Write-Host "== reopened window 1 ($name - bot)" -ForegroundColor Magenta }
+            }
+        }
         $w = Get-Windows $bot
         if (-not ($w -and (Test-Alive ([int]$w.bot)))) {
             if (-not $script:warned) {
-                Write-Host "== window 1 ($name - bot) was closed. Reopen it with:  console.bat $bot" -ForegroundColor Magenta
+                Write-Host "== window 1 ($name - bot) was closed. Press R here to reopen it (or double-click console.bat)" -ForegroundColor Magenta
                 $script:warned = $true
             }
         } else { $script:warned = $false }
@@ -1040,7 +1048,11 @@ function Invoke-Main([string[]]$a) {
                        return Cmd-Play $rest[0] @() -gameOnly }
         'stop'       { return Cmd-Stop -check:($rest -contains '--check') }
         'stop-bot'   { if (-not $rest.Count) { Die 'usage: stop-bot1.bat  (or: bots.ps1 stop-bot <bot>)' }; return Cmd-StopBot $rest[0] }
-        'console'    { if (-not $rest.Count) { Die 'usage: console.bat <bot>  (window 1: decisions + a prompt)' }; Cmd-Console $rest[0]; return 0 }
+        'console'    { $b = if ($rest.Count) { $rest[0] } else {
+                           # double-clicked console.bat has no name to pass: take the running bot (owner, 2026-09-28)
+                           $run = @(Get-Rigs | Where-Object { Get-Console $_ })
+                           if ($run.Count -eq 1) { $run[0] } else { 'bot1' } }
+                       Cmd-Console $b; return 0 }
         'console-log'{ if (-not $rest.Count) { Die 'usage: bots.ps1 console-log <bot>' }; Cmd-ConsoleLog $rest[0]; return 0 }
     }
     Die "unknown command '$cmd' - try: setup, sync, run, stop"

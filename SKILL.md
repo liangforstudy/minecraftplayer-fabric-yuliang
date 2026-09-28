@@ -50,7 +50,7 @@ wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two 
 | `./setup.sh` | once per machine: finds Java 21 + Prism, writes rig configs, installs Fabric 0.19.5 |
 | `./sync-bots.sh` [`--check`] | mirror the Prism pack's mods + config into the rigs (refuses a running rig) |
 | `./standby.sh bot1` | boot to the title screen and wait (~1 min) — the usual way to start |
-| `standby-bot1-singleplayer.bat` | Bot1 to standby, joins your singleplayer world (`127.0.0.1:25565`, waits for it), then **two windows** (Windows only): this one becomes window 2 = the full log minus `log-noise.txt`, coloured (ERROR red, WARN yellow, network cyan); it opens window 1 = decisions, chat and whispers, short and coloured, **plus a prompt**: a typed line goes to the bot like `send.bat`. Close window 2 = close window 1 and stop Bot1; close window 1 = window 2 says `console.bat bot1` to reopen it. The `.sh` twin boots and joins only |
+| `standby-bot1-singleplayer.bat` | Bot1 to standby, joins your singleplayer world (`127.0.0.1:25565`, waits for it), then **two windows** (Windows only): this one becomes window 2 = the full log minus `log-noise.txt`, coloured (ERROR red, WARN yellow, network cyan); it opens window 1 = decisions, chat and whispers, short and coloured, **plus a prompt**: a typed line goes to the bot like `send.bat`. Close window 2 = close window 1 and stop Bot1; close window 1 = press R in window 2 (or double-click `console.bat`) to reopen it. The `.sh` twin boots and joins only |
 | `./connect.sh bot1 127.0.0.1:25565` [`--wait`] | join now, or as soon as the world opens |
 | `./run-bot.sh bot1 3G 127.0.0.1:25565` | boot and join in one go; prints IN THE WORLD / REJECTED / MOD MISMATCH / CONNECTED THEN DROPPED / CRASHED |
 | `./gui.sh bot1` | what's on the bot's screen (buttons, text) |
@@ -59,7 +59,7 @@ wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two 
 | `./stop-bots.sh` | stop all headless bots (never the Prism client); waits until they are really gone (30 s backstop) |
 | `./stop-bots-check.sh` | `stop --check`: lists the headless processes `stop-bots` would stop (and which rigs run), stops nothing |
 | `./stop-bot1.sh` | stop **just Bot1** (relay, launcher, game), waits until gone; other bots and Prism untouched (`bots.py stop-bot <bot>`) |
-| `console.bat <bot>` | (Windows) window 1 for a running bot: decisions + chat + a command prompt; reopens it after closing |
+| `console.bat [<bot>]` | (Windows) window 1 for a running bot: decisions + chat + a command prompt; no name = the running bot (Bot1 if several), so a double-click works |
 | `./play.sh "New World"` | bots to standby in the background + Prism straight into that world; skips if the game is already running. `play.bat` (Windows) opens the game first and starts the bots once the world loads |
 | `./start-singleplayer-server.sh` | **your game only**, straight into "New World" (everything filled in), no bots; skips if the game is already running. Another world: `./start-singleplayer-server-no-arg.sh "<world>"`. (`.bat` on Windows) |
 | `./team-key.sh` | show the team key (for the owner's own config — don't print it to chat) |

@@ -1,6 +1,6 @@
 @echo off
 rem Window 1 for a running bot: its decisions, chat and whispers, and a prompt that sends commands to it.
-rem Usage: console.bat bot1  - reopens it if you closed it. Logic in bots.ps1.
+rem Double-click it: the running bot (Bot1 if several). Or: console.bat bot3. Logic in bots.ps1.
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bots.ps1" console %*
 set "ZBOT_RC=%errorlevel%"
 rem Double-clicked from Explorer: keep the window open so the output can be read (owner, 2026-09-28).

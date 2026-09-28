@@ -279,7 +279,8 @@ Once Bot1 is in the world, the `.bat` window becomes **window 2** and opens **wi
 | 1 `Bot1 - bot` | decisions, chat, whispers and Zymbot's own lines; short time stamps; red = failed / knocked out, yellow = paused / waiting, green = done / regrouped, cyan = chat | type any command and press Enter: it goes to the bot like `send.bat` (`/zbot status`, `msg hi`) |
 | 2 `Bot1 - log` | the whole log, minus the patterns in `log-noise.txt`; ERROR red, WARN yellow, network (joins, disconnects, LAN, bus, summons) cyan | read; **close it to stop Bot1** (window 1 closes too) |
 
-Closed window 1 by accident? Window 2 says so; reopen it with `console.bat bot1`. `stop-bot1.bat`
+Closed window 1 by accident? Window 2 says so: press **R** in window 2, or double-click `console.bat`
+(it picks the running bot; `console.bat bot3` for another). `stop-bot1.bat`
 stops just Bot1; `stop-bots.bat` stops every bot. I (Claude) can still `send.bat` to the bot while
 the windows are open. The log file keeps everything; `log-noise.txt` only filters window 2.
 
