@@ -23,7 +23,12 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 ## Seen in the 2026-09-28 test (not fixed)
 
 - **Regroup gave up fast after a respawn far away:** `failed: regrouping with Bluetails_zym … — no path, even swimming — the pathfinder gave up 169 blocks short` 2 s after respawning ~170 blocks off (server at 15 TPS, "planning less"). It retries after 60 s; check whether it should walk toward them through unloaded chunks instead of failing.
-- **Stuck in water again:** `failed: step out of the water … still in the water after 3 tries — staying put` right after picking up its grave in water. An old problem that keeps coming back.
+- **Stuck in water (FOUND, fixed in source 2026-09-28, not built):** the dry-land finder counts one-block
+  shallows as shore (head above water, owner's 2026-09-26 rule), but WadingInterrupt ("idle, standing in
+  water") still counts them as water. So it walked into the shallows at 97 -50 (sand at y 61, water at 62),
+  was still wet, bobbed, and gave up after 3 tries, several times today. Owner spotted it ("probably the 1
+  block water"). Now WadingInterrupt only accepts land with dry feet; the drowning and stranded reflexes
+  still accept shallows. Test: `idleInWater_onlyShallowsNearby_doesntWalkIntoThem`. Live test in 0.1.37.
 - `/zbot grave` falls back to a very old death spot (29 70 -191, far away). Consider forgetting a death spot once its grave has been picked up, or after N minutes, or asking first when it is far.
 
 ## Survey: give positions, and walk to what it found (2026-09-28) - to build

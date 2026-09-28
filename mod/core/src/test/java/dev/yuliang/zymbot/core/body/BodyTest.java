@@ -980,6 +980,20 @@ class BodyTest {
     }
 
     @Test
+    void idleInWater_onlyShallowsNearby_doesntWalkIntoThem() {
+        // the only "dry land" is one-block shallows (water at the feet): walking there leaves it in the water,
+        // so Bot1 looped "stepping out … 3 tries — staying put" at 97 -50 (2026-09-28)
+        FakeWorld w = wading();
+        w.dryLand = new BlockPos(3, 63, 1);
+        w.blocks.put(new BlockPos(3, 64, 1), "minecraft:water");
+        Bot b = running(w, new ZymbotConfig(), true);
+        ticks(b, w, WadingInterrupt.WET_TICKS + Brain.FAILED_COOLDOWN_TICKS * 2);
+        assertNull(w.paths.goal, "not into the shallows: " + log(b));
+        assertFalse(log(b).contains("stepping out of the water"), log(b));
+        assertEquals(1, count(log(b), "no safe dry land within " + WadingInterrupt.LAND_RADIUS + " blocks"), log(b));
+    }
+
+    @Test
     void inWaterWithAnOrder_theOrderDecides_noWading() {
         FakeWorld w = wading();
         w.dryLand = new BlockPos(3, 63, 1);

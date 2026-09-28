@@ -62,7 +62,10 @@ public final class WadingInterrupt implements Interrupt {
             gaveUp = true;
             return Task.failed("step out of the water", "still in the water after " + MAX_TRIES + " tries — staying put");
         }
-        var land = world.nearestDryLand(LAND_RADIUS, StrandedInterrupt.safeLand(body, world));
+        // really dry: nearestDryLand counts one-block shallows as shore (head above water — fine for the
+        // drowning and stranded reflexes), but standing there is still "in water" here, so Bot1 walked into
+        // the shallows at 97 -50, was still wet, and looped "stepping out … 3 tries — staying put" (2026-09-28)
+        var land = world.nearestDryLand(LAND_RADIUS, StrandedInterrupt.safeLand(body, world).and(p -> feetDry(world, p)));
         if (land.isEmpty()) {
             gaveUp = true;                                      // said once; looks again after leaving the water
             return Task.failed("step out of the water", "no safe dry land within " + LAND_RADIUS + " blocks — staying put");
@@ -78,4 +81,9 @@ public final class WadingInterrupt implements Interrupt {
     }
 
     @Override public String why(WorldView world) { return "idle, standing in water"; }
+
+    /** No water where the feet go (the block above the one stood on). */
+    static boolean feetDry(WorldView world, BlockPos standOn) {
+        return !world.blockAt(new BlockPos(standOn.x(), standOn.y() + 1, standOn.z())).contains("water");
+    }
 }
