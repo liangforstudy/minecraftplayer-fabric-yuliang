@@ -202,6 +202,39 @@ Roughly in order; nothing here is committed.
       - a new download, which needs the owner's OK
       - accepting that a game crash then also takes the launcher down
     - **Revisit if** several bots run at once and RAM gets tight.
+12. **Portable install: one download from the owner's GitHub** (owner, 2026-09-28). Today setting up
+    a bot needs this repo, PowerShell/Python scripts and a Prism instance; it should be one file.
+    - **One jar, two jobs.** The mod jar also gets a `Main-Class`:
+      - **in `mods/`:** Fabric loads it as the mod, exactly as today;
+      - **double-clicked or `java -jar zymbot.jar`:** it runs as a setup program. Fabric's installer and
+        OptiFine work the same way.
+    - **The setup program** replaces `setup` + `sync` + `standby`, written once in Java instead of twice
+      (`bots.ps1` + `bots.py`):
+      1. **Find Java:** scan the usual folders, `JAVA_HOME` and `PATH`; list 8/17/21; pick 21 for MC 1.21.1.
+         If there's none, offer a download, e.g. from Adoptium's API.
+      2. **Download HeadlessMC at runtime** from its official GitHub releases, never bundled (owner:
+         agreed). Check its licence first.
+      3. **Install Fabric Loader** and create the bot folder: identity, team key, config.
+      4. **Get the modpack's mods, mostly from Modrinth** (owner): read the pack's Modrinth pack
+         (`.mrpack` index), which lists every file with its official download link, so nothing is
+         redistributed. Fallback: copy from the user's own Prism instance, as `sync-bots` does today.
+      5. **Boot the bot to standby**, with the console windows.
+    - The setup program is compiled for **Java 8**, so it starts on whatever Java a person has; Java 21
+      is only needed for the bot's game.
+    - **Windows `.exe`** for people without Java:
+      - a small Launch4j-style wrapper (~1 MB) that finds Java, or
+      - a `jpackage` build with its own Java (~40-60 MB).
+      - Unsigned, so Windows SmartScreen shows its "unrecognised app" screen; a code-signing
+        certificate costs money yearly. **The jar stays the backup.**
+    - **Open:**
+      - where the files live (next to the jar, or the user's home folder)
+      - command-line questions or a small window like Fabric's installer
+      - whether the jar checks the owner's GitHub for updates
+    - **Order:**
+      1. the setup program in the jar (command line)
+      2. mods from Modrinth
+      3. a window
+      4. the `.exe`
 
 ### On "it's vibecoded"
 
