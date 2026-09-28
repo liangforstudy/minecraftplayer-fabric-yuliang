@@ -10,6 +10,7 @@ headless/headlessmc-launcher-*.jar
 headless/baritone-*.jar
 headless/hmc-specifics-*.jar
 headless/bot*/console.json
+headless/bot*/windows.json
 headless/team-key.txt
 
 # --- build output ---

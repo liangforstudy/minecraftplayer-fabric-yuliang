@@ -831,6 +831,148 @@ function Cmd-Sync([string[]]$argv) {
     if ($check -and $drift) { 1 } else { 0 }
 }
 
+# ---------------------------------------------------------------- one bot: stop, and the two console windows
+
+function Cmd-StopBot($bot) {
+    # stop-bot1.bat: just this bot - its relay, HeadlessMC launcher and game - never the others, never Prism.
+    $c = Get-Console $bot
+    $name = Get-BotName $bot
+    $ids = @()
+    if ($c) { $ids += [int]$c.relay_pid; if ($c.launcher_pid) { $ids += [int]$c.launcher_pid } }
+    $g = Get-GamePid $name; if ($g[0]) { $ids += [int]$g[0] }
+    if (-not $ids.Count) { Say "[$bot] isn't running"; return 0 }
+    $until = (Get-Date).AddSeconds(30)
+    do {
+        foreach ($id in $ids) { try { Stop-Process -Id $id -Force -ErrorAction Stop } catch {} }
+        Start-Sleep -Milliseconds 500
+        $left = @($ids | Where-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue })
+    } while ($left.Count -and (Get-Date) -lt $until)
+    Remove-Item -LiteralPath (Join-Path $HERE "$bot\console.json") -Force -ErrorAction SilentlyContinue
+    if ($left.Count) { Say "[$bot] NOT stopped after 30 s - still running: $($left -join ', ')"; return 1 }
+    Say "[$bot] stopped ($($ids.Count) process$(if ($ids.Count -ne 1) { 'es' })) - nothing of it left running"
+    0
+}
+
+# Which console windows are open for a bot: <rig>\windows.json = { log: <pid of window 2>, bot: <pid of window 1> }.
+function Get-Windows($bot) {
+    try { [IO.File]::ReadAllText((Join-Path $HERE "$bot\windows.json")) | ConvertFrom-Json } catch { $null }
+}
+function Set-Window($bot, $which, [int]$id) {
+    $w = Get-Windows $bot; $h = @{ log = 0; bot = 0 }
+    if ($w) { $h.log = [int]$w.log; $h.bot = [int]$w.bot }
+    $h[$which] = $id
+    [IO.File]::WriteAllText((Join-Path $HERE "$bot\windows.json"), (ConvertTo-Json $h))
+}
+function Test-Alive([int]$id) { [bool]($id -and (Get-Process -Id $id -ErrorAction SilentlyContinue)) }
+
+function Get-Noise {
+    # log-noise.txt: one regex per line (# comments), hidden from window 2 - edit it freely.
+    $f = Join-Path $HERE 'log-noise.txt'
+    if (-not (Test-Path -LiteralPath $f)) { return @() }
+    @(Get-Content -LiteralPath $f -Encoding UTF8 | Where-Object { $_.Trim() -and -not $_.Trim().StartsWith('#') })
+}
+
+function Open-BotWindow($bot) {
+    # Window 1 in its own console window.
+    $p = Start-Process -FilePath 'powershell.exe' -PassThru -ArgumentList (
+        '-NoProfile -ExecutionPolicy Bypass -File "' + $SELF + '" console "' + $bot + '"')
+    Set-Window $bot 'bot' $p.Id
+}
+
+function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick) {
+    # Follow the bot's log from its current end; $show gets each new whole line; $everyTick runs each loop
+    # and returns $false to stop.
+    $c = Get-Console $bot
+    if (-not $c) { Say "[$bot] isn't running - start it: standby-bot1-singleplayer.bat"; return }
+    $log = $c.log; $pos = Get-LogSize $log; $carry = ''
+    while ($true) {
+        if (-not (& $everyTick)) { return }
+        $size = Get-LogSize $log
+        if ($size -gt $pos) {
+            $text = $carry + (Read-LogFrom $log $pos); $pos = $size
+            $cut = $text.LastIndexOf("`n")
+            if ($cut -ge 0) {
+                foreach ($l in ($text.Substring(0, $cut) -split "\r?\n")) { if ($l) { & $show $l } }
+                $carry = $text.Substring($cut + 1)
+            } else { $carry = $text }
+        }
+        Start-Sleep -Milliseconds 300
+    }
+}
+
+function Cmd-ConsoleLog($bot) {
+    # Window 2: everything the bot logs, minus log-noise.txt, coloured: ERROR red, WARN yellow, network cyan.
+    # This window owns the bot: closing it closes window 1 and stops the bot (owner, 2026-09-28).
+    $name = Get-BotName $bot
+    $Host.UI.RawUI.WindowTitle = "$name - log (close = stop $name)"
+    Set-Window $bot 'log' $PID
+    Open-BotWindow $bot
+    Say "[$name] this window: the full log. Window 1 ($name - bot): decisions, chat, and a prompt for commands."
+    Say "        Close THIS window to stop $name. stop-bots.bat stops every bot."
+    $noise = Get-Noise
+    $script:warned = $false
+    Watch-Lines $bot {
+        param($l)
+        foreach ($n in $noise) { if ($l -match $n) { return } }
+        $color = if ($l -match '/ERROR\]|Exception|Game crashed') { 'Red' }
+                 elseif ($l -match '/WARN\]') { 'Yellow' }
+                 elseif ($l -match 'Connecting to|[Dd]isconnect|joined the game|left the game|LAN|local bus|summon|Timed out|connection') { 'Cyan' }
+                 else { 'Gray' }
+        Write-Host $l -ForegroundColor $color
+    } {
+        $w = Get-Windows $bot
+        if (-not ($w -and (Test-Alive ([int]$w.bot)))) {
+            if (-not $script:warned) {
+                Write-Host "== window 1 ($name - bot) was closed. Reopen it with:  console.bat $bot" -ForegroundColor Magenta
+                $script:warned = $true
+            }
+        } else { $script:warned = $false }
+        if (-not (Get-Console $bot)) { Write-Host "== $name stopped." -ForegroundColor Magenta; return $false }
+        $true
+    }
+}
+
+function Cmd-Console($bot) {
+    # Window 1: the bot's decisions, chat and whispers, Zymbot's own lines - short and coloured - and a prompt:
+    # a typed line goes to the bot like send.bat (/zbot status, msg hi, ...). The log window (2) owns the bot:
+    # once it is gone, this one stops the bot and closes.
+    $name = Get-BotName $bot
+    $Host.UI.RawUI.WindowTitle = "$name - bot (type a command, Enter)"
+    Set-Window $bot 'bot' $PID
+    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status"
+    $script:typed = ''
+    Watch-Lines $bot {
+        param($l)
+        if ($l -notmatch '\[decision\]|\[CHAT\]|\[zymbot\]|IN THE WORLD') { return }
+        $t = if ($l -match '^\[(\d\d:\d\d:\d\d)\]') { $Matches[1] } else { '' }
+        $msg = (($l -replace '^\[[^\]]*\] \[[^\]]*\]: ', '') -replace '\[decision\] ', '') -replace '\x1b\[[0-9;]*m|\[m|§.', ''
+        $color = if ($msg -match '^failed:|CRASH|knocked out|giving up|refused') { 'Red' }
+                 elseif ($msg -match '^paused|retreat|waiting|fleeing|resumes') { 'Yellow' }
+                 elseif ($msg -match '^done:|^regrouped|revived|IN THE WORLD|picked up|looted') { 'Green' }
+                 elseif ($l -match '\[CHAT\]') { 'Cyan' }
+                 else { 'White' }
+        Write-Host "$t $msg" -ForegroundColor $color
+    } {
+        while ([Console]::KeyAvailable) {
+            $k = [Console]::ReadKey($true)
+            if ($k.Key -eq 'Enter') {
+                $line = $script:typed.Trim(); $script:typed = ''; [Console]::WriteLine()
+                if ($line) { try { Send-Line $bot $line } catch { Write-Host "  (not sent: $_)" -ForegroundColor Red } }
+            } elseif ($k.Key -eq 'Backspace') {
+                if ($script:typed.Length) { $script:typed = $script:typed.Substring(0, $script:typed.Length - 1); [Console]::Write("`b `b") }
+            } elseif ($k.KeyChar -ge ' ') { $script:typed += $k.KeyChar; [Console]::Write($k.KeyChar) }
+        }
+        $w = Get-Windows $bot
+        if ($w -and [int]$w.log -and -not (Test-Alive ([int]$w.log))) {
+            Write-Host "== the log window was closed - stopping $name" -ForegroundColor Magenta
+            Cmd-StopBot $bot | Out-Null
+            return $false
+        }
+        if (-not (Get-Console $bot)) { Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
+        $true
+    }
+}
+
 # ---------------------------------------------------------------- main
 
 function Invoke-Main([string[]]$a) {
@@ -875,6 +1017,9 @@ function Invoke-Main([string[]]$a) {
         'prism'      { if (-not $rest.Count) { Die 'usage: start-singleplayer-server-no-arg.bat "<world name>"  (your game only, no bots; start-singleplayer-server.bat = New World)' }
                        return Cmd-Play $rest[0] @() -gameOnly }
         'stop'       { return Cmd-Stop -check:($rest -contains '--check') }
+        'stop-bot'   { if (-not $rest.Count) { Die 'usage: stop-bot1.bat  (or: bots.ps1 stop-bot <bot>)' }; return Cmd-StopBot $rest[0] }
+        'console'    { if (-not $rest.Count) { Die 'usage: console.bat <bot>  (window 1: decisions + a prompt)' }; Cmd-Console $rest[0]; return 0 }
+        'console-log'{ if (-not $rest.Count) { Die 'usage: bots.ps1 console-log <bot>' }; Cmd-ConsoleLog $rest[0]; return 0 }
     }
     Die "unknown command '$cmd' - try: setup, sync, run, stop"
 }

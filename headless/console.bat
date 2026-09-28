@@ -1,6 +1,7 @@
 @echo off
-rem Your game only, straight into the world you name - no bots ("New World" filled in: start-singleplayer-server.bat). Logic in bots.ps1. macOS/Linux: start-singleplayer-server-no-arg.sh
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bots.ps1" prism %*
+rem Window 1 for a running bot: its decisions, chat and whispers, and a prompt that sends commands to it.
+rem Usage: console.bat bot1  - reopens it if you closed it. Logic in bots.ps1.
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bots.ps1" console %*
 set "ZBOT_RC=%errorlevel%"
 rem Double-clicked from Explorer: keep the window open so the output can be read (owner, 2026-09-28).
 rem Run from a console (cmd /c .\x.bat, as Claude does) it exits at once; ZBOT_NO_PAUSE=1 also skips it.

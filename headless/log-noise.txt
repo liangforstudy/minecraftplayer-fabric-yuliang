@@ -1,0 +1,17 @@
+# Lines hidden from the bot's log window (window 2). One regular expression per line; # starts a comment.
+# Add a pattern when a line keeps flooding the window and never matters; delete one to see it again.
+# The log file itself (bot1\run-*.log) always keeps everything.
+
+No data fixer registered
+Unable to load model
+Missing (sound|texture|model)
+Unable to (load|find) (texture|sprite)
+Failed to parse resource conditions
+[Rr]ealms
+OpenAL
+Failed to generate a PBO
+Received attachment change for unknown target
+^(Attachment identifier|World|Target type|Entity network ID):
+java\.io\.FileNotFoundException: .*models/
+^\s+at [a-zA-Z0-9_.$]+\(
+You shall not Json my recipes

@@ -229,6 +229,46 @@ def _game_pid(name):
     return int(out[0]), (int(rss) // 1024 if rss.isdigit() else None)
 
 
+def cmd_stop_bot(bot):
+    """stop-bot1: just this bot - its relay, HeadlessMC launcher and game - never the others, never Prism."""
+    import time
+    c = _console(bot)
+    pids = []
+    if c:
+        pids.append(int(c.get("relay_pid", 0)))
+        if c.get("launcher_pid"):
+            pids.append(int(c["launcher_pid"]))
+    g, _ = _game_pid(_read_prop(bot, "hmc.offline.username") or bot)
+    if g:
+        pids.append(int(g))
+    pids = [p for p in pids if p]
+    if not pids:
+        print(f"[{bot}] isn't running")
+        return 0
+    until = time.time() + 30
+    left = pids
+    while left and time.time() < until:
+        for pid in left:
+            if IS_WIN:
+                subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True)
+            else:
+                try:
+                    os.kill(pid, 9)
+                except OSError:
+                    pass
+        time.sleep(0.5)
+        left = [p for p in left if _pid_alive(p)]
+    try:
+        os.remove(os.path.join(HERE, bot, "console.json"))
+    except OSError:
+        pass
+    if left:
+        print(f"[{bot}] NOT stopped after 30 s - still running: {', '.join(map(str, left))}")
+        return 1
+    print(f"[{bot}] stopped ({len(pids)} process{'es' if len(pids) != 1 else ''}) - nothing of it left running")
+    return 0
+
+
 def cmd_stop(check=False):
     pids = _headless_pids()
     if check:
@@ -718,6 +758,10 @@ def main(argv):
         if not rest:
             sys.exit('usage: bots.py prism "<world name>"  (start-singleplayer-server-no-arg.sh; your game only, no bots)')
         return cmd_play(rest[0], [], game_only=True)
+    if cmd == "stop-bot":
+        if not rest:
+            sys.exit("usage: bots.py stop-bot <bot>")
+        return cmd_stop_bot(rest[0])
     if cmd == "stop":
         return cmd_stop("--check" in rest)
     sys.exit(f"unknown command '{cmd}' — try: setup, sync, run, stop")
