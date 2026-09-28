@@ -89,7 +89,7 @@ so decisions would push real chat out, and the pack has no chat-history mod.)
 
 ## 10. `play.bat` skips a bot that is not running: stale `console.json` (2026-09-28) — to fix
 
-`play.bat "New World"` printed `[bot1] already running`, but no bot was running. `bot1console.json`
+`play.bat "New World"` printed `[bot1] already running`, but no bot was running. `bot1/console.json`
 was left from the previous day's run, and its `relay_pid` (13584) belonged to another process by then
 (Windows reuses PIDs, and there was a reboot or overnight gap). `Get-Console` in `headless/bots.ps1` only checks
 that *some* process has that PID. Workaround used: delete `console.json`, then `standby.bat bot1`.
