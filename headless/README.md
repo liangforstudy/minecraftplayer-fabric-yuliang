@@ -251,19 +251,20 @@ Only **Bot** accounts answer — a Teammate's client (a human) is never pulled a
 already in a world ignores it. The message is signed and encrypted with the team key, so nobody
 without it can summon your bots.
 
-## Just your game: `prism` / `start-singleplayer-server`
+## Just your game: `start-singleplayer-server`
 
 ```bash
-./prism.sh                                        # Windows: prism.bat - straight into "New World"
-./start-singleplayer-server.sh "Some Other World" # Windows: start-singleplayer-server.bat "..."
+./start-singleplayer-server.sh                           # Windows: .bat - straight into "New World"
+./start-singleplayer-server-no-arg.sh "Some Other World" # Windows: .bat - the world you name
 ```
 
-Prism straight into that world, and **no bots**. `prism` is the same with everything filled in.
+Prism straight into that world, and **no bots**. `start-singleplayer-server` is the one with everything filled in.
 Start bots later with `standby` if you want them.
 
 Double-clicked `.bat` files wait for a key at the end, so the output stays readable; run from a
 console they exit at once (`ZBOT_NO_PAUSE=1` skips the wait too). Every command says what it is
-starting before any slow step, and `stop-bots` only reports "stopped" once nothing is left running.
+starting before any slow step, and `stop-bots` only reports "stopped" once nothing is left running;
+`stop-bots-check` lists what it would stop without stopping anything.
 
 ## Fully automatic: `play` (0.1.6)
 

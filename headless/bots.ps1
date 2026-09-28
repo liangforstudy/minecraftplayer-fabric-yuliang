@@ -268,8 +268,19 @@ function Get-GamePid($name) {
     @($null, $null)
 }
 
-function Cmd-Stop {
+function Cmd-Stop([switch]$check) {
     $pids = Get-HeadlessPids
+    if ($check) {
+        # stop-bots-check.bat: what stop-bots would stop, touching nothing - like sync-bots --check (owner, 2026-09-28)
+        foreach ($rig in Get-Rigs) { Say "[$rig] $(if (Get-Console $rig) { 'running' } else { 'not running' })" }
+        foreach ($id in $pids) {
+            $c = (Get-CimInstance Win32_Process -Filter "ProcessId=$id" -ErrorAction SilentlyContinue).CommandLine
+            $what = if ($c -match '_relay') { 'console relay' } elseif ($c -match 'headlessmc-launcher') { 'HeadlessMC launcher' } else { 'bot game' }
+            Say "  $id  $what"
+        }
+        Say "$($pids.Count) headless process$(if ($pids.Count -ne 1) { 'es' }) - stop-bots.bat would stop $(if ($pids.Count -eq 1) { 'it' } else { 'them' }); your Prism game is never on this list"
+        return 0
+    }
     foreach ($id in $pids) { try { Stop-Process -Id $id -Force -ErrorAction Stop } catch {} }
     # Don't say "stopped" until they're really gone: Stop-Process only asks, and a game can take a
     # moment to let go (owner, 2026-09-28). Backstop 30 s, then say which are left.
@@ -830,7 +841,7 @@ function Invoke-Main([string[]]$a) {
         'send'       = "sending to $($rest[0])..."
         'play'       = "starting your game into '$($rest[0])', then the bots..."
         'prism'      = "starting your game into '$($rest[0])' (singleplayer, no bots)..."
-        'stop'       = 'stopping the headless bots (never your Prism game)...'
+        'stop'       = $(if ($rest -contains '--check') { 'checking for headless bots (stopping nothing)...' } else { 'stopping the headless bots (never your Prism game)...' })
     }
     if ($intro.ContainsKey($cmd) -and ($rest.Count -or $cmd -in 'setup', 'sync', 'stop')) { Say $intro[$cmd] }
     switch ($cmd) {
@@ -850,9 +861,9 @@ function Invoke-Main([string[]]$a) {
         '_relay'     { Invoke-Relay $rest[0] $rest[1] $rest[2] $rest[3]; return 0 }
         'play'       { if (-not $rest.Count) { Die 'usage: play.bat "<world name>" [bot1 bot3 ...]' }
                        return Cmd-Play $rest[0] @($rest | Select-Object -Skip 1) }
-        'prism'      { if (-not $rest.Count) { Die 'usage: start-singleplayer-server.bat "<world name>"  (your game only, no bots; prism.bat = New World)' }
+        'prism'      { if (-not $rest.Count) { Die 'usage: start-singleplayer-server-no-arg.bat "<world name>"  (your game only, no bots; start-singleplayer-server.bat = New World)' }
                        return Cmd-Play $rest[0] @() -gameOnly }
-        'stop'       { return Cmd-Stop }
+        'stop'       { return Cmd-Stop -check:($rest -contains '--check') }
     }
     Die "unknown command '$cmd' - try: setup, sync, run, stop"
 }

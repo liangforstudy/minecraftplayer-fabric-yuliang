@@ -1,7 +1,7 @@
 @echo off
-rem The everyday start, everything filled in: your game straight into "New World", no bots.
-rem Another world: start-singleplayer-server.bat "<world name>". Logic in bots.ps1. macOS/Linux: prism.sh
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bots.ps1" prism "New World"
+rem stop-bots.bat with --check filled in: lists the headless bot processes it would stop, stops nothing.
+rem Logic in bots.ps1. macOS/Linux: stop-bots-check.sh
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0bots.ps1" stop --check
 set "ZBOT_RC=%errorlevel%"
 rem Double-clicked from Explorer: keep the window open so the output can be read (owner, 2026-09-28).
 rem Run from a console (cmd /c .\x.bat, as Claude does) it exits at once; ZBOT_NO_PAUSE=1 also skips it.

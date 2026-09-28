@@ -204,7 +204,7 @@ def cmd_setup():
 def _headless_pids():
     """PIDs of headless bot game processes and HeadlessMC launchers — never Prism."""
     if IS_WIN:
-        ps = ("Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and "
+        ps = ("Get-CimInstance Win32_Process | Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine -and "
               "($_.CommandLine -match 'minecraft.launcher.brand=HeadlessMc' -or "
               "$_.CommandLine -match 'headlessmc-launcher' -or $_.CommandLine -match 'bots.py _relay') } "
               "| ForEach-Object { $_.ProcessId }")
@@ -229,8 +229,16 @@ def _game_pid(name):
     return int(out[0]), (int(rss) // 1024 if rss.isdigit() else None)
 
 
-def cmd_stop():
+def cmd_stop(check=False):
     pids = _headless_pids()
+    if check:
+        # stop-bots-check: what stop-bots would stop, touching nothing - like sync-bots --check (owner, 2026-09-28)
+        for rig in rigs():
+            print(f"[{rig}] {'running' if _console(rig) else 'not running'}")
+        for pid in pids:
+            print(f"  {pid}")
+        print(f"{len(pids)} headless process{'es' if len(pids) != 1 else ''} - stop-bots would stop them; your Prism game is never on this list")
+        return 0
     for pid in pids:
         if IS_WIN:
             subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True)
@@ -660,7 +668,7 @@ def main(argv):
         "connect": f"connecting {arg(0)} to {arg(1)}...",
         "play": f"starting your game into '{arg(0)}', then the bots...",
         "prism": f"starting your game into '{arg(0)}' (singleplayer, no bots)...",
-        "stop": "stopping the headless bots (never your Prism game)...",
+        "stop": "checking for headless bots (stopping nothing)..." if "--check" in rest else "stopping the headless bots (never your Prism game)...",
     }
     if cmd in intro and (rest or cmd in ("setup", "sync", "stop")):
         print(intro[cmd], flush=True)
@@ -699,10 +707,10 @@ def main(argv):
         return cmd_play(rest[0], rest[1:])
     if cmd == "prism":
         if not rest:
-            sys.exit('usage: bots.py prism "<world name>"  (start-singleplayer-server.sh; your game only, no bots)')
+            sys.exit('usage: bots.py prism "<world name>"  (start-singleplayer-server-no-arg.sh; your game only, no bots)')
         return cmd_play(rest[0], [], game_only=True)
     if cmd == "stop":
-        return cmd_stop()
+        return cmd_stop("--check" in rest)
     sys.exit(f"unknown command '{cmd}' — try: setup, sync, run, stop")
 
 
