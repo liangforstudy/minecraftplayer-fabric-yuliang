@@ -93,6 +93,21 @@ so decisions would push real chat out, and the pack has no chat-history mod.)
    search "grave"; restart the game → history still there.
 5. 9d only if asked.
 
+## Maybe later
+
+- **HeadlessMC launcher-wrapper** (2026-09-28). The rig runs the plain `headlessmc-launcher-2.10.0.jar`,
+  so HeadlessMC warns "Not running from the headlessmc-launcher-wrapper. No plugin support and in-memory
+  launching." (headless/README.md, Known rough edges). The wrapper jar would run the game in the
+  launcher's own Java process (one process per bot instead of two, roughly 100-200 MB less RAM each) and
+  allow launcher plugins, which we don't use: hmc-specifics is a game mod, not a plugin.
+  - **Why not now:** a small gain next to about 3 GB per bot. Switching needs:
+    - moving the heap and flags to the launcher JVM
+    - retesting the console relay's piped stdin
+    - updating the stop and check code, which looks for the launcher's command line
+    - a new download, which needs the owner's OK
+    - accepting that a game crash then also takes the launcher down
+  - **Revisit if** several bots run at once and RAM gets tight.
+
 ## Notes
 
 - #10 (fixed 2026-09-28): `bots.ps1` / `bots.py` now check that `console.json`'s PID really is our relay for that bot, not just some process, because PIDs get reused. Both were tested on Windows with a fake stale file (Python 3.12 installed 2026-09-28); the `ps` branch of `bots.py` (Mac/Linux) is still untested.
