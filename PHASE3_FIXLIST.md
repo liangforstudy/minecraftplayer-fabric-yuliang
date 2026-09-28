@@ -15,7 +15,6 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 | 1 | **PASS 2026-09-28** (own grave: Bot1 `chose Bot1's grave` → picked up at once, bread back; stranger's: owner got `no grave of mine in sight (skipped: Bot1) — walking back to where I died`, no pause) — `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
 | 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
 | 2 | HELLO carries the role (3rd field) | owner `/zbot start` on their own client, then Bot1 `/zbot roster` | owner shows as "Teammate (bot driving)", not "Bot"; Bot1's regroup still walks to them |
-| 3 | `/zbot debug survey` prints the new scan when done | Bot1 walks somewhere, then `/zbot debug survey` | old one labelled "Ns ago, N blocks X of here", new one arrives in chat |
 | 4 | `/zbot debug punch` waits for the drop to arrive (5 s backstop), no guessed delay | punch a grass block | `picked up 1 dirt`, not "picked up nothing" |
 | 5 | regroup asks WHERE first when the bus position is > 10 s old; logs the arrival | owner walks > 32 blocks away, `/zbot regroup` | reason gives the owner's *current* spot; ends with `regrouped with Bluetails_zym` |
 | 6 | **half PASS 2026-09-28**: `borrowed the controls — because this Teammate account ordered "walk back to where I died"`; still to see: a movement key giving them back, `follow` refused — one-shot orders on a Teammate: `goto` / `come` / `punch` / `grave` / `grave loot` borrow the controls | owner types `/zbot debug punch ~1 ~-1 ~` on their own client, no `/zbot start` | `borrowed the controls` … `gave the controls back`; a movement key ends it early; `follow` still refused |
@@ -27,6 +26,16 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 - **Regroup gave up fast after a respawn far away:** `failed: regrouping with Bluetails_zym … — no path, even swimming — the pathfinder gave up 169 blocks short` 2 s after respawning ~170 blocks off (server at 15 TPS, "planning less"). It retries after 60 s; check whether it should walk toward them through unloaded chunks instead of failing.
 - **Stuck in water again:** `failed: step out of the water … still in the water after 3 tries — staying put` right after picking up its grave in water. An old problem that keeps coming back.
 - `/zbot grave` falls back to a very old death spot (29 70 -191, far away). Consider forgetting a death spot once its grave has been picked up, or after N minutes, or asking first when it is far.
+
+## Survey: give positions, and walk to what it found (2026-09-28) - to build
+
+#3 passed live on 2026-09-28. The new survey printed in chat by itself, and the old one was labelled
+"140s ago, 205 blocks S of here". But "nearest tree 14 blocks E" has no coordinates: `/zbot goto ~15 ~0`
+got Bot1 within 2-3 blocks of the dark cherry tree (the owner confirmed it was in punching range), which was
+luck of direction.
+- `/zbot debug survey` prints coordinates: "tree 14 blocks E at 55 72 -196".
+- `/zbot goto tree` (also `food`, `table`, `bed`, ...) walks to the nearest one the survey found, to
+  reach. This is where Phase 3 foraging is heading anyway.
 
 ## Open questions for the owner
 
