@@ -15,7 +15,6 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 | 1 | **PASS 2026-09-28** (own grave: Bot1 `chose Bot1's grave` → picked up at once, bread back; stranger's: owner got `no grave of mine in sight (skipped: Bot1) — walking back to where I died`, no pause) — `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
 | 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
 | 2 | HELLO carries the role (3rd field) | owner `/zbot start` on their own client, then Bot1 `/zbot roster` | owner shows as "Teammate (bot driving)", not "Bot"; Bot1's regroup still walks to them |
-| 4 | `/zbot debug punch` waits for the drop to arrive (5 s backstop), no guessed delay | punch a grass block | `picked up 1 dirt`, not "picked up nothing" |
 | 5 | regroup asks WHERE first when the bus position is > 10 s old; logs the arrival | owner walks > 32 blocks away, `/zbot regroup` | reason gives the owner's *current* spot; ends with `regrouped with Bluetails_zym` |
 | 6 | **half PASS 2026-09-28**: `borrowed the controls — because this Teammate account ordered "walk back to where I died"`; still to see: a movement key giving them back, `follow` refused — one-shot orders on a Teammate: `goto` / `come` / `punch` / `grave` / `grave loot` borrow the controls | owner types `/zbot debug punch ~1 ~-1 ~` on their own client, no `/zbot start` | `borrowed the controls` … `gave the controls back`; a movement key ends it early; `follow` still refused |
 | 7 | pause wording | owner `/zbot start`, then press W | "zymbot paused — you can move yourself around for now. It goes back to automation mode 10s after you stop, or /zbot stop to stop the bot." |
@@ -36,6 +35,24 @@ luck of direction.
 - `/zbot debug survey` prints coordinates: "tree 14 blocks E at 55 72 -196".
 - `/zbot goto tree` (also `food`, `table`, `bed`, ...) walks to the nearest one the survey found, to
   reach. This is where Phase 3 foraging is heading anyway.
+
+## Break and collect: other players (2026-09-28) - to build
+
+#4 passed live: Bot1 broke `vinery:dark_cherry_log` at 40 71 -193 in 3.5 s and waited the full 5 s
+for the drop (it used to give up the same tick). The owner, standing next to it, **took the drop**.
+In real play players and mobs can snatch drops (owner). Already right: BreakTask won't swing at air.
+It checks the block before starting and on arrival ("nothing to break", "the block changed while
+walking there"), because swinging at air could look odd to a server's anticheat (owner).
+- **Say who got it.** A drop it saw appear, then vanish without reaching its inventory: "the drop was
+  taken (someone else picked it up)", not "picked up nothing". None ever appeared: "no drop".
+- **Someone else breaks it mid-dig.** If another player breaks the block while Bot1 is digging, it
+  turns to air and Bot1 logs "broke" as if it had. Tell the two apart: our own dig progress was near
+  done, or the drop landed beside us.
+- **Blocks players placed.** The owner put the same log back to test it. A `punch` order still breaks
+  it (fine, it was ordered). But for the planner's own gathering on a civ server, a player-placed block
+  can be someone's build: breaking it is griefing. Gathering should prefer natural blocks (whole trees
+  with leaves, away from builds) and leave blocks near other players' builds and claims alone.
+  Fits Phase 3's CLAIMs and tree rules.
 
 ## Open questions for the owner
 
