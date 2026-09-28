@@ -239,12 +239,31 @@ def cmd_stop():
                 os.kill(pid, 15)
             except OSError:
                 pass
+    # don't say "stopped" until they're really gone (owner, 2026-09-28); backstop 30 s
+    import time
+    until = time.time() + 30
+    left = _headless_pids()
+    while left and time.time() < until:
+        for pid in left:
+            if IS_WIN:
+                subprocess.run(["taskkill", "/PID", str(pid), "/F"], capture_output=True)
+            else:
+                try:
+                    os.kill(pid, 9)
+                except OSError:
+                    pass
+        time.sleep(0.5)
+        left = _headless_pids()
     for rig in rigs():
         try:
             os.remove(os.path.join(HERE, rig, "launcher.pid"))
         except OSError:
             pass
-    print(f"stopped headless bots ({len(pids)} process{'es' if len(pids) != 1 else ''})")
+    if left:
+        print(f"NOT all stopped after 30 s - still running: {', '.join(map(str, left))}")
+        return 1
+    print(f"stopped headless bots ({len(pids)} process{'es' if len(pids) != 1 else ''}) - none left running")
+    return 0
 
 
 def _grep(text, pattern, flags=re.I):
@@ -631,6 +650,20 @@ def main(argv):
     if not argv or argv[0] in ("-h", "--help", "help"):
         print(__doc__); return 0
     cmd, rest = argv[0], argv[1:]
+    # say what's starting before any slow step (owner, 2026-09-28: sync sat on a blank window)
+    arg = lambda i: rest[i] if len(rest) > i else "?"
+    intro = {
+        "setup": "setting up: finding Java 21 + Prism, writing the rig configs...",
+        "sync": "syncing mods + config from the Prism instance into the headless (HeadlessMC) rigs...",
+        "run": f"starting {arg(0)} and joining a world...",
+        "standby": f"starting {arg(0)} to its title screen (standby)...",
+        "connect": f"connecting {arg(0)} to {arg(1)}...",
+        "play": f"starting your game into '{arg(0)}', then the bots...",
+        "prism": f"starting your game into '{arg(0)}' (singleplayer, no bots)...",
+        "stop": "stopping the headless bots (never your Prism game)...",
+    }
+    if cmd in intro and (rest or cmd in ("setup", "sync", "stop")):
+        print(intro[cmd], flush=True)
     if cmd == "setup":
         cmd_setup(); return 0
     if cmd == "sync":
@@ -666,10 +699,10 @@ def main(argv):
         return cmd_play(rest[0], rest[1:])
     if cmd == "prism":
         if not rest:
-            sys.exit('usage: bots.py prism "<world name>"  (your game only, no bots)')
+            sys.exit('usage: bots.py prism "<world name>"  (start-singleplayer-server.sh; your game only, no bots)')
         return cmd_play(rest[0], [], game_only=True)
     if cmd == "stop":
-        cmd_stop(); return 0
+        return cmd_stop()
     sys.exit(f"unknown command '{cmd}' — try: setup, sync, run, stop")
 
 

@@ -271,8 +271,16 @@ function Get-GamePid($name) {
 function Cmd-Stop {
     $pids = Get-HeadlessPids
     foreach ($id in $pids) { try { Stop-Process -Id $id -Force -ErrorAction Stop } catch {} }
+    # Don't say "stopped" until they're really gone: Stop-Process only asks, and a game can take a
+    # moment to let go (owner, 2026-09-28). Backstop 30 s, then say which are left.
+    $until = (Get-Date).AddSeconds(30)
+    while (($left = @(Get-HeadlessPids)).Count -and (Get-Date) -lt $until) {
+        foreach ($id in $left) { try { Stop-Process -Id $id -Force -ErrorAction Stop } catch {} }
+        Start-Sleep -Milliseconds 500
+    }
     foreach ($rig in Get-Rigs) { Remove-Item -LiteralPath (Join-Path $HERE "$rig\launcher.pid") -Force -ErrorAction SilentlyContinue }
-    Say "stopped headless bots ($($pids.Count) process$(if ($pids.Count -ne 1) { 'es' }))"
+    if ($left.Count) { Say "NOT all stopped after 30 s - still running: $($left -join ', ')"; return 1 }
+    Say "stopped headless bots ($($pids.Count) process$(if ($pids.Count -ne 1) { 'es' })) - none left running"
     0
 }
 
@@ -809,6 +817,22 @@ function Invoke-Main([string[]]$a) {
         return 0
     }
     $cmd = $a[0]; $rest = @($a | Select-Object -Skip 1)
+    # Say what's starting before any slow step (process scans take a few seconds): sync-bots.bat sat
+    # on a blank window with no hint it was working (owner, 2026-09-28).
+    $intro = @{
+        'setup'      = 'setting up: finding Java 21 + Prism, writing the rig configs...'
+        'sync'       = 'syncing mods + config from the Prism instance into the headless (HeadlessMC) rigs...'
+        'run'        = "starting $($rest[0]) and joining a world..."
+        'standby'    = "starting $($rest[0]) to its title screen (standby)..."
+        'connect'    = "connecting $($rest[0]) to $($rest[1])..."
+        'disconnect' = "disconnecting $($rest[0])..."
+        'gui'        = "reading $($rest[0])'s screen..."
+        'send'       = "sending to $($rest[0])..."
+        'play'       = "starting your game into '$($rest[0])', then the bots..."
+        'prism'      = "starting your game into '$($rest[0])' (singleplayer, no bots)..."
+        'stop'       = 'stopping the headless bots (never your Prism game)...'
+    }
+    if ($intro.ContainsKey($cmd) -and ($rest.Count -or $cmd -in 'setup', 'sync', 'stop')) { Say $intro[$cmd] }
     switch ($cmd) {
         'setup'      { return Cmd-Setup }
         'sync'       { return Cmd-Sync $rest }
@@ -826,7 +850,7 @@ function Invoke-Main([string[]]$a) {
         '_relay'     { Invoke-Relay $rest[0] $rest[1] $rest[2] $rest[3]; return 0 }
         'play'       { if (-not $rest.Count) { Die 'usage: play.bat "<world name>" [bot1 bot3 ...]' }
                        return Cmd-Play $rest[0] @($rest | Select-Object -Skip 1) }
-        'prism'      { if (-not $rest.Count) { Die 'usage: prism.bat "<world name>"  (your game only, no bots)' }
+        'prism'      { if (-not $rest.Count) { Die 'usage: start-singleplayer-server.bat "<world name>"  (your game only, no bots; prism.bat = New World)' }
                        return Cmd-Play $rest[0] @() -gameOnly }
         'stop'       { return Cmd-Stop }
     }

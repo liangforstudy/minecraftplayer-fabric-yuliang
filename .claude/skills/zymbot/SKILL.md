@@ -55,9 +55,9 @@ wrappers) and `bots.ps1` (Windows, `.bat` wrappers, no Python) — keep the two 
 | `./gui.sh bot1` | what's on the bot's screen (buttons, text) |
 | `./send.sh bot1 <console command>` | any hmc-specifics console command — see below |
 | `./disconnect.sh bot1` | leave the server, keep running |
-| `./stop-bots.sh` | stop all headless bots (never the Prism client) |
+| `./stop-bots.sh` | stop all headless bots (never the Prism client); waits until they are really gone (30 s backstop) |
 | `./play.sh "New World"` | bots to standby in the background + Prism straight into that world; skips if the game is already running. `play.bat` (Windows) opens the game first and starts the bots once the world loads |
-| `./prism.sh "New World"` | **your game only**: Prism straight into that world, no bots (`prism.bat` on Windows); skips if the game is already running |
+| `./start-singleplayer-server.sh "<world>"` | **your game only**: Prism straight into that world, no bots (`.bat` on Windows); skips if the game is already running. `prism.sh` / `prism.bat` = the same with everything filled in ("New World") |
 | `./team-key.sh` | show the team key (for the owner's own config — don't print it to chat) |
 
 **HeadlessMC settings** (`<rig>/HeadlessMC/config.properties`, rewritten by setup/run):
