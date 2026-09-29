@@ -1088,7 +1088,7 @@ function Cmd-Console($bot) {
     if (-not (Wait-BotConsole $bot $name)) { return }
     Start-Guard $bot
     Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Esc clears it; F2 reopens the log pane)"
-    if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (no mouse drag)." }
+    if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (dragging the divider dosn't work at all in Powershell)." }
     $script:typed = ''
     $script:n = 0
     $script:logSeen = $false
