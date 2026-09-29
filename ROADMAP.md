@@ -235,6 +235,12 @@ Roughly in order; nothing here is committed.
       2. mods from Modrinth
       3. a window
       4. the `.exe`
+    - **No hidden PowerShell in the portable version** (2026-09-29). Today's rig on Windows runs hidden
+      PowerShell processes: the console relay and the pane guard. Some antivirus programs treat hidden
+      PowerShell as suspicious, because malware often uses it. That's no problem on the owner's PC, but a
+      stranger's antivirus may block or quarantine it. The Java setup program should do all of this in
+      its own process. Also: open console windows minimised, never on top of the game (fixed in the rig
+      the same day).
     - **Testing is required** before any of this ships (owner, 2026-09-28). Each step needs a live
       test on a clean machine or user account with no repo, no Prism and no Java, and on one that
       has them:

@@ -944,8 +944,10 @@ function Cmd-Consoles([string[]]$argv) {
         $parts += ('new-tab --title "' + $name + '" ' + $run + 'console-log "' + $b + '" --pane')
         $parts += ('split-pane -H --size 0.4 --title "' + $name + ' - bot" ' + $run + 'console "' + $b + '"')
     }
-    Start-Process -FilePath $wt -ArgumentList ('-w zymbot ' + ($parts -join ' ; '))
-    Say "opened the Zymbot console in Windows Terminal: a tab per bot ($($bots -join ', ')), log on top, commands below"
+    # minimised: it opened on top of the game, taking focus from Minecraft mid-play (owner, 2026-09-29). It waits
+    # on the taskbar; click it when wanted.
+    Start-Process -FilePath $wt -ArgumentList ('-w zymbot ' + ($parts -join ' ; ')) -WindowStyle Minimized
+    Say "opened the Zymbot console in Windows Terminal, minimised on the taskbar: a tab per bot ($($bots -join ', ')), log on top, commands below"
     10
 }
 
