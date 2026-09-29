@@ -1051,7 +1051,7 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
         foreach ($n in $noise) { if ($l -match $n) { return } }
         $color = if ($l -match '/ERROR\]|Exception|Game crashed') { 'Red' }
                  elseif ($l -match '/WARN\]') { 'Yellow' }
-                 elseif ($l -match 'Connecting to|[Dd]isconnect|joined the game|left the game|LAN|local bus|summon|Timed out|connection') { 'Cyan' }
+                 elseif ($l -cmatch 'Connecting to|[Dd]isconnect|joined the game|left the game|\bLAN\b|local bus|[Ss]ummon|Timed out|[Cc]onnection') { 'Cyan' }
                  else { 'Gray' }
         Write-Host $l -ForegroundColor $color
     } {
