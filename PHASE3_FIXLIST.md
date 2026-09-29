@@ -15,12 +15,11 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 |---|---|---|---|
 | 1 | **PASS 2026-09-28** (own grave: Bot1 `chose Bot1's grave` → picked up at once, bread back; stranger's: owner got `no grave of mine in sight (skipped: Bot1) — walking back to where I died`, no pause) — `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
 | 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
-| 8 | `/zbot debug …` group; `/zbot see` = status; `/zbot see <bot>` over the bus | owner `/zbot see Bot1` | Bot1's status lines in the owner's chat within a second; `see Nobody` → "no answer … in 5s" after 5 s |
 
 ## Seen in the 2026-09-28 test (not fixed)
 
 - **Regroup gave up fast after a respawn far away:** `failed: regrouping with Bluetails_zym … — no path, even swimming — the pathfinder gave up 169 blocks short` 2 s after respawning ~170 blocks off (server at 15 TPS, "planning less"). It retries after 60 s; check whether it should walk toward them through unloaded chunks instead of failing.
-- **Stuck in water (FOUND, fixed in source 2026-09-28, not built):** the dry-land finder counts one-block
+- **Stuck in water: FIXED, passed live in 0.1.37 on 2026-09-29.** It stepped out in 1 s and 4 s, with no "3 tries" loop. Was: the dry-land finder counts one-block
   shallows as shore (head above water, owner's 2026-09-26 rule), but WadingInterrupt ("idle, standing in
   water") still counts them as water. So it walked into the shallows at 97 -50 (sand at y 61, water at 62),
   was still wet, bobbed, and gave up after 3 tries, several times today. Owner spotted it ("probably the 1
@@ -60,13 +59,29 @@ Passed live 2026-09-28 and removed from the table: #2 (roster: "Teammate (bot dr
 movement key: "gave the controls back", no pause), #7 (pause wording, "resumes in 3s", resumed after 10 s),
 #5 (a 46 s old bus position -> asked first -> "was at 201, -26 (bus, 0 s ago)" -> "regrouped with
 Bluetails_zym"), #8 half (`/zbot see Bot1`: all status lines in the owner's chat the same second).
-Still to test: #8 `see Nobody` (the 5 s "no answer").
+#8 `see Nobody` ("no answer from Nobody in 5s", 2026-09-29). **All 0.1.36 tests passed.**
 
 ## Regroup says nothing when the team is already near (2026-09-28) - to build
 
 `/zbot regroup` with the owner 6 or 20 blocks away (in sight, within `regroup` 32) prints "looking for
 the team — regrouping unless a teammate is within 32 blocks", then logs nothing at all, so it looked
 ignored twice in the live test. Log it: `with the team already — Bluetails_zym 6 blocks away (within 32)`.
+
+## Seen 2026-09-29
+
+- **Spinning while swimming to dry land.** Right after the owner teleported Bot1 to them 7 times in 10 s:
+  `swimming to dry land at 97 -71 — because out of its depth with nothing to do`, then 13 s later
+  `holding still — because bobbing/spinning in place for 10 s (turned 15327°, moved 1.4 blocks, 26 ups
+  and downs)`. The fidget watchdog's first live catch (PHASE2 had it "unseen live"), so the safety net
+  works. But about 42 turns in 10 s means the surface-swim steering fights itself. Maybe the teleports
+  left a stale target or look direction. Find it before relying on swimming.
+- **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
+  It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
+  The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.
+- **Console (Windows Terminal) passed:** F2 reopens the log pane on top (swap-pane works); R reopens the
+  command pane with the backlog divider above the prompt; closing the tab stops the bot. Still to see:
+  the console opening minimised (next `play.bat`).
+- **Without Baritone** (tested, see ROADMAP #13): everything that moves fails cleanly; nothing crashes.
 
 ## Open questions for the owner
 

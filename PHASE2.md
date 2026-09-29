@@ -8,7 +8,7 @@ knockout (call for help → give up → respawn → regroup) and revive with sti
 **Next session:**
 1. First thing: `play.bat "New World"` and **don't** connect by hand — 0.1.34 retries a failed summoned
    join 4× with backoff (10/20/40/80 s); expect `waiting to retry the summon … (1 of 4)` then IN THE WORLD.
-2. Fidget watchdog (0.1.32) still unseen live: "holding still — because bobbing/spinning in place …"
+2. ~~Fidget watchdog (0.1.32) still unseen live~~ — **seen live 2026-09-29** (0.1.37): "holding still — because bobbing/spinning in place for 10 s (turned 15327°, moved 1.4 blocks, 26 ups and downs)" while swimming to dry land; the spin itself is on PHASE3_FIXLIST.
    only when it really bobs/spins; watch it doesn't stop a bot jumping to get unstuck.
 3. Small fixes: a revive should clear a teammate as "last attacker" (Bot1 fled its reviver) and log
    `revived — because …`.
