@@ -402,7 +402,7 @@ class BodyTest {
         assertFalse(w.paths.busy, "the pathfinder stops");
         assertTrue(w.jumpHeld && w.forwardHeld, "swims up and for the shore");
         assertNotNull(w.lookedAt);
-        assertEquals(6.5, w.lookedAt.x());
+        assertEquals(5.5, w.lookedAt.x(), "first to the water straight beside the shore, to climb out face-on");
         assertTrue(log(b).contains("swimming to dry land at 6 0 — because air 9s of 15s, under water"), log(b));
 
         w.inWater = false;                                     // climbed out

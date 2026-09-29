@@ -149,7 +149,15 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public int air() { return air; }
     @Override public String lastDeath() { return lastDeath; }
     @Override public int lives() { return lives; }
-    @Override public String blockAt(BlockPos p) { return blocks.getOrDefault(p, "minecraft:air"); }
+    @Override public String blockAt(BlockPos p) {
+        String b = blocks.get(p);
+        if (b != null) return b;
+        // dryLand is a shore: water straight beside it at its level, so a swimmer can climb out face-on
+        // (SurfaceTask.faceOnShore) - unless a test sets those blocks itself
+        if (dryLand != null && p.y() == dryLand.y()
+                && Math.abs(p.x() - dryLand.x()) + Math.abs(p.z() - dryLand.z()) == 1) return "minecraft:water";
+        return "minecraft:air";
+    }
     @Override public Optional<BlockPos> findBlock(String id, int radius) {
         return blocks.entrySet().stream().filter(e -> e.getValue().equals(id)).map(java.util.Map.Entry::getKey).findFirst();
     }

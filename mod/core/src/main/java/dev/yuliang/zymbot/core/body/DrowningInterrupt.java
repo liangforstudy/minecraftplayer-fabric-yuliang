@@ -24,7 +24,7 @@ public final class DrowningInterrupt implements Interrupt {
 
     @Override
     public Task respond(WorldView world, Hands hands) {
-        return new SurfaceTask(hands, world.nearestDryLand(SurfaceTask.LAND_RADIUS).orElse(null));
+        return new SurfaceTask(hands, world.nearestDryLand(SurfaceTask.LAND_RADIUS, SurfaceTask.faceOnShore(world)).orElse(null));
     }
 
     @Override

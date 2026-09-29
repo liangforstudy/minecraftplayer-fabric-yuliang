@@ -62,7 +62,8 @@ public final class StrandedInterrupt implements Interrupt {
     @Override
     public Task respond(WorldView world, Hands hands) {
         var attacker = body.recentAttack().map(Body.Attack::from);
-        return world.nearestDryLand(SHORE_RADIUS, safeLand(body, world))
+        // face-on shore only: a corner-only one had Bot1 spinning in place (2026-09-29, SurfaceTask)
+        return world.nearestDryLand(SHORE_RADIUS, safeLand(body, world).and(dev.yuliang.zymbot.core.task.SurfaceTask.faceOnShore(world)))
                 .<Task>map(land -> new SurfaceTask(hands, land))
                 .orElse(Task.failed("reach land", "no safe place to stand within " + SHORE_RADIUS + " blocks"
                         + (attacker.isPresent() ? " (keeping away from the attacker)" : "")));

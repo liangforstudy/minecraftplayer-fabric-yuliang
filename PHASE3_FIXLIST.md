@@ -80,6 +80,10 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   **Fix idea:** when choosing where to climb out, prefer a land block that is *straight* next to a water
   block (a face, not a corner), and steer to face it squarely before jumping. If only corners are near,
   swim one block along the shore first. Add a unit test with a corner-only shoreline.
+  **Fixed in source 2026-09-29 (in 0.1.38, not built):** Stranded and Drowning only pick land with water
+  straight beside it (`SurfaceTask.faceOnShore`). SurfaceTask swims to that water block first, then turns
+  square to the land and climbs. Tests: `SurfaceTaskTest` (corner-only rejected, face-on chosen, nearest
+  side wins). Live test next: a beach corner.
 - **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
   It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
   The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.
