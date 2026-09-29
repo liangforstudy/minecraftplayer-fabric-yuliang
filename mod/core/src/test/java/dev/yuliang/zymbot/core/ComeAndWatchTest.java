@@ -96,7 +96,7 @@ class ComeAndWatchTest {
         assertEquals(java.util.List.of("asking Bot1 for its status…"), human.see("Bot1"));
         ticks(bot, w1, 1);                                     // the bot answers
         human.tick(w2, w2);                                    // the asker prints it
-        assertEquals("Bot1 status:", w2.notices.get(0), w2.notices.toString());
+        assertTrue(w2.notices.get(0).matches("Bot1 status \\(at \\d\\d:\\d\\d:\\d\\d\\):"), w2.notices.toString());
         assertTrue(w2.notices.stream().anyMatch(s -> s.startsWith("  phase: ")), w2.notices.toString());
         assertEquals(1, w2.notices.stream().filter(s -> s.startsWith("  phase: ")).count(), "printed once");
         assertTrue(w2.notices.size() > 5, "every line: " + w2.notices);

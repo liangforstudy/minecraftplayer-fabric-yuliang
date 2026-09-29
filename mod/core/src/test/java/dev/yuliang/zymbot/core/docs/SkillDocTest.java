@@ -29,7 +29,7 @@ public class SkillDocTest {
         Path root = repo();
         String code = Files.readString(root.resolve("mod/src/main/java/dev/yuliang/zymbot/fabric/ZymbotCommands.java"));
         Set<String> registered = new TreeSet<>();
-        Matcher m = Pattern.compile("(?m)^ {16}\\.then\\(literal\\(\"([a-z]+)\"\\)").matcher(code);   // top-level subcommands
+        Matcher m = Pattern.compile("(?m)^ {16}\\.then\\((?:[a-z]+\\()?literal\\(\"([a-z]+)\"\\)").matcher(code);   // top-level subcommands, also through a helper: .then(see(literal("view"), bot))
         while (m.find()) registered.add(m.group(1));
         assertTrue(registered.size() > 10, "parsed too few commands: " + registered);
 

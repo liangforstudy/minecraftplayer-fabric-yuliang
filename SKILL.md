@@ -145,7 +145,9 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 |---|---|
 | `help` | list the commands (also bare `/zbot`) |
 | `status` / `see` | phase, current task and why, interrupts |
-| `see <bot>` | that bot's status, asked over the team bus (STATUS → STATUS_LINE); for a Teammate reading a bot; "no answer" after 5 s |
+| `see <bot>` | that bot's status, asked over the team bus (STATUS → STATUS_LINE); for a Teammate reading a bot; "no answer" after 5 s; the reply header says when: "Bot1 status (at 19:45:02):" |
+| `view [<bot>]` | the same as `see` (another name, same arguments) |
+| `spy [<bot>]` | the same as `see` (another name, same arguments) |
 | `start` / `stop` | hand control to the bot / take it back |
 | `role bot\|teammate\|none` | what this account is (Bot: bot plays it; Teammate: human plays, it announces) |
 | `goto <x> <z>` / `goto <x> <y> <z>` | walk there via the route planner + Baritone |

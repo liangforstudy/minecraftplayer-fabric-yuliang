@@ -122,15 +122,10 @@ final class ZymbotCommands {
                                 }))))
                         .then(literal("foods").executes(c -> withBot(c, bot, Bot::foods)))
                         .then(literal("survey").executes(c -> withBot(c, bot, Bot::surveyNow))))
-                .then(literal("see")
-                        .executes(c -> withBot(c, bot, Bot::status))
-                        .then(argument("bot", StringArgumentType.word())
-                                .suggests((c, sb) -> {
-                                    Bot b = bot.get();                  // the team as heard on the bus
-                                    if (b != null) b.memory().roster.values().forEach(r -> sb.suggest(r.name));
-                                    return sb.buildFuture();
-                                })
-                                .executes(c -> withBot(c, bot, b -> b.see(StringArgumentType.getString(c, "bot"))))))
+                // see / view / spy: the same command, any name (owner, 2026-09-29)
+                .then(see(literal("see"), bot))
+                .then(see(literal("view"), bot))
+                .then(see(literal("spy"), bot))
                 .then(literal("grave").executes(c -> withBot(c, bot, b -> List.of(b.grave())))
                         // loot [except] <player> […]: other players' graves, on purpose only (PHASE3_FIXLIST #1)
                         .then(literal("loot")
@@ -182,11 +177,24 @@ final class ZymbotCommands {
                         .then(literal("list").executes(c -> withBot(c, bot, Bot::autostartList))));
     }
 
+    /** /zbot see [<bot>] - this bot's status, or another bot's over the bus; also named view and spy. */
+    private static LiteralArgumentBuilder<FabricClientCommandSource> see(LiteralArgumentBuilder<FabricClientCommandSource> name, Supplier<Bot> bot) {
+        return name
+                .executes(c -> withBot(c, bot, Bot::status))
+                .then(argument("bot", StringArgumentType.word())
+                        .suggests((c, sb) -> {
+                            Bot b = bot.get();                  // the team as heard on the bus
+                            if (b != null) b.memory().roster.values().forEach(r -> sb.suggest(r.name));
+                            return sb.buildFuture();
+                        })
+                        .executes(c -> withBot(c, bot, b -> b.see(StringArgumentType.getString(c, "bot")))));
+    }
+
     private static List<String> help(String root) {
         String r = "/" + root;
         return List.of(
                 r + " status (or see) — what the bot is doing, and why",
-                r + " see <bot> — that bot's status, asked over the team bus",
+                r + " see <bot> (or view / spy) — that bot's status, asked over the team bus",
                 r + " start / stop — hand control to the bot, or take it back",
                 r + " role bot | teammate | none — what this account is (Bot: the bot plays it; Teammate: you play, it announces)",
                 r + " autostart add | remove | list — servers where Zymbot is active",

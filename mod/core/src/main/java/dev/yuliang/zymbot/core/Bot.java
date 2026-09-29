@@ -1056,7 +1056,9 @@ public final class Bot {
         if (java.util.Arrays.stream(lines).anyMatch(java.util.Objects::isNull)) return;
         seeAsks.remove(e.field(2));
         if (hands == null) return;
-        hands.notifyLocal(e.field(0) + " status:");
+        // when it was taken: an answer read later in chat or scrollback said nothing about its age (owner, 2026-09-29)
+        String at = java.time.LocalTime.now().withNano(0).toString();
+        hands.notifyLocal(e.field(0) + " status (at " + at + "):");
         for (String l : lines) hands.notifyLocal("  " + l);
     }
 

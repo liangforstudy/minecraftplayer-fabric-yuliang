@@ -97,7 +97,7 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | `/zbot set leash\|heel\|eat\|critical\|downed\|plantime\|lagtps <n>` | change a threshold (also Mod Menu → Zymbot → Body); `/zbot set` lists them. `heel` = how close the idle follow comes to the teammate (1–256, below the leash; default 2), `plantime` = ms per route search (50–5000), `lagtps` = plan less below this TPS (5–19) |
 | `/zbot danger [modpack\|easy\|normal\|hard]` | when it runs from a mob (0.1.25): `modpack` (default) at the first hit, following the attacker by UUID; vanilla `easy`/`normal`/`hard` only at critical health (`critical` −2 / ±0 / +4). Live test deferred until all phases are built |
 | `/zbot cancel` | drop the current order; the bot keeps running |
-| `/zbot see [<bot>]` | `/zbot status`; with a name, that bot's status over the team bus (a Teammate reading a bot; PHASE3_FIXLIST #8) |
+| `/zbot see [<bot>]` (also `view`, `spy`) | `/zbot status`; with a name, that bot's status over the team bus (a Teammate reading a bot; PHASE3_FIXLIST #8); the reply says when it was taken |
 | `/zbot debug terrain <x> <z>` | what the route planner sees in that column |
 
 Orders need the bot running. An interrupt (eating, retreating) pauses an order, which resumes
