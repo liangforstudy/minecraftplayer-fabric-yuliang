@@ -281,12 +281,12 @@ Terminal window, **zymbot**, with **a tab per bot**, each split in two:
 
 | pane | shows | you can |
 |---|---|---|
-| top: `Bot1 - log` | the whole log, minus the patterns in `log-noise.txt`; ERROR red, WARN yellow, network (joins, disconnects, LAN, bus, summons) cyan | read; **close it (or the tab) to stop that bot**; press **R** to reopen the pane below |
-| bottom: `Bot1 - bot` | decisions, chat, whispers and Zymbot's own lines; short time stamps; red = failed / knocked out, yellow = paused / waiting, green = done / regrouped, cyan = chat | type a command after `> ` and press Enter: it goes to the bot like `send.bat`. Your typed line stays pinned under new output; Esc clears it |
+| top: `Bot1 - log` | the whole log, minus the patterns in `log-noise.txt`; ERROR red, WARN yellow, network (joins, disconnects, LAN, bus, summons) cyan | read; press **R** to reopen the pane below if it was closed |
+| bottom: `Bot1 - bot` | decisions, chat, whispers and Zymbot's own lines; short time stamps; red = failed / knocked out, yellow = paused / waiting, green = done / regrouped, cyan = chat | type a command after `> ` and press Enter: it goes to the bot like `send.bat`. Your typed line stays pinned under new output; Esc clears it; **F2** reopens the log pane |
 
 Each pane scrolls on its own (mouse wheel over it, or Ctrl+Shift+Up/Down/PgUp/PgDn); scrolled up, new
-lines don't pull you down; typing jumps the bottom pane back down. A hidden guard stops the bot once its
-log pane is gone, so closing the tab works too. `console.bat` (double-click: the running bot) reopens the
+lines don't pull you down; typing jumps the bottom pane back down. **Closing both panes (or the whole tab) stops that
+bot**; closing just one leaves the bot running and a key to bring it back (a hidden guard watches both). `console.bat` (double-click: the running bot) reopens the
 command pane in its own window. `stop-bot1.bat` stops just Bot1; `stop-bots.bat` every bot. I (Claude)
 can still `send.bat` to the bot meanwhile. The log file keeps everything; `log-noise.txt` only filters
 the log pane.

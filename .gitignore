@@ -11,6 +11,7 @@ headless/baritone-*.jar
 headless/hmc-specifics-*.jar
 headless/bot*/console.json
 headless/bot*/windows.json
+headless/bot*/guard.pid
 headless/team-key.txt
 
 # --- build output ---
