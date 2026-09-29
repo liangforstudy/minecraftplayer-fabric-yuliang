@@ -84,6 +84,11 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   straight beside it (`SurfaceTask.faceOnShore`). SurfaceTask swims to that water block first, then turns
   square to the land and climbs. Tests: `SurfaceTaskTest` (corner-only rejected, face-on chosen, nearest
   side wins). Live test next: a beach corner.
+  Land means **any standable block** (`FabricWorldView.standable`: full blocks, slabs, panes, trapdoors,
+  fences; nothing that hurts; room above), not just sand. The new rule only checks for water beside it.
+  A natural coast always has a face-on spot within a few blocks. A shore of *only* corners exists only
+  as a player build (owner). Test that case once schematic building exists (villagers_entity_roadmap
+  §2); until then Bot1 would tread water and say "no safe place to stand", not spin.
 - **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
   It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
   The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.
