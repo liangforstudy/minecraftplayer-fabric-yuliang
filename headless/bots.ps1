@@ -976,13 +976,14 @@ function Open-LogWindow($bot) {
     # The log pane again, from the command pane (F2): a pane in Windows Terminal, else its own window.
     $cmd = '-NoProfile -ExecutionPolicy Bypass -File "' + $SELF + '" console-log "' + $bot + '" --pane'
     if ($env:WT_SESSION -and (Get-Wt)) {
-        Start-Process -FilePath (Get-Wt) -ArgumentList ('-w 0 split-pane -H --size 0.6 powershell.exe ' + $cmd)
+        # a split opens below the pane it splits: swap it up so the log stays on top (owner, 2026-09-29)
+        Start-Process -FilePath (Get-Wt) -ArgumentList ('-w 0 split-pane -H --size 0.6 powershell.exe ' + $cmd + ' ; swap-pane up')
     } else {
         Start-Process -FilePath 'powershell.exe' -ArgumentList $cmd
     }
 }
 
-function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick, [scriptblock]$wanted = $null, [int]$backlog = 0) {
+function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick, [scriptblock]$wanted = $null, [int]$backlog = 0, [scriptblock]$afterBacklog = $null) {
     # Follow the bot's log from its current end; $show gets each new whole line; $everyTick runs every 30 ms
     # (keys) and returns $false to stop; the log is read every ~300 ms. At 300 ms per loop, typing showed
     # up only every few characters (owner, 2026-09-28). $backlog: first show the last N lines $wanted
@@ -999,6 +1000,7 @@ function Watch-Lines($bot, [scriptblock]$show, [scriptblock]$everyTick, [scriptb
             if ($keep.Count) { Write-Host "-- (the last $($keep.Count) lines before this pane opened; live from here) --" -ForegroundColor DarkGray }
         }
     }
+    if ($afterBacklog) { & $afterBacklog }                      # e.g. the prompt, under the backlog
     $tick = 0
     while ($true) {
         if (-not (& $everyTick)) { return }
@@ -1033,7 +1035,7 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
     # yellow, network cyan. With the command pane gone as well (or the whole tab), the guard stops the bot.
     $name = Get-BotName $bot
     if (-not (Wait-BotConsole $bot $name)) { return }
-    $Host.UI.RawUI.WindowTitle = "$name - log (close = stop $name)"
+    $Host.UI.RawUI.WindowTitle = "$name - log (close both panes = stop $name)"
     Set-Window $bot 'log' $PID
     $w = Get-Windows $bot                                        # a stale one from last time isn't "closed";
     if ($w -and -not (Test-Alive ([int]$w.bot))) { Set-Window $bot 'bot' 0 }   # a pane that just started stays
@@ -1091,12 +1093,12 @@ function Cmd-Console($bot) {
     if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (dragging the divider dosn't work at all in Powershell)." }
     $script:typed = ''
     $script:n = 0
+    $script:live = $false                                       # the prompt shows once the backlog is out
     $script:logSeen = $false
     $script:logWarned = $false
     $prompt = '> '
     $clear = { [Console]::Write("`r" + (' ' * [Math]::Max(1, [Console]::BufferWidth - 1)) + "`r") }
     $redraw = { [Console]::Write($prompt + $script:typed) }
-    & $redraw
     $wanted = { param($l) $l -match '\[decision\]|\[CHAT\]|\[zymbot\]|IN THE WORLD' }
     Watch-Lines $bot {
         param($l)
@@ -1110,7 +1112,7 @@ function Cmd-Console($bot) {
                  else { 'White' }
         & $clear
         Write-Host "$t $msg" -ForegroundColor $color
-        & $redraw
+        if ($script:live) { & $redraw }
     } {
         while ([Console]::KeyAvailable) {
             $k = [Console]::ReadKey($true)
@@ -1147,7 +1149,7 @@ function Cmd-Console($bot) {
         if (($script:n % 100) -eq 0 -and -not (Get-Console $bot)) {   # ~3 s: Get-Console scans processes
             & $clear; Write-Host "== $name stopped." -ForegroundColor Magenta; Start-Sleep 2; return $false }
         $true
-    } $wanted 40
+    } $wanted 40 { $script:live = $true; & $redraw }
 }
 
 # ---------------------------------------------------------------- main
