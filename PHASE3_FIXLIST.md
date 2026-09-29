@@ -73,8 +73,13 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   `swimming to dry land at 97 -71 — because out of its depth with nothing to do`, then 13 s later
   `holding still — because bobbing/spinning in place for 10 s (turned 15327°, moved 1.4 blocks, 26 ups
   and downs)`. The fidget watchdog's first live catch (PHASE2 had it "unseen live"), so the safety net
-  works. But about 42 turns in 10 s means the surface-swim steering fights itself. Maybe the teleports
-  left a stale target or look direction. Find it before relying on swimming.
+  works. But about 42 turns in 10 s means the surface-swim steering fights itself.
+  **Cause (owner, watching it):** it tried to climb out at **beach corners**, where the land touches its
+  shallow-water block only diagonally. Jumping out over a corner catches the hitbox on the two side
+  blocks, so it keeps turning for an angle that never works.
+  **Fix idea:** when choosing where to climb out, prefer a land block that is *straight* next to a water
+  block (a face, not a corner), and steer to face it squarely before jumping. If only corners are near,
+  swim one block along the shore first. Add a unit test with a corner-only shoreline.
 - **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
   It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
   The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.
