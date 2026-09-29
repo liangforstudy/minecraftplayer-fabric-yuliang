@@ -244,6 +244,21 @@ Roughly in order; nothing here is committed.
       - the bot reaching standby and joining
       - SmartScreen with the `.exe`
       - Windows first, then macOS and Linux
+13. **A fallback walker for when Baritone isn't installed** (owner, 2026-09-29). Tested live that day,
+    with Baritone moved out of both mods folders:
+    - **What works:** Zymbot loads and runs fine. It says "pathfinder: none — install Baritone to walk",
+      and every move fails cleanly with that reason: regroup, goto, grave. Survey, eating, status and
+      the bus still work.
+    - **What doesn't:** Bot1 can't walk at all. Zymbot's own RoutePlanner (A*) only *plans*; steering
+      along the route is always Baritone.
+    - **What to build:** a simple built-in walker as the fallback:
+      - follow RoutePlanner's path by holding the keys and looking along it
+      - jump one-block steps, never drop more than 3
+      - swim the water legs as the planner already costs them
+      - give up with a reason when stuck
+    - **Why it matters:** the portable install (#12), where people may skip Baritone. It also covers a
+      Baritone update breaking.
+    - **Meanwhile:** regroup retries every 60 s and logs the same failure each time; say it once.
 
 ### On "it's vibecoded"
 
