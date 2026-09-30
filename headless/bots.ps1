@@ -1168,7 +1168,8 @@ function Invoke-Main([string[]]$a) {
         'setup'      = 'setting up: finding Java 21 + Prism, writing the rig configs...'
         'sync'       = 'syncing mods + config from the Prism instance into the headless (HeadlessMC) rigs...'
         'run'        = "starting $($rest[0]) and joining a world..."
-        'standby'    = "starting $($rest[0]) to its title screen (standby)..."
+        'standby'    = $(if ($env:ZBOT_THEN_JOIN) { "starting $($rest[0]) to its title screen (standby), then it waits for your Prism world to open to LAN (127.0.0.1:25565) and joins it..." }
+                         else { "starting $($rest[0]) to its title screen (standby)..." })
         'connect'    = "connecting $($rest[0]) to $($rest[1])..."
         'disconnect' = "disconnecting $($rest[0])..."
         'gui'        = "reading $($rest[0])'s screen..."
