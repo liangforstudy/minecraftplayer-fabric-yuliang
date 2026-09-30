@@ -25,6 +25,8 @@ as a giant castle or map art, when it (or its village) levels up.
 - **Baritone vs the morph's body:** a villager's eye height and hitbox differ from a player's, so
   Baritone's reach, clearance and step checks may be wrong. We may need our own **small patch**, a
   separate compat mixin or file, so Baritone works while morphed. Test the plain morph first.
+  Zymbot's own water code assumes a player's body too: swimming ashore, diving (reach 3.5) and
+  wading use the eye height (`headInWater`) and a player's reach. Retest those morphed (2026-09-30).
 - **Unlocking the villager shape:** the bot shouldn't have to "earn" it. Get it instantly through an op
   command, or by editing the mod's player data or config (JSON / NBT), e.g. at world setup. Check
   which the chosen mod offers.

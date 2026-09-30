@@ -241,6 +241,8 @@ Roughly in order; nothing here is committed.
       stranger's antivirus may block or quarantine it. The Java setup program should do all of this in
       its own process. Also: open console windows minimised, never on top of the game (fixed in the rig
       the same day).
+    - **Console features to rebuild in Java:** the command pane's Up/Down history and Tab completion
+      (2026-09-30) live in `bots.ps1`, including the Tab word list (`$ZBOT_WORDS`).
     - **Testing is required** before any of this ships (owner, 2026-09-28). Each step needs a live
       test on a clean machine or user account with no repo, no Prism and no Java, and on one that
       has them:

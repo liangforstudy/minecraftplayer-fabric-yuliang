@@ -1,6 +1,19 @@
 # Phase 3 — First milestones: gather, craft, feed itself
 
-Status: **building 2026-09-27** — steps 1–2 on main; 0.1.35 live-tested 2026-09-27 (survey + punch work, bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)); 0.1.36 fixes them, installed, not yet live-tested. Next: live-test 0.1.36, then step 3 (crafting). Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
+## Open decisions (2026-09-30) — owner to answer before step 3
+
+Found by checking the later plans (ROADMAP, villagers_entity_roadmap, BOT_BEHAVIOUR) against what's built.
+Each has a **proposal**; the **owner's answer** column is empty until decided.
+
+| # | clash | proposal (not decided) | owner's answer |
+|---|---|---|---|
+| A | **"role" means two things.** `/zbot role bot\|teammate\|none` is built; BOT_BEHAVIOUR's `/bot role <class>,<class>` meant civfabric classes, and step 3 needs FARMER + MINER soon. | Classes get their own command, **`/zbot class`**; "role" stays bot / teammate / none. | |
+| B | **Craft free or pick classes first.** BOT_BEHAVIOUR: craft while classless (free), then specialise. §7 decision 2: pick FARMER + MINER, which makes every craft cost hunger. | Pick the classes **right after the axe and hoe**: the bootstrap stays free, ranks start straight after. | |
+| C | **Run or fight when hit.** BOT_BEHAVIOUR's combat machine enters combat in self-defence; what's built is `danger modpack` = run at the first hit. ROADMAP #9 and #10 hang on this too. | The combat machine obeys `danger`: `modpack` always runs; `easy`/`normal` run at critical health; `hard` may fight back. | |
+| D | **Whole trees vs picking up the drop.** §7 decision 4 fells whole trees (axe + Treecapitator, ~8 logs scattered); `BreakTask` waits ≤ 5 s for one drop at one spot. | Collecting becomes **"sweep the area for dropped items"** after a break, with a time limit; it also covers the fixlist's "drop taken by someone". | |
+| E | **Player-placed blocks.** The fixlist says never gather player builds; §3 says use a crafting table the survey finds. | Rule: **use player-made stations** (table, furnace, chest only if allowed), **never harvest player-placed blocks**. | |
+
+Status: **building 2026-09-27** — steps 1–2 on main, live-tested (0.1.35–0.1.36; bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)). Water, grave and diving fixes through 0.1.42 (2026-09-30). Next: decisions A–E above, then step 3 (crafting). Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).
@@ -90,6 +103,8 @@ A table the survey already found counts (don't place a second one next to it —
 
 - `CLAIM tree x z` / `CLAIM patch x z` for 60 s so two bots don't punch the same tree or strip the
   same patch (BOT_BEHAVIOUR "live CLAIM"). With one bot it's a no-op, but cheap to add now.
+  The bus today is **local** (signed + encrypted, bots on the same PC), so CLAIMs reach only those;
+  bots on other machines (ROADMAP's Pi test devices) need a network bus first.
 - `/zbot status` shows the rung: `ladder: M0 HAS_TOOL — step 3/5 crafting table (because no tool,
   2 logs)`.
 
@@ -121,7 +136,7 @@ A table the survey already found counts (don't place a second one next to it —
 
 1. Survey (§2) + `/zbot survey` — read-only, safe first step. **Built** (core/survey: `Survey`, `Surveyor`, `SurveyCatalog`).
 2. Hands: **break + collect** (a `BreakTask`), tested on "punch 3 logs" via a debug order
-   (`/zbot punch <x> <y> <z>`).
+   (`/zbot debug punch <x> <y> <z>`). **Built and live-tested.**
 3. Hands: **craft (2×2)** planks/sticks/table, then **place** the table, then **craft (3×3)** tools.
 4. Planner: the ladder as data (`id, check, owner, min_players`), M0 wired to steps 2–3.
 5. Forage: wild-crop targets from the survey, M1 floor, the "new food type" priority.

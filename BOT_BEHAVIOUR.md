@@ -3,7 +3,9 @@
 The control spec. [BOT_DESIGN.md](BOT_DESIGN.md) explains *why* each number below is what it
 is; this file is just the behaviour.
 
-Nothing here is built yet — this is the spec to build against.
+This is the spec to build against. **Partly built (2026-09-30):** the interrupt stack, survival
+interrupts, regroup/follow, survey, break-and-collect, graves. What's built is in PHASE1–3.md and
+SKILL.md; where this file and the code disagree, the code and those files win.
 
 ---
 
@@ -42,6 +44,16 @@ Evaluated in order, every tick. First match wins.
 | 5 | distance to nearest human > leash | pause task, close distance | R2 |
 | 6 | hunger ≤ eat threshold | eat best-value food (see rotation) | — |
 | 7 | — | work the current objective | — |
+
+**As built (2026-09-30), differences from the table above:**
+- **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it).
+- **Water:** besides drowning (#1a) there are *stranded* (out of its depth with nothing to do: swim to
+  land with water straight beside it and dry on top), *wading* (idle in shallows: step onto dry land)
+  and diving (a task, for graves under water).
+- **Being hit:** the `danger` setting decides — `modpack` (default) runs at the first hit, dry ground
+  first; `easy`/`normal`/`hard` only at critical health. No combat machine yet (PHASE3 decision C).
+- **Fidget watchdog:** spinning or bobbing in place for 10 s → hold still, log why.
+- **Knocked out (#−1)** and **regroup** are built; blood moon (#3) and return budget (#4) are not.
 
 **Good moons are objectives, not interrupts.** Harvest and blue moons (both on the live server)
 don't block sleeping — so sleeping *skips* them. On a likely harvest moon the bot holds ripe crops
@@ -291,7 +303,7 @@ true for any recipe with no rule, and `wooden_hoe` has none.
 
 | step | craft | grid | cost |
 |---|---|---|---|
-| 1 | punch a tree → **2 logs** | — | bare hands work |
+| 1 | punch a tree → **≥ 3 logs** (PHASE3 M0) | — | bare hands work |
 | 2 | logs → **8 planks** | 2×2 inventory | ~0.25–0.5, free while classless |
 | 3 | 4 planks → **crafting table** | 2×2 inventory | free while classless |
 | 4 | 2 planks → **4 sticks** | 2×2 inventory | free while classless |
@@ -523,7 +535,9 @@ to prep nor to relax — so **default to preparing**.
 
 ## Bus messages
 
-One transport, swappable (public chat now). Only raw facts go on it.
+One transport, swappable. **Built (2026-09-30): a local bus** between bots on the same PC, signed and
+encrypted with the team key; messages so far `HELLO` (with role), `STATUS`, `STATUS_LINE`. The list
+below is the plan; only raw facts go on it.
 
 ```
 HELLO  <uuid> <name> <pos>                  # discovery
@@ -558,6 +572,11 @@ Costs of running silent, worth knowing:
 ---
 
 ## Commands
+
+**Superseded:** the real commands are `/zbot …` (root configurable), listed in SKILL.md and
+PHASE1.md. `/zbot role` is bot / teammate / none, not classes — classes get their own command
+(PHASE3 decision A). The table below is the original plan, kept for the ideas not built yet
+(librarian, forecast, silent, defer).
 
 | command | effect |
 |---|---|
