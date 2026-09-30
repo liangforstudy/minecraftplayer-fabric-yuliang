@@ -84,9 +84,14 @@ public final class SurfaceTask implements Task {
         return best;
     }
 
-    /** Land a swimmer can climb onto face-on: water straight beside it, not only at a corner. */
+    /**
+     * Land a swimmer can climb onto face-on: water straight beside it, not only at a corner, and dry on top.
+     * A gravel shelf under one block of water counted as "dry land", so Bot1 swam at it and spun there for
+     * 10 s, twice at 88 -24 (2026-09-30).
+     */
     public static java.util.function.Predicate<BlockPos> faceOnShore(WorldView world) {
-        return land -> launchFor(world, land, world.position()) != null;
+        return land -> !world.blockAt(new BlockPos(land.x(), land.y() + 1, land.z())).contains("water")
+                && launchFor(world, land, world.position()) != null;
     }
 
     private Status finish() {

@@ -42,4 +42,13 @@ class SurfaceTaskTest {
         w.blocks.put(new BlockPos(11, 62, 10), "minecraft:water");    // east, level: nearer
         assertEquals(new BlockPos(11, 62, 10), SurfaceTask.launchFor(w, LAND, w.pos));
     }
+
+    @Test
+    void aShelfUnderWater_isNotDryLand() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.pos = new Vec3(9.5, 62, 10.5);
+        w.blocks.put(new BlockPos(9, 62, 10), "minecraft:water");     // west: face-on
+        w.blocks.put(new BlockPos(10, 63, 10), "minecraft:water");    // but the land itself is under water
+        assertFalse(SurfaceTask.faceOnShore(w).test(LAND));
+    }
 }
