@@ -492,6 +492,7 @@ function Get-Console($bot) {
 function Send-Line($bot, $line) {
     $c = Get-Console $bot
     if (-not $c) { Die "[$bot] isn't running (start it: standby.bat $bot)" }
+    if ($line -match '^zbot( |$)') { $line = '/' + $line }       # "zbot status" without the slash (owner, 2026-09-30)
     $reply = $null
     $cl = New-Object Net.Sockets.TcpClient
     try {
@@ -1097,10 +1098,11 @@ $ZBOT_WORDS = @{
     'lan auto'  = @('on', 'off')
     'autostart' = @('add', 'remove', 'list')
 }
-$ZBOT_NAMED = @('follow', 'come', 'watch', 'look', 'see', 'view', 'spy', 'grave loot')
+$ZBOT_NAMED = @('goto', 'follow', 'come', 'watch', 'look', 'see', 'view', 'spy', 'grave loot')
 
 function Get-Completions([string]$typed) {
     # Every full line that completes the last word of $typed; empty when it isn't a /zbot command.
+    if ($typed -and $typed[0] -ne '/') { return @(Get-Completions ('/' + $typed) | ForEach-Object { $_.Substring(1) }) }   # no slash: fine too
     if ($typed -eq '/zbot') { $typed = '/zbot ' }                 # it gave "/zbotautostart" (owner, 2026-09-30)
     if ($typed -notmatch '^/zbot( |$)') { return @(if ('/zbot'.StartsWith($typed) -and $typed.StartsWith('/')) { '/zbot' }) }
     $words = @(($typed.Substring(5).TrimStart()) -split ' ')

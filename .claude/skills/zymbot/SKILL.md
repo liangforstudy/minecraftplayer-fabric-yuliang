@@ -151,7 +151,7 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `spy [<bot>]` | the same as `see` (another name, same arguments) |
 | `start` / `stop` | hand control to the bot / take it back |
 | `role bot\|teammate\|none` | what this account is (Bot: bot plays it; Teammate: human plays, it announces) |
-| `goto <x> <z>` / `goto <x> <y> <z>` | walk there via the route planner + Baritone |
+| `goto <x> <z>` / `goto <x> <y> <z>` / `goto <player>` | walk there via the route planner + Baritone; with a player name it is `come` |
 | `follow <player>` | keep following a player |
 | `come <player>` | walk to within a few blocks of a player, then stop |
 | `watch <bot> [off]` | that bot /msg's you its decisions for 30 min |

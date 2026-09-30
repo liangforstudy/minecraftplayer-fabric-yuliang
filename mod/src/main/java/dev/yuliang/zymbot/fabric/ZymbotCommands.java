@@ -56,8 +56,12 @@ final class ZymbotCommands {
                         .then(literal("teammate").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.TEAMMATE)))))
                         .then(literal("none").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.NONE))))))
                 .then(literal("goto")
-                        // goto <x> <z> or <x> <y> <z>; "~" and "~10" are relative to you, like vanilla
+                        // goto <x> <z> or <x> <y> <z>; "~" and "~10" are relative to you, like vanilla; goto <player> = come
                         .then(argument("coords", StringArgumentType.greedyString())
+                                .suggests((c, sb) -> {
+                                    c.getSource().getOnlinePlayerNames().forEach(sb::suggest);
+                                    return sb.buildFuture();
+                                })
                                 .executes(c -> withBot(c, bot, b -> List.of(goTo(c, b, StringArgumentType.getString(c, "coords")))))))
                 .then(literal("follow").then(argument("player", StringArgumentType.word())
                         .suggests((c, sb) -> {
@@ -198,7 +202,7 @@ final class ZymbotCommands {
                 r + " start / stop — hand control to the bot, or take it back",
                 r + " role bot | teammate | none — what this account is (Bot: the bot plays it; Teammate: you play, it announces)",
                 r + " autostart add | remove | list — servers where Zymbot is active",
-                r + " goto <x> <z>  or  <x> <y> <z> — walk there (~ and ~10 work; needs Baritone)",
+                r + " goto <x> <z>  or  <x> <y> <z> — walk there (~ and ~10 work; needs Baritone); goto <player> = come",
                 r + " follow <player> / come <player> / look <player> / eat — orders; " + r + " cancel drops the order",
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed | regroup | plantime | lagtps <n> — thresholds (also in Mod Menu)",
@@ -218,7 +222,9 @@ final class ZymbotCommands {
     /** "x z" or "x y z", each a number, "~" or "~n" (relative to the player). */
     private static String goTo(CommandContext<FabricClientCommandSource> c, Bot b, String coords) {
         String[] p = coords.trim().split("\\s+");
-        if (p.length != 2 && p.length != 3) return "goto <x> <z>  or  goto <x> <y> <z>  (~ and ~10 work)";
+        // goto <player> = come <player> (owner, 2026-09-30)
+        if (p.length == 1 && p[0].matches("[A-Za-z0-9_]{3,16}") && !p[0].matches("-?[0-9]+")) return b.come(p[0]);
+        if (p.length != 2 && p.length != 3) return "goto <x> <z>  or  goto <x> <y> <z>  (~ and ~10 work)  or  goto <player>";
         var at = c.getSource().getPosition();
         try {
             int x = coord(p[0], at.x);
