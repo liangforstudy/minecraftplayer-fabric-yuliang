@@ -101,7 +101,7 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   **Built in 0.1.41, needs a live test:** `DiveTask` — when the walk to a grave fails and the grave has
   water above it, Bot1 logs `diving to the grave at …`, swims over it and sneaks down until it's within
   3.5 blocks, then opens it. It gives up at 70% air (the drowning reflex acts at 2/3 and brings it up),
-  or after 15 s. Tests: `DiveTaskTest`. Live test: the grave at 79 56 -48, `/zbot grave`.
+  or after 15 s. Tests: `DiveTaskTest`. Live test: the grave at 79 56 -48, `/zbot grave`. **Passed live 2026-09-30.**
 - **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
   It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
   The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.
