@@ -14,7 +14,8 @@ the world (Open to LAN). Read `PHASE1.md` (what's built, the test commands) and 
 > `mod/src/main/java/dev/yuliang/zymbot/fabric/ZymbotCommands.java`. When you **add** a `/zbot`
 > command, add a row here; when you **remove** one, delete its row; when you change its arguments,
 > fix the row. `SkillDocTest` (core tests) fails if a subcommand is missing from — or lingering in —
-> the table. Update `help()` in ZymbotCommands and PHASE1.md's command table at the same time.
+> the table. Update `help()` in ZymbotCommands, PHASE1.md's command table and the console's Tab
+> completion (`$ZBOT_WORDS` in `headless/bots.ps1`) at the same time.
 > A copy sits at the repo root (`SKILL.md`, next to BOT_DESIGN.md); keep the two identical —
 > `SkillDocTest` checks that too.
 

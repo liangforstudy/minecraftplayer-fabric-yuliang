@@ -1081,6 +1081,36 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
     }
 }
 
+# Tab in the command pane (owner, 2026-09-30): the /zbot words, from ZymbotCommands.java - keep in step with
+# it (the SKILL.md command table). Player-name slots offer the bots' names.
+$ZBOT_WORDS = @{
+    ''          = @('help', 'status', 'start', 'stop', 'role', 'goto', 'follow', 'come', 'watch', 'look', 'eat', 'debug',
+                    'see', 'view', 'spy', 'grave', 'cancel', 'set', 'roster', 'regroup', 'danger', 'summon', 'lan', 'autostart')
+    'role'      = @('bot', 'teammate', 'none')
+    'debug'     = @('terrain', 'block', 'punch', 'foods', 'survey')
+    'grave'     = @('loot')
+    'set'       = @('leash', 'eat', 'critical', 'downed', 'regroup', 'probewait', 'plantime', 'lagtps')
+    'danger'    = @('modpack', 'easy', 'normal', 'hard')
+    'summon'    = @('auto')
+    'summon auto' = @('on', 'off')
+    'lan'       = @('auto')
+    'lan auto'  = @('on', 'off')
+    'autostart' = @('add', 'remove', 'list')
+}
+$ZBOT_NAMED = @('follow', 'come', 'watch', 'look', 'see', 'view', 'spy', 'grave loot')
+
+function Get-Completions([string]$typed) {
+    # Every full line that completes the last word of $typed; empty when it isn't a /zbot command.
+    if ($typed -notmatch '^/zbot( |$)') { return @(if ('/zbot'.StartsWith($typed) -and $typed.StartsWith('/')) { '/zbot ' }) }
+    $words = @(($typed.Substring(5).TrimStart()) -split ' ')
+    $last = $words[-1]
+    $path = (@($words | Select-Object -SkipLast 1) -join ' ').Trim()
+    $opts = @($ZBOT_WORDS[$path])
+    if ($path -in $ZBOT_NAMED -or ($path -like 'grave loot *')) { $opts += @(Get-Rigs | ForEach-Object { Get-BotName $_ }) }
+    $head = $typed.Substring(0, $typed.Length - $last.Length)
+    @($opts | Where-Object { $_ -and $_.StartsWith($last, [StringComparison]::OrdinalIgnoreCase) } | Sort-Object -Unique | ForEach-Object { $head + $_ + ' ' })
+}
+
 function Cmd-Console($bot) {
     # Decisions pane / window 1: the bot's decisions, chat and whispers, Zymbot's own lines - short and
     # coloured - and a prompt: a typed line goes to the bot like send.bat (/zbot status, msg hi, ...).
@@ -1091,7 +1121,7 @@ function Cmd-Console($bot) {
     Set-Window $bot 'bot' $PID
     if (-not (Wait-BotConsole $bot $name)) { return }
     Start-Guard $bot
-    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Up/Down: earlier commands; Esc clears it; F2 reopens the log pane)"
+    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Tab completes; Up/Down: earlier commands; Esc clears it; F2 reopens the log pane)"
     if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (dragging the divider dosn't work at all in Powershell)." }
     $script:typed = ''
     # Up/Down: earlier commands, like Minecraft's chat and any terminal (owner, 2026-09-30); kept in
@@ -1123,7 +1153,15 @@ function Cmd-Console($bot) {
     } {
         while ([Console]::KeyAvailable) {
             $k = [Console]::ReadKey($true)
-            if ($k.Key -eq 'Enter') {
+            if ($k.Key -ne 'Tab') { $script:tab = $null }
+            if ($k.Key -eq 'Tab') {                             # Tab: complete; again: the next match
+                if (-not $script:tab) { $script:tab = @{ list = @(Get-Completions $script:typed); i = -1 } }
+                if ($script:tab.list.Count) {
+                    $script:tab.i = ($script:tab.i + 1) % $script:tab.list.Count
+                    $script:typed = $script:tab.list[$script:tab.i]
+                    & $clear; & $redraw
+                }
+            } elseif ($k.Key -eq 'Enter') {
                 $line = $script:typed.Trim(); $script:typed = ''
                 & $clear
                 if ($line) {
