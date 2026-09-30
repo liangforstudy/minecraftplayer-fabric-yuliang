@@ -89,6 +89,15 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   A natural coast always has a face-on spot within a few blocks. A shore of *only* corners exists only
   as a player build (owner). Test that case once schematic building exists (villagers_entity_roadmap
   §2); until then Bot1 would tread water and say "no safe place to stand", not spin.
+- **Beach-corner spin: 2 more causes found and fixed 2026-09-30.** 0.1.39: the "land" must be dry on
+  top (a gravel shelf under water at 88 -24 counted). 0.1.40: water means the block's fluid, not its name
+  (seagrass on dirt at 96 -34 counted). **Seagrass passed live (0.1.40).**
+- **Graves in water (2026-09-30).** In the shallows: `/zbot grave` picked it up, standing on it (97 62 -34).
+  **In deep water it can't:** grave at 79 56 -48, ~6 blocks under the surface: `failed: … can't reach the
+  grave: no path, even swimming — the pathfinder gave up 6 blocks short`. Zymbot swims only at the
+  surface and Baritone avoids water, so nothing dives. **To build: diving** — swim above the grave, sink
+  (sneak/no jump) while air lasts, open it within reach (~4.5 blocks), surface when air is low (the
+  drowning reflex already does that part). Also for anything else under water later.
 - **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
   It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
   The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.
