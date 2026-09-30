@@ -957,12 +957,9 @@ function Start-Guard($bot) {
     # (owner, 2026-09-29; it used to stop the bot as soon as the log closed). One guard per bot.
     $g = Join-Path $HERE "$bot\guard.pid"
     try { if (Test-Alive ([int](Read-Trimmed $g))) { return } } catch {}
-    # Started through WMI, not Start-Process: a child of the pane dies with Windows Terminal when its window is
-    # closed (X / Alt+F4), and the bot kept running with nothing left to stop it (owner, 2026-09-30).
-    $cmd = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $SELF + '" _guard "' + $bot + '"'
-    $hidden = New-CimInstance -ClassName Win32_ProcessStartup -ClientOnly -Property @{ ShowWindow = [uint16]0 }
-    $r = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = $cmd; ProcessStartupInformation = $hidden }
-    if ($r.ReturnValue -eq 0) { [IO.File]::WriteAllText($g, [string]$r.ProcessId) }
+    $p = Start-Process -FilePath 'powershell.exe' -WindowStyle Hidden -PassThru -ArgumentList (
+        '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "' + $SELF + '" _guard "' + $bot + '"')
+    [IO.File]::WriteAllText($g, [string]$p.Id)
 }
 
 function Invoke-Guard($bot) {
