@@ -1091,9 +1091,14 @@ function Cmd-Console($bot) {
     Set-Window $bot 'bot' $PID
     if (-not (Wait-BotConsole $bot $name)) { return }
     Start-Guard $bot
-    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Esc clears it; F2 reopens the log pane)"
+    Say "[$name] decisions, chat and whispers. Type a command and press Enter, e.g. /zbot status  (Up/Down: earlier commands; Esc clears it; F2 reopens the log pane)"
     if ($env:WT_SESSION) { Say "        Windows Terminal: Ctrl+Shift+W closes this pane, Alt+Shift+Up/Down moves the divider (dragging the divider dosn't work at all in Powershell)." }
     $script:typed = ''
+    # Up/Down: earlier commands, like Minecraft's chat and any terminal (owner, 2026-09-30); kept in
+    # <bot>\console-history.txt so a reopened pane still has them
+    $histFile = Join-Path $HERE "$bot\console-history.txt"
+    $script:hist = @(try { Get-Content -LiteralPath $histFile -ErrorAction Stop } catch { })
+    $script:hi = $script:hist.Count
     $script:n = 0
     $script:live = $false                                       # the prompt shows once the backlog is out
     $script:logSeen = $false
@@ -1122,10 +1127,20 @@ function Cmd-Console($bot) {
                 $line = $script:typed.Trim(); $script:typed = ''
                 & $clear
                 if ($line) {
+                    if (-not $script:hist.Count -or $script:hist[-1] -ne $line) {
+                        $script:hist = @($script:hist + $line | Select-Object -Last 100)
+                        try { [IO.File]::WriteAllLines($histFile, [string[]]$script:hist) } catch {}
+                    }
                     Write-Host "$prompt$line" -ForegroundColor DarkGray
                     try { Send-Line $bot $line } catch { Write-Host "  (not sent: $_)" -ForegroundColor Red }
                 }
+                $script:hi = $script:hist.Count
                 & $redraw
+            } elseif ($k.Key -eq 'UpArrow' -or $k.Key -eq 'DownArrow') {
+                if (-not $script:hist.Count) { continue }
+                $script:hi = [Math]::Max(0, [Math]::Min($script:hist.Count, $script:hi + $(if ($k.Key -eq 'UpArrow') { -1 } else { 1 })))
+                $script:typed = if ($script:hi -lt $script:hist.Count) { $script:hist[$script:hi] } else { '' }   # below the newest: empty
+                & $clear; & $redraw
             } elseif ($k.Key -eq 'Backspace') {
                 if ($script:typed.Length) { $script:typed = $script:typed.Substring(0, $script:typed.Length - 1); [Console]::Write("`b `b") }
             } elseif ($k.Key -eq 'F2') {                        # F2: reopen the log pane
@@ -1135,7 +1150,7 @@ function Cmd-Console($bot) {
                 else { Open-LogWindow $bot; Write-Host "== reopened the log pane" -ForegroundColor Magenta }
                 & $redraw
             } elseif ($k.Key -eq 'Escape') {
-                $script:typed = ''; & $clear; & $redraw
+                $script:typed = ''; $script:hi = $script:hist.Count; & $clear; & $redraw
             } elseif ($k.KeyChar -ge ' ') { $script:typed += $k.KeyChar; [Console]::Write($k.KeyChar) }
         }
         if ((++$script:n % 10) -ne 0) { return $true }         # keys every 30 ms; the rest every ~300 ms
