@@ -84,6 +84,6 @@ public final class WadingInterrupt implements Interrupt {
 
     /** No water where the feet go (the block above the one stood on). */
     static boolean feetDry(WorldView world, BlockPos standOn) {
-        return !world.blockAt(new BlockPos(standOn.x(), standOn.y() + 1, standOn.z())).contains("water");
+        return !world.isWater(new BlockPos(standOn.x(), standOn.y() + 1, standOn.z()));
     }
 }

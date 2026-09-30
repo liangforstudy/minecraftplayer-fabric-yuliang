@@ -37,6 +37,11 @@ public interface WorldView {
     /** Air left, in ticks (300 = 15 s when full). Only drops while the head is under water. */
     default int air() { return 300; }
     default int maxAir() { return 300; }
+    /**
+     * Water in this block, by its fluid, not its name: seagrass, kelp and a waterlogged grave are water too.
+     * Seagrass on a dirt shelf passed as "dry land" and Bot1 spun there at 96 -34 (2026-09-30).
+     */
+    default boolean isWater(BlockPos p) { return blockAt(p).contains("water"); }
     /** Eyes under water: breathing is off. */
     default boolean headInWater() { return false; }
     /**

@@ -75,7 +75,7 @@ public final class SurfaceTask implements Task {
         for (int[] f : FACES) {
             for (int dy = 0; dy <= 1; dy++) {
                 BlockPos n = new BlockPos(land.x() + f[0], land.y() + dy, land.z() + f[1]);
-                if (!world.blockAt(n).contains("water")) continue;
+                if (!world.isWater(n)) continue;
                 double d = new Vec3(n.x() + 0.5, from.y(), n.z() + 0.5).horizontalDistance(from);
                 if (d < bestD) { bestD = d; best = n; }
                 break;
@@ -90,7 +90,7 @@ public final class SurfaceTask implements Task {
      * 10 s, twice at 88 -24 (2026-09-30).
      */
     public static java.util.function.Predicate<BlockPos> faceOnShore(WorldView world) {
-        return land -> !world.blockAt(new BlockPos(land.x(), land.y() + 1, land.z())).contains("water")
+        return land -> !world.isWater(new BlockPos(land.x(), land.y() + 1, land.z()))
                 && launchFor(world, land, world.position()) != null;
     }
 

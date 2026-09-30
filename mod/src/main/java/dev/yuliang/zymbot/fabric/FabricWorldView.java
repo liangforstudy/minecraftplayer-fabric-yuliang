@@ -363,6 +363,12 @@ final class FabricWorldView implements WorldView {
     }
 
     @Override
+    public boolean isWater(BlockPos p) {
+        net.minecraft.core.BlockPos mp = new net.minecraft.core.BlockPos(p.x(), p.y(), p.z());
+        return level.hasChunkAt(mp) && level.getFluidState(mp).is(net.minecraft.tags.FluidTags.WATER);
+    }
+
+    @Override
     public String biome() {
         return level.getBiome(player.blockPosition()).unwrapKey().map(k -> k.location().toString()).orElse("unknown");
     }

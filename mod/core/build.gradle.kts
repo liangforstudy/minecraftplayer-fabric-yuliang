@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.yuliang"
-version = "0.1.39"   // keep in step with mod.version in stonecutter.properties.toml
+version = "0.1.40"   // keep in step with mod.version in stonecutter.properties.toml
 
 repositories {
     mavenCentral()
