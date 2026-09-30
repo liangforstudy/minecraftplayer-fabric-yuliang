@@ -37,6 +37,9 @@ public interface Hands {
      */
     default void holdKeys(boolean forward, boolean jump) {}
 
+    /** Hold (true) or let go of sneak — under water it sinks faster (diving to a grave). */
+    default void holdSneak(boolean down) {}
+
     /**
      * Hold (true) or let go of (false) the use key with the held item — eating, for now. Called
      * every tick while holding: each call also stops the client starting a second use by itself.

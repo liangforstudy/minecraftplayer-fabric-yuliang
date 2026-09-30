@@ -18,6 +18,7 @@ final class FabricHands implements Hands {
     private static final Logger LOG = LoggerFactory.getLogger("zymbot");
     private final Minecraft mc;
     private final PathProvider paths;
+    private boolean moving, sneaking;
     private boolean holdingKeys;                               // so our own presses don't look human
 
     FabricHands(Minecraft mc) {
@@ -84,7 +85,15 @@ final class FabricHands implements Hands {
     public void holdKeys(boolean forward, boolean jump) {
         mc.options.keyUp.setDown(forward);
         mc.options.keyJump.setDown(jump);
-        holdingKeys = forward || jump;
+        moving = forward || jump;
+        holdingKeys = moving || sneaking;
+    }
+
+    @Override
+    public void holdSneak(boolean down) {
+        mc.options.keyShift.setDown(down);
+        sneaking = down;
+        holdingKeys = moving || sneaking;
     }
 
     /** The bot itself is holding movement keys right now. */

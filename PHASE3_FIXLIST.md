@@ -98,6 +98,10 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   surface and Baritone avoids water, so nothing dives. **To build: diving** — swim above the grave, sink
   (sneak/no jump) while air lasts, open it within reach (~4.5 blocks), surface when air is low (the
   drowning reflex already does that part). Also for anything else under water later.
+  **Built in 0.1.41, needs a live test:** `DiveTask` — when the walk to a grave fails and the grave has
+  water above it, Bot1 logs `diving to the grave at …`, swims over it and sneaks down until it's within
+  3.5 blocks, then opens it. It gives up at 70% air (the drowning reflex acts at 2/3 and brings it up),
+  or after 15 s. Tests: `DiveTaskTest`. Live test: the grave at 79 56 -48, `/zbot grave`.
 - **Starvation loop until foraging exists.** Bot1 respawns at hunger 8 (civfabric doesn't refill food).
   It had no food, swam to the owner (swimming burns ~2.6 food/min against 0.9 walking) and starved again.
   The respawn survey had found wild beetroots 14 blocks away. Phase 3 M1 (foraging) breaks the loop.

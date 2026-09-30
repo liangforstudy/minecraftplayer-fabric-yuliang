@@ -73,7 +73,7 @@ public final class FakeWorld implements WorldView, Hands {
     public double tps = 20;
     public BlockPos dryLand;
     public BlockPos spawn;
-    public boolean forwardHeld, jumpHeld;
+    public boolean forwardHeld, jumpHeld, sneakHeld;
     public String lastDeath = "";
     public int lives;
     public final java.util.Map<BlockPos, String> blocks = new java.util.HashMap<>();
@@ -183,6 +183,7 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public Optional<BlockPos> nearestDryLand(int radius) { return Optional.ofNullable(dryLand); }
     @Override public Optional<BlockPos> worldSpawn() { return Optional.ofNullable(spawn); }
     @Override public void holdKeys(boolean forward, boolean jump) { forwardHeld = forward; jumpHeld = jump; }
+    @Override public void holdSneak(boolean down) { sneakHeld = down; }
     @Override public int selectedSlot() { return selected; }
     @Override public List<ItemView> inventory() { return List.copyOf(inventory); }
     @Override public Optional<Damage> recentDamage() { return Optional.ofNullable(damage); }

@@ -112,6 +112,7 @@ public final class GraveTask implements Task {
     private final boolean loot;
     private final BiConsumer<String, String> log;
     private WalkTask walk;
+    private DiveTask dive;
     private int waited = -1;
     private int filledAtStart = -1, lastFilled = -1, stalled;
     private String failure = "";
@@ -156,9 +157,19 @@ public final class GraveTask implements Task {
         Vec3 me = world.position();
         double d = Math.sqrt(Math.pow(me.x() - (grave.x() + 0.5), 2) + Math.pow(me.y() - grave.y(), 2)
                 + Math.pow(me.z() - (grave.z() + 0.5), 2));
-        if (d > REACH + 1) {
+        if (d > REACH + 1 && dive != null) {
+            Status s = dive.tick(world);
+            if (s == Status.FAILED) return fail("can't reach the grave under water: " + dive.failure());
+            if (s == Status.RUNNING) return Status.RUNNING;
+        } else if (d > REACH + 1) {
             if (walk == null) walk = new WalkTask(hands.paths(), grave, false, REACH);
             Status s = walk.tick(world);
+            if (s == Status.FAILED && world.isWater(new BlockPos(grave.x(), grave.y() + 1, grave.z()))) {
+                // under water: no pathfinder goes there, so swim over it and sink (owner, 2026-09-30)
+                dive = new DiveTask(hands, grave);
+                log.accept("diving to the grave at " + where(), "it's under water — " + walk.failure());
+                return Status.RUNNING;
+            }
             if (s == Status.FAILED) return fail("can't reach the grave: " + walk.failure());
             if (s == Status.RUNNING) return Status.RUNNING;
         }
@@ -214,6 +225,7 @@ public final class GraveTask implements Task {
     @Override
     public void cancel() {
         if (walk != null) walk.cancel();
+        if (dive != null) dive.cancel();
         if (waited >= 0) hands.closeContainer();              // never leave a grave's screen open
     }
 
