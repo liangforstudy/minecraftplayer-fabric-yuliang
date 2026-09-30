@@ -1102,14 +1102,14 @@ $ZBOT_NAMED = @('follow', 'come', 'watch', 'look', 'see', 'view', 'spy', 'grave 
 function Get-Completions([string]$typed) {
     # Every full line that completes the last word of $typed; empty when it isn't a /zbot command.
     if ($typed -eq '/zbot') { $typed = '/zbot ' }                 # it gave "/zbotautostart" (owner, 2026-09-30)
-    if ($typed -notmatch '^/zbot( |$)') { return @(if ('/zbot'.StartsWith($typed) -and $typed.StartsWith('/')) { '/zbot ' }) }
+    if ($typed -notmatch '^/zbot( |$)') { return @(if ('/zbot'.StartsWith($typed) -and $typed.StartsWith('/')) { '/zbot' }) }
     $words = @(($typed.Substring(5).TrimStart()) -split ' ')
     $last = $words[-1]
     $path = (@($words | Select-Object -SkipLast 1) -join ' ').Trim()
     $opts = @($ZBOT_WORDS[$path])
     if ($path -in $ZBOT_NAMED -or ($path -like 'grave loot *')) { $opts += @(Get-Rigs | ForEach-Object { Get-BotName $_ }) }
     $head = $typed.Substring(0, $typed.Length - $last.Length)
-    @($opts | Where-Object { $_ -and $_.StartsWith($last, [StringComparison]::OrdinalIgnoreCase) } | Sort-Object -Unique | ForEach-Object { $head + $_ + ' ' })
+    @($opts | Where-Object { $_ -and $_.StartsWith($last, [StringComparison]::OrdinalIgnoreCase) } | Sort-Object -Unique | ForEach-Object { $head + $_ })   # no space after it (owner, 2026-09-30)
 }
 
 function Cmd-Console($bot) {
