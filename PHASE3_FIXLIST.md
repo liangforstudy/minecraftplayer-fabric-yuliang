@@ -87,7 +87,7 @@ ignored twice in the live test. Log it: `with the team already — Bluetails_zym
   Land means **any standable block** (`FabricWorldView.standable`: full blocks, slabs, panes, trapdoors,
   fences; nothing that hurts; room above), not just sand. The new rule only checks for water beside it.
   A natural coast always has a face-on spot within a few blocks. A shore of *only* corners exists only
-  as a player build (owner). Test that case once schematic building exists (villagers_entity_roadmap
+  as a player build (owner). Test that case once schematic building exists (roadmap2
   §2); until then Bot1 would tread water and say "no safe place to stand", not spin.
 - **Beach-corner spin: 2 more causes found and fixed 2026-09-30.** 0.1.39: the "land" must be dry on
   top (a gravel shelf under water at 88 -24 counted). 0.1.40: water means the block's fluid, not its name

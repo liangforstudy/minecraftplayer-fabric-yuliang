@@ -58,7 +58,7 @@ macOS / Linux: the same commands as `.sh` (`bots.py`).
 | [PHASE2.md](PHASE2.md) | Phase 2 — Discovery and regroup: find the team after a cold start (built, live-tested) |
 | **[PHASE3.md](PHASE3.md)** | **Phase 3 — gather, craft, feed itself (building now; open decisions at the top)** |
 | [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md) | Bugs from live tests and what still needs testing |
-| [villagers_entity_roadmap.md](villagers_entity_roadmap.md) | Later: look like a villager (morph mods), build from schematics, safe parkour |
+| [roadmap2.md](roadmap2.md) | Later: look like a villager (morph mods), build from schematics, safe parkour |
 | [mod/](mod/) | The Zymbot mod: `core/` pure Java (all logic, unit-tested), `src/` the Fabric adapter |
 | [SKILL.md](SKILL.md) | Operating manual for agents: the rig, `/zbot` commands, Baritone, safety rules |
 | [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md) | The survival guide: forage, easy kills, loot, where to farm |

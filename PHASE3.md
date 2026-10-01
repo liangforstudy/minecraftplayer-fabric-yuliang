@@ -2,7 +2,7 @@
 
 ## Open decisions (2026-09-30) — owner to answer before step 3
 
-Found by checking the later plans (ROADMAP, villagers_entity_roadmap, BOT_BEHAVIOUR) against what's built.
+Found by checking the later plans (ROADMAP, roadmap2, BOT_BEHAVIOUR) against what's built.
 Each has a **proposal**; the **owner's answer** column is empty until decided.
 
 | # | clash | proposal (not decided) | owner's answer |
