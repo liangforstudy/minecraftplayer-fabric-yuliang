@@ -30,7 +30,12 @@ as a giant castle or map art, when it (or its village) levels up.
 - **Unlocking the villager shape:** the bot shouldn't have to "earn" it. Get it instantly through an op
   command, or by editing the mod's player data or config (JSON / NBT), e.g. at world setup. Check
   which the chosen mod offers.
-- Open: pick a mod.
+- **Decided (owner, 2026-10-01): Cobblemon side = [Cobblemon: Synchro Machine](https://modrinth.com/mod/cobblemon-synchro-machine)**
+  (`synchro-fabric-1.8.1.jar`, Fabric 1.21.1, client **and** server, ARR licence). Morph into any party
+  Pokémon (its model, stats, moves, typing; flight and water breathing from the Pokémon's stats); its
+  hitbox follows the Pokémon's real size, so the Baritone / water-code retests above apply. Keys: G team
+  screen, Y transform into what's in the crosshair, Z/X/C/V moves (H is its move HUD, also voice chat's key).
+  **Vanilla mobs (villager): still undecided.**
 
 ## 2. Building structures from schematics
 
