@@ -20,12 +20,29 @@ surviving alongside human players, with the end goal of **beating the game**.
 It doesn't assume a fresh spawn. On start it surveys the world, works out how far the
 civilisation has actually progressed, and picks up the binding constraint from there.
 
+The mod is called **Zymbot** (`mod/`). It's rule-based: a stack of interrupts (drowning, hunger,
+danger, knocked out, …) over a milestone planner, with every choice logged as
+`[decision] … — because …`. Walking is done by **Baritone**; Zymbot decides where.
+
 > **Status (2026-10-01): Zymbot 0.1.42 runs headless and is live-tested** — survival reflexes, regroup and
 > follow, survey, break and collect, graves (diving too). Next: crafting (PHASE3.md).
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail
-every harvest, and die on the first blood moon. Most of this repo is the work of finding out
+every harvest, and die on the first blood moon. Much of this repo is the work of finding out
 exactly *what* changed, by reading the pack's data files, configs and bytecode.
+
+## Quick start (Windows)
+
+In `headless/` (details in [headless/README.md](headless/README.md) and [SKILL.md](SKILL.md)):
+
+- `setup.bat` once, then `sync-bots.bat` whenever the Prism pack changes.
+- **`play.bat`** — your game straight into "New World", then Bot1 joins it, then the console opens.
+- `standby-bot1-singleplayer.bat` — Bot1 only: waits for your world to open to LAN, then joins.
+- The **console** (Windows Terminal, a tab per bot): the log on top, decisions and a command prompt
+  below (Tab completes, Up/Down recalls). Close the tab, or `stop-bot1.bat`, to stop the bot.
+- In game: `/zbot help`. `/zbot start` hands the account to the bot.
+
+macOS / Linux: the same commands as `.sh` (`bots.py`).
 
 ## Start here
 
@@ -37,12 +54,16 @@ exactly *what* changed, by reading the pack's data files, configs and bytecode.
 | [BOT_DESIGN.md](BOT_DESIGN.md) | Why it does that — 40 requirements and the verified mechanics behind each |
 | [ROADMAP.md](ROADMAP.md) | Test devices, the port-friendly architecture, per-mod packs, user rules, future work |
 | **[FOUNDATION.md](FOUNDATION.md)** | **Phase 0 spec** — the hard-to-change base: modules, tasks, protocol, command root, autostart whitelist, comms stack |
-| [PHASE1.md](PHASE1.md) | Phase 1 — the Body: walking, water, eating, reflexes (built, 0.1.24) |
-| [PHASE2.md](PHASE2.md) | Phase 2 — Discovery and regroup: find the team after a cold start (scoped) |
+| [PHASE1.md](PHASE1.md) | Phase 1 — the Body: walking, water, eating, reflexes (built, live-tested) |
+| [PHASE2.md](PHASE2.md) | Phase 2 — Discovery and regroup: find the team after a cold start (built, live-tested) |
+| **[PHASE3.md](PHASE3.md)** | **Phase 3 — gather, craft, feed itself (building now; open decisions at the top)** |
+| [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md) | Bugs from live tests and what still needs testing |
+| [villagers_entity_roadmap.md](villagers_entity_roadmap.md) | Later: look like a villager (morph mods), build from schematics, safe parkour |
+| [mod/](mod/) | The Zymbot mod: `core/` pure Java (all logic, unit-tested), `src/` the Fabric adapter |
 | [SKILL.md](SKILL.md) | Operating manual for agents: the rig, `/zbot` commands, Baritone, safety rules |
 | [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md) | The survival guide: forage, easy kills, loot, where to farm |
 | [survival-data/](survival-data/) | Machine-readable extracts the above rest on |
-| [headless/](headless/) | Headless client rig — **verified working**, the full pack boots with no display |
+| [headless/](headless/) | Headless client rig (HeadlessMC) — the bots run here, Windows and macOS |
 | [moonlight-headless-patch/](moonlight-headless-patch/) | Standalone Fabric mod that makes Moonlight-based mods survive headless |
 | [tools/pack-extractor/](tools/pack-extractor/) | The scripts that read a modpack's jars (incl. bytecode) into knowledge tables |
 
@@ -99,7 +120,8 @@ Confidence notes and known gaps are in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_G
 
 ## Headless status
 
-The bot client runs headless on an M2 Mac via HeadlessMC — no Xvfb, no display. **The full
+The bot client runs headless via HeadlessMC — no Xvfb, no display — on Windows (the owner's
+machine, `bots.ps1` + `.bat`) and macOS (`bots.py` + `.sh`). **The full
 84-mod pack loads and reaches the title screen.** Cobblemon and GeckoLib, the expected
 problems, were fine. Supplementaries did break — it parses texture pixels at boot through
 stubbed STB — so [moonlight-headless-patch/](moonlight-headless-patch/) fixes it at the
@@ -108,5 +130,6 @@ bot. Details in [headless/](headless/).
 
 ## Target
 
-Fabric, Minecraft **1.21.1** (the modded pack) and **1.21.8**. Singleplayer first for the solo
-loop; the coop half needs a local `online-mode=false` server, since one client is one player.
+Fabric, Minecraft **1.21.1** (the modded pack); built with Stonecutter so other versions can be
+added (only 1.21.1 exists today). Testing runs in the owner's singleplayer world opened to LAN with
+online mode off (`/zbot lan`), so the headless bots can join it.
