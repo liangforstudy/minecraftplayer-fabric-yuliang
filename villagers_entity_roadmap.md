@@ -36,6 +36,11 @@ as a giant castle or map art, when it (or its village) levels up.
   hitbox follows the Pokémon's real size, so the Baritone / water-code retests above apply. Keys: G team
   screen, Y transform into what's in the crosshair, Z/X/C/V moves (H is its move HUD, also voice chat's key).
   **Vanilla mobs (villager): still undecided.**
+  **First live test (2026-10-01):** the bot needs the mod too (without it: "Registry entry
+  cobblemon_synchro_machine:synchro_machine is missing", dropped on join). The owner morphed Bot1 with
+  `/synchro morph Bot1 Quaquaval hisuian level=35 gender=male scale_modifier=1.1`, then hit it: Bot1
+  retreated as usual (`danger: modpack`) and settled in 23 s. Walking, swimming, diving and graves
+  while morphed are still to test.
 
 ## 2. Building structures from schematics
 
