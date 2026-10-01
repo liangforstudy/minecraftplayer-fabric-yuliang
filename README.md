@@ -1,12 +1,27 @@
 # civbot-yuliang
 
+A behavior tree based bot (**not an LLM!!**). Like Altoclef, but written from the ground up by Claude
+Opus 5.5 (low effort) for newer versions of Minecraft. Bug tested by me.
+
+This is not an MCP and doesn't contain any built-in LLM.
+
+The goal is to beat newer versions of Minecraft, and:
+
+- earning all Java advancements
+- pretending to be a different mob, via your favourite morph mod (villager, etc.)
+- Litematica, map art, builder
+- not an in-game girlfriend, that's gross
+
+---
+
 A client-side Fabric bot that plays the **1.21.1 ZymCiv modded server** — foraging, farming and
 surviving alongside human players, with the end goal of **beating the game**.
 
 It doesn't assume a fresh spawn. On start it surveys the world, works out how far the
 civilisation has actually progressed, and picks up the binding constraint from there.
 
-> **Status: design + data only. No code yet.**
+> **Status (2026-10-01): Zymbot 0.1.42 runs headless and is live-tested** — survival reflexes, regroup and
+> follow, survey, break and collect, graves (diving too). Next: crafting (PHASE3.md).
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail
 every harvest, and die on the first blood moon. Most of this repo is the work of finding out
