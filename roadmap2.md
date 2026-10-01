@@ -47,6 +47,9 @@ as a giant castle or map art, when it (or its village) levels up.
   - **Diving morphed works (2026-10-01):** as Quaquaval, grave 10 blocks under at 6 52 -154: `diving to the
     grave …` at 23:14:43, `done: pick up my grave` 2 s later. (The morph survived death because the owner
     turned that Synchro Machine setting on; it's off by default, so a respawn normally unmorphs.)
+  - **Water breathing (2026-10-01):** as Quaquaval its air never drops, so the drowning reflex never
+    fires and it can stay under water — the owner: works as intended. Diving's own limits then are the
+    15 s timeout, not air; a water breather could dive deeper and longer if that's ever needed.
   - **Swimming may be free for a water-type morph:** the hunger meter read swimming **0.00 food/min**
     (unmorphed ~2.6) — only 0.4 min of data, so confirm with a longer swim. If it holds, the route
     planner could cost water as cheap (not ×3, `swim_cost_blocks`) while morphed into a water type,
