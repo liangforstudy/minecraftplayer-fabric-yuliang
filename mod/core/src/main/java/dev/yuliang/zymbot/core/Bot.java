@@ -14,6 +14,7 @@ import dev.yuliang.zymbot.core.body.WadingInterrupt;
 import dev.yuliang.zymbot.core.task.DownedTask;
 import dev.yuliang.zymbot.core.body.DrowningInterrupt;
 import dev.yuliang.zymbot.core.body.FoodChooser;
+import dev.yuliang.zymbot.core.body.HazardInterrupt;
 import dev.yuliang.zymbot.core.body.HungerInterrupt;
 import dev.yuliang.zymbot.core.body.HungerMeter;
 import dev.yuliang.zymbot.core.body.LeashInterrupt;
@@ -197,6 +198,7 @@ public final class Bot {
         this.brain = new Brain(List.of(
                 new DownedInterrupt(config, body, help, log::record),
                 new DrowningInterrupt(),
+                new HazardInterrupt(body),
                 new CriticalHealthInterrupt(config, body),
                 new StrandedInterrupt(body, this::nothingToDo),
                 new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, regroup::nearestTeammate),
