@@ -13,7 +13,6 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 
 | # | what | how to test | pass when |
 |---|---|---|---|
-| 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
 
 ## Seen in the 2026-09-28 test (not fixed)
 
