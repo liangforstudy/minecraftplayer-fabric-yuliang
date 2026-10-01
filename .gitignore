@@ -34,3 +34,4 @@ __pycache__/
 # --- mod dev ---
 mod/run/
 .kotlin/
+docs_and_tables.zip
