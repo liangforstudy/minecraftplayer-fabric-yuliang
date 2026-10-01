@@ -45,8 +45,8 @@ as a giant castle or map art, when it (or its village) levels up.
     its own swim (`no dry path … 21 blocks left`), crossed, failed the last step onto a ledge ("gave up 4
     blocks short", as unmorphed), then `swimming to dry land` and climbed out without spinning.
   - **Diving morphed works (2026-10-01):** as Quaquaval, grave 10 blocks under at 6 52 -154: `diving to the
-    grave …` at 23:14:43, `done: pick up my grave` 2 s later. (Morphing seems to survive death: morphed
-    at 23:13, died, respawned at 23:14:29 — confirm in game.)
+    grave …` at 23:14:43, `done: pick up my grave` 2 s later. (The morph survived death because the owner
+    turned that Synchro Machine setting on; it's off by default, so a respawn normally unmorphs.)
   - **Swimming may be free for a water-type morph:** the hunger meter read swimming **0.00 food/min**
     (unmorphed ~2.6) — only 0.4 min of data, so confirm with a longer swim. If it holds, the route
     planner could cost water as cheap (not ×3, `swim_cost_blocks`) while morphed into a water type,
