@@ -54,6 +54,11 @@ as a giant castle or map art, when it (or its village) levels up.
     (unmorphed ~2.6) — only 0.4 min of data, so confirm with a longer swim. If it holds, the route
     planner could cost water as cheap (not ×3, `swim_cost_blocks`) while morphed into a water type,
     read from the morph's type or simply from the measured swim cost.
+    **Longer test (2026-10-01), worked out from the cumulative meter:** Quaquaval ~4.3 min of swimming at
+    **~0.4 food/min**; Slugma (fire, no water breathing) ~2.2 min at **~0.9 food/min**; unmorphed earlier
+    ~2.6. So it isn't zero, and both morphs came out cheaper than unmorphed — the meter is coarse (one
+    total per activity since the last reset, mixed with eating and treading), so this is a hint, not a
+    measurement. A clean test: one long swim per form, each from a fresh meter.
 
 ## 2. Building structures from schematics
 
