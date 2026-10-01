@@ -50,6 +50,13 @@ as a giant castle or map art, when it (or its village) levels up.
   - **Water breathing (2026-10-01):** as Quaquaval its air never drops, so the drowning reflex never
     fires and it can stay under water — the owner: works as intended. Diving's own limits then are the
     15 s timeout, not air; a water breather could dive deeper and longer if that's ever needed.
+  - **Morph-aware hazards (plan, owner, 2026-10-01):** go by what actually happens to the bot, not a
+    type list. Water hurts it (damage in water, no attacker) → water is a hazard for this form; can't
+    breathe but not hurt → normal swim cost; fire doesn't hurt it → the hazard reflex ignores fire, magma
+    and lava for this form. The Pokémon's type is only the first guess. Seen: **Slugma** took no damage in
+    water (it just can't breathe and treads) and **none in lava** (owner threw it in) — a fire-immune
+    form, so stepping out of fire/lava would be wasted effort, and lava could even be a route.
+    Build after Phase 3 crafting.
   - **Swimming may be free for a water-type morph:** the hunger meter read swimming **0.00 food/min**
     (unmorphed ~2.6) — only 0.4 min of data, so confirm with a longer swim. If it holds, the route
     planner could cost water as cheap (not ×3, `swim_cost_blocks`) while morphed into a water type,
