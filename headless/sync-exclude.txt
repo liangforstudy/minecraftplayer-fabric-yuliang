@@ -71,5 +71,6 @@ appleskin           # food HUD
 voicechat           # voice chat client (the server side works without it)
 immersive_paintings # custom paintings
 simplehats          # cosmetic hats
+eatinganimationid   # eating animation, client only (owner, 2026-10-01: not needed)
 # NOT trimmable (2026-09-26): diagonalfences, visualworkbench, xaeroworldmap - the LAN host sends
 # their blocks to joiners; without them Bot1 was refused with "139 registry entries unknown".
