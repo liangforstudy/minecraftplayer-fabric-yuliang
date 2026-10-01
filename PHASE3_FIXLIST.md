@@ -7,12 +7,6 @@ Status: **0.1.37 built, committed (`3485b38`, not pushed) and installed on both 
 Bot1), 2026-09-28.** It has the shallow-water fix. The 0.1.36 tests all passed live on 2026-09-28 except
 `/zbot see Nobody`.
 
-## Built in 0.1.36, needs a live test
-
-Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
-
-| # | what | how to test | pass when |
-|---|---|---|---|
 
 ## Seen in the 2026-09-28 test (not fixed)
 
