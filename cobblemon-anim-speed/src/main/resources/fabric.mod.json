@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "cobblemon-anim-speed",
+  "version": "${version}",
+  "name": "Cobblemon Animation Speed",
+  "description": "Cobblemon plays every Pokemon animation on a fixed 20-ticks-per-second clock, so Speed, sprinting or Slowness never change how fast a walk cycle runs. This runs each Pokemon's animation clock at the ratio of its current to base movement speed while it moves. Synchro Machine morphs follow the morphed player's speed.",
+  "authors": ["yuliang"],
+  "license": "MIT",
+  "environment": "client",
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.21.1",
+    "cobblemon": "*"
+  },
+  "mixins": [
+    { "config": "cas.mixins.json", "environment": "client" }
+  ]
+}
