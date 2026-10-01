@@ -120,6 +120,11 @@ A table the survey already found counts (don't place a second one next to it —
 | 6 | owner walks 30 blocks off mid-task → leash pulls it back, task resumes |
 | 7 | knocked out / respawn mid-task → the task is dropped, ladder re-assessed after the respawn |
 | 8 | two bots (Bot3 synced) → CLAIMs keep them off each other's tree |
+| 9 | **interrupts mid-task, tested thoroughly with the owner** (owner, 2026-10-01): while chopping a tree, crafting, foraging (later farming, building) → hunger (eats), danger (runs), drowning, knocked out, the owner taking the controls, regroup/leash. Each time: the reflex acts, then the task **resumes where it left off** (logs already cut stay cut, its own scaffold still gets removed), or is dropped with a logged reason. |
+
+**Resuming after an interrupt (to build, with step 4):** today an interrupted order is dropped. Long
+tasks (felling a whole tree, towering, later farming and schematic builds) keep their progress —
+what's done, what blocks they placed — so they can pick up again once the interrupt clears.
 
 ## 7. Decisions (owner, 2026-09-26) and what's still open
 

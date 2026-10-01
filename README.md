@@ -1,6 +1,6 @@
 # civbot-yuliang
 
-A behavior tree based bot (**not an LLM!!**). Like Altoclef, but written from the ground up by Claude
+An interrupt stack over a milestone planner (**not an LLM!!**). Like Altoclef, but written from the ground up by Claude
 Opus 5.5 (low effort) for newer versions of Minecraft. Bug tested by me.
 
 This is not an MCP and doesn't contain any built-in LLM.
