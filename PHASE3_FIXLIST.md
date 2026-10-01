@@ -13,18 +13,11 @@ Found in the 0.1.35 live test (2026-09-27). Check each, then delete its line.
 
 | # | what | how to test | pass when |
 |---|---|---|---|
-| 1 | **PASS 2026-09-28** (own grave: Bot1 `chose Bot1's grave` → picked up at once, bread back; stranger's: owner got `no grave of mine in sight (skipped: Bot1) — walking back to where I died`, no pause) — `/zbot grave` = **our own** grave only (owner from the grave block entity's `owner` / `owner_id`) | stand near someone else's grave, `/zbot grave` | skips it (reply names who was skipped), falls back to the death spot; no pause while the screen is open |
 | 1 | `/zbot grave loot` · `loot <player> […]` · `loot except <player> […]` | near another player's grave | opens it, shift-clicks everything, closes; `looted N of M stacks`; names tab-complete |
 
 ## Seen in the 2026-09-28 test (not fixed)
 
 - **Regroup gave up fast after a respawn far away:** `failed: regrouping with Bluetails_zym … — no path, even swimming — the pathfinder gave up 169 blocks short` 2 s after respawning ~170 blocks off (server at 15 TPS, "planning less"). It retries after 60 s; check whether it should walk toward them through unloaded chunks instead of failing.
-- **Stuck in water: FIXED, passed live in 0.1.37 on 2026-09-29.** It stepped out in 1 s and 4 s, with no "3 tries" loop. Was: the dry-land finder counts one-block
-  shallows as shore (head above water, owner's 2026-09-26 rule), but WadingInterrupt ("idle, standing in
-  water") still counts them as water. So it walked into the shallows at 97 -50 (sand at y 61, water at 62),
-  was still wet, bobbed, and gave up after 3 tries, several times today. Owner spotted it ("probably the 1
-  block water"). Now WadingInterrupt only accepts land with dry feet; the drowning and stranded reflexes
-  still accept shallows. Test: `idleInWater_onlyShallowsNearby_doesntWalkIntoThem`. Built into 0.1.37; live test next session.
 - `/zbot grave` falls back to a very old death spot (29 70 -191, far away). Consider forgetting a death spot once its grave has been picked up, or after N minutes, or asking first when it is far.
 
 ## Survey: give positions, and walk to what it found (2026-09-28) - to build
