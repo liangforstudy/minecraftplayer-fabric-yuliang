@@ -8,7 +8,7 @@ This is not an MCP and doesn't contain any built-in LLM.
 The goal is to beat newer versions of Minecraft, and:
 
 - earning all Java advancements
-- pretending to be a different mob, via your favourite morph mod (villager, etc.)
+- pretending to be a different mob, via your favourite morph mod (villager, Pikachu, etc.)
 - Litematica, map art, builder
 - not an in-game girlfriend, that's gross
 
