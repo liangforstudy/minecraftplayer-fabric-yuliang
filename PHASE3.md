@@ -13,7 +13,7 @@ Each has a **proposal**; the **owner's answer** column is empty until decided.
 | D | **Whole trees vs picking up the drop.** §7 decision 4 fells whole trees (axe + Treecapitator, ~8 logs scattered); `BreakTask` waits ≤ 5 s for one drop at one spot. | Collecting becomes **"sweep the area for dropped items"** after a break, with a time limit; it also covers the fixlist's "drop taken by someone". | |
 | E | **Player-placed blocks.** The fixlist says never gather player builds; §3 says use a crafting table the survey finds. | Rule: **use player-made stations** (table, furnace, chest only if allowed), **never harvest player-placed blocks**. | |
 
-Status: **building 2026-09-27** — steps 1–2 on main, live-tested (0.1.35–0.1.36; bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)). Water, grave and diving fixes through 0.1.42 (2026-09-30). Next: decisions A–E above, then step 3 (crafting). Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
+Status: **building 2026-09-27** — steps 1–2 on main, live-tested (0.1.35–0.1.36; bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)). Water, grave and diving fixes through 0.1.42 (2026-09-30). Steps 3–4 (craft, place, the M0 ladder) built in 0.1.43 (2026-10-14), waiting for a live test; decisions A–C still open. Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).
@@ -143,7 +143,17 @@ what's done, what blocks they placed — so they can pick up again once the inte
 2. Hands: **break + collect** (a `BreakTask`), tested on "punch 3 logs" via a debug order
    (`/zbot debug punch <x> <y> <z>`). **Built and live-tested.**
 3. Hands: **craft (2×2)** planks/sticks/table, then **place** the table, then **craft (3×3)** tools.
+   **Built 0.1.43, unit-tested, not live-tested** (core/craft: `CraftTask`, `PlaceTask`, `Recipe`; debug orders
+   `/zbot debug craft <planks|sticks|table|axe|hoe>`, `/zbot debug place table`). Real screens, slot clicks 100–150 ms
+   apart (decision 3's fallback, no recipe-book packets); waits for the server's result slot and checks the item stayed.
+   civfabric's refusal is server-side (`CraftingHunger.tooHungry`: hunger − cost < 4) and is said on the **action bar**,
+   which now reaches ChatIn.
 4. Planner: the ladder as data (`id, check, owner, min_players`), M0 wired to steps 2–3.
+   **Built 0.1.43, unit-tested, not live-tested** (core/ladder: `Ladder`, `Rung`, `ToolRung`). Status shows the rung.
+   Defaults taken for the open decisions (owner, 2026-10-14: "just build M0"): **D** — unchanged, BreakTask already walks
+   over every drop within 6 blocks for 5 s; **E** — a table the survey finds within 24 blocks is used, never doubled; trees
+   need ≥ 3 logs and no stripped logs (a lone or stripped log is a build). **New:** with no teammate found, M0 work
+   comes before the walk to spawn (`Regroup.workFirst`); a teammate found still wins. Next: live test §6 #1–2.
 5. Forage: wild-crop targets from the survey, M1 floor, the "new food type" priority.
 6. M2: wooden pickaxe → cobblestone → furnace → charcoal → campfire; cooking. Village/structure search (leash question: a village farther than 48 blocks from the teammate — go only with the team, or ask?), take a bed, place it by the campfire, claim it.
 7. Towering + scaffold tidy-up for big oaks.
