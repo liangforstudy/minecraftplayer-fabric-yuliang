@@ -90,6 +90,11 @@ public interface WorldView {
 
     /** Within reach (~4.5 blocks from the eyes) with a clear line of sight to the block. */
     default boolean canReach(BlockPos b) { return false; }
+    /**
+     * In reach of the block, but something else is the first thing the eyes' line to it hits (a vine,
+     * leaves): that block. Empty when the block is in sight, or too far to tell.
+     */
+    default Optional<BlockPos> inTheWay(BlockPos b) { return Optional.empty(); }
     /** The hotbar slot whose item digs this block faster than a bare hand, the fastest; -1 if none. */
     default int bestToolSlot(BlockPos b) { return -1; }
     /** Items lying on the ground within ~32 blocks. */

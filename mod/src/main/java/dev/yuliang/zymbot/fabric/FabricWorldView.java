@@ -287,6 +287,20 @@ final class FabricWorldView implements WorldView {
         return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS || hit.getBlockPos().equals(mp);
     }
 
+    @Override
+    public Optional<BlockPos> inTheWay(BlockPos b) {
+        net.minecraft.core.BlockPos mp = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
+        if (!level.hasChunkAt(mp)) return Optional.empty();
+        net.minecraft.world.phys.Vec3 eye = player.getEyePosition();
+        net.minecraft.world.phys.Vec3 centre = net.minecraft.world.phys.Vec3.atCenterOf(mp);
+        if (eye.distanceTo(centre) > player.blockInteractionRange()) return Optional.empty();
+        var hit = level.clip(new net.minecraft.world.level.ClipContext(eye, centre,
+                net.minecraft.world.level.ClipContext.Block.OUTLINE, net.minecraft.world.level.ClipContext.Fluid.NONE, player));
+        if (hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK || hit.getBlockPos().equals(mp)) return Optional.empty();
+        var h = hit.getBlockPos();
+        return Optional.of(new BlockPos(h.getX(), h.getY(), h.getZ()));
+    }
+
     /** The hotbar item that digs this block fastest, if faster than a hand; a correct tool (drops) wins ties. */
     @Override
     public int bestToolSlot(BlockPos b) {

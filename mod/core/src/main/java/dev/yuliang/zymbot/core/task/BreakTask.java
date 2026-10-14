@@ -56,6 +56,31 @@ public final class BreakTask implements Task {
     private DroppedItem chasing;
     private int sinceGoal;
     private String failure = "";
+    private boolean collect = true;
+    private BreakTask clearing;
+    private int cleared;
+    /** Soft blocks broken out of the line of sight, at most, before giving up on the block. */
+    static final int MAX_CLEARS = 6;
+
+    /**
+     * Quick to break by hand and nobody's build: vines, leaves, grass, ferns, dead bushes, snow. What
+     * stands between the bot and a log is cleared rather than the log given up on (owner, 2026-10-14:
+     * "if there is a vine blocking the way, it is ignored").
+     */
+    static boolean soft(String id) {
+        return id.contains("vine") || id.endsWith("_leaves") || id.endsWith("short_grass") || id.endsWith("tall_grass")
+                || id.endsWith("fern") || id.endsWith("dead_bush") || id.equals("minecraft:snow") || id.endsWith("hanging_roots")
+                || id.endsWith("glow_lichen");
+    }
+
+    /**
+     * Done as soon as the block is gone — no walk over the drops. For felling several logs and
+     * sweeping them up once at the end (ChopTask): the drops of a tree land all around it.
+     */
+    public BreakTask withoutCollect() {
+        this.collect = false;
+        return this;
+    }
 
     /** @param log (what, why) — the decision log */
     public BreakTask(Hands hands, BlockPos target, String why, BiConsumer<String, String> log) {
@@ -88,6 +113,22 @@ public final class BreakTask implements Task {
     private Status walk(WorldView world) {
         String now = world.blockAt(target);
         if (!now.equals(expected)) return fail("the block changed while walking there: " + expected + " → " + now);
+        if (clearing != null) {                                 // a vine or leaves in the line of sight: that first
+            Status c = clearing.tick(world);
+            if (c == Status.RUNNING) return Status.RUNNING;
+            clearing = null;
+            if (c == Status.FAILED) return fail("couldn't clear what's in the way of " + where());
+        }
+        if (!world.canReach(target)) {
+            var blocker = world.inTheWay(target);
+            if (blocker.isPresent() && soft(world.blockAt(blocker.get())) && cleared < MAX_CLEARS) {
+                cleared++;
+                if (walk != null) walk.cancel();
+                walk = null;
+                clearing = new BreakTask(hands, blocker.get(), "in the way of " + shortName(expected) + " at " + where(), log).withoutCollect();
+                return Status.RUNNING;
+            }
+        }
         if (world.canReach(target)) {
             if (walk != null) walk.cancel();
             walk = null;
@@ -102,7 +143,11 @@ public final class BreakTask implements Task {
         if (s == Status.FAILED) return fail("out of reach and no path to " + where() + " — " + walk.failure());
         if (s == Status.DONE) {
             walk = null;
-            if (!world.canReach(target)) return fail("out of reach — standing by " + where() + " but can't see it (in the way, or too high)");
+            boolean softBlocker = cleared < MAX_CLEARS && world.inTheWay(target).map(p -> soft(world.blockAt(p))).orElse(false);
+            if (!world.canReach(target) && !softBlocker) {
+                String what = world.inTheWay(target).map(p -> " — " + shortName(world.blockAt(p)) + " in the way").orElse(" (too high, or too far)");
+                return fail("out of reach — standing by " + where() + " but can't see it" + what);
+            }
         }
         return Status.RUNNING;
     }
@@ -114,8 +159,9 @@ public final class BreakTask implements Task {
             if (breakTicks == 0 || !EMPTY.contains(now)) {   // gone before we dug: not ours
                 return fail("the block changed: " + expected + " → " + now);
             }
-            stage = Stage.COLLECT;
             log.accept("broke " + expected + " at " + where(), "took " + String.format(java.util.Locale.ROOT, "%.1f", breakTicks / 20.0) + " s");
+            if (!collect) return Status.DONE;
+            stage = Stage.COLLECT;
             return collect(world);
         }
         if (!world.canReach(target)) {                      // pushed away, or something moved in between
@@ -219,6 +265,7 @@ public final class BreakTask implements Task {
 
     @Override
     public void cancel() {
+        if (clearing != null) clearing.cancel();
         letGo();
         if (walk != null) walk.cancel();
         if (stage == Stage.COLLECT) hands.paths().stop();

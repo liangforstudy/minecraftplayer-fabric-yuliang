@@ -57,7 +57,8 @@ public final class Ladder implements Planner {
     public boolean hasWork(WorldView world) {
         for (Rung r : rungs) {
             if (r.met(world)) continue;
-            return r.next(world).isPresent();
+            // a step waiting out its retry is still work: the walk to spawn snuck in during one (2026-10-14)
+            return r.next(world).isPresent() || r.retrying();
         }
         return false;
     }

@@ -101,6 +101,66 @@ class BreakTaskTest {
         assertTrue(t.failure().contains("can't see it"), t.failure());
     }
 
+    /** 2026-10-14: a vine in front of the log, and the bot gave the tree up. */
+    @Test
+    void aVineInTheWay_isClearedFirst_butAWallIsNot() {
+        FakeWorld w = world();
+        w.pos = new Vec3(18.5, 64, 0.5);
+        BlockPos vine = new BlockPos(19, 64, 0);
+        w.blocks.put(vine, "minecraft:vine");
+        w.blockers.put(LOG, vine);
+        BreakTask t = task(w);
+        Status s = Status.RUNNING;
+        for (int i = 0; i < 100 && s == Status.RUNNING; i++) {
+            s = t.tick(w);
+            if (w.paths.busy) w.paths.arrive();
+            w.pickUpNear();
+        }
+        assertEquals(Status.DONE, s, t.failure() + " " + log);
+        assertEquals("minecraft:air", w.blockAt(vine));
+        assertEquals("minecraft:air", w.blockAt(LOG));
+        assertTrue(log.stream().anyMatch(l -> l.startsWith("breaking minecraft:vine") && l.contains("in the way of oak_log")), log.toString());
+
+        FakeWorld wall = world();
+        wall.pos = new Vec3(18.5, 64, 0.5);
+        BlockPos stone = new BlockPos(19, 64, 0);
+        wall.blocks.put(stone, "minecraft:stone");
+        wall.blockers.put(LOG, stone);
+        BreakTask t2 = new BreakTask(wall, LOG, "test", (a, b) -> {});
+        Status s2 = Status.RUNNING;
+        for (int i = 0; i < 100 && s2 == Status.RUNNING; i++) {
+            s2 = t2.tick(wall);
+            if (wall.paths.busy) wall.paths.arrive();
+        }
+        assertEquals(Status.FAILED, s2);
+        assertEquals("minecraft:stone", wall.blockAt(stone), "never digs through a wall to get a log");
+        assertTrue(t2.failure().contains("stone in the way"), t2.failure());
+    }
+
+    @Test
+    void chop_punchesThreeLogs_thenSweepsOnce() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.tree(20, 64, 0, 5, "minecraft:oak_log", false);
+        dev.yuliang.zymbot.core.task.ChopTask t = new dev.yuliang.zymbot.core.task.ChopTask(w, LOG, 3, "test",
+                (what, why) -> log.add(what + " — because " + why));
+        Status s = Status.RUNNING;
+        for (int i = 0; i < 2000 && s == Status.RUNNING; i++) {
+            s = t.tick(w);
+            if (w.paths.busy) w.paths.arrive();
+            w.pickUpNear();
+        }
+        assertEquals(Status.DONE, s, t.failure() + " " + log);
+        assertEquals(3, log.stream().filter(l -> l.startsWith("broke ")).count(), log.toString());
+        assertEquals("minecraft:oak_log", w.blockAt(new BlockPos(20, 67, 0)), "stops at three");
+        int pickedAt = -1, lastBroke = -1;
+        for (int i = 0; i < log.size(); i++) {
+            if (log.get(i).startsWith("broke ")) lastBroke = i;
+            if (log.get(i).startsWith("picked up")) pickedAt = i;
+        }
+        assertTrue(pickedAt > lastBroke, "one sweep, after the punching: " + log);
+        assertTrue(log.get(pickedAt).startsWith("picked up 3 oak_log — because swept around the oak_log tree at 20 0"), log.toString());
+    }
+
     @Test
     void fails_whenTheBlockChangesOrIsGone() {
         FakeWorld w = world();

@@ -397,8 +397,16 @@ public final class FakeWorld implements WorldView, Hands {
     public int dug;
     public int stopMiningCalls;
 
+    /** Block → what stands in the line of sight to it (a vine), while that is still there. */
+    public final java.util.Map<BlockPos, BlockPos> blockers = new java.util.HashMap<>();
+
+    @Override public Optional<BlockPos> inTheWay(BlockPos b) {
+        BlockPos in = blockers.get(b);
+        return in == null || blockAt(in).equals("minecraft:air") ? Optional.empty() : Optional.of(in);
+    }
+
     @Override public boolean canReach(BlockPos b) {
-        if (hidden.contains(b)) return false;
+        if (hidden.contains(b) || inTheWay(b).isPresent()) return false;
         double dx = b.x() + 0.5 - pos.x(), dy = b.y() + 0.5 - (pos.y() + 1.62), dz = b.z() + 0.5 - pos.z();
         return Math.sqrt(dx * dx + dy * dy + dz * dz) <= 4.5;
     }

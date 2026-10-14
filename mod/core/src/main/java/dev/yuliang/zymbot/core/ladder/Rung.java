@@ -34,6 +34,9 @@ public interface Rung {
     /** Why {@link #next} came back empty, last time. */
     String waiting();
 
+    /** {@link #next} came back empty only because a failed step is waiting to be tried again: still work here. */
+    default boolean retrying() { return false; }
+
     /** A step ended: done, or failed with a reason (the rung may avoid it for a while). */
     void finished(Step step, boolean done, String failure);
 

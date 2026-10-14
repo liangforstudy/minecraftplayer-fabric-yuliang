@@ -10,7 +10,7 @@ import dev.yuliang.zymbot.core.craft.PlaceTask;
 import dev.yuliang.zymbot.core.craft.Recipe;
 import dev.yuliang.zymbot.core.survey.Survey;
 import dev.yuliang.zymbot.core.survey.SurveyCatalog.Kind;
-import dev.yuliang.zymbot.core.task.BreakTask;
+import dev.yuliang.zymbot.core.task.ChopTask;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,8 +49,6 @@ public final class ToolRung implements Rung {
     public static final int TABLE_RADIUS = 24;
     /** Fewer logs than this isn't a tree, it's somebody's build. */
     public static final int MIN_TREE_LOGS = 3;
-    /** How far up a trunk from its base the bot looks for the next log it can punch. */
-    static final int TRUNK_LOOK = 6;
     public static final long SKIP_TREE_MILLIS = 5 * 60_000;
     /** A step that failed (a craft, the placing) waits this long before it's tried again. */
     public static final long RETRY_STEP_MILLIS = 20_000;
@@ -69,6 +67,7 @@ public final class ToolRung implements Rung {
     private BlockPos ourTable;                                  // the one we placed
     private long lastResurvey = Long.MIN_VALUE / 2;
     private String waiting = "";
+    private boolean retrying;
 
     /**
      * @param anchor    the nearest teammate's position, if one is in sight — the work radius is around them
@@ -87,6 +86,7 @@ public final class ToolRung implements Rung {
     @Override public String id() { return "M0"; }
     @Override public String name() { return "HAS_TOOL"; }
     @Override public String waiting() { return waiting; }
+    @Override public boolean retrying() { return retrying; }
 
     @Override
     public boolean met(WorldView world) {
@@ -165,9 +165,11 @@ public final class ToolRung implements Rung {
         long now = clock.getAsLong();
         if (until > now) {
             waiting = what + " failed — trying again in " + Math.max(1, (until - now) / 1000) + " s";
+            retrying = true;
             return Optional.empty();
         }
         waiting = "";
+        retrying = false;
         return Optional.of(new Step(number, STEPS, key, what, why, task));
     }
 
@@ -176,6 +178,7 @@ public final class ToolRung implements Rung {
     // ------------------------------------------------------------------ wood
 
     private Optional<Step> gatherWood(WorldView world, Needs n, String have) {
+        retrying = false;
         Optional<Survey> s = survey.get();
         if (s.isEmpty()) {
             waiting = "no survey yet";
@@ -192,34 +195,27 @@ public final class ToolRung implements Rung {
                 .sorted(Comparator.comparing(Survey.Group::huge)            // small trees first (decision 4)
                         .thenComparingDouble(t -> t.pos().center().horizontalDistance(me)))
                 .toList();
+        int more = Math.max(1, n.logsNeeded() - n.logs());
         for (Survey.Group t : trees) {
-            Optional<BlockPos> log = lowestLog(world, t.pos());
+            Optional<BlockPos> log = ChopTask.lowestLog(world, t.pos());
             if (log.isEmpty()) {                               // cut down already (by us, or anyone)
                 skipTrees.put(t.pos(), now + SKIP_TREE_MILLIS);
                 continue;
             }
-            BlockPos l = log.get();
-            String id = world.blockAt(l);
+            String id = world.blockAt(log.get());
             String key = "log " + t.pos().x() + " " + t.pos().y() + " " + t.pos().z();
-            return step(1, key, "punch a log", have + " — need " + n.logsNeeded() + " logs for "
-                            + n.planksNeeded() + " planks; " + Recipe.shortName(id) + " tree at " + t.pos().x() + " " + t.pos().z()
+            BlockPos base = t.pos();
+            return step(1, key, "punch " + more + " log" + (more == 1 ? "" : "s") + ", then pick them up",
+                    have + " — need " + n.logsNeeded() + " logs for " + n.planksNeeded() + " planks; "
+                            + Recipe.shortName(id) + " tree at " + t.pos().x() + " " + t.pos().z()
                             + (t.huge() ? " (huge — nothing smaller in range)" : ""),
-                    (w, h) -> new BreakTask(h, l, why(1, "wood for the bootstrap"), this.log));
+                    (w, h) -> new ChopTask(h, base, more, why(1, "wood for the bootstrap"), this.log));
         }
         if (!s.get().all(Kind.LOG).isEmpty() && now - lastResurvey >= RESURVEY_MILLIS) {
             lastResurvey = now;                                // used up what it knew: look again
             askSurvey.accept("looking for trees");
         }
         waiting = "no tree to punch within " + WORK_RADIUS + " blocks" + (anchor.apply(world).isPresent() ? " of the team" : "");
-        return Optional.empty();
-    }
-
-    /** The lowest log still standing in the trunk's column, from its base up. */
-    static Optional<BlockPos> lowestLog(WorldView world, BlockPos base) {
-        for (int dy = 0; dy <= TRUNK_LOOK; dy++) {
-            BlockPos p = new BlockPos(base.x(), base.y() + dy, base.z());
-            if (Recipe.LOG.test(world.blockAt(p))) return Optional.of(p);
-        }
         return Optional.empty();
     }
 

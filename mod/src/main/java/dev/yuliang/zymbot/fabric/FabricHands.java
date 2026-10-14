@@ -63,8 +63,16 @@ final class FabricHands implements Hands {
     @Override
     public void swapToHotbar(int inventorySlot, int hotbarSlot) {
         if (mc.player == null || mc.gameMode == null) return;
-        // the player's own inventory menu numbers slots 9–35 the same as the inventory does
-        mc.gameMode.handleInventoryMouseClick(mc.player.inventoryMenu.containerId, inventorySlot, hotbarSlot, ClickType.SWAP, mc.player);
+        // the screen slot showing that inventory slot, looked up, not assumed: in vanilla it's the same
+        // number (9–35), but a mod that adds slots to the inventory screen moves them, and the crafting
+        // table went into a slot the bot never reads, once per try (2026-10-14)
+        var menu = mc.player.inventoryMenu;
+        for (var slot : menu.slots) {
+            if (slot.container == mc.player.getInventory() && slot.getContainerSlot() == inventorySlot) {
+                mc.gameMode.handleInventoryMouseClick(menu.containerId, slot.index, hotbarSlot, ClickType.SWAP, mc.player);
+                return;
+            }
+        }
     }
 
     /**

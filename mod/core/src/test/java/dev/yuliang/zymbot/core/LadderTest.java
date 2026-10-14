@@ -62,12 +62,12 @@ class LadderTest {
         Bot b = bot(w);
         assertTrue(run(b, w, 6000), String.join("\n", log));
 
-        int logs = first("picked up 1 oak_log"), planks = first("crafted 12 oak_planks"), table = first("crafted 1 crafting_table"),
+        int logs = first("picked up 3 oak_log"), planks = first("crafted 12 oak_planks"), table = first("crafted 1 crafting_table"),
                 placed = first("placed crafting_table"), sticks = first("crafted 4 stick"), axe = first("crafted 1 wooden_axe"),
                 hoe = first("crafted 1 wooden_hoe");
         assertTrue(logs >= 0 && logs < planks && planks < table && table < placed && placed < sticks && sticks < axe && axe < hoe,
                 String.join("\n", log));
-        assertEquals(3, log.stream().filter(l -> l.startsWith("picked up 1 oak_log")).count(), "3 logs: 11 planks' worth");
+        assertEquals(3, log.stream().filter(l -> l.startsWith("broke minecraft:oak_log")).count(), "3 logs: 11 planks' worth");
         assertTrue(log.stream().anyMatch(l -> l.contains("M0 step 1/5")), String.join("\n", log));
         assertEquals("minecraft:oak_log", w.blockAt(new BlockPos(5, 67, 0)), "stopped punching once it had enough");
         assertNull(w.menuKind, "no screen left open");
@@ -87,7 +87,7 @@ class LadderTest {
         assertTrue(run(b, w, 6000), String.join("\n", log));
         assertEquals(-1, first("crafted 1 crafting_table"), String.join("\n", log));
         assertEquals(-1, first("placed crafting_table"), String.join("\n", log));
-        assertEquals(2, log.stream().filter(l -> l.startsWith("picked up 1 oak_log")).count(), "2 logs: no table to make");
+        assertTrue(first("picked up 2 oak_log") >= 0, "2 logs: no table to make: " + String.join("\n", log));
         assertEquals(1, w.blocks.values().stream().filter("minecraft:crafting_table"::equals).count());
     }
 
@@ -112,7 +112,7 @@ class LadderTest {
         w.tree(-9, 64, 0, 5, "minecraft:oak_log", false);
         Bot b = bot(w);
         assertTrue(run(b, w, 8000), String.join("\n", log));
-        assertTrue(log.stream().anyMatch(l -> l.startsWith("failed: ") && l.contains("birch_log")), String.join("\n", log));
+        assertTrue(log.stream().anyMatch(l -> l.startsWith("failed: chopping the tree at 4 0")), String.join("\n", log));
         assertEquals("minecraft:birch_log", w.blockAt(new BlockPos(4, 64, 0)));
         assertTrue(count(w, "minecraft:wooden_hoe") > 0);
     }
