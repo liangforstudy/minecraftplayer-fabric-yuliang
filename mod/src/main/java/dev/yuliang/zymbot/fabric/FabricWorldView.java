@@ -55,6 +55,7 @@ final class FabricWorldView implements WorldView {
     private final long dayTime;
     private final Set<UUID> online;
     private final double tps;
+    private final boolean inventoryScreen;
     private List<ItemView> inventory;
     private List<EntityView> nearby;
 
@@ -63,8 +64,9 @@ final class FabricWorldView implements WorldView {
     static final int BLEED_OUT_SECONDS = 60;
 
     FabricWorldView(LocalPlayer player, ClientLevel level, ClientPacketListener connection,
-                    net.minecraft.client.gui.components.BossHealthOverlay bosses, int lives) {
+                    net.minecraft.client.gui.components.BossHealthOverlay bosses, int lives, boolean inventoryScreen) {
         this.player = player;
+        this.inventoryScreen = inventoryScreen;
         this.lives = lives;
         this.level = level;
         this.id = player.getUUID();
@@ -353,6 +355,65 @@ final class FabricWorldView implements WorldView {
             if (slot.container != player.getInventory() && slot.hasItem()) filled++;
         }
         return filled;
+    }
+
+    /**
+     * The inventory screen (its menu is always there; the screen says whether it's open) or a crafting
+     * table's, once its contents have arrived (state id 0 until the server's first full packet).
+     */
+    @Override
+    public Optional<dev.yuliang.zymbot.core.api.MenuView> menu() {
+        var menu = player.containerMenu;
+        dev.yuliang.zymbot.core.api.MenuView.Kind kind;
+        if (menu == player.inventoryMenu) {
+            if (!inventoryScreen) return Optional.empty();
+            kind = dev.yuliang.zymbot.core.api.MenuView.Kind.INVENTORY;
+        } else if (menu.getStateId() == 0) {
+            return Optional.empty();
+        } else {
+            kind = menu instanceof net.minecraft.world.inventory.CraftingMenu
+                    ? dev.yuliang.zymbot.core.api.MenuView.Kind.CRAFTING_TABLE : dev.yuliang.zymbot.core.api.MenuView.Kind.OTHER;
+        }
+        List<dev.yuliang.zymbot.core.api.MenuView.Slot> slots = new ArrayList<>();
+        for (var slot : menu.slots) {
+            ItemStack st = slot.getItem();
+            String id = st.isEmpty() ? null : BuiltInRegistries.ITEM.getKey(st.getItem()).toString();
+            dev.yuliang.zymbot.core.api.MenuView.Role role;
+            int ref = -1;
+            if (slot instanceof net.minecraft.world.inventory.ResultSlot) {
+                role = dev.yuliang.zymbot.core.api.MenuView.Role.RESULT;
+            } else if (slot.container instanceof net.minecraft.world.inventory.CraftingContainer) {
+                role = dev.yuliang.zymbot.core.api.MenuView.Role.GRID;
+                ref = slot.getContainerSlot();
+            } else if (slot.container == player.getInventory() && slot.getContainerSlot() < 36) {
+                role = dev.yuliang.zymbot.core.api.MenuView.Role.PLAYER;
+                ref = slot.getContainerSlot();
+            } else {
+                role = dev.yuliang.zymbot.core.api.MenuView.Role.OTHER;
+            }
+            slots.add(new dev.yuliang.zymbot.core.api.MenuView.Slot(slot.index, role, ref, id, st.getCount()));
+        }
+        ItemStack carried = menu.getCarried();
+        return Optional.of(new dev.yuliang.zymbot.core.api.MenuView(kind, List.copyOf(slots),
+                carried.isEmpty() ? null : BuiltInRegistries.ITEM.getKey(carried.getItem()).toString(), carried.getCount()));
+    }
+
+    /** A solid top, and nothing that opens when clicked (a table, a chest, a door). */
+    @Override
+    public boolean sturdy(BlockPos p) {
+        var mp = new net.minecraft.core.BlockPos(p.x(), p.y(), p.z());
+        if (!level.hasChunkAt(mp)) return false;
+        var st = level.getBlockState(mp);
+        return st.isFaceSturdy(level, mp, net.minecraft.core.Direction.UP) && level.getBlockEntity(mp) == null
+                && st.getMenuProvider(level, mp) == null && !HURTS.contains(st.getBlock());
+    }
+
+    @Override
+    public boolean replaceable(BlockPos p) {
+        var mp = new net.minecraft.core.BlockPos(p.x(), p.y(), p.z());
+        if (!level.hasChunkAt(mp)) return false;
+        var st = level.getBlockState(mp);
+        return st.canBeReplaced() && st.getFluidState().isEmpty();
     }
 
     @Override

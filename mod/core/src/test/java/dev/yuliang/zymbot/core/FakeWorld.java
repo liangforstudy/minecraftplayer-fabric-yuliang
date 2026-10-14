@@ -175,7 +175,200 @@ public final class FakeWorld implements WorldView, Hands {
     }
     @Override public int openContainerFilled() { return containerFilled; }
     @Override public void takeAllFromContainer() { takeAlls++; }
-    @Override public void closeContainer() { if (containerFilled >= 0) closes++; containerFilled = -1; }
+    @Override public void closeContainer() {
+        if (containerFilled >= 0 || menuKind != null) closes++;
+        containerFilled = -1;
+        if (menuKind != null) {                                 // the grid and the cursor go back, as in the game
+            for (int i = 0; i < grid.length; i++) if (grid[i] != null) { addToInventory(grid[i], gridCount[i]); grid[i] = null; gridCount[i] = 0; }
+            if (cursor != null) addToInventory(cursor, cursorCount);
+            cursor = null;
+            cursorCount = 0;
+            menuKind = null;
+        }
+    }
+
+    // ------------------------------------------------------------------ crafting screens (phase 3)
+
+    /** The open crafting screen, or null. Slots as the game numbers them: 0 result, then the grid, then the inventory. */
+    public dev.yuliang.zymbot.core.api.MenuView.Kind menuKind;
+    public final String[] grid = new String[9];
+    public final int[] gridCount = new int[9];
+    public String cursor;
+    public int cursorCount;
+    public int clicks;
+    /** civfabric's "too hungry": the shift-click on the result does nothing, and this is said. */
+    public boolean refuseCrafts;
+    /** Where the server's lines go (the bot's ChatIn), if a test wants them. */
+    public dev.yuliang.zymbot.core.body.ChatIn serverSays;
+    /** Below this height (inclusive) unset blocks are solid ground — for placing. */
+    public int groundY = 63;
+
+    private int gridWidth() { return menuKind == null ? 0 : menuKind.gridWidth; }
+    private int gridSize() { return gridWidth() * gridWidth(); }
+    /** Screen slot → player inventory slot (0–35), or -1. */
+    private int playerSlot(int index) {
+        int first = 1 + gridSize();
+        if (index < first || index >= first + 36) return -1;
+        int i = index - first;                                   // 27 main first, then the hotbar
+        return i < 27 ? i + 9 : i - 27;
+    }
+
+    @Override
+    public Optional<dev.yuliang.zymbot.core.api.MenuView> menu() {
+        if (menuKind == null) return Optional.empty();
+        List<dev.yuliang.zymbot.core.api.MenuView.Slot> s = new ArrayList<>();
+        var r = craftResult();
+        s.add(new dev.yuliang.zymbot.core.api.MenuView.Slot(0, dev.yuliang.zymbot.core.api.MenuView.Role.RESULT, -1,
+                r == null ? null : r.id(), r == null ? 0 : r.count()));
+        for (int i = 0; i < gridSize(); i++) {
+            s.add(new dev.yuliang.zymbot.core.api.MenuView.Slot(1 + i, dev.yuliang.zymbot.core.api.MenuView.Role.GRID, i, grid[i], gridCount[i]));
+        }
+        for (int idx = 1 + gridSize(); idx < 1 + gridSize() + 36; idx++) {
+            int p = playerSlot(idx);
+            ItemView it = stack(p);
+            s.add(new dev.yuliang.zymbot.core.api.MenuView.Slot(idx, dev.yuliang.zymbot.core.api.MenuView.Role.PLAYER, p,
+                    it == null ? null : it.id(), it == null ? 0 : it.count()));
+        }
+        return Optional.of(new dev.yuliang.zymbot.core.api.MenuView(menuKind, s, cursor, cursorCount));
+    }
+
+    private record Crafted(String id, int count, dev.yuliang.zymbot.core.craft.Recipe recipe) {}
+
+    /** The recipe the grid holds, laid out from the top-left, as the server would see it. */
+    private Crafted craftResult() {
+        int gw = gridWidth();
+        for (var r : dev.yuliang.zymbot.core.craft.Recipe.ALL) {
+            if (r.width() > gw || r.height() > gw) continue;
+            boolean ok = true;
+            for (int cell = 0; cell < gridSize() && ok; cell++) {
+                int col = cell % gw, row = cell / gw;
+                var ing = col < r.width() && row < r.height() ? r.cells().get(row * r.width() + col) : null;
+                ok = ing == null ? grid[cell] == null : ing.test(grid[cell]);
+            }
+            if (!ok) continue;
+            String id = r.result().id() != null ? r.result().id()
+                    : grid[0].replace("_log", "_planks").replace("_wood", "_planks");
+            return new Crafted(id, r.makes(), r);
+        }
+        return null;
+    }
+
+    @Override public void openInventory() { if (menuKind == null) menuKind = dev.yuliang.zymbot.core.api.MenuView.Kind.INVENTORY; }
+
+    @Override
+    public boolean interact(BlockPos b) {
+        if (!canReach(b)) return false;
+        if (blockAt(b).equals("minecraft:crafting_table")) menuKind = dev.yuliang.zymbot.core.api.MenuView.Kind.CRAFTING_TABLE;
+        return true;
+    }
+
+    @Override
+    public void click(int slot, int button, boolean shift) {
+        clicks++;
+        if (slot == 0) {                                         // the result
+            Crafted c = craftResult();
+            if (c == null || !shift) return;
+            if (refuseCrafts) {                                  // civfabric says so on the action bar
+                if (serverSays != null) serverSays.heard(new dev.yuliang.zymbot.core.body.ChatIn.Line(null, "You're too hungry to craft", false, 0));
+                return;
+            }
+            int times = Integer.MAX_VALUE;
+            for (int i = 0; i < gridSize(); i++) if (grid[i] != null) times = Math.min(times, gridCount[i]);
+            for (int i = 0; i < gridSize(); i++) {
+                if (grid[i] == null) continue;
+                gridCount[i] -= times;
+                if (gridCount[i] == 0) grid[i] = null;
+            }
+            addToInventory(c.id(), c.count() * times);
+            return;
+        }
+        boolean isGrid = slot >= 1 && slot <= gridSize();
+        int p = playerSlot(slot);
+        String id = isGrid ? grid[slot - 1] : stack(p) == null ? null : stack(p).id();
+        int count = isGrid ? gridCount[slot - 1] : stack(p) == null ? 0 : stack(p).count();
+        if (shift) {                                             // back into the inventory
+            if (isGrid && id != null) {
+                addToInventory(id, count);
+                grid[slot - 1] = null;
+                gridCount[slot - 1] = 0;
+            }
+            return;
+        }
+        String newId;
+        int newCount;
+        if (button == 0) {
+            if (cursor == null) { cursor = id; cursorCount = count; newId = null; newCount = 0; }
+            else if (id == null) { newId = cursor; newCount = cursorCount; cursor = null; cursorCount = 0; }
+            else if (id.equals(cursor)) { newId = id; newCount = count + cursorCount; cursor = null; cursorCount = 0; }
+            else { newId = cursor; newCount = cursorCount; cursor = id; cursorCount = count; }
+        } else {
+            if (cursor == null) {                                // take half
+                if (id == null) return;
+                int half = (count + 1) / 2;
+                cursor = id; cursorCount = half;
+                newId = count - half == 0 ? null : id; newCount = count - half;
+            } else if (id == null || id.equals(cursor)) {        // put one down
+                newId = cursor; newCount = count + 1;
+                if (--cursorCount == 0) cursor = null;
+            } else return;
+        }
+        if (isGrid) { grid[slot - 1] = newId; gridCount[slot - 1] = newCount; }
+        else put(p, newId, newCount);
+    }
+
+    public ItemView stack(int slot) {
+        return inventory.stream().filter(i -> i.slot() == slot).findFirst().orElse(null);
+    }
+
+    public void put(int slot, String id, int count) {
+        inventory.removeIf(i -> i.slot() == slot);
+        if (id != null && count > 0) inventory.add(new ItemView(slot, id, count, null));
+    }
+
+    /** As the game does: onto a stack of the same, then the first empty slot (hotbar first). */
+    public void addToInventory(String id, int count) {
+        for (ItemView i : List.copyOf(inventory)) {
+            if (count == 0) return;
+            if (!i.id().equals(id) || i.count() >= 64) continue;
+            int add = Math.min(count, 64 - i.count());
+            put(i.slot(), id, i.count() + add);
+            count -= add;
+        }
+        for (int s = 0; s < 36 && count > 0; s++) {
+            if (stack(s) != null) continue;
+            int add = Math.min(count, 64);
+            put(s, id, add);
+            count -= add;
+        }
+    }
+
+    @Override
+    public boolean sturdy(BlockPos p) {
+        String b = blocks.get(p);
+        if (b == null) return p.y() <= groundY;
+        return !b.equals("minecraft:air") && !b.equals("minecraft:water") && !b.equals("minecraft:crafting_table");
+    }
+
+    @Override
+    public boolean replaceable(BlockPos p) {
+        String b = blocks.get(p);
+        return b == null ? p.y() > groundY : b.equals("minecraft:air") || b.equals("minecraft:short_grass");
+    }
+
+    public int placeClicks;
+
+    @Override
+    public boolean placeOn(BlockPos support) {
+        placeClicks++;
+        if (!canReach(support)) return false;
+        ItemView held = stack(selected);
+        BlockPos at = new BlockPos(support.x(), support.y() + 1, support.z());
+        if (held != null && replaceable(at)) {
+            blocks.put(at, held.id());
+            put(selected, held.id(), held.count() - 1);
+        }
+        return true;
+    }
     @Override public dev.yuliang.zymbot.core.api.Terrain terrain() { return terrain; }
     @Override public double serverTps() { return tps; }
     @Override public int downedSecondsLeft() { return downed; }
@@ -236,13 +429,7 @@ public final class FakeWorld implements WorldView, Hands {
         for (var d : List.copyOf(drops)) {
             if (d.pos().horizontalDistance(pos) > 1.0) continue;
             drops.remove(d);
-            int slot = 0;
-            while (true) {
-                final int s = slot;
-                if (inventory.stream().noneMatch(i -> i.slot() == s)) break;
-                slot++;
-            }
-            inventory.add(new ItemView(slot, d.item(), d.count(), null));
+            addToInventory(d.item(), d.count());                // onto the same stack, as the game does
         }
     }
 

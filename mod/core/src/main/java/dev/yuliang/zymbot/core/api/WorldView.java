@@ -101,6 +101,18 @@ public interface WorldView {
      * our inventory's — hold something. -1 when none is open.
      */
     default int openContainerFilled() { return -1; }
+    /**
+     * The open crafting screen: the inventory screen (2×2) or a crafting table (3×3), once its contents
+     * have arrived; any other open container as {@link MenuView.Kind#OTHER}. Empty when no screen is open.
+     */
+    default Optional<MenuView> menu() { return Optional.empty(); }
+    /**
+     * A block can go on top of this one: its top face is solid, and clicking it doesn't open anything
+     * (a crafting table, a chest) — what placing a block against it needs.
+     */
+    default boolean sturdy(BlockPos p) { return false; }
+    /** Free for a block to go in: air, or something placing replaces (tall grass). Never water or lava. */
+    default boolean replaceable(BlockPos p) { return false; }
 
     default Optional<EntityView> player(String name) {
         return nearby().stream()

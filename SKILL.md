@@ -161,6 +161,8 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `debug block <x> <y> <z>` | the block id there |
 | `debug foods` | the food carried, with the game's live (Spice of Fabric–decayed) values |
 | `debug punch <x> <y> <z>` | order: break that block like a player (walk into reach, best hotbar tool, else bare hands) and pick up the drops (5 s); `~` works |
+| `debug craft planks \| sticks \| table \| axe \| hoe` | order: craft it with paced slot clicks — the 2×2 inventory grid, or a crafting table within 24 blocks for the axe and hoe |
+| `debug place table` | order: put a crafting table from the inventory down next to the bot |
 | `grave` | walk to **our own** nearest civfabric grave (16 blocks; owner read from the grave's block entity; else the death spot) and take the items back — never opens anyone else's |
 | `grave loot` / `grave loot <player> […]` / `grave loot except <player> […]` | take from other players' graves, on purpose only: any nearby grave but ours / only those players' / any but theirs (names autocomplete; nothing saved); shift-clicks everything that fits, then closes the screen. `grave loot <me>` = `grave` without the death-spot walk |
 | `cancel` | drop the current order |

@@ -54,7 +54,7 @@ public interface Hands {
     /** Shift-click every filled slot of the open container into our inventory (what fits). */
     default void takeAllFromContainer() {}
 
-    /** Close the open container screen, as Esc does. */
+    /** Close the open container screen (or the inventory screen), as Esc does. */
     default void closeContainer() {}
 
     // ------------------------------------------------------------------ hands (phase 3)
@@ -69,6 +69,29 @@ public interface Hands {
 
     /** Let go of the attack (a half-broken block is abandoned). Safe to call when not mining. */
     default void stopMining() {}
+
+    /** Open the inventory screen, as E does — its 2×2 grid is the hand crafting grid. */
+    default void openInventory() {}
+
+    /**
+     * One click on a slot of the open screen, as the mouse does it: a left ({@code button} 0) or right
+     * (1) click, or a shift-click ({@code shift}) that moves the stack across. Only clicks a player
+     * could make; the caller paces them.
+     */
+    default void click(int slot, int button, boolean shift) {}
+
+    /**
+     * Place the held block on top of {@code support}, for this one tick: turn toward its top face a
+     * little (a wrist, not a snap), and once the crosshair is on that face, right-click it. Call every
+     * tick until it returns true — the click was made.
+     */
+    default boolean placeOn(BlockPos support) { return false; }
+
+    /**
+     * Right-click a block (open a crafting table), for this one tick: turn toward it, and once the
+     * crosshair is on it, click. Call every tick until it returns true — the click was made.
+     */
+    default boolean interact(BlockPos block) { return false; }
 
     /** Public chat. Callers go through ChatOut, which rate-limits. */
     default void chat(String message) {}

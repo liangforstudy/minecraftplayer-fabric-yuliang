@@ -73,6 +73,7 @@ public final class Regroup implements Planner {
     private long armedAt;
     private long nextAsk;
     private boolean saidWaiting;
+    private java.util.function.Predicate<WorldView> workFirst = w -> false;
 
     public Regroup(ZymbotConfig config, Body body, Supplier<Map<String, BotMemory.RosterEntry>> roster, LongSupplier clock,
                    Function<BlockPos, Task> route, Runnable askWhere, int within, BiConsumer<String, String> log) {
@@ -96,6 +97,13 @@ public final class Regroup implements Planner {
         underWay = false;
         askedAt = -1;
     }
+
+    /**
+     * With nobody from the team found, work that can be done here (the ladder) comes before the walk to
+     * spawn: an hour waiting at spawn for a team that isn't on is an hour without a tool (owner,
+     * 2026-10-14). A teammate found still wins — the regroup to them is above the ladder.
+     */
+    public void workFirst(java.util.function.Predicate<WorldView> hasWork) { this.workFirst = hasWork; }
 
     /** Walking back to the team now — the leash leaves this alone (it is the walk back). */
     public boolean active() { return active; }
@@ -167,6 +175,7 @@ public final class Regroup implements Planner {
             askWhere.run();
         }
         if (now - armedAt < config.probeWaitSeconds * 1000L) return Optional.empty();
+        if (workFirst.test(world)) return Optional.empty();    // still listening: a teammate heard later wins
         Optional<BlockPos> spawn = world.worldSpawn();
         if (spawn.isEmpty()) return Optional.empty();
         BlockPos s = spawn.get();

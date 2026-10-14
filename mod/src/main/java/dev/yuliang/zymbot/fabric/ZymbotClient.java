@@ -103,8 +103,9 @@ public final class ZymbotClient implements ClientModInitializer {
             if (bot != null) bot.onChat(sender == null ? null : sender.getName(), message.getString(),
                     params.chatType().is(ChatType.MSG_COMMAND_INCOMING));
         });
+        // the action bar too: civfabric's refusals ("You're too hungry to craft") arrive there
         ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
-            if (bot != null && !overlay) bot.onChat(null, message.getString(), false);
+            if (bot != null) bot.onChat(null, message.getString(), false);
         });
         ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> { if (bot != null) bot.shutdown(); });
     }
@@ -233,7 +234,8 @@ public final class ZymbotClient implements ClientModInitializer {
         }
         lastLevel = mc.level;
         lastPlayerDead = mc.player.isDeadOrDying();
-        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay(), lives), hands);
+        bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay(), lives,
+                mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen), hands);
         hands.endTick();                                         // never leave attack held past a tick without a mine()
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);

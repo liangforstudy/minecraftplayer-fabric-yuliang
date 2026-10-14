@@ -124,6 +124,14 @@ final class ZymbotCommands {
                                         return List.of("not a coordinate");
                                     }
                                 }))))
+                        // the bootstrap's hands, one at a time (PHASE3.md step 3)
+                        .then(literal("craft").then(argument("item", StringArgumentType.greedyString())
+                                .suggests((c, sb) -> {
+                                    List.of("planks", "sticks", "table", "axe", "hoe").forEach(sb::suggest);
+                                    return sb.buildFuture();
+                                })
+                                .executes(c -> withBot(c, bot, b -> List.of(b.craft(StringArgumentType.getString(c, "item")))))))
+                        .then(literal("place").then(literal("table").executes(c -> withBot(c, bot, b -> List.of(b.placeTable())))))
                         .then(literal("foods").executes(c -> withBot(c, bot, Bot::foods)))
                         .then(literal("survey").executes(c -> withBot(c, bot, Bot::surveyNow))))
                 // see / view / spy: the same command, any name (owner, 2026-09-29)
@@ -210,6 +218,7 @@ final class ZymbotCommands {
                 r + " regroup — walk back to the nearest teammate now (automatic on start and after a respawn)",
                 r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",
                 r + " debug terrain <x> <z> | block <x> <y> <z> | punch <x> <y> <z> | foods | survey — readouts and test orders",
+                r + " debug craft planks | sticks | table | axe | hoe, debug place table — one bootstrap step by hand",
                 r + " grave — walk to our own nearest grave (16 blocks; else where we died) and take our things back",
                 r + " grave loot [except] [<player> …] — take from other players' graves: any but ours, only theirs, or any but theirs",
                 "On a Teammate account, goto / come / punch / grave borrow your controls for that one order (a movement key takes them back).",

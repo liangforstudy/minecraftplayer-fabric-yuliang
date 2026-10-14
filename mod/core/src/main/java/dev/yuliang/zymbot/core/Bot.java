@@ -26,6 +26,11 @@ import dev.yuliang.zymbot.core.brain.Planner;
 import dev.yuliang.zymbot.core.config.AutostartPolicy;
 import dev.yuliang.zymbot.core.config.ConfigIO;
 import dev.yuliang.zymbot.core.config.ZymbotConfig;
+import dev.yuliang.zymbot.core.craft.CraftTask;
+import dev.yuliang.zymbot.core.craft.PlaceTask;
+import dev.yuliang.zymbot.core.craft.Recipe;
+import dev.yuliang.zymbot.core.ladder.Ladder;
+import dev.yuliang.zymbot.core.ladder.ToolRung;
 import dev.yuliang.zymbot.core.protocol.Bus;
 import dev.yuliang.zymbot.core.protocol.Envelope;
 import dev.yuliang.zymbot.core.protocol.MessageTypes;
@@ -122,6 +127,8 @@ public final class Bot {
     private boolean resumeWarned;
     private long nextHello;
     private final dev.yuliang.zymbot.core.team.Regroup regroup;
+    private final ToolRung toolRung;
+    private final Ladder ladder;
     private final java.util.Set<String> inTabList = new java.util.HashSet<>();   // roster members online now
     private final java.util.Set<String> seenOnline = new java.util.HashSet<>();  // ... at some point this session
     private long nextRosterCheck;
@@ -195,6 +202,16 @@ public final class Bot {
                         config.routeRadius, config.swimCostBlocks, log::record, "walking back to the team")
                         .limits(config.planTimeoutMs, config.lagTps),
                 this::askWhere, COME_WITHIN, log::record);
+        // the milestone ladder (PHASE3.md step 4), below the regroup: a bot far from its team walks back first
+        this.toolRung = new ToolRung(() -> java.util.Optional.ofNullable(survey),
+                why -> { if (surveying == null) surveyWanted = why; },
+                w -> regroup.nearestTeammate(w).map(EntityView::pos), chatIn, clock, log::record);
+        this.ladder = new Ladder(List.of(toolRung));
+        regroup.workFirst(ladder::hasWork);
+        Planner planner = world -> {
+            var back = regroup.best(world);
+            return back.isPresent() ? back : ladder.best(world);
+        };
         this.brain = new Brain(List.of(
                 new DownedInterrupt(config, body, help, log::record),
                 new DrowningInterrupt(),
@@ -203,7 +220,7 @@ public final class Bot {
                 new StrandedInterrupt(body, this::nothingToDo),
                 new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, regroup::nearestTeammate),
                 new HungerInterrupt(config, body),
-                new WadingInterrupt(body, this::idleForWading)), regroup, log);
+                new WadingInterrupt(body, this::idleForWading)), planner, log);
         bus.subscribe(this::onEnvelope);
         log.onRecord(this::toWatchers);
     }
@@ -664,6 +681,7 @@ public final class Bot {
                     Math.round(w.health()), w.hunger(), w.saturation(), config.eatBelowHunger, config.criticalFor(), config.leashBlocks, config.danger));
         }
         out.add("pathfinder: " + (hands == null ? "?" : hands.paths().name()));
+        if (w != null && address != null) out.add(ladder.describe(w));
         if (w != null && address != null) {
             java.util.Map<String, Integer> food = new java.util.TreeMap<>();
             w.inventory().stream().filter(dev.yuliang.zymbot.core.api.ItemView::edible)
@@ -1122,6 +1140,46 @@ public final class Bot {
                 (world, h) -> new dev.yuliang.zymbot.core.task.BreakTask(h, target, why, log::record)));
         String id = current == null ? "the block" : current.blockAt(target);
         return "breaking " + id + " at " + where + pathfinderWarning() + lent;
+    }
+
+    /**
+     * Craft one M0 recipe now, by hand or at a crafting table within reach of a walk (PHASE3.md step 3,
+     * a debug order): planks takes the biggest stack of logs; the rest are crafted once.
+     */
+    public String craft(String what) {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        if (current == null) return "not in a world";
+        Recipe r = Recipe.named(what);
+        if (r == null) return "craft what? " + Recipe.ALL.stream().map(Recipe::name).collect(java.util.stream.Collectors.joining(", "));
+        BlockPos table = null;
+        if (!r.fitsHand()) {
+            table = toolRung.nearestTable(current);
+            if (table == null) table = current.findBlock(ToolRung.TABLE, 16).orElse(null);
+            if (table == null) return r.name() + " needs a crafting table, and there's none within " + ToolRung.TABLE_RADIUS
+                    + " blocks — /" + config.commandRoot + " debug place table";
+        }
+        int times = r == Recipe.PLANKS_FROM_LOG ? current.inventory().stream().filter(i -> Recipe.LOG.test(i.id()))
+                .mapToInt(dev.yuliang.zymbot.core.api.ItemView::count).max().orElse(0) : 1;
+        if (r == Recipe.PLANKS_FROM_LOG && times == 0) return "no logs to make planks from";
+        String why = "ordered by /" + config.commandRoot + " debug craft";
+        BlockPos at = table;
+        String lent = oneShot(Objective.of("craft " + r.name(), why,
+                (world, h) -> new CraftTask(h, r, times, at, why, chatIn, log::record)));
+        return "crafting " + (times > 1 ? times + "× " : "") + r.name()
+                + (at == null ? " in the inventory grid" : " at the table at " + at.x() + " " + at.y() + " " + at.z()) + lent;
+    }
+
+    /** Put a crafting table from the inventory down next to us (PHASE3.md step 3, a debug order). */
+    public String placeTable() {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        if (current == null) return "not in a world";
+        if (current.inventory().stream().noneMatch(i -> i.id().equals(ToolRung.TABLE))) return "no crafting table in the inventory";
+        String why = "ordered by /" + config.commandRoot + " debug place table";
+        String lent = oneShot(Objective.of("place a crafting table", why,
+                (world, h) -> toolRung.remembering(new PlaceTask(h, ToolRung.TABLE, ToolRung.TABLE, why, log::record))));
+        return "placing a crafting table next to me" + lent;
     }
 
     public String look(String name) {

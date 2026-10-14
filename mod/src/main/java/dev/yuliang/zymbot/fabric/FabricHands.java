@@ -130,10 +130,67 @@ final class FabricHands implements Hands {
         }
     }
 
-    /** Close the container as Esc does: tells the server, and clears the screen. */
+    /**
+     * Close the container (or the inventory screen) as Esc does: tells the server, and clears the
+     * screen. Whatever is left in a crafting grid or on the cursor goes back to the inventory.
+     */
     @Override
     public void closeContainer() {
-        if (mc.player != null && mc.player.containerMenu != mc.player.inventoryMenu) mc.player.closeContainer();
+        if (mc.player == null) return;
+        if (mc.player.containerMenu != mc.player.inventoryMenu
+                || mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen) mc.player.closeContainer();
+    }
+
+    /** As E does: the inventory screen, with its 2×2 crafting grid. Opening it sends nothing to the server. */
+    @Override
+    public void openInventory() {
+        if (mc.player == null) return;
+        mc.getTutorial().onOpenInventory();
+        mc.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(mc.player));
+    }
+
+    /** A mouse click on a slot of the open screen: the same call (and packet) a click in the GUI makes. */
+    @Override
+    public void click(int slot, int button, boolean shift) {
+        if (mc.player == null || mc.gameMode == null) return;
+        var menu = mc.player.containerMenu;
+        if (slot < 0 || slot >= menu.slots.size()) return;
+        mc.gameMode.handleInventoryMouseClick(menu.containerId, slot, button, shift ? ClickType.QUICK_MOVE : ClickType.PICKUP, mc.player);
+    }
+
+    /**
+     * Turn toward the top face of {@code support}; once the crosshair is on that face, right-click it
+     * with the held block — vanilla's startUseItem path, so the block goes where a player's would.
+     */
+    @Override
+    public boolean placeOn(dev.yuliang.zymbot.core.api.BlockPos b) {
+        if (mc.player == null || mc.gameMode == null) return false;
+        var pos = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
+        turnToward(new net.minecraft.world.phys.Vec3(b.x() + 0.5, b.y() + 1.0, b.z() + 0.5));
+        var hit = mc.player.pick(mc.player.blockInteractionRange(), 1.0f, false);
+        if (!(hit instanceof net.minecraft.world.phys.BlockHitResult bh) || hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK
+                || !bh.getBlockPos().equals(pos) || bh.getDirection() != net.minecraft.core.Direction.UP || mc.player.isUsingItem()) {
+            return false;
+        }
+        var result = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, bh);
+        if (result.shouldSwing()) mc.player.swing(InteractionHand.MAIN_HAND);
+        return true;
+    }
+
+    /** Turn toward the block; once the crosshair is on it, right-click it (opens a crafting table). */
+    @Override
+    public boolean interact(dev.yuliang.zymbot.core.api.BlockPos b) {
+        if (mc.player == null || mc.gameMode == null) return false;
+        var pos = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
+        turnToward(net.minecraft.world.phys.Vec3.atCenterOf(pos));
+        var hit = mc.player.pick(mc.player.blockInteractionRange(), 1.0f, false);
+        if (!(hit instanceof net.minecraft.world.phys.BlockHitResult bh) || hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK
+                || !bh.getBlockPos().equals(pos) || mc.player.isUsingItem()) {
+            return false;
+        }
+        var result = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, bh);
+        if (result.shouldSwing()) mc.player.swing(InteractionHand.MAIN_HAND);
+        return true;
     }
 
     // ------------------------------------------------------------------ digging
