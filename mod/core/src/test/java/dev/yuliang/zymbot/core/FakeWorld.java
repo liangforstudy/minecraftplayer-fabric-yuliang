@@ -356,13 +356,15 @@ public final class FakeWorld implements WorldView, Hands {
     }
 
     public int placeClicks;
+    /** The server puts a placed block here instead of on the spot clicked (a plant caught the click). */
+    public BlockPos placeInstead;
 
     @Override
     public boolean placeOn(BlockPos support) {
         placeClicks++;
         if (!canReach(support)) return false;
         ItemView held = stack(selected);
-        BlockPos at = new BlockPos(support.x(), support.y() + 1, support.z());
+        BlockPos at = placeInstead != null ? placeInstead : new BlockPos(support.x(), support.y() + 1, support.z());
         if (held != null && replaceable(at)) {
             blocks.put(at, held.id());
             put(selected, held.id(), held.count() - 1);

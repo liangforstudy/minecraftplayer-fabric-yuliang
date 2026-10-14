@@ -177,9 +177,11 @@ final class FabricHands implements Hands {
         turnToward(new net.minecraft.world.phys.Vec3(b.x() + 0.5, b.y() + 1.0, b.z() + 0.5));
         var hit = mc.player.pick(mc.player.blockInteractionRange(), 1.0f, false);
         if (!(hit instanceof net.minecraft.world.phys.BlockHitResult bh) || hit.getType() != net.minecraft.world.phys.HitResult.Type.BLOCK
-                || !bh.getBlockPos().equals(pos) || bh.getDirection() != net.minecraft.core.Direction.UP || mc.player.isUsingItem()) {
-            return false;
-        }
+                || mc.player.isUsingItem()) return false;
+        boolean onTop = bh.getBlockPos().equals(pos) && bh.getDirection() == net.minecraft.core.Direction.UP;
+        // a fern or grass on the spot catches the crosshair: clicking it replaces it, as a player's click does (2026-10-14)
+        boolean onPlant = bh.getBlockPos().equals(pos.above()) && mc.level != null && mc.level.getBlockState(pos.above()).canBeReplaced();
+        if (!onTop && !onPlant) return false;
         var result = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, bh);
         if (result.shouldSwing()) mc.player.swing(InteractionHand.MAIN_HAND);
         return true;

@@ -42,6 +42,7 @@ public final class PlaceTask implements Task {
     private BlockPos spot;
     private final Set<BlockPos> tried = new HashSet<>();
     private BlockPos placed;
+    private int heldAtClick;
     private String failure = "";
 
     /** @param item the item to place; {@code block} what it becomes (the same id for a crafting table) */
@@ -83,6 +84,7 @@ public final class PlaceTask implements Task {
 
     private Status select(WorldView world) {
         if (world.inventory().stream().noneMatch(i -> i.slot() == hotbar && i.id().equals(item))) {
+            if (held(world) == 0) return fail("no " + Recipe.shortName(item) + " left in the inventory");
             if (++ticks > 10) return fail("couldn't get the " + Recipe.shortName(item) + " into the hotbar");
             return Status.RUNNING;
         }
@@ -140,13 +142,16 @@ public final class PlaceTask implements Task {
             return Status.RUNNING;
         }
         BlockPos below = new BlockPos(spot.x(), spot.y() - 1, spot.z());
+        int before = held(world);
         if (hands.placeOn(below)) {
+            heldAtClick = before;
             ticks = 0;
             stage = Stage.CONFIRM;
             return Status.RUNNING;
         }
-        if (++ticks > AIM_TICKS) {
+        if (++ticks > AIM_TICKS) {                             // the crosshair never got there: another spot
             stage = Stage.SELECT;
+            ticks = 0;
             return Status.RUNNING;
         }
         return Status.RUNNING;
@@ -158,11 +163,45 @@ public final class PlaceTask implements Task {
             log.accept("placed " + Recipe.shortName(block) + " at " + spot.x() + " " + spot.y() + " " + spot.z(), why);
             return Status.DONE;
         }
-        if (++ticks > CONFIRM_TICKS) {                         // didn't take there: try another spot
-            stage = Stage.SELECT;
+        if (++ticks > CONFIRM_TICKS) {
+            // gone from the inventory but not on the spot: it went down somewhere next to it — find it, don't
+            // craft another (2026-10-14: a table a try, three tries, the bot never saw one)
+            if (held(world) < heldAtClick) {
+                Optional<BlockPos> near = nearby(world, spot);
+                if (near.isPresent()) {
+                    placed = near.get();
+                    log.accept("placed " + Recipe.shortName(block) + " at " + placed.x() + " " + placed.y() + " " + placed.z(),
+                            why + " (not on the spot picked, " + spot.x() + " " + spot.y() + " " + spot.z() + ")");
+                    return Status.DONE;
+                }
+                return fail("the " + Recipe.shortName(item) + " left the inventory, but isn't within " + LOOK_AROUND + " blocks of "
+                        + spot.x() + " " + spot.y() + " " + spot.z());
+            }
+            stage = Stage.SELECT;                              // didn't take there: try another spot
             ticks = 0;
         }
         return Status.RUNNING;
+    }
+
+    /** After a click that took the item but didn't put it on the spot: look this far around. */
+    static final int LOOK_AROUND = 3;
+
+    private Optional<BlockPos> nearby(WorldView world, BlockPos around) {
+        BlockPos best = null;
+        int bestD = Integer.MAX_VALUE;
+        for (int dx = -LOOK_AROUND; dx <= LOOK_AROUND; dx++) for (int dy = -LOOK_AROUND; dy <= LOOK_AROUND; dy++) for (int dz = -LOOK_AROUND; dz <= LOOK_AROUND; dz++) {
+            BlockPos p = new BlockPos(around.x() + dx, around.y() + dy, around.z() + dz);
+            int d = dx * dx + dy * dy + dz * dz;
+            if (d < bestD && world.blockAt(p).equals(block)) {
+                best = p;
+                bestD = d;
+            }
+        }
+        return Optional.ofNullable(best);
+    }
+
+    private int held(WorldView world) {
+        return world.inventory().stream().filter(i -> i.id().equals(item)).mapToInt(ItemView::count).sum();
     }
 
     /** Where it went, once done. */

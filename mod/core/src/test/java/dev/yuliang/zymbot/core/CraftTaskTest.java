@@ -211,6 +211,19 @@ class CraftTaskTest {
         assertTrue(t2.failure().startsWith("no free spot"), t2.failure());
     }
 
+    /** 2026-10-14: the table left the inventory each try and the bot never saw it, so it crafted another. */
+    @Test
+    void place_thatLandsNextToTheSpot_isFound_notLost() {
+        FakeWorld w = new FakeWorld("Bot1");
+        w.pos = new Vec3(0.5, 64, 0.5);
+        w.give(0, "minecraft:crafting_table", 1, null);
+        w.placeInstead = new BlockPos(-1, 65, 1);
+        PlaceTask t = new PlaceTask(w, "minecraft:crafting_table", "minecraft:crafting_table", "test", (a, b) -> log.add(a + " — " + b));
+        assertEquals(Status.DONE, run(w, t, 200), t.failure());
+        assertEquals(new BlockPos(-1, 65, 1), t.placed());
+        assertTrue(log.stream().anyMatch(l -> l.startsWith("placed crafting_table at -1 65 1") && l.contains("not on the spot picked")), log.toString());
+    }
+
     @Test
     void place_neverInsideUs() {
         Vec3 me = new Vec3(0.5, 64, 0.5);

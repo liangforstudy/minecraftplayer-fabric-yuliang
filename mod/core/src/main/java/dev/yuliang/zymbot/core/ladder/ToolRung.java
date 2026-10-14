@@ -65,6 +65,11 @@ public final class ToolRung implements Rung {
     private final Map<BlockPos, Long> skipTrees = new HashMap<>();
     private final Map<String, Long> retryAt = new HashMap<>();
     private BlockPos ourTable;                                  // the one we placed
+    private BlockPos lookedNear;                                // a table right here, from a small look of our own
+    private long lastLook = Long.MIN_VALUE / 2;
+    /** A table this close is found without a survey (one somebody, or a stray click, just put down). */
+    static final int LOOK_NEAR = 8;
+    static final long LOOK_EVERY_MILLIS = 1_000;
     private long lastResurvey = Long.MIN_VALUE / 2;
     private String waiting = "";
     private boolean retrying;
@@ -242,6 +247,12 @@ public final class ToolRung implements Rung {
     public BlockPos nearestTable(WorldView world) {
         List<BlockPos> candidates = new ArrayList<>();
         if (ourTable != null) candidates.add(ourTable);
+        long now = clock.getAsLong();
+        if (now - lastLook >= LOOK_EVERY_MILLIS) {             // close by, without waiting for a survey: once a second
+            lastLook = now;
+            lookedNear = world.findBlock(TABLE, LOOK_NEAR).orElse(null);
+        }
+        if (lookedNear != null) candidates.add(lookedNear);
         survey.get().ifPresent(s -> s.all(Kind.CRAFTING_TABLE).forEach(g -> candidates.add(g.pos())));
         Vec3 me = world.position();
         return candidates.stream()
