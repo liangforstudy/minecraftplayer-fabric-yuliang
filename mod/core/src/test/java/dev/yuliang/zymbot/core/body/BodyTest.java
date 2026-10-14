@@ -593,9 +593,9 @@ class BodyTest {
         FakeWorld w = new FakeWorld("Human");
         Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve("h"), w.id, false, clock);
         b.onJoin("x", "Human");
-        String r = b.goTo(1, 2, 3);                             // not a Bot account: never suggest start
+        String r = b.goTo(1, 2, 3);                             // not a Bot account: offer start (owner, 2026-10-14)
         assertTrue(r.contains("orders only work on a Bot account"), r);
-        assertFalse(r.contains("start"), r);
+        assertTrue(r.contains("/zbot start"), r);
     }
 
     @Test

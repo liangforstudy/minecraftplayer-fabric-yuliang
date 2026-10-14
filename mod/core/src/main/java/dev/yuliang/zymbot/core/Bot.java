@@ -1209,8 +1209,10 @@ public final class Bot {
         // a human's account: never suggest start - the owner did, and Zymbot took over their own player (2026-09-26)
         if (role() == ZymbotConfig.Role.TEAMMATE) return "this account is a Teammate — here only one-shot orders work"
                 + " (goto, come, punch, grave), each borrowing your controls for that one task; send standing orders to a bot";
+        // an unlisted account: start is the way in here (owner, 2026-10-14)
         if (role() != ZymbotConfig.Role.BOT) return "this account isn't a Bot account — orders only work on a Bot account"
-                + " (send them to the bot, e.g. from its console)";
+                + " (send them to the bot, e.g. from its console), or /" + config.commandRoot
+                + " start to hand this player to Zymbot";
         return "the bot isn't running — /" + config.commandRoot + " start first";
     }
 
