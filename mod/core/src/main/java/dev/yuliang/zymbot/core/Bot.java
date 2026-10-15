@@ -1077,7 +1077,7 @@ public final class Bot {
         seeAsks.remove(e.field(2));
         if (hands == null) return;
         // when it was taken: an answer read later in chat or scrollback said nothing about its age (owner, 2026-09-29)
-        String at = java.time.LocalTime.now().withNano(0).toString();
+        String at = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));   // toString drops ":00"
         hands.notifyLocal(e.field(0) + " status (at " + at + "):");
         for (String l : lines) hands.notifyLocal("  " + l);
     }

@@ -83,4 +83,18 @@ class ConfigTest {
         chosen.normalize();
         org.junit.jupiter.api.Assertions.assertEquals(10, chosen.swimCostBlocks);
     }
+
+    @Test
+    void theLocalBusIsOffByDefault_andSwitchedOffOnceInOldConfigs() {
+        assertFalse(new ZymbotConfig().transports.localBus);
+        ZymbotConfig old = new ZymbotConfig();
+        old.schemaVersion = 4;
+        old.transports.localBus = true;
+        old.normalize();
+        assertFalse(old.transports.localBus);
+        ZymbotConfig chosen = new ZymbotConfig();        // turned back on after the upgrade: kept
+        chosen.transports.localBus = true;
+        chosen.normalize();
+        assertTrue(chosen.transports.localBus);
+    }
 }

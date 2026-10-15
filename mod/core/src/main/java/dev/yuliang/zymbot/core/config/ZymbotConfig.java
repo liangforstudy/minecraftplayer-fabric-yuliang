@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
  * so a missing or partial file still works; {@link #normalize()} repairs bad values.
  */
 public final class ZymbotConfig {
-    public static final int SCHEMA_VERSION = 4;   // 2: accounts + roles; 3: body thresholds; 4: swim cost 85 → 3
+    public static final int SCHEMA_VERSION = 5;   // 2: accounts + roles; 3: body thresholds; 4: swim cost 85 → 3; 5: local bus off
     private static final Pattern COMMAND = Pattern.compile("[a-z0-9_]{1,16}");
 
     public int schemaVersion = SCHEMA_VERSION;
@@ -234,7 +234,11 @@ public final class ZymbotConfig {
     }
 
     public static final class Transports {
-        public boolean localBus = true;   // UDP multicast: this machine + LAN
+        /**
+         * UDP multicast: this machine + LAN. Off by default (2026-10-15): a bot joins knowing nobody
+         * and finds players, bots and places in the world itself (roadmap3.md).
+         */
+        public boolean localBus = false;
         public boolean chat = false;      // server chat — phase 2
         public boolean relay = false;     // MQTT — later
     }
@@ -297,6 +301,10 @@ public final class ZymbotConfig {
         if (schemaVersion < 4 && swimCostBlocks == 85) {    // the old default, from a wrong reading of the drain table
             warnings.add("swim_cost_blocks 85 → 3 (measured: crossing water costs ~3× walking, not 85×)");
             swimCostBlocks = 3;
+        }
+        if (schemaVersion < 5 && transports != null && transports.localBus) {   // was on by default (roadmap3.md)
+            warnings.add("local_bus true → false (now off by default: bots find each other in the world; set it back to true to share positions over the LAN)");
+            transports.localBus = false;
         }
         schemaVersion = SCHEMA_VERSION;
         if (!List.of("off", "relative", "exact").contains(shareCoordsWithHumans)) {
