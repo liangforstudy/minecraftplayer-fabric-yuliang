@@ -1,6 +1,6 @@
 # Finding the world roadmap (draft)
 
-Status: **plan, 2026-10-15**, from the owner. Step 0 is done; nothing else is built yet.
+Status: **plan, 2026-10-15**, from the owner. Step 0 is done and step 1 dropped; nothing else is built yet.
 
 The idea (owner, 2026-10-15): the UDP multicast **local bus is off by default**. A bot joins a server
 **knowing nothing** about other players, bots or places. It finds them **in the game**: it looks
@@ -28,13 +28,9 @@ Landmarks include towns / villages, farms, the bot's own bed, other players' bed
 | `/zbot see <bot>`, `/zbot watch` | `STATUS`, `STATUS_LINE`, `WATCH` | broken for other bots; `send.bat` and the log files still work |
 | Knocked-out alert | `DOWNED` | teammates aren't told; nearby humans still get the `/msg` |
 
-**Proposal:** split the bus into two kinds of traffic.
-- **Owner tools** (`SUMMON`, `STATUS`, `WATCH`): these aren't knowledge a bot would have in the
-  world, so they're fine to keep. Give them their own switch (`transports.owner_tools`, on by
-  default), and have them carry **no positions**. The envelope's x, z would be zeroed.
-- **World knowledge** (`HELLO` position, `ROSTER`, `WHERE`, `DOWNED`): stays off.
-
-This needs the owner's decision (open question 1).
+**Decided (owner, 2026-10-15): owner tools stay off with the bus too.** No separate switch for
+`SUMMON` / `STATUS` / `WATCH`; the owner uses `send.bat` and the log files instead. Turning
+`local_bus` back on brings them all back.
 
 ## 1. What a bot can know without being told
 
@@ -92,7 +88,7 @@ people were seen; (c) else run the BFS out from the anchor; (d) else world spawn
 | Step | What | Test |
 |---|---|---|
 | 0 | Bus off by default, schema 5 | ✅ unit test; live: bot starts, no "local bus on" line in the log |
-| 1 | Decide the owner-tools split (§0) and build it | `/zbot summon` and `/zbot see` work with knowledge off |
+| 1 | ~~Owner-tools split~~ — decided against (§0) | — |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |
@@ -102,8 +98,7 @@ people were seen; (c) else run the BFS out from the anchor; (d) else world spawn
 
 ## 5. Open questions for the owner
 
-1. **Owner tools:** keep `SUMMON` / `see` / `watch` on a position-free bus (§0 proposal), or turn
-   them off too?
+1. ~~**Owner tools**~~ — decided: off with the bus (§0).
 2. **Saved memory:** the roster and (soon) landmarks are saved per server. Does "knows nothing" mean
    only on its **first** join, or should each session start empty?
 3. **The `/msg` probe** (PHASE2, `chat` transport, already off by default) whispers roster members
