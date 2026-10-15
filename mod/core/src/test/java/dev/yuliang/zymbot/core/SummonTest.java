@@ -24,7 +24,7 @@ class SummonTest {
     }
 
     ZymbotConfig team() {
-        ZymbotConfig c = new ZymbotConfig();
+        ZymbotConfig c = FakeBus.busOnConfig();
         c.teamKey = "shared-team-key-123";
         return c;
     }
@@ -66,7 +66,7 @@ class SummonTest {
     @Test
     void anotherTeamsSummonIsIgnored() {
         FakeWorld stranger = new FakeWorld("Evil"), bot1 = new FakeWorld("Bot1");
-        ZymbotConfig other = new ZymbotConfig();
+        ZymbotConfig other = FakeBus.busOnConfig();
         other.teamKey = "some-other-teams-key";
         Bot evil = bot(stranger, other, false);
         evil.onJoin("singleplayer", "singleplayer:x", "Evil");

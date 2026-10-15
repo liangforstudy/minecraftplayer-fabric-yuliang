@@ -37,7 +37,7 @@ class DownedTest {
     @Test
     void aloneWithNoMedic_givesUpAtOnce_andStopsWalking() {
         FakeWorld w = new FakeWorld("Bot1");
-        Bot b = running(w, new ZymbotConfig());
+        Bot b = running(w, FakeBus.busOnConfig());
         b.goTo(100, 64, 0);
         ticks(b, w, 2);
         w.downed = 58;
@@ -52,7 +52,7 @@ class DownedTest {
     void aHumanNear_getsAMessage_andAFewSecondsToRevive() {
         FakeWorld w = new FakeWorld("Bot1");
         w.player("Bot2", 20, 0);
-        Bot b = running(w, new ZymbotConfig());
+        Bot b = running(w, FakeBus.busOnConfig());
         w.downed = 59;
         ticks(b, w, 40);                                       // 2 s: told them, still waiting
         assertTrue(w.said.stream().anyMatch(s -> s.startsWith("/msg Bot2 I'm knocked out at 0 0")), w.said.toString());
@@ -67,7 +67,7 @@ class DownedTest {
     void beingRevived_neverGivesUp() {
         FakeWorld w = new FakeWorld("Bot1");
         w.player("Bot2", 3, 0);
-        Bot b = running(w, new ZymbotConfig());
+        Bot b = running(w, FakeBus.busOnConfig());
         w.downed = 50;
         w.beingRevived = true;
         ticks(b, w, 40 * 20);
@@ -81,7 +81,7 @@ class DownedTest {
     @Test
     void teammatesHearAboutIt() {
         FakeBus net = new FakeBus();
-        ZymbotConfig a = new ZymbotConfig(), c = new ZymbotConfig();
+        ZymbotConfig a = FakeBus.busOnConfig(), c = FakeBus.busOnConfig();
         a.teamKey = c.teamKey = "shared-team-key-123";
         FakeWorld w1 = new FakeWorld("Bot1"), w3 = new FakeWorld("Bot3");
         FakeWorld.sameServer(w1, w3);

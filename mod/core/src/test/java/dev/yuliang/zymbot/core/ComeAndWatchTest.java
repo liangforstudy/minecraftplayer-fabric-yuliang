@@ -81,6 +81,18 @@ class ComeAndWatchTest {
     }
 
     @Test
+    void aBotCantSeeOrWatchOtherBots_onlyItself() {           // owner, 2026-10-15
+        FakeBus net = new FakeBus();
+        FakeWorld w1 = new FakeWorld("Bot1");
+        Bot bot = running(w1, new ZymbotConfig());
+        bot.attachTransport(net.endpoint());
+        assertTrue(bot.see("Bot3").get(0).startsWith("a bot can't see other bots"));
+        assertTrue(bot.watch("Bot3", true).startsWith("a bot can't see other bots"));
+        assertTrue(net.wire.isEmpty());
+        assertTrue(bot.see("Bot1").size() > 1, "its own status still works");
+    }
+
+    @Test
     void see_asksTheBotOverTheBus_andPrintsItsStatus() {
         FakeBus net = new FakeBus();
         ZymbotConfig a = new ZymbotConfig(), c = new ZymbotConfig();

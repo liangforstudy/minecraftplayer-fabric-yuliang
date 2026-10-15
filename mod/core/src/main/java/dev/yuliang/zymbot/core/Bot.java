@@ -552,7 +552,7 @@ public final class Bot {
     private void announceDowned(WorldView world, List<EntityView> humans) {
         var p = world.position();
         int x = (int) Math.floor(p.x()), z = (int) Math.floor(p.z()), secs = world.downedSecondsLeft();
-        bus.publish(serverId, world.day(), x, z, MessageTypes.DOWNED, List.of(selfName, Integer.toString(secs)));
+        if (sharesKnowledge()) bus.publish(serverId, world.day(), x, z, MessageTypes.DOWNED, List.of(selfName, Integer.toString(secs)));
         String wait = config.downedWaitForHumansSeconds > 0 ? "giving up in " + config.downedWaitForHumansSeconds + "s unless someone"
                 : "giving up now — next time, ";
         for (EntityView h : humans) {
@@ -564,7 +564,7 @@ public final class Bot {
     }
 
     private void maybeHello(WorldView world, long now) {
-        if (now < nextHello) return;
+        if (!sharesKnowledge() || now < nextHello) return;
         nextHello = now + HELLO_EVERY_MILLIS;
         var p = world.position();
         bus.publish(serverId, world.day(), (int) Math.floor(p.x()), (int) Math.floor(p.z()),
@@ -580,9 +580,10 @@ public final class Bot {
      */
     private void onEnvelope(Envelope e) {
         if (MessageTypes.SUMMON.equals(e.type())) {          // for bots *not* on a server yet: no tab list
-            onSummon(e);
+            if (sharesKnowledge()) onSummon(e);
             return;
         }
+        if (!sharesKnowledge() && !OWNER_TOOLS.contains(e.type())) return;   // bus off: a bot learns nothing from it
         if (current == null || !current.onlinePlayers().contains(e.sender())) {
             pending.add(new Pending(e, clock.getAsLong()));
             return;
@@ -607,7 +608,7 @@ public final class Bot {
 
     private void handle(Envelope e) {
         if (MessageTypes.WATCH.equals(e.type())) {
-            onWatch(e.field(0), e.field(1), "on".equals(e.field(2)));
+            if (fromOwner(e)) onWatch(e.field(0), e.field(1), "on".equals(e.field(2)));
             return;
         }
         if (MessageTypes.WHERE.equals(e.type())) {              // a bot is regrouping: tell it where we are now
@@ -615,7 +616,7 @@ public final class Bot {
             return;
         }
         if (MessageTypes.STATUS.equals(e.type())) {             // someone ran /zbot see <us>
-            answerStatus(e.field(0), e.field(1), e.field(2));
+            if (fromOwner(e)) answerStatus(e.field(0), e.field(1), e.field(2));
             return;
         }
         if (MessageTypes.STATUS_LINE.equals(e.type())) {
@@ -826,6 +827,7 @@ public final class Bot {
 
     /** Ask the team's bots waiting at their title screens to join us there. */
     public String summon(SummonTarget target) {
+        if (!sharesKnowledge()) return "summon needs the local bus, and it's off (transports.local_bus) - start the bots with play / run-bot instead";
         sendSummon(target);
         log.record("summoned the team's bots", "to " + target.describe());
         return "summoned — bots with your team key that are waiting at the title screen join you at "
@@ -843,7 +845,7 @@ public final class Bot {
      * {@link #SUMMON_REPEAT_FOR_MILLIS}, so bots that are still booting when the world opens join too.
      */
     public void lanOpened(int port, List<String> ips) {
-        if (!config.autoSummonOnLan) return;
+        if (!config.autoSummonOnLan || !sharesKnowledge()) return;
         SummonTarget t = SummonTarget.lan(port, ips);
         summon(t);
         long now = clock.getAsLong();
@@ -1032,18 +1034,20 @@ public final class Bot {
     public List<String> see(String botName) {
         if (address == null) return List.of("not in a world");
         if (botName.equalsIgnoreCase(selfName)) return status();
+        String no = ownerToolRefusal();
+        if (no != null) return List.of(no);
         WorldView w = current;
-        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
+        int x = busX(w), z = busZ(w);
         String reqId = UUID.randomUUID().toString().substring(0, 8);
         seeAsks.put(reqId, new SeeAsk(botName, clock.getAsLong() + SEE_TIMEOUT_MILLIS, null));
-        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS, List.of(selfName, botName, reqId));
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS, List.of(selfName, botName, reqId, role().name()));
         return List.of("asking " + botName + " for its status…");
     }
 
     private void answerStatus(String asker, String botName, String reqId) {
         if (!botName.equalsIgnoreCase(selfName) || asker.equalsIgnoreCase(selfName)) return;
         WorldView w = current;
-        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
+        int x = busX(w), z = busZ(w);
         List<String> lines = status();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -1101,12 +1105,46 @@ public final class Bot {
         }
     }
 
+    /** Bus messages the owner's client still sends with the local bus off: no positions, owner to bot only. */
+    private static final java.util.Set<String> OWNER_TOOLS = java.util.Set.of(
+            MessageTypes.STATUS, MessageTypes.STATUS_LINE, MessageTypes.WATCH);
+
+    /**
+     * Whether the bus shares world knowledge (positions, roster, summons). Off by default: a bot
+     * finds players, bots and places in the world itself (roadmap3.md).
+     */
+    private boolean sharesKnowledge() { return config.transports.localBus; }
+
+    /** Our position on outgoing bus messages: zero when the bus shares no knowledge. */
+    private int busX(WorldView w) { return w == null || !sharesKnowledge() ? 0 : (int) Math.floor(w.position().x()); }
+    private int busZ(WorldView w) { return w == null || !sharesKnowledge() ? 0 : (int) Math.floor(w.position().z()); }
+
+    /** /zbot see and watch are the owner's: a bot never asks another bot (owner, 2026-10-15). */
+    private String ownerToolRefusal() {
+        if (role() == ZymbotConfig.Role.BOT) return "a bot can't see other bots - run it from your own client";
+        if (!sharesKnowledge() && !config.transports.ownerTools) return "owner tools are off (transports.owner_tools)";
+        return null;
+    }
+
+    /** A see / watch request counts only from a client that says it isn't a bot (field 3; older clients leave it out). */
+    private boolean fromOwner(Envelope e) {
+        String askerRole = e.field(3);
+        boolean ok = !askerRole.isEmpty() && !askerRole.equals(ZymbotConfig.Role.BOT.name())
+                && config.roleOf(e.sender()) != ZymbotConfig.Role.BOT;
+        if (!ok && e.field(1).equalsIgnoreCase(selfName)) {
+            log.record("ignored " + e.type() + " from " + e.field(0), "only the owner's own client may ask, not a bot");
+        }
+        return ok;
+    }
+
     /** Ask a bot (by name) to /msg us its decisions, or to stop. */
     public String watch(String botName, boolean on) {
         if (address == null) return "not in a world";
+        String no = ownerToolRefusal();
+        if (no != null) return no;
         WorldView w = current;
-        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
-        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.WATCH, List.of(selfName, botName, on ? "on" : "off"));
+        int x = busX(w), z = busZ(w);
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.WATCH, List.of(selfName, botName, on ? "on" : "off", role().name()));
         return on ? "asked " + botName + " to /msg you its decisions (for 30 min; /" + config.commandRoot + " watch " + botName + " off to stop)"
                   : "asked " + botName + " to stop";
     }
@@ -1338,7 +1376,7 @@ public final class Bot {
     /** ROSTER on the bus: everyone we know, so early and late joiners converge (BOT_DESIGN §2.23). */
     private void shareRoster() {
         WorldView w = current;
-        if (w == null) return;
+        if (w == null || !sharesKnowledge()) return;
         bus.publish(serverId, w.day(), (int) Math.floor(w.position().x()), (int) Math.floor(w.position().z()),
                 MessageTypes.ROSTER, List.of(String.join(",", memory.roster.keySet()), Integer.toString(memory.roster.size())));
     }
@@ -1366,7 +1404,7 @@ public final class Bot {
     /** Ask the team for fresh positions: teammates answer with a HELLO at once. */
     private void askWhere() {
         WorldView w = current;
-        if (w == null) return;
+        if (w == null || !sharesKnowledge()) return;
         bus.publish(serverId, w.day(), (int) Math.floor(w.position().x()), (int) Math.floor(w.position().z()),
                 MessageTypes.WHERE, List.of(selfName));
     }

@@ -1,6 +1,6 @@
 # Finding the world roadmap (draft)
 
-Status: **plan, 2026-10-15**, from the owner. Step 0 is done and step 1 dropped; nothing else is built yet.
+Status: **plan, 2026-10-15**, from the owner. Steps 0 and 1 are done; nothing else is built yet.
 
 The idea (owner, 2026-10-15): the UDP multicast **local bus is off by default**. A bot joins a server
 **knowing nothing** about other players, bots or places. It finds them **in the game**: it looks
@@ -24,13 +24,19 @@ Landmarks include towns / villages, farms, the bot's own bed, other players' bed
 |---|---|---|
 | Regroup (PHASE2 §1) | teammates' `HELLO` positions, `WHERE` | no positions: probe (if `chat` is on), then walk to world spawn and wait |
 | Roster (`HELLO`, `ROSTER`) | knowing who is a Zymbot | a bot can't tell a bot from a human; it only sees "players" |
-| `/zbot summon`, auto-summon on LAN | `SUMMON` to bots at the title screen | **broken**: those bots aren't on a server yet, so nothing in-game can reach them |
-| `/zbot see <bot>`, `/zbot watch` | `STATUS`, `STATUS_LINE`, `WATCH` | broken for other bots; `send.bat` and the log files still work |
+| `/zbot summon`, auto-summon on LAN | `SUMMON` to bots at the title screen | **off**: refused with a message; start bots with play / run-bot |
+| `/zbot see <bot>`, `/zbot watch` | `STATUS`, `STATUS_LINE`, `WATCH` | **kept for the owner** (below): from your own client only, with no positions |
 | Knocked-out alert | `DOWNED` | teammates aren't told; nearby humans still get the `/msg` |
 
-**Decided (owner, 2026-10-15): owner tools stay off with the bus too.** No separate switch for
-`SUMMON` / `STATUS` / `WATCH`; the owner uses `send.bat` and the log files instead. Turning
-`local_bus` back on brings them all back.
+**Decided (owner, 2026-10-15): `/zbot see` and `/zbot watch` are the owner's only.** A bot can't
+see or watch other bots; the owner's own client can see and watch their bots. Built the same day:
+- `transports.owner_tools` (on by default) keeps the LAN socket open for `STATUS`, `STATUS_LINE` and
+  `WATCH` only. With `local_bus` off, every other message is dropped on arrival and never sent, and
+  the envelope's x, z are 0.
+- A `BOT` account refuses `/zbot see <other>` / `watch` ("a bot can't see other bots"); `/zbot see`
+  on itself still works. Requests now carry the asker's role (field 3), and a bot ignores one from
+  a `BOT`, or from an older client that leaves the role out.
+- `SUMMON` stays off with the bus. Turning `local_bus` back on brings everything back.
 
 ## 1. What a bot can know without being told
 
@@ -88,7 +94,7 @@ people were seen; (c) else run the BFS out from the anchor; (d) else world spawn
 | Step | What | Test |
 |---|---|---|
 | 0 | Bus off by default, schema 5 | ✅ unit test; live: bot starts, no "local bus on" line in the log |
-| 1 | ~~Owner-tools split~~ — decided against (§0) | — |
+| 1 | Owner-only see / watch, no positions (§0) | ✅ unit tests; live: `/zbot see Bot1` from your client works, `send.bat bot1 /zbot see Bot3` is refused |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |
@@ -98,7 +104,7 @@ people were seen; (c) else run the BFS out from the anchor; (d) else world spawn
 
 ## 5. Open questions for the owner
 
-1. ~~**Owner tools**~~ — decided: off with the bus (§0).
+1. ~~**Owner tools**~~ — decided: see / watch for the owner only, summon off (§0).
 2. **Saved memory:** the roster and (soon) landmarks are saved per server. Does "knows nothing" mean
    only on its **first** join, or should each session start empty?
 3. **The `/msg` probe** (PHASE2, `chat` transport, already off by default) whispers roster members
