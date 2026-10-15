@@ -267,7 +267,8 @@ public final class Bot {
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
         if (!onWhitelist()) {
-            log.record("silent", where + " isn't on the server list — /" + config.commandRoot + " start to begin");
+            log.record("silent", where + (config.isServerOff(address) ? " is switched off on the server list"
+                    : " isn't on the server list") + " — /" + config.commandRoot + " start to begin");
             return;
         }
         switch (role()) {
@@ -284,7 +285,7 @@ public final class Bot {
     }
 
     private boolean onWhitelist() {
-        return address != null && AutostartPolicy.shouldAutostart(config.autostartServers, address);
+        return address != null && config.activeOn(address);
     }
 
     /** Teammate mode: say HELLO so bots know we're here; never touch the controls. */
@@ -688,7 +689,8 @@ public final class Bot {
         out.add("role: " + role().label() + (config.roleOf(selfId) == ZymbotConfig.Role.NONE && role() == ZymbotConfig.Role.BOT
                 ? " (headless, no accounts listed)" : ""));
         out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
-                + (onWhitelist() ? " (on the server list)" : " (not on the server list)")));
+                + (onWhitelist() ? " (on the server list)" : config.isServerOff(address) ? " (on the server list, switched off)"
+                        : " (not on the server list)")));
         WorldView w = current;
         if (w != null && address != null) {
             out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — eats at ≤%d, critical ≤%d, leash %d, danger %s",
@@ -761,6 +763,7 @@ public final class Bot {
         String key = AutostartPolicy.normalize(server);
         boolean removed = config.autostartServers.removeIf(s -> AutostartPolicy.normalize(s).equals(key));
         if (!removed) return key + " wasn't on the list";
+        config.setServerOff(key, false);
         ConfigIO.save(configFile, config);
         settingsChanged();
         return "removed " + key;
@@ -793,7 +796,7 @@ public final class Bot {
 
     public List<String> autostartList() {
         return config.autostartServers.isEmpty() ? List.of("autostart list is empty")
-                : config.autostartServers.stream().map(AutostartPolicy::normalize).toList();
+                : config.autostartServers.stream().map(s -> AutostartPolicy.normalize(s) + (config.isServerOff(s) ? " (off)" : "")).toList();
     }
 
     // ------------------------------------------------------------------ summon

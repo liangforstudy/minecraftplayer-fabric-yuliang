@@ -25,6 +25,26 @@ public final class ZymbotConfig {
      * announces itself. "singleplayer" opts singleplayer in. Everywhere else it stays silent.
      */
     public List<String> autostartServers = new ArrayList<>();
+    /**
+     * Listed servers switched off (the settings screen's On / Off, owner 2026-10-16): kept on the
+     * list, but Zymbot stays silent there until switched back on. Normalized addresses.
+     */
+    public List<String> autostartOff = new ArrayList<>();
+
+    /** On the server list and not switched off: Zymbot is active there. */
+    public boolean activeOn(String address) {
+        return AutostartPolicy.shouldAutostart(autostartServers, address) && !isServerOff(address);
+    }
+
+    public boolean isServerOff(String address) {
+        return AutostartPolicy.shouldAutostart(autostartOff, address);
+    }
+
+    public void setServerOff(String address, boolean off) {
+        String key = AutostartPolicy.normalize(address);
+        autostartOff.removeIf(s -> AutostartPolicy.normalize(s).equals(key));
+        if (off) autostartOff.add(key);
+    }
 
     /** Which accounts are what. Matched by UUID (names can change); the name is for display. */
     public List<Account> accounts = new ArrayList<>();
@@ -290,6 +310,8 @@ public final class ZymbotConfig {
             return bad;
         });
         if (autostartServers == null) autostartServers = new ArrayList<>();
+        if (autostartOff == null) autostartOff = new ArrayList<>();
+        autostartOff.removeIf(s -> !AutostartPolicy.shouldAutostart(autostartServers, s));   // off only means something for a listed server
         if (accounts == null) accounts = new ArrayList<>();
         accounts.removeIf(a -> {
             if (a != null && a.role != null) a.role = a.role.trim().toLowerCase(Locale.ROOT);

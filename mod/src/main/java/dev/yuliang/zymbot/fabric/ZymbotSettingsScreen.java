@@ -208,9 +208,19 @@ final class ZymbotSettingsScreen extends Screen {
         }
         for (int i = 0; i < Math.min(servers.size(), shown); i++, y += ROW_H) {
             String s = servers.get(i);
-            label(AutostartPolicy.normalize(s), cx - 150, y + 6, WHITE);
+            boolean off = cfg().isServerOff(s);
+            label(AutostartPolicy.normalize(s), cx - 150, y + 6, off ? GREY : WHITE);
+            // On / Off right beside Remove: keep a server listed but silent (owner, 2026-10-16)
+            addRenderableWidget(Button.builder(Component.literal(off ? "Off" : "On"), b -> {
+                cfg().setServerOff(s, !off);
+                ZymbotClient.get().settingsEdited();
+                say(AutostartPolicy.normalize(s) + (off ? " switched on" : " switched off - Zymbot is silent there from the next join"),
+                        off ? GREEN : GREY);
+                rebuildWidgets();
+            }).bounds(cx + 54, y, 36, 20).build());
             addRenderableWidget(Button.builder(Component.literal("Remove"), b -> {
                 servers.remove(s);
+                cfg().setServerOff(s, false);
                 ZymbotClient.get().settingsEdited();
                 say("removed " + AutostartPolicy.normalize(s), GREY);
                 rebuildWidgets();
