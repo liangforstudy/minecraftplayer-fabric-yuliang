@@ -214,7 +214,8 @@ final class ZymbotSettingsScreen extends Screen {
             addRenderableWidget(Button.builder(Component.literal(off ? "Off" : "On"), b -> {
                 cfg().setServerOff(s, !off);
                 ZymbotClient.get().settingsEdited();
-                say(AutostartPolicy.normalize(s) + (off ? " switched on" : " switched off - Zymbot is silent there from the next join"),
+                say(AutostartPolicy.normalize(s) + (off ? " switched on" : " switched off - silent there from the next join"
+                        + (AutostartPolicy.SINGLEPLAYER.equals(AutostartPolicy.normalize(s)) ? ", and your worlds don't open to LAN by themselves" : "")),
                         off ? GREEN : GREY);
                 rebuildWidgets();
             }).bounds(cx + 54, y, 36, 20).build());

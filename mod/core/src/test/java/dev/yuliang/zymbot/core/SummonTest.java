@@ -150,6 +150,18 @@ class SummonTest {
     }
 
     @Test
+    void singleplayerSwitchedOff_keepsWorldsClosed() {             // owner, 2026-10-16
+        FakeWorld human = new FakeWorld("Bot2");
+        Bot host = bot(human, team(), false);
+        host.setAutoOpenLan("New World", true);
+        host.config().autostartServers.add("singleplayer");
+        host.config().setServerOff("singleplayer", true);
+        assertFalse(host.autoOpensLan("New World"), "off: the world stays closed");
+        host.config().setServerOff("singleplayer", false);
+        assertTrue(host.autoOpensLan("New World"), "on again: opens as before");
+    }
+
+    @Test
     void autoSummonOnlyWhenTurnedOn() {
         FakeWorld human = new FakeWorld("Bot2"), bot1 = new FakeWorld("Bot1");
         Bot host = bot(human, team(), false);

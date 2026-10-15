@@ -873,9 +873,12 @@ public final class Bot {
         nextSummonRepeat = now + SUMMON_REPEAT_EVERY_MILLIS;
     }
 
-    /** Whether this singleplayer world opens to LAN by itself. */
+    /**
+     * Whether this singleplayer world opens to LAN by itself. Not while "singleplayer" is switched off
+     * on the server list: that switch is mainly for this, a world that stays closed (owner, 2026-10-16).
+     */
     public boolean autoOpensLan(String levelName) {
-        return config.autoOpenLanWorlds.contains(levelName);
+        return config.autoOpenLanWorlds.contains(levelName) && !config.isServerOff(AutostartPolicy.SINGLEPLAYER);
     }
 
     public String setAutoOpenLan(String levelName, boolean on) {
