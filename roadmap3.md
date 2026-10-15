@@ -94,7 +94,12 @@ bot asks a player in a fixed format; **a player who doesn't reply in that format
 strangers is fine; the owner's own client **stays silent**, so bots take the owner for a human.
 **Built the same day** (`team/Handshake.java`, `HandshakeTest`):
 
-- **When:** the first time a Bot that is playing sees a player (`nearby()`), once per player per
+- **Reach (owner, 2026-10-16):** every player the **server** sends us (`WorldView.playersInView()`,
+  the client's player list, no distance cap), not our 32-block `nearby()`. Bot1 logs
+  `X came into view — N blocks away` / `went out of view`, so the limit can be read off. Live, it was
+  **32 blocks**: the owner hosts, and their render distance was 2 chunks; the integrated server sends
+  players only within its view distance. A dedicated server uses its own `view-distance` (often ~150).
+- **When:** the first time a Bot that is playing sees a player (`playersInView()`), once per player per
   world. Verdicts last the session (not saved yet, see §6 question 4); a "human" is asked again after
   30 min.
 - **The ask** is a whisper, never public chat: `/msg <player> zym? <nonce>`, where the nonce is a few
@@ -132,7 +137,7 @@ strangers is fine; the owner's own client **stays silent**, so bots take the own
 | Step | What | Test |
 |---|---|---|
 | 0 | Bus off by default, schema 5; nothing crosses the network with it off | ✅ unit tests; live 0.1.44 (see / watch then still on, removed after) |
-| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 8 tests); live to do: Bot1 meets the owner (→ human after ~70 s) and Bot3 (→ team bot) |
+| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 9 tests). **Live 2026-10-16 (0.1.46):** Bot1 met the owner, asked 00:39:31, again 00:40:31, "Bluetails_zym is a human" 00:40:41, shown in `/zbot status`. To do: Bot3 → team bot; Bot1's own "You whisper to …" echo still shows on its chat (not hidden) |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |

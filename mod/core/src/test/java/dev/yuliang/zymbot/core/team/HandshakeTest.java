@@ -131,6 +131,19 @@ class HandshakeTest {
     }
 
     @Test
+    void aBotAsksPlayersAsFarAsTheServerShowsThem_notJust32Blocks() {   // owner, 2026-10-16
+        FakeWorld w1 = new FakeWorld("Bot1");
+        w1.player("Bluetails", 120, 0);                       // FakeWorld shows every player, like a server would
+        Bot bot1 = new Bot(new ZymbotConfig(), dir.resolve("b1.json"), dir.resolve("b1"), w1.id, true, clock);
+        bot1.onJoin("127.0.0.1:25565", "Bot1");
+        bot1.start("test");
+        for (int i = 0; i < 3; i++) { clock.advance(ChatOut.MIN_GAP_MILLIS); bot1.tick(w1, w1); }
+        assertTrue(w1.said.stream().anyMatch(s -> s.startsWith("/msg Bluetails zym? ")), w1.said.toString());
+        assertTrue(bot1.status().stream().anyMatch(s -> s.contains("Bluetails came into view") && s.contains("120 blocks away")),
+                bot1.status().toString());
+    }
+
+    @Test
     void theOwnersClientStaysSilent_andABotAnswers() {             // owner, 2026-10-15
         FakeWorld me = new FakeWorld("Bluetails"), w3 = new FakeWorld("Bot3");
         ZymbotConfig mine = new ZymbotConfig();

@@ -81,6 +81,13 @@ public interface WorldView {
     default Optional<Damage> recentDamage() { return Optional.empty(); }
     /** Players and mobs within ~32 blocks, not including ourselves. */
     default List<EntityView> nearby() { return List.of(); }
+    /**
+     * Every other player the server sends us, however far: the server's own tracking limit, not
+     * ours (owner, 2026-10-16). Who the chat check (roadmap3.md §4) can "meet in sight".
+     */
+    default List<EntityView> playersInView() {
+        return nearby().stream().filter(e -> e.kind() == EntityView.Kind.PLAYER).toList();
+    }
     /** Registry id of the block there ("minecraft:stone"), or "unloaded". */
     default String blockAt(BlockPos p) { return "unloaded"; }
     /** Nearest block with this registry id within {@code radius} blocks. */

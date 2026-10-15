@@ -32,8 +32,15 @@ $LATIN1 = [Text.Encoding]::GetEncoding(28591)
 # HeadlessMC would then read "\uFEFFfabric ..." and reject the first command.
 try { [Console]::InputEncoding = $UTF8 } catch {}
 
-function Say($m) { [Console]::Out.WriteLine($m) }
-function Die($m) { [Console]::Error.WriteLine($m); exit 1 }
+# play / consoles also keep what they say in headless\play-last.log: the console once didn't open after
+# play.bat and its window was gone, so there was nothing to read (owner, 2026-10-16: "log first before fixing")
+$script:RUN_LOG = $null
+function Write-RunLog($m) {
+    if (-not $script:RUN_LOG) { return }
+    try { [IO.File]::AppendAllText($script:RUN_LOG, ('[' + (Get-Date -Format 'HH:mm:ss') + '] ' + $m + "`n")) } catch {}
+}
+function Say($m) { [Console]::Out.WriteLine($m); Write-RunLog $m }
+function Die($m) { [Console]::Error.WriteLine($m); Write-RunLog ('ERROR: ' + $m); exit 1 }
 function Read-Trimmed($p) { ([IO.File]::ReadAllText($p)).Trim() }
 function Get-OptFile($name) {
     $p = Join-Path $HERE $name
@@ -947,8 +954,26 @@ function Cmd-Consoles([string[]]$argv) {
     }
     # minimised: it opened on top of the game, taking focus from Minecraft mid-play (owner, 2026-09-29). It waits
     # on the taskbar; click it when wanted.
-    Start-Process -FilePath $wt -ArgumentList ('-w zymbot ' + ($parts -join ' ; ')) -WindowStyle Minimized
+    $wtArgs = '-w zymbot ' + ($parts -join ' ; ')
+    Write-RunLog "wt: $wt"
+    Write-RunLog "wt args: $wtArgs"
+    $before = @(Get-Process WindowsTerminal -ErrorAction SilentlyContinue | ForEach-Object { $_.Id })
+    Write-RunLog "Windows Terminal before: $(if ($before.Count) { $before -join ', ' } else { 'none' })"
+    try {
+        $p = Start-Process -FilePath $wt -ArgumentList $wtArgs -WindowStyle Minimized -PassThru
+        Write-RunLog "wt.exe started, pid $($p.Id)"
+    } catch {
+        Write-RunLog "wt.exe failed to start: $($_.Exception.Message)"
+    }
     Say "opened the Zymbot console in Windows Terminal, minimised on the taskbar: a tab per bot ($($bots -join ', ')), log on top, commands below"
+    # logging only, no fix yet: did a Terminal window really appear?
+    Start-Sleep -Seconds 5
+    if ($p) { Write-RunLog "wt.exe after 5 s: $(if ($p.HasExited) { 'exited, code ' + $p.ExitCode } else { 'still running' })" }
+    $after = @(Get-Process WindowsTerminal -ErrorAction SilentlyContinue | ForEach-Object { "$($_.Id) '$($_.MainWindowTitle)' started $($_.StartTime.ToString('HH:mm:ss'))" })
+    Write-RunLog "Windows Terminal after 5 s: $(if ($after.Count) { $after -join '; ' } else { 'NONE - no console window' })"
+    $panes = @(Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction SilentlyContinue |
+        Where-Object { $_.CommandLine -match 'bots\.ps1"? console' } | ForEach-Object { $_.ProcessId })
+    Write-RunLog "console panes running: $(if ($panes.Count) { $panes -join ', ' } else { 'none' })"
     10
 }
 
@@ -1218,6 +1243,11 @@ function Invoke-Main([string[]]$a) {
         return 0
     }
     $cmd = $a[0]; $rest = @($a | Select-Object -Skip 1)
+    if ($cmd -in 'play', 'consoles') {
+        $script:RUN_LOG = Join-Path $HERE 'play-last.log'
+        if ($cmd -eq 'play') { try { [IO.File]::WriteAllText($script:RUN_LOG, '') } catch {} }   # a fresh log per play
+        Write-RunLog ("== bots.ps1 $cmd $($rest -join ' ')  (pid $PID, interactive $([Environment]::UserInteractive), ZBOT_CONSOLE='$env:ZBOT_CONSOLE')")
+    }
     # Say what's starting before any slow step (process scans take a few seconds): sync-bots.bat sat
     # on a blank window with no hint it was working (owner, 2026-09-28).
     $intro = @{

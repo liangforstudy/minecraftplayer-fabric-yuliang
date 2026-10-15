@@ -119,6 +119,8 @@ public final class Bot {
     private final ChatOut chatOut;
     /** Bot or human, told apart in game chat (roadmap3.md §4). */
     private final dev.yuliang.zymbot.core.team.Handshake handshake;
+    /** Players in view last tick, by name, with their distance then. */
+    private java.util.Map<String, Integer> lastInView = new java.util.HashMap<>();
 
     private Phase phase = Phase.STOPPED;
     private String address;            // as joined, or "singleplayer"; null when not in a world
@@ -261,6 +263,7 @@ public final class Bot {
         reviveCheckTicks = 0;
         heardThisSession.clear();
         handshake.reset();
+        lastInView = new java.util.HashMap<>();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
         if (!onWhitelist()) {
@@ -459,7 +462,11 @@ public final class Bot {
         }
         watchForFidgeting(world, hands);
         brain.tick(world, hands);
-        if (role() == ZymbotConfig.Role.BOT) handshake.tick(selfName, world.nearby());
+        if (role() == ZymbotConfig.Role.BOT) {
+            List<EntityView> inView = world.playersInView();
+            trackView(world, inView);
+            handshake.tick(selfName, inView);
+        }
         chatOut.flush(hands);
     }
 
@@ -1305,6 +1312,24 @@ public final class Bot {
         if (!whisper || address == null) return false;
         boolean answers = hidesHandshakes();
         return handshake.onWhisper(sender, selfName, text, answers) && answers;
+    }
+
+    /**
+     * Log each player coming into and going out of view, with the distance: how far the server lets
+     * us see players (the chat check's reach), read off the log (owner, 2026-10-16).
+     */
+    private void trackView(WorldView world, List<EntityView> inView) {
+        var me = world.position();
+        java.util.Map<String, Integer> now = new java.util.HashMap<>();
+        for (EntityView p : inView) {
+            int d = (int) Math.round(Math.hypot(p.pos().x() - me.x(), p.pos().z() - me.z()));
+            now.put(p.name(), d);
+            if (!lastInView.containsKey(p.name())) log.record(p.name() + " came into view", d + " blocks away");
+        }
+        for (var en : lastInView.entrySet()) {
+            if (!now.containsKey(en.getKey())) log.record(en.getKey() + " went out of view", "last seen " + en.getValue() + " blocks away");
+        }
+        lastInView = now;
     }
 
     /**
