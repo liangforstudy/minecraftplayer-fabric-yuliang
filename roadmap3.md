@@ -1,6 +1,6 @@
 # Finding the world roadmap (draft)
 
-Status: **plan, 2026-10-15**, from the owner. Step 0 is done; step 1 (the chat handshake) is built, waiting for a live test.
+Status: **plan, 2026-10-15**, from the owner. Steps 0 and 1 are done (the chat handshake passed live 2026-10-16).
 
 The idea (owner, 2026-10-15): the UDP multicast **local bus is off by default**. A bot joins a server
 **knowing nothing** about other players, bots or places. It finds them **in the game**: it looks
@@ -138,7 +138,7 @@ strangers is fine; the owner's own client **stays silent**, so bots take the own
 | Step | What | Test |
 |---|---|---|
 | 0 | Bus off by default, schema 5; nothing crosses the network with it off | ✅ unit tests; live 0.1.44 (see / watch then still on, removed after) |
-| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 9 tests). **Live 2026-10-16 (0.1.46):** Bot1 met the owner, asked 00:39:31, again 00:40:31, "Bluetails_zym is a human" 00:40:41, shown in `/zbot status`. To do: Bot3 → team bot; Bot1's own "You whisper to …" echo showed on its chat. **Cause (0.1.47):** on the owner's offline LAN, whispers arrive as **system messages**, not player chat, so the first version never saw them (no bot answered another). Now both routes are handled (sender read from "X whispers to you: …"), and each chat-check line logs its route. Live: Bot1's echo hidden. Bot-to-bot to retest |
+| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 9 tests). **Live 2026-10-16 (0.1.46):** Bot1 met the owner, asked 00:39:31, again 00:40:31, "Bluetails_zym is a human" 00:40:41, shown in `/zbot status`. To do: Bot3 → team bot; Bot1's own "You whisper to …" echo showed on its chat. **Cause (0.1.47):** on the owner's offline LAN, whispers arrive as **system messages**, not player chat, so the first version never saw them (no bot answered another). Now both routes are handled (sender read from "X whispers to you: …"), and each chat-check line logs its route. Live: Bot1's echo hidden. **Bot-to-bot passed live 01:07, 0.1.47 on both** (owner's client as a playing Bot): each asked the other, each answered, "Bot1 is a bot on our team" (6.5 s, Bot1 had just joined) and "Bluetails_zym is a bot on our team" (1.9 s); no chat-check line on either chat screen. Step 1 done; remembering verdicts per server is next for real runs |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |
