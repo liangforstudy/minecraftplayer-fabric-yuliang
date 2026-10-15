@@ -123,6 +123,20 @@ class HandshakeTest {
     }
 
     @Test
+    void aWhisperWithNoSenderAttached_isReadFromItsLine() {         // offline LAN, 2026-10-16
+        assertEquals("Bot1", Handshake.whisperSender("Bot1 whispers to you: zym? utceea (Zymbot bot check, no need to reply)"));
+        assertNull(Handshake.whisperSender("You whisper to Bot1: zym? yi0qde (Zymbot bot check, no need to reply)"));
+        assertNull(Handshake.whisperSender("<Bot1> zym? utceea"), "public chat isn't a whisper");
+        assertTrue(Handshake.isOwnWhisperEcho("You whisper to Bluetails_zym: zym? frkwpd (Zymbot bot check, no need to reply)"));
+        assertFalse(Handshake.isOwnWhisperEcho("Bot1 whispers to you: zym? utceea"));
+        // and the whole line answers like a bare one
+        Side bot3 = new Side("Bot3", "team-key");
+        String line = "Bot1 whispers to you: zym? utceea (Zymbot bot check, no need to reply)";
+        assertTrue(bot3.hs.onWhisper(Handshake.whisperSender(line), "Bot3", line, true));
+        assertTrue(bot3.sent().get(0).startsWith("/msg Bot1 zym! utceea "));
+    }
+
+    @Test
     void ordinaryWhispersAreLeftAlone() {
         Side bot1 = new Side("Bot1", "team-key");
         assertFalse(bot1.hs.onWhisper("Bluetails", "Bot1", "hey, zym? what's up", true));

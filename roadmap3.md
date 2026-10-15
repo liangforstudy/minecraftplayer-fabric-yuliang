@@ -100,8 +100,9 @@ strangers is fine; the owner's own client **stays silent**, so bots take the own
   **32 blocks**: the owner hosts, and their render distance was 2 chunks; the integrated server sends
   players only within its view distance. A dedicated server uses its own `view-distance` (often ~150).
 - **When:** the first time a Bot that is playing sees a player (`playersInView()`), once per player per
-  world. Verdicts last the session (not saved yet, see §6 question 4); a "human" is asked again after
-  30 min.
+  world. Verdicts last the session for now; a "human" is asked again after 30 min. **Decided (owner,
+  2026-10-16): in real runs a bot remembers who is a bot and who is a player** (saved per server, like
+  the roster). Session-only is kept for testing, where leaving and rejoining the world is the quick reset.
 - **The ask** is a whisper, never public chat: `/msg <player> zym? <nonce>`, where the nonce is a few
   random characters. A human sees one short, odd-looking line, so it says what it is:
   `zym? 4f2a (Zymbot bot check, no need to reply)`.
@@ -137,7 +138,7 @@ strangers is fine; the owner's own client **stays silent**, so bots take the own
 | Step | What | Test |
 |---|---|---|
 | 0 | Bus off by default, schema 5; nothing crosses the network with it off | ✅ unit tests; live 0.1.44 (see / watch then still on, removed after) |
-| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 9 tests). **Live 2026-10-16 (0.1.46):** Bot1 met the owner, asked 00:39:31, again 00:40:31, "Bluetails_zym is a human" 00:40:41, shown in `/zbot status`. To do: Bot3 → team bot; Bot1's own "You whisper to …" echo still shows on its chat (not hidden) |
+| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 9 tests). **Live 2026-10-16 (0.1.46):** Bot1 met the owner, asked 00:39:31, again 00:40:31, "Bluetails_zym is a human" 00:40:41, shown in `/zbot status`. To do: Bot3 → team bot; Bot1's own "You whisper to …" echo showed on its chat. **Cause (0.1.47):** on the owner's offline LAN, whispers arrive as **system messages**, not player chat, so the first version never saw them (no bot answered another). Now both routes are handled (sender read from "X whispers to you: …"), and each chat-check line logs its route. Live: Bot1's echo hidden. Bot-to-bot to retest |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |

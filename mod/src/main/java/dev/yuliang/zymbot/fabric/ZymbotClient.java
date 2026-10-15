@@ -5,6 +5,7 @@ import dev.yuliang.zymbot.core.config.AutostartPolicy;
 import dev.yuliang.zymbot.core.config.ConfigIO;
 import dev.yuliang.zymbot.core.config.ZymbotConfig;
 import dev.yuliang.zymbot.core.protocol.LocalBusTransport;
+import dev.yuliang.zymbot.core.team.Handshake;
 import java.io.IOException;
 import java.nio.file.Path;
 import net.fabricmc.api.ClientModInitializer;
@@ -104,15 +105,35 @@ public final class ZymbotClient implements ClientModInitializer {
         ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signed, sender, params, at) -> {
             if (bot == null) return true;
             String text = message.getString();
-            if (params.chatType().is(ChatType.MSG_COMMAND_OUTGOING)) {   // our own /msg, echoed back
-                return !(bot.hidesHandshakes() && dev.yuliang.zymbot.core.team.Handshake.isHandshake(text));
+            boolean in = params.chatType().is(ChatType.MSG_COMMAND_INCOMING);
+            boolean out = params.chatType().is(ChatType.MSG_COMMAND_OUTGOING);
+            // no profile on an unsigned (offline-mode) message: the sender is the chat type's bound name
+            String who = sender != null ? sender.getName() : params.name().getString();
+            if (Handshake.isHandshake(text)) {
+                LOG.info("[zymbot] chat check line via player chat: type {}, sender {} ({}), {}: {}",
+                        params.chatType().unwrapKey().map(k -> k.location().toString()).orElse("?"), who,
+                        sender != null ? "profile" : "bound name", signed != null ? "signed" : "unsigned", text);
             }
-            return !bot.onChat(sender == null ? null : sender.getName(), text,
-                    params.chatType().is(ChatType.MSG_COMMAND_INCOMING));
+            if (out) return !(bot.hidesHandshakes() && Handshake.isHandshake(text));   // our own /msg, echoed back
+            return !bot.onChat(who, text, in);
         });
-        // the action bar too: civfabric's refusals ("You're too hungry to craft") arrive there
-        ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
-            if (bot != null) bot.onChat(null, message.getString(), false);
+        // ALLOW_GAME for whispers delivered as system lines ("X whispers to you: …"); the action bar too:
+        // civfabric's refusals ("You're too hungry to craft") arrive there
+        ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
+            if (bot == null) return true;
+            String text = message.getString();
+            if (overlay || !Handshake.isHandshake(text)) {
+                bot.onChat(null, text, false);
+                return true;
+            }
+            String from = Handshake.whisperSender(text);
+            boolean echo = Handshake.isOwnWhisperEcho(text);
+            LOG.info("[zymbot] chat check line via system message: {}: {}",
+                    from != null ? "whisper from " + from : echo ? "our own whisper, echoed" : "not a whisper", text);
+            if (from != null) return !bot.onChat(from, text, true);
+            if (echo) return !bot.hidesHandshakes();
+            bot.onChat(null, text, false);
+            return true;
         });
         ClientLifecycleEvents.CLIENT_STOPPING.register(mc -> { if (bot != null) bot.shutdown(); });
     }

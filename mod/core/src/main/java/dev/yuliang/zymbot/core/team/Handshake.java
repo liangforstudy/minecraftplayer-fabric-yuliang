@@ -89,6 +89,23 @@ public final class Handshake {
         return text != null && (ASK_RE.matcher(text).find() || ANSWER_RE.matcher(text).find());
     }
 
+    // vanilla's /msg lines (commands.message.display.incoming / outgoing), for whispers that arrive with
+    // no sender attached: a bot-to-bot check on the owner's offline LAN went unanswered (2026-10-16)
+    private static final Pattern WHISPER_IN = Pattern.compile("^([A-Za-z0-9_]{1,16}) whispers to you: ");
+    private static final Pattern WHISPER_OUT = Pattern.compile("^You whisper to ([A-Za-z0-9_]{1,16}): ");
+
+    /** The sender of a whole "X whispers to you: …" line, or null. */
+    public static String whisperSender(String line) {
+        if (line == null) return null;
+        Matcher m = WHISPER_IN.matcher(line);
+        return m.find() ? m.group(1) : null;
+    }
+
+    /** Whether this is our own "You whisper to X: …" line, echoed back. */
+    public static boolean isOwnWhisperEcho(String line) {
+        return line != null && WHISPER_OUT.matcher(line).find();
+    }
+
     /**
      * Each tick, for a Bot that is playing: ask players newly in sight, and give up on asks that
      * timed out (retry once, then "human").
