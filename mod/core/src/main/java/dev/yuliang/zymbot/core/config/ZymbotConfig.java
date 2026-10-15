@@ -239,11 +239,6 @@ public final class ZymbotConfig {
          * and finds players, bots and places in the world itself (roadmap3.md).
          */
         public boolean localBus = false;
-        /**
-         * The owner's own client can /zbot see and /zbot watch their bots over the LAN, carrying no
-         * positions; a bot never asks another bot (owner, 2026-10-15). Used when local_bus is off.
-         */
-        public boolean ownerTools = true;
         public boolean chat = false;      // server chat — phase 2
         public boolean relay = false;     // MQTT — later
     }

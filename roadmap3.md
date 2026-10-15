@@ -1,6 +1,6 @@
 # Finding the world roadmap (draft)
 
-Status: **plan, 2026-10-15**, from the owner. Steps 0 and 1 are done; nothing else is built yet.
+Status: **plan, 2026-10-15**, from the owner. Step 0 is done; nothing else is built yet.
 
 The idea (owner, 2026-10-15): the UDP multicast **local bus is off by default**. A bot joins a server
 **knowing nothing** about other players, bots or places. It finds them **in the game**: it looks
@@ -23,20 +23,16 @@ Landmarks include towns / villages, farms, the bot's own bed, other players' bed
 | Feature | Uses the bus for | With the bus off |
 |---|---|---|
 | Regroup (PHASE2 §1) | teammates' `HELLO` positions, `WHERE` | no positions: probe (if `chat` is on), then walk to world spawn and wait |
-| Roster (`HELLO`, `ROSTER`) | knowing who is a Zymbot | a bot can't tell a bot from a human; it only sees "players" |
+| Roster (`HELLO`, `ROSTER`) | knowing who is a Zymbot | replaced by the chat handshake (§4) |
 | `/zbot summon`, auto-summon on LAN | `SUMMON` to bots at the title screen | **off**: refused with a message; start bots with play / run-bot |
-| `/zbot see <bot>`, `/zbot watch` | `STATUS`, `STATUS_LINE`, `WATCH` | **kept for the owner** (below): from your own client only, with no positions |
+| `/zbot see <bot>`, `/zbot watch` | `STATUS`, `STATUS_LINE`, `WATCH` | **off**: refused with a message; use the bot's own `/zbot status` (`send.bat`) or its log |
 | Knocked-out alert | `DOWNED` | teammates aren't told; nearby humans still get the `/msg` |
 
-**Decided (owner, 2026-10-15): `/zbot see` and `/zbot watch` are the owner's only.** A bot can't
-see or watch other bots; the owner's own client can see and watch their bots. Built the same day:
-- `transports.owner_tools` (on by default) keeps the LAN socket open for `STATUS`, `STATUS_LINE` and
-  `WATCH` only. With `local_bus` off, every other message is dropped on arrival and never sent, and
-  the envelope's x, z are 0.
-- A `BOT` account refuses `/zbot see <other>` / `watch` ("a bot can't see other bots"); `/zbot see`
-  on itself still works. Requests now carry the asker's role (field 3), and a bot ignores one from
-  a `BOT`, or from an older client that leaves the role out.
-- `SUMMON` stays off with the bus. Turning `local_bus` back on brings everything back.
+**Decided (owner, 2026-10-15): nothing crosses the network with the bus off**, not even `/zbot see`
+and `/zbot watch` from the owner's client. (0.1.44 briefly kept them on a position-free
+`owner_tools` channel; that was a misreading and is removed.) A `BOT` account still refuses
+`/zbot see <other bot>`. Turning `local_bus` back on brings everything back, for testing.
+Bots tell bots from humans **in game chat** instead (§4).
 
 ## 1. What a bot can know without being told
 
@@ -89,26 +85,69 @@ Landmarks are saved per server (`VersionedStore`, beside the roster) and fill in
 Regroup becomes: (a) anyone in sight → walk to them; (b) else the nearest remembered landmark where
 people were seen; (c) else run the BFS out from the anchor; (d) else world spawn as today.
 
-## 4. Steps
+## 4. Bot or human: the chat handshake
+
+The owner's plan (2026-10-15): bots talk to each other **in game chat** to tell bots from humans. A
+bot asks a player in a fixed format; **a player who doesn't reply in that format is a human.**
+
+- **When:** the first time a bot meets a player, in sight (open question 2 in §6), once per player per
+  session. The answer is remembered with the time, and asked again after a while.
+- **The ask** is a whisper, never public chat: `/msg <player> zym? <nonce>`, where the nonce is a few
+  random characters. A human sees one short, odd-looking line, so it says what it is:
+  `zym? 4f2a (Zymbot bot check, no need to reply)`.
+- **The answer:** a Zymbot client whispers back `zym! <nonce> <role> <tag>` within a few seconds. The
+  tag is a short signature of the nonce and both names made with the **team key**, so a human
+  copying the format can't fake it, and a Zymbot from another team (other key) is told apart.
+  The client hides the ask and the answer from its own chat screen.
+- **Verdict:**
+
+  | Reply | The player is |
+  |---|---|
+  | `zym!` with a good tag | a **bot** (or, by its role field, the owner's Teammate client) **on our team** |
+  | `zym!` with a bad tag | a **Zymbot from another team**: a bot, not ours |
+  | nothing in ~10 s, or anything else | a **human** |
+
+- **Mistakes and limits:**
+  - A bot that is lagging, loading or kicked misses the window and is taken for a human. One retry
+    a minute later, then "human" until the next ask.
+  - **Rate limits:** at most one ask every few seconds, well under the server's spam kick.
+  - Servers whose `/msg` reads differently need the chat reader taught their format (PHASE2 §3
+    "to verify first").
+- **Conflict with PHASE2 P2-4** ("nobody outside the team is ever whispered to"): the ask goes to
+  players who aren't known yet, humans included. It carries no coordinates and no secret, but it is
+  a whisper to a stranger. Needs the owner's yes (§6, question 1).
+- **Built on:** `ChatOut.whisper` and `ChatIn` exist. The sealed chat transport (PHASE2 §3) does
+  not, and isn't needed: only the tag uses the key.
+
+## 5. Steps
 
 | Step | What | Test |
 |---|---|---|
-| 0 | Bus off by default, schema 5 | ✅ unit test; live: bot starts, no "local bus on" line in the log |
-| 1 | Owner-only see / watch, no positions (§0) | ✅ unit tests; live: `/zbot see Bot1` from your client works, `send.bat bot1 /zbot see Bot3` is refused |
+| 0 | Bus off by default, schema 5; nothing crosses the network with it off | ✅ unit tests; live 0.1.44 (see / watch then still on, removed after) |
+| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | unit: a fake bot answers, a fake human doesn't, a bad tag; live: Bot1 asks the owner (human) and Bot3 (bot) |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |
-| 5 | Regroup uses steps 2–4 instead of bus positions | live: Bot1 300 blocks away, bus off → finds the owner by searching |
+| 5 | Regroup uses steps 1–4 instead of bus positions | live: Bot1 300 blocks away, bus off → finds the owner by searching |
 | 6 | Clue-first ordering (paths, torches, smoke) | compare against step 4: time to first player |
 | 7 | (later) Bots that **meet in the world** swap landmark maps by `/msg` | two bots, one has seen the village → both know it |
 
-## 5. Open questions for the owner
+Until step 5, a bot with the bus off can't hear anyone, so regroup always ends at world spawn
+(seen live 2026-10-15: Bot1 left its tree and swam to spawn). Stopping that walk with the bus off
+is a small fix that can come first.
 
-1. ~~**Owner tools**~~ — decided: see / watch for the owner only, summon off (§0).
-2. **Saved memory:** the roster and (soon) landmarks are saved per server. Does "knows nothing" mean
+## 6. Open questions for the owner
+
+1. **Whispering strangers:** the handshake (§4) whispers players not known yet, humans included,
+   which changes PHASE2 P2-4. OK?
+2. **Who gets asked:** only players the bot **meets in sight** (fits "find them in the world"), or
+   everyone in the **tab list** at once? `/msg` reaches anyone online, so the second finds every bot
+   on the server without exploring.
+3. **The owner's own client:** answer as a Teammate (the mod is on it), or stay silent so bots treat
+   you as the human you are?
+4. **Saved memory:** the roster and (soon) landmarks are saved per server. Does "knows nothing" mean
    only on its **first** join, or should each session start empty?
-3. **The `/msg` probe** (PHASE2, `chat` transport, already off by default) whispers roster members
+5. **The `/msg` probe** (PHASE2, `chat` transport, already off by default) whispers roster members
    by name. Is that in-game enough to keep, or is it also "knowledge"?
-4. **Other players' beds:** fine to infer them (§2), knowing that this guesses?
-5. **Recognising bots vs humans** without `HELLO`: does it matter? If yes: a bot can tell from an
-   in-game sign (a `/msg` handshake when in sight, or the account roles in its own config).
+6. **Other players' beds:** fine to infer them (§2), knowing that this guesses?
+7. ~~**Recognising bots vs humans**~~ — decided: the chat handshake (§4).

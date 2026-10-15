@@ -583,7 +583,7 @@ public final class Bot {
             if (sharesKnowledge()) onSummon(e);
             return;
         }
-        if (!sharesKnowledge() && !OWNER_TOOLS.contains(e.type())) return;   // bus off: a bot learns nothing from it
+        if (!sharesKnowledge()) return;                         // bus off: nothing crosses the network
         if (current == null || !current.onlinePlayers().contains(e.sender())) {
             pending.add(new Pending(e, clock.getAsLong()));
             return;
@@ -1037,7 +1037,7 @@ public final class Bot {
         String no = ownerToolRefusal();
         if (no != null) return List.of(no);
         WorldView w = current;
-        int x = busX(w), z = busZ(w);
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
         String reqId = UUID.randomUUID().toString().substring(0, 8);
         seeAsks.put(reqId, new SeeAsk(botName, clock.getAsLong() + SEE_TIMEOUT_MILLIS, null));
         bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS, List.of(selfName, botName, reqId, role().name()));
@@ -1047,7 +1047,7 @@ public final class Bot {
     private void answerStatus(String asker, String botName, String reqId) {
         if (!botName.equalsIgnoreCase(selfName) || asker.equalsIgnoreCase(selfName)) return;
         WorldView w = current;
-        int x = busX(w), z = busZ(w);
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
         List<String> lines = status();
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
@@ -1105,24 +1105,19 @@ public final class Bot {
         }
     }
 
-    /** Bus messages the owner's client still sends with the local bus off: no positions, owner to bot only. */
-    private static final java.util.Set<String> OWNER_TOOLS = java.util.Set.of(
-            MessageTypes.STATUS, MessageTypes.STATUS_LINE, MessageTypes.WATCH);
-
     /**
      * Whether the bus shares world knowledge (positions, roster, summons). Off by default: a bot
      * finds players, bots and places in the world itself (roadmap3.md).
      */
     private boolean sharesKnowledge() { return config.transports.localBus; }
 
-    /** Our position on outgoing bus messages: zero when the bus shares no knowledge. */
-    private int busX(WorldView w) { return w == null || !sharesKnowledge() ? 0 : (int) Math.floor(w.position().x()); }
-    private int busZ(WorldView w) { return w == null || !sharesKnowledge() ? 0 : (int) Math.floor(w.position().z()); }
-
-    /** /zbot see and watch are the owner's: a bot never asks another bot (owner, 2026-10-15). */
+    /**
+     * /zbot see and watch ask over the local bus, so they need it on; a bot never asks another bot
+     * (owner, 2026-10-15). With the bus off: send.bat &lt;bot&gt; /zbot status, or the bot's log.
+     */
     private String ownerToolRefusal() {
         if (role() == ZymbotConfig.Role.BOT) return "a bot can't see other bots - run it from your own client";
-        if (!sharesKnowledge() && !config.transports.ownerTools) return "owner tools are off (transports.owner_tools)";
+        if (!sharesKnowledge()) return "the local bus is off (transports.local_bus), so nothing crosses the network - use the bot's own /zbot status or its log";
         return null;
     }
 
@@ -1143,7 +1138,7 @@ public final class Bot {
         String no = ownerToolRefusal();
         if (no != null) return no;
         WorldView w = current;
-        int x = busX(w), z = busZ(w);
+        int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
         bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.WATCH, List.of(selfName, botName, on ? "on" : "off", role().name()));
         return on ? "asked " + botName + " to /msg you its decisions (for 30 min; /" + config.commandRoot + " watch " + botName + " off to stop)"
                   : "asked " + botName + " to stop";
