@@ -12,6 +12,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents;
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -91,6 +96,15 @@ public final class ZymbotClient implements ClientModInitializer {
         LOG.info("[zymbot] loaded — command /{}{}, {}", config.commandRoot,
                 config.commandAliases.isEmpty() ? "" : " (aliases " + config.commandAliases + ")",
                 HEADLESS ? "headless" : "with a human at the keys");
+
+        // Emergency stop (owner, 2026-10-16): /zbot stop and Baritone's own cancel, on a key — unbound until
+        // set in Options -> Controls. Chat can't be reached while the bot has a screen open, so it works there too.
+        stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
+        ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
+                .register((s, key, scancode, modifiers) -> {
+                    if (stopKey.matches(key, scancode) && !typingIn(s)) emergencyStop(mc);
+                }));
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
                 ZymbotCommands.register(dispatcher, () -> bot, this::summon, () -> openLan(Minecraft.getInstance()),
@@ -204,7 +218,34 @@ public final class ZymbotClient implements ClientModInitializer {
         bot.onJoin(address, worldKey, mc.getUser().getName());
     }
 
+    private KeyMapping stopKey;
+
+    /**
+     * The emergency stop key: Zymbot stops as /zbot stop does, and Baritone drops whatever it was doing
+     * (a path, a goal, a # command). Held keys and mining are let go. A screen the bot opened stays
+     * open (owner, 2026-10-16): Esc closes it.
+     */
+    private void emergencyStop(Minecraft mc) {
+        if (bot != null) bot.stop("emergency stop key");
+        if (hands != null) {
+            hands.paths().stop();                                // Baritone's cancelEverything, if it's installed
+            hands.holdKeys(false, false);
+            hands.stopMining();
+            hands.notifyLocal("emergency stop: Zymbot stopped" + (hands.paths() == dev.yuliang.zymbot.core.api.PathProvider.NONE
+                    ? "" : ", Baritone cancelled") + " — /" + config.commandRoot + " start to hand control back");
+        }
+        LOG.info("[zymbot] emergency stop key");
+    }
+
+    /** A key typed into chat, a text box or the Controls screen (binding keys) isn't the stop key. */
+    private static boolean typingIn(net.minecraft.client.gui.screens.Screen s) {
+        return s instanceof net.minecraft.client.gui.screens.ChatScreen
+                || s instanceof net.minecraft.client.gui.screens.options.controls.KeyBindsScreen
+                || s.getFocused() instanceof net.minecraft.client.gui.components.EditBox;
+    }
+
     private void onTick(Minecraft mc) {
+        while (stopKey != null && stopKey.consumeClick()) emergencyStop(mc);   // no screen open: the usual way
         if (config.skipExperimentalWorldWarning && mc.screen instanceof BackupConfirmScreen s) skipExperimentalWarning(s);
         if (bot == null) return;
         if (mc.player == null || mc.level == null) {

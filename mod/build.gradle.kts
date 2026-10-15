@@ -43,6 +43,8 @@ dependencies {
         "fabric-networking-api-v1",     // join / disconnect
         "fabric-command-api-v2",        // client commands under a configurable root
         "fabric-message-api-v1",        // incoming chat (human syntax, bus over chat)
+        "fabric-key-binding-api-v1",    // the emergency stop key, in Options -> Controls
+        "fabric-screen-api-v1",         // ...which works with a screen open, too (the bot's inventory)
     )
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")   // Baritone's API annotations
 
