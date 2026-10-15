@@ -117,6 +117,8 @@ public final class Bot {
     private final dev.yuliang.zymbot.core.body.FidgetWatchdog fidget = new dev.yuliang.zymbot.core.body.FidgetWatchdog();
     private final ChatIn chatIn = new ChatIn();
     private final ChatOut chatOut;
+    /** Bot or human, told apart in game chat (roadmap3.md §4). */
+    private final dev.yuliang.zymbot.core.team.Handshake handshake;
 
     private Phase phase = Phase.STOPPED;
     private String address;            // as joined, or "singleplayer"; null when not in a world
@@ -187,6 +189,7 @@ public final class Bot {
         this.log = new DecisionLog(50, clock);
         this.bus = new Bus(selfId, config.teamKey, clock);
         this.chatOut = new ChatOut(clock);
+        this.handshake = new dev.yuliang.zymbot.core.team.Handshake(config.teamKey, chatOut, clock, (what, why) -> log.record(what, why));
         this.body = new Body(() -> memory.recentFoods, this::isKnownBot, this::isTeammate, clock, () -> memoryDirty = true);
         body.onSwim(this::reportSwim);
         // BOT_BEHAVIOUR.md interrupt table, phase 1 rows, in priority order
@@ -257,6 +260,7 @@ public final class Bot {
         wasDowned = sawRevive = false;
         reviveCheckTicks = 0;
         heardThisSession.clear();
+        handshake.reset();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
         if (!onWhitelist()) {
@@ -455,6 +459,7 @@ public final class Bot {
         }
         watchForFidgeting(world, hands);
         brain.tick(world, hands);
+        if (role() == ZymbotConfig.Role.BOT) handshake.tick(selfName, world.nearby());
         chatOut.flush(hands);
     }
 
@@ -669,7 +674,8 @@ public final class Bot {
                 + (borrowedFor != null ? " (controls borrowed for: " + borrowedFor + ")" : ""));
         out.add("doing: " + (borrowedFor != null ? brain.describe() : switch (phase) {
             case STOPPED -> "nothing — silent";
-            case TEAMMATE -> "announcing to the team — never takes control";
+            case TEAMMATE -> (sharesKnowledge() ? "announcing to the team" : "a human to the bots (bus off, no chat check answered)")
+                    + " — never takes control";
             default -> brain.describe();
         }));
         out.add("role: " + role().label() + (config.roleOf(selfId) == ZymbotConfig.Role.NONE && role() == ZymbotConfig.Role.BOT
@@ -699,6 +705,8 @@ public final class Bot {
                 + (bus.rejectedCount() > 0 ? ", " + bus.rejectedCount() + " rejected (wrong team key?)" : "")
                 + (bus.staleCount() > 0 ? ", " + bus.staleCount() + " stale (replayed, or a clock is off)" : "")
                 + (notHere > 0 ? ", " + notHere + " from bots not in this server's tab list" : ""));
+        List<String> met = handshake.lines();
+        out.add("players met (chat check): " + (met.isEmpty() ? "none yet" : String.join(", ", met)));
         if (memory.roster.isEmpty()) {
             out.add("bots heard: none yet");
         } else {
@@ -717,6 +725,7 @@ public final class Bot {
         config.teamKey = key.strip();
         ConfigIO.save(configFile, config);
         bus.rekey(config.teamKey);
+        handshake.teamKey(config.teamKey);
         nextHello = 0;                                   // announce ourselves under the new key
         log.record("team key changed", "fingerprint " + ZymbotConfig.fingerprint(config.teamKey));
         return null;
@@ -1286,9 +1295,23 @@ public final class Bot {
     }
 
     /** A line of chat reached this client. */
-    public void onChat(String sender, String text, boolean whisper) {
+    /**
+     * A chat line reached us. Returns true when it is a handshake ask or answer that this client
+     * handled as a Bot, so the client keeps it off the chat screen. The owner's own client answers
+     * nothing and hides nothing: to the bots it is the human it is (owner, 2026-10-15).
+     */
+    public boolean onChat(String sender, String text, boolean whisper) {
         chatIn.heard(new ChatIn.Line(sender, text, whisper, clock.getAsLong()));
+        if (!whisper || address == null) return false;
+        boolean answers = hidesHandshakes();
+        return handshake.onWhisper(sender, selfName, text, answers) && answers;
     }
+
+    /**
+     * Whether this client answers the chat check and keeps its lines (its own asks echoed back too)
+     * off the chat screen: a Bot that is playing. Stopped, a human has it, so it is a human.
+     */
+    public boolean hidesHandshakes() { return role() == ZymbotConfig.Role.BOT && phase.controlling(); }
 
     /** Swimming costs ~85× walking per block: always say when and why. */
     private void reportSwim(String why) {

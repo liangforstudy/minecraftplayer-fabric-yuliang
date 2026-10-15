@@ -99,8 +99,15 @@ public final class ZymbotClient implements ClientModInitializer {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); onJoin(mc); });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
-        ClientReceiveMessageEvents.CHAT.register((message, signed, sender, params, at) -> {
-            if (bot != null) bot.onChat(sender == null ? null : sender.getName(), message.getString(),
+        // ALLOW_CHAT, not CHAT: a bot keeps the chat check (roadmap3.md §4) off its chat screen, and a
+        // line held back here never reaches CHAT
+        ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signed, sender, params, at) -> {
+            if (bot == null) return true;
+            String text = message.getString();
+            if (params.chatType().is(ChatType.MSG_COMMAND_OUTGOING)) {   // our own /msg, echoed back
+                return !(bot.hidesHandshakes() && dev.yuliang.zymbot.core.team.Handshake.isHandshake(text));
+            }
+            return !bot.onChat(sender == null ? null : sender.getName(), text,
                     params.chatType().is(ChatType.MSG_COMMAND_INCOMING));
         });
         // the action bar too: civfabric's refusals ("You're too hungry to craft") arrive there

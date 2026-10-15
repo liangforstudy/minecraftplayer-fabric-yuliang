@@ -1,6 +1,6 @@
 # Finding the world roadmap (draft)
 
-Status: **plan, 2026-10-15**, from the owner. Step 0 is done; nothing else is built yet.
+Status: **plan, 2026-10-15**, from the owner. Step 0 is done; step 1 (the chat handshake) is built, waiting for a live test.
 
 The idea (owner, 2026-10-15): the UDP multicast **local bus is off by default**. A bot joins a server
 **knowing nothing** about other players, bots or places. It finds them **in the game**: it looks
@@ -90,32 +90,40 @@ people were seen; (c) else run the BFS out from the anchor; (d) else world spawn
 The owner's plan (2026-10-15): bots talk to each other **in game chat** to tell bots from humans. A
 bot asks a player in a fixed format; **a player who doesn't reply in that format is a human.**
 
-- **When:** the first time a bot meets a player, in sight (open question 2 in §6), once per player per
-  session. The answer is remembered with the time, and asked again after a while.
+**Decided (owner, 2026-10-15):** only players a bot **meets in sight** are asked; whispering
+strangers is fine; the owner's own client **stays silent**, so bots take the owner for a human.
+**Built the same day** (`team/Handshake.java`, `HandshakeTest`):
+
+- **When:** the first time a Bot that is playing sees a player (`nearby()`), once per player per
+  world. Verdicts last the session (not saved yet, see §6 question 4); a "human" is asked again after
+  30 min.
 - **The ask** is a whisper, never public chat: `/msg <player> zym? <nonce>`, where the nonce is a few
   random characters. A human sees one short, odd-looking line, so it says what it is:
   `zym? 4f2a (Zymbot bot check, no need to reply)`.
-- **The answer:** a Zymbot client whispers back `zym! <nonce> <role> <tag>` within a few seconds. The
-  tag is a short signature of the nonce and both names made with the **team key**, so a human
+- **The answer:** a Bot that is playing whispers back `zym! <nonce> <tag>`. The tag is a
+  signature of the nonce and both names made with the **team key** (16 characters), so a human
   copying the format can't fake it, and a Zymbot from another team (other key) is told apart.
-  The client hides the ask and the answer from its own chat screen.
+  A bot's client keeps the ask, the answer and its own echoed `/msg` off its chat screen. The
+  owner's client answers nothing and hides nothing; a stopped Bot (a human has it) is silent too.
 - **Verdict:**
 
   | Reply | The player is |
   |---|---|
-  | `zym!` with a good tag | a **bot** (or, by its role field, the owner's Teammate client) **on our team** |
-  | `zym!` with a bad tag | a **Zymbot from another team**: a bot, not ours |
+  | `zym!` with a good tag | a **bot on our team** |
+  | `zym!` with a bad tag | a **Zymbot bot from another team** (or someone copying the format: never "ours") |
   | nothing in ~10 s, or anything else | a **human** |
 
 - **Mistakes and limits:**
   - A bot that is lagging, loading or kicked misses the window and is taken for a human. One retry
-    a minute later, then "human" until the next ask.
-  - **Rate limits:** at most one ask every few seconds, well under the server's spam kick.
+    a minute later (a late first answer still counts until then), then "human".
+  - **Rate limits:** at most one new ask every 3 s and one answer per asker every 5 s, on top of
+    `ChatOut`'s one line per 1.5 s.
   - Servers whose `/msg` reads differently need the chat reader taught their format (PHASE2 §3
     "to verify first").
-- **Conflict with PHASE2 P2-4** ("nobody outside the team is ever whispered to"): the ask goes to
-  players who aren't known yet, humans included. It carries no coordinates and no secret, but it is
-  a whisper to a stranger. Needs the owner's yes (§6, question 1).
+- **PHASE2 P2-4 changed** ("nobody outside the team is ever whispered to"): the ask goes to players
+  not known yet, humans included. It carries no coordinates and no secret. Owner's yes, 2026-10-15.
+- **Seen in** `/zbot status`: "players met (chat check): Bot3: a bot on our team, Bluetails_zym: a
+  human", and in the log: `[decision] asked X in chat: bot or human?` / `X is a human — because …`.
 - **Built on:** `ChatOut.whisper` and `ChatIn` exist. The sealed chat transport (PHASE2 §3) does
   not, and isn't needed: only the tag uses the key.
 
@@ -124,7 +132,7 @@ bot asks a player in a fixed format; **a player who doesn't reply in that format
 | Step | What | Test |
 |---|---|---|
 | 0 | Bus off by default, schema 5; nothing crosses the network with it off | ✅ unit tests; live 0.1.44 (see / watch then still on, removed after) |
-| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | unit: a fake bot answers, a fake human doesn't, a bad tag; live: Bot1 asks the owner (human) and Bot3 (bot) |
+| 1 | Chat handshake (§4): ask, answer, verdict, remembered per player | ✅ unit (`HandshakeTest`, 8 tests); live to do: Bot1 meets the owner (→ human after ~70 s) and Bot3 (→ team bot) |
 | 2 | Landmark memory: save survey hits per server, `nearest(tag)` | unit: survey → store → `nearest("bed")` |
 | 3 | Village, farm and camp recognisers on survey results | unit, on hand-built block lists; live near a village |
 | 4 | Explored-cell grid + ring BFS as a task, with radius and night limits | unit on a fake world; live: logs ring by ring, comes home before night |
@@ -138,13 +146,9 @@ is a small fix that can come first.
 
 ## 6. Open questions for the owner
 
-1. **Whispering strangers:** the handshake (§4) whispers players not known yet, humans included,
-   which changes PHASE2 P2-4. OK?
-2. **Who gets asked:** only players the bot **meets in sight** (fits "find them in the world"), or
-   everyone in the **tab list** at once? `/msg` reaches anyone online, so the second finds every bot
-   on the server without exploring.
-3. **The owner's own client:** answer as a Teammate (the mod is on it), or stay silent so bots treat
-   you as the human you are?
+1. ~~**Whispering strangers**~~ — decided: yes.
+2. ~~**Who gets asked**~~ — decided: only players met in sight.
+3. ~~**The owner's own client**~~ — decided: silent, a human to the bots.
 4. **Saved memory:** the roster and (soon) landmarks are saved per server. Does "knows nothing" mean
    only on its **first** join, or should each session start empty?
 5. **The `/msg` probe** (PHASE2, `chat` transport, already off by default) whispers roster members
