@@ -1,7 +1,7 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "dev.yuliang.cas.mixin",
+  "package": "io.github.liangforstudy.cas.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "PosableStateMixin"

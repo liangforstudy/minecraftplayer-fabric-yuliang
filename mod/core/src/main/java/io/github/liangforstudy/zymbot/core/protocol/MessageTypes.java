@@ -1,0 +1,27 @@
+package io.github.liangforstudy.zymbot.core.protocol;
+
+/** Bus message types (BOT_BEHAVIOUR.md → Bus messages). Unknown types are ignored by receivers. */
+public final class MessageTypes {
+    public static final String HELLO = "HELLO";          // <name> <phase> [<role>] — role since 2026-09-27; older clients omit it
+    public static final String ROSTER = "ROSTER";
+    public static final String READ = "READ";
+    public static final String AMEND = "AMEND";
+    public static final String GUESS = "GUESS";
+    public static final String CLAIM = "CLAIM";
+    public static final String DONE = "DONE";
+    public static final String ANSWERED = "ANSWERED";    // <msgId of the public request>
+    /** <sender name> <SummonTarget> — bots waiting at the title screen join the sender. */
+    public static final String SUMMON = "SUMMON";
+    /** <name> <seconds left> — knocked out at the envelope's x,z; a MEDIC with stitches can help. */
+    public static final String DOWNED = "DOWNED";
+    /** <watcher> <bot> <on|off> <asker role> — that bot /msg's its decisions to the watcher; never asked by a BOT (2026-10-15). */
+    public static final String WATCH = "WATCH";
+    /** <asker name> — a regrouping bot wants fresh positions: answer with a HELLO now (PHASE2.md §1). */
+    public static final String WHERE = "WHERE";
+    /** <asker> <bot> <reqId> <asker role> — /zbot see <bot>: that bot answers with its status, one STATUS_LINE per line; never asked by a BOT. */
+    public static final String STATUS = "STATUS";
+    /** <bot> <asker> <reqId> <index> <count> <line> — one status line; one per packet keeps each well under the local bus's packet cap. */
+    public static final String STATUS_LINE = "STATUS_LINE";
+
+    private MessageTypes() {}
+}

@@ -11,7 +11,7 @@ the world (Open to LAN). Read `PHASE1.md` (what's built, the test commands) and 
 (the rig) for depth — this file is the operating manual.
 
 > **Keep this file true.** The command table below must match
-> `mod/src/main/java/dev/yuliang/zymbot/fabric/ZymbotCommands.java`. When you **add** a `/zbot`
+> `mod/src/main/java/io/github/liangforstudy/zymbot/fabric/ZymbotCommands.java`. When you **add** a `/zbot`
 > command, add a row here; when you **remove** one, delete its row; when you change its arguments,
 > fix the row. `SkillDocTest` (core tests) fails if a subcommand is missing from — or lingering in —
 > the table. Update `help()` in ZymbotCommands, PHASE1.md's command table and the console's Tab

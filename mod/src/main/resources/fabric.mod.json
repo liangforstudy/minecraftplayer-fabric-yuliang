@@ -4,14 +4,14 @@
   "version": "${version}",
   "name": "${name}",
   "description": "A client-side bot that plays Minecraft by rules, not an LLM — survives, cooperates, and works toward the End.",
-  "authors": ["yuliang"],
+  "authors": ["liangforstudy"],
   "license": "All-Rights-Reserved",
   "icon": "assets/zymbot/icon.png",
   "environment": "client",
   "mixins": ["zymbot.mixins.json"],
   "entrypoints": {
-    "client": ["dev.yuliang.zymbot.fabric.ZymbotClient"],
-    "modmenu": ["dev.yuliang.zymbot.fabric.ZymbotModMenu"]
+    "client": ["io.github.liangforstudy.zymbot.fabric.ZymbotClient"],
+    "modmenu": ["io.github.liangforstudy.zymbot.fabric.ZymbotModMenu"]
   },
   "depends": {
     "fabricloader": ">=0.17",

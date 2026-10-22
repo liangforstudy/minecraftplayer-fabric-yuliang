@@ -1,4 +1,4 @@
-# civbot-yuliang
+# civbot
 
 An interrupt stack over a milestone planner (**not an LLM!!**). With the end goal to be Like Altoclef, but written from the ground up by Claude
 Opus 5.5 (low effort) for newer versions of Minecraft. Bug tested by me.
