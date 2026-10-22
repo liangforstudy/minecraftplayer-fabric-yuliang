@@ -10,10 +10,10 @@ Each has a **proposal**; the **owner's answer** column is empty until decided.
 | A | **"role" means two things.** `/zbot role bot\|teammate\|none` is built; BOT_BEHAVIOUR's `/bot role <class>,<class>` meant civfabric classes, and step 3 needs FARMER + MINER soon. | Classes get their own command, **`/zbot class`**; "role" stays bot / teammate / none. | |
 | B | **Craft free or pick classes first.** BOT_BEHAVIOUR: craft while classless (free), then specialise. §7 decision 2: pick FARMER + MINER, which makes every craft cost hunger. | Pick the classes **right after the axe and hoe**: the bootstrap stays free, ranks start straight after. | |
 | C | **Run or fight when hit.** BOT_BEHAVIOUR's combat machine enters combat in self-defence; what's built is `danger modpack` = run at the first hit. ROADMAP #9 and #10 hang on this too. | The combat machine obeys `danger`: `modpack` always runs; `easy`/`normal` run at critical health; `hard` may fight back. | |
-| D | **Whole trees vs picking up the drop.** §7 decision 4 fells whole trees (axe + Treecapitator, ~8 logs scattered); `BreakTask` waits ≤ 5 s for one drop at one spot. | Collecting becomes **"sweep the area for dropped items"** after a break, with a time limit; it also covers the fixlist's "drop taken by someone". | |
+| D | **Whole trees vs picking up the drop.** §7 decision 4 fells whole trees (axe + Treecapitator, ~8 logs scattered); `BreakTask` waits ≤ 5 s for one drop at one spot. | Collecting becomes **"sweep the area for dropped items"** after a break, with a time limit; it also covers the fixlist's "drop taken by someone". | Built 0.1.49 for trees (`ChopTask` + `SweepTask`, §8 step 4) |
 | E | **Player-placed blocks.** The fixlist says never gather player builds; §3 says use a crafting table the survey finds. | Rule: **use player-made stations** (table, furnace, chest only if allowed), **never harvest player-placed blocks**. | |
 
-Status: **building 2026-09-27** — steps 1–2 on main, live-tested (0.1.35–0.1.36; bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)). Water, grave and diving fixes through 0.1.42 (2026-09-30). Steps 3–4 (craft, place, the M0 ladder) built in 0.1.43 (2026-10-14), waiting for a live test; decisions A–C still open. Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
+Status: **building 2026-09-27** — steps 1–2 on main, live-tested (0.1.35–0.1.36; bugs → [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md)). Water, grave and diving fixes through 0.1.42 (2026-09-30). Steps 3–4 (craft, place, the M0 ladder) built in 0.1.43 (2026-10-14); fixes from the first live M0 test (chop then sweep, vines, ferns, the vanishing table) built on this machine the same day and merged with roadmap3's 0.1.44–0.1.48 as **0.1.49** (2026-10-22: both sides had used 0.1.44 and 0.1.45 for different builds); decisions A–C still open. Village trips beyond the 48-block work radius: **a config setting** (wait for the team / ask / go alone); owner picks the default after an in-game test.
 Builds on [PHASE2.md](PHASE2.md) (regroup, roster, follow — live-tested 0.1.29–0.1.34) and the
 spec in [BOT_BEHAVIOUR.md](BOT_BEHAVIOUR.md) (interrupt table, milestone ladder, bootstrap, food
 rotation) with the facts in [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md).
@@ -147,11 +147,15 @@ what's done, what blocks they placed — so they can pick up again once the inte
    `/zbot debug craft <planks|sticks|table|axe|hoe>`, `/zbot debug place table`). Real screens, slot clicks 100–150 ms
    apart (decision 3's fallback, no recipe-book packets); waits for the server's result slot and checks the item stayed.
    civfabric's refusal is server-side (`CraftingHunger.tooHungry`: hunger − cost < 4) and is said on the **action bar**,
-   which now reaches ChatIn.
+   which now reaches ChatIn. After the first live test (0.1.49): placing goes through a fern in the spot, a table that
+   went down beside the spot (within 3 blocks) is found instead of crafting another, and the table is swapped to the hotbar through the inventory
+   screen's real slot (it used to go into a slot the bot never reads).
 4. Planner: the ladder as data (`id, check, owner, min_players`), M0 wired to steps 2–3.
    **Built 0.1.43, unit-tested, not live-tested** (core/ladder: `Ladder`, `Rung`, `ToolRung`). Status shows the rung.
-   Defaults taken for the open decisions (owner, 2026-10-14: "just build M0"): **D** — unchanged, BreakTask already walks
-   over every drop within 6 blocks for 5 s; **E** — a table the survey finds within 24 blocks is used, never doubled; trees
+   Defaults taken for the open decisions (owner, 2026-10-14: "just build M0"): **D** — first unchanged (BreakTask walked
+   over every drop within 6 blocks for 5 s), then built after the live test (0.1.49): `ChopTask` punches the logs from
+   one trunk, lowest first, then one `SweepTask` walks over every drop within 10 blocks (6 s per drop, 25 s in all);
+   BreakTask clears vines, leaves, grass and ferns in its line of sight instead of giving the tree up; **E** — a table the survey finds within 24 blocks is used, never doubled; trees
    need ≥ 3 logs and no stripped logs (a lone or stripped log is a build). **New:** with no teammate found, M0 work
    comes before the walk to spawn (`Regroup.workFirst`); a teammate found still wins. Next: live test §6 #1–2.
 5. Forage: wild-crop targets from the survey, M1 floor, the "new food type" priority.

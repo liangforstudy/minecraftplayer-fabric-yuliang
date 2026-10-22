@@ -71,6 +71,24 @@ class ConfigTest {
     }
 
     @Test
+    void aListedServerSwitchedOff_staysListedButInactive() {        // owner, 2026-10-16
+        ZymbotConfig c = new ZymbotConfig();
+        c.autostartServers.add("singleplayer");
+        c.autostartServers.add("127.0.0.1:25565");
+        assertTrue(c.activeOn("127.0.0.1"));
+        c.setServerOff("127.0.0.1", true);
+        assertFalse(c.activeOn("127.0.0.1:25565"), "off: silent there");
+        assertTrue(AutostartPolicy.shouldAutostart(c.autostartServers, "127.0.0.1"), "but still listed");
+        assertTrue(c.activeOn("singleplayer"), "the others are untouched");
+        c.setServerOff("127.0.0.1", false);
+        assertTrue(c.activeOn("127.0.0.1"));
+        c.setServerOff("nowhere.example", true);                // off for a server that isn't listed means nothing
+        c.normalize();
+        assertTrue(c.autostartOff.isEmpty(), c.autostartOff.toString());
+        assertFalse(c.activeOn("nowhere.example"));
+    }
+
+    @Test
     void theOldSwimCostIsUpgraded_aChosenOneIsKept() {
         ZymbotConfig old = new ZymbotConfig();
         old.schemaVersion = 3;
@@ -82,5 +100,19 @@ class ConfigTest {
         chosen.swimCostBlocks = 10;
         chosen.normalize();
         org.junit.jupiter.api.Assertions.assertEquals(10, chosen.swimCostBlocks);
+    }
+
+    @Test
+    void theLocalBusIsOffByDefault_andSwitchedOffOnceInOldConfigs() {
+        assertFalse(new ZymbotConfig().transports.localBus);
+        ZymbotConfig old = new ZymbotConfig();
+        old.schemaVersion = 4;
+        old.transports.localBus = true;
+        old.normalize();
+        assertFalse(old.transports.localBus);
+        ZymbotConfig chosen = new ZymbotConfig();        // turned back on after the upgrade: kept
+        chosen.transports.localBus = true;
+        chosen.normalize();
+        assertTrue(chosen.transports.localBus);
     }
 }

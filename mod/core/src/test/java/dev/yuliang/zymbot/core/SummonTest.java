@@ -24,7 +24,7 @@ class SummonTest {
     }
 
     ZymbotConfig team() {
-        ZymbotConfig c = new ZymbotConfig();
+        ZymbotConfig c = FakeBus.busOnConfig();
         c.teamKey = "shared-team-key-123";
         return c;
     }
@@ -66,7 +66,7 @@ class SummonTest {
     @Test
     void anotherTeamsSummonIsIgnored() {
         FakeWorld stranger = new FakeWorld("Evil"), bot1 = new FakeWorld("Bot1");
-        ZymbotConfig other = new ZymbotConfig();
+        ZymbotConfig other = FakeBus.busOnConfig();
         other.teamKey = "some-other-teams-key";
         Bot evil = bot(stranger, other, false);
         evil.onJoin("singleplayer", "singleplayer:x", "Evil");
@@ -147,6 +147,18 @@ class SummonTest {
         assertFalse(host.autoOpensLan("959582503"));
         host.setAutoOpenLan("New World", false);
         assertFalse(host.autoOpensLan("New World"));
+    }
+
+    @Test
+    void singleplayerSwitchedOff_keepsWorldsClosed() {             // owner, 2026-10-16
+        FakeWorld human = new FakeWorld("Bot2");
+        Bot host = bot(human, team(), false);
+        host.setAutoOpenLan("New World", true);
+        host.config().autostartServers.add("singleplayer");
+        host.config().setServerOff("singleplayer", true);
+        assertFalse(host.autoOpensLan("New World"), "off: the world stays closed");
+        host.config().setServerOff("singleplayer", false);
+        assertTrue(host.autoOpensLan("New World"), "on again: opens as before");
     }
 
     @Test

@@ -117,6 +117,10 @@ public final class Bot {
     private final dev.yuliang.zymbot.core.body.FidgetWatchdog fidget = new dev.yuliang.zymbot.core.body.FidgetWatchdog();
     private final ChatIn chatIn = new ChatIn();
     private final ChatOut chatOut;
+    /** Bot or human, told apart in game chat (roadmap3.md §4). */
+    private final dev.yuliang.zymbot.core.team.Handshake handshake;
+    /** Players in view last tick, by name, with their distance then. */
+    private java.util.Map<String, Integer> lastInView = new java.util.HashMap<>();
 
     private Phase phase = Phase.STOPPED;
     private String address;            // as joined, or "singleplayer"; null when not in a world
@@ -187,6 +191,7 @@ public final class Bot {
         this.log = new DecisionLog(50, clock);
         this.bus = new Bus(selfId, config.teamKey, clock);
         this.chatOut = new ChatOut(clock);
+        this.handshake = new dev.yuliang.zymbot.core.team.Handshake(config.teamKey, chatOut, clock, (what, why) -> log.record(what, why));
         this.body = new Body(() -> memory.recentFoods, this::isKnownBot, this::isTeammate, clock, () -> memoryDirty = true);
         body.onSwim(this::reportSwim);
         // BOT_BEHAVIOUR.md interrupt table, phase 1 rows, in priority order
@@ -257,10 +262,13 @@ public final class Bot {
         wasDowned = sawRevive = false;
         reviveCheckTicks = 0;
         heardThisSession.clear();
+        handshake.reset();
+        lastInView = new java.util.HashMap<>();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
         if (!onWhitelist()) {
-            log.record("silent", where + " isn't on the server list — /" + config.commandRoot + " start to begin");
+            log.record("silent", where + (config.isServerOff(address) ? " is switched off on the server list"
+                    : " isn't on the server list") + " — /" + config.commandRoot + " start to begin");
             return;
         }
         switch (role()) {
@@ -277,7 +285,7 @@ public final class Bot {
     }
 
     private boolean onWhitelist() {
-        return address != null && AutostartPolicy.shouldAutostart(config.autostartServers, address);
+        return address != null && config.activeOn(address);
     }
 
     /** Teammate mode: say HELLO so bots know we're here; never touch the controls. */
@@ -455,6 +463,11 @@ public final class Bot {
         }
         watchForFidgeting(world, hands);
         brain.tick(world, hands);
+        if (role() == ZymbotConfig.Role.BOT) {
+            List<EntityView> inView = world.playersInView();
+            trackView(world, inView);
+            handshake.tick(selfName, inView);
+        }
         chatOut.flush(hands);
     }
 
@@ -552,7 +565,7 @@ public final class Bot {
     private void announceDowned(WorldView world, List<EntityView> humans) {
         var p = world.position();
         int x = (int) Math.floor(p.x()), z = (int) Math.floor(p.z()), secs = world.downedSecondsLeft();
-        bus.publish(serverId, world.day(), x, z, MessageTypes.DOWNED, List.of(selfName, Integer.toString(secs)));
+        if (sharesKnowledge()) bus.publish(serverId, world.day(), x, z, MessageTypes.DOWNED, List.of(selfName, Integer.toString(secs)));
         String wait = config.downedWaitForHumansSeconds > 0 ? "giving up in " + config.downedWaitForHumansSeconds + "s unless someone"
                 : "giving up now — next time, ";
         for (EntityView h : humans) {
@@ -564,7 +577,7 @@ public final class Bot {
     }
 
     private void maybeHello(WorldView world, long now) {
-        if (now < nextHello) return;
+        if (!sharesKnowledge() || now < nextHello) return;
         nextHello = now + HELLO_EVERY_MILLIS;
         var p = world.position();
         bus.publish(serverId, world.day(), (int) Math.floor(p.x()), (int) Math.floor(p.z()),
@@ -580,9 +593,10 @@ public final class Bot {
      */
     private void onEnvelope(Envelope e) {
         if (MessageTypes.SUMMON.equals(e.type())) {          // for bots *not* on a server yet: no tab list
-            onSummon(e);
+            if (sharesKnowledge()) onSummon(e);
             return;
         }
+        if (!sharesKnowledge()) return;                         // bus off: nothing crosses the network
         if (current == null || !current.onlinePlayers().contains(e.sender())) {
             pending.add(new Pending(e, clock.getAsLong()));
             return;
@@ -607,7 +621,7 @@ public final class Bot {
 
     private void handle(Envelope e) {
         if (MessageTypes.WATCH.equals(e.type())) {
-            onWatch(e.field(0), e.field(1), "on".equals(e.field(2)));
+            if (fromOwner(e)) onWatch(e.field(0), e.field(1), "on".equals(e.field(2)));
             return;
         }
         if (MessageTypes.WHERE.equals(e.type())) {              // a bot is regrouping: tell it where we are now
@@ -615,7 +629,7 @@ public final class Bot {
             return;
         }
         if (MessageTypes.STATUS.equals(e.type())) {             // someone ran /zbot see <us>
-            answerStatus(e.field(0), e.field(1), e.field(2));
+            if (fromOwner(e)) answerStatus(e.field(0), e.field(1), e.field(2));
             return;
         }
         if (MessageTypes.STATUS_LINE.equals(e.type())) {
@@ -668,13 +682,15 @@ public final class Bot {
                 + (borrowedFor != null ? " (controls borrowed for: " + borrowedFor + ")" : ""));
         out.add("doing: " + (borrowedFor != null ? brain.describe() : switch (phase) {
             case STOPPED -> "nothing — silent";
-            case TEAMMATE -> "announcing to the team — never takes control";
+            case TEAMMATE -> (sharesKnowledge() ? "announcing to the team" : "a human to the bots (bus off, no chat check answered)")
+                    + " — never takes control";
             default -> brain.describe();
         }));
         out.add("role: " + role().label() + (config.roleOf(selfId) == ZymbotConfig.Role.NONE && role() == ZymbotConfig.Role.BOT
                 ? " (headless, no accounts listed)" : ""));
         out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
-                + (onWhitelist() ? " (on the server list)" : " (not on the server list)")));
+                + (onWhitelist() ? " (on the server list)" : config.isServerOff(address) ? " (on the server list, switched off)"
+                        : " (not on the server list)")));
         WorldView w = current;
         if (w != null && address != null) {
             out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — eats at ≤%d, critical ≤%d, leash %d, danger %s",
@@ -698,6 +714,8 @@ public final class Bot {
                 + (bus.rejectedCount() > 0 ? ", " + bus.rejectedCount() + " rejected (wrong team key?)" : "")
                 + (bus.staleCount() > 0 ? ", " + bus.staleCount() + " stale (replayed, or a clock is off)" : "")
                 + (notHere > 0 ? ", " + notHere + " from bots not in this server's tab list" : ""));
+        List<String> met = handshake.lines();
+        out.add("players met (chat check): " + (met.isEmpty() ? "none yet" : String.join(", ", met)));
         if (memory.roster.isEmpty()) {
             out.add("bots heard: none yet");
         } else {
@@ -716,6 +734,7 @@ public final class Bot {
         config.teamKey = key.strip();
         ConfigIO.save(configFile, config);
         bus.rekey(config.teamKey);
+        handshake.teamKey(config.teamKey);
         nextHello = 0;                                   // announce ourselves under the new key
         log.record("team key changed", "fingerprint " + ZymbotConfig.fingerprint(config.teamKey));
         return null;
@@ -744,6 +763,7 @@ public final class Bot {
         String key = AutostartPolicy.normalize(server);
         boolean removed = config.autostartServers.removeIf(s -> AutostartPolicy.normalize(s).equals(key));
         if (!removed) return key + " wasn't on the list";
+        config.setServerOff(key, false);
         ConfigIO.save(configFile, config);
         settingsChanged();
         return "removed " + key;
@@ -776,7 +796,7 @@ public final class Bot {
 
     public List<String> autostartList() {
         return config.autostartServers.isEmpty() ? List.of("autostart list is empty")
-                : config.autostartServers.stream().map(AutostartPolicy::normalize).toList();
+                : config.autostartServers.stream().map(s -> AutostartPolicy.normalize(s) + (config.isServerOff(s) ? " (off)" : "")).toList();
     }
 
     // ------------------------------------------------------------------ summon
@@ -826,6 +846,7 @@ public final class Bot {
 
     /** Ask the team's bots waiting at their title screens to join us there. */
     public String summon(SummonTarget target) {
+        if (!sharesKnowledge()) return "summon needs the local bus, and it's off (transports.local_bus) - start the bots with play / run-bot instead";
         sendSummon(target);
         log.record("summoned the team's bots", "to " + target.describe());
         return "summoned — bots with your team key that are waiting at the title screen join you at "
@@ -843,7 +864,7 @@ public final class Bot {
      * {@link #SUMMON_REPEAT_FOR_MILLIS}, so bots that are still booting when the world opens join too.
      */
     public void lanOpened(int port, List<String> ips) {
-        if (!config.autoSummonOnLan) return;
+        if (!config.autoSummonOnLan || !sharesKnowledge()) return;
         SummonTarget t = SummonTarget.lan(port, ips);
         summon(t);
         long now = clock.getAsLong();
@@ -852,9 +873,12 @@ public final class Bot {
         nextSummonRepeat = now + SUMMON_REPEAT_EVERY_MILLIS;
     }
 
-    /** Whether this singleplayer world opens to LAN by itself. */
+    /**
+     * Whether this singleplayer world opens to LAN by itself. Not while "singleplayer" is switched off
+     * on the server list: that switch is mainly for this, a world that stays closed (owner, 2026-10-16).
+     */
     public boolean autoOpensLan(String levelName) {
-        return config.autoOpenLanWorlds.contains(levelName);
+        return config.autoOpenLanWorlds.contains(levelName) && !config.isServerOff(AutostartPolicy.SINGLEPLAYER);
     }
 
     public String setAutoOpenLan(String levelName, boolean on) {
@@ -1032,11 +1056,13 @@ public final class Bot {
     public List<String> see(String botName) {
         if (address == null) return List.of("not in a world");
         if (botName.equalsIgnoreCase(selfName)) return status();
+        String no = ownerToolRefusal();
+        if (no != null) return List.of(no);
         WorldView w = current;
         int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
         String reqId = UUID.randomUUID().toString().substring(0, 8);
         seeAsks.put(reqId, new SeeAsk(botName, clock.getAsLong() + SEE_TIMEOUT_MILLIS, null));
-        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS, List.of(selfName, botName, reqId));
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.STATUS, List.of(selfName, botName, reqId, role().name()));
         return List.of("asking " + botName + " for its status…");
     }
 
@@ -1077,7 +1103,7 @@ public final class Bot {
         seeAsks.remove(e.field(2));
         if (hands == null) return;
         // when it was taken: an answer read later in chat or scrollback said nothing about its age (owner, 2026-09-29)
-        String at = java.time.LocalTime.now().withNano(0).toString();
+        String at = java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"));   // toString drops ":00"
         hands.notifyLocal(e.field(0) + " status (at " + at + "):");
         for (String l : lines) hands.notifyLocal("  " + l);
     }
@@ -1101,12 +1127,41 @@ public final class Bot {
         }
     }
 
+    /**
+     * Whether the bus shares world knowledge (positions, roster, summons). Off by default: a bot
+     * finds players, bots and places in the world itself (roadmap3.md).
+     */
+    private boolean sharesKnowledge() { return config.transports.localBus; }
+
+    /**
+     * /zbot see and watch ask over the local bus, so they need it on; a bot never asks another bot
+     * (owner, 2026-10-15). With the bus off: send.bat &lt;bot&gt; /zbot status, or the bot's log.
+     */
+    private String ownerToolRefusal() {
+        if (role() == ZymbotConfig.Role.BOT) return "a bot can't see other bots - run it from your own client";
+        if (!sharesKnowledge()) return "the local bus is off (transports.local_bus), so nothing crosses the network - use the bot's own /zbot status or its log";
+        return null;
+    }
+
+    /** A see / watch request counts only from a client that says it isn't a bot (field 3; older clients leave it out). */
+    private boolean fromOwner(Envelope e) {
+        String askerRole = e.field(3);
+        boolean ok = !askerRole.isEmpty() && !askerRole.equals(ZymbotConfig.Role.BOT.name())
+                && config.roleOf(e.sender()) != ZymbotConfig.Role.BOT;
+        if (!ok && e.field(1).equalsIgnoreCase(selfName)) {
+            log.record("ignored " + e.type() + " from " + e.field(0), "only the owner's own client may ask, not a bot");
+        }
+        return ok;
+    }
+
     /** Ask a bot (by name) to /msg us its decisions, or to stop. */
     public String watch(String botName, boolean on) {
         if (address == null) return "not in a world";
+        String no = ownerToolRefusal();
+        if (no != null) return no;
         WorldView w = current;
         int x = w == null ? 0 : (int) Math.floor(w.position().x()), z = w == null ? 0 : (int) Math.floor(w.position().z());
-        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.WATCH, List.of(selfName, botName, on ? "on" : "off"));
+        bus.publish(serverId, w == null ? 0 : w.day(), x, z, MessageTypes.WATCH, List.of(selfName, botName, on ? "on" : "off", role().name()));
         return on ? "asked " + botName + " to /msg you its decisions (for 30 min; /" + config.commandRoot + " watch " + botName + " off to stop)"
                   : "asked " + botName + " to stop";
     }
@@ -1253,9 +1308,41 @@ public final class Bot {
     }
 
     /** A line of chat reached this client. */
-    public void onChat(String sender, String text, boolean whisper) {
+    /**
+     * A chat line reached us. Returns true when it is a handshake ask or answer that this client
+     * handled as a Bot, so the client keeps it off the chat screen. The owner's own client answers
+     * nothing and hides nothing: to the bots it is the human it is (owner, 2026-10-15).
+     */
+    public boolean onChat(String sender, String text, boolean whisper) {
         chatIn.heard(new ChatIn.Line(sender, text, whisper, clock.getAsLong()));
+        if (!whisper || address == null) return false;
+        boolean answers = hidesHandshakes();
+        return handshake.onWhisper(sender, selfName, text, answers) && answers;
     }
+
+    /**
+     * Log each player coming into and going out of view, with the distance: how far the server lets
+     * us see players (the chat check's reach), read off the log (owner, 2026-10-16).
+     */
+    private void trackView(WorldView world, List<EntityView> inView) {
+        var me = world.position();
+        java.util.Map<String, Integer> now = new java.util.HashMap<>();
+        for (EntityView p : inView) {
+            int d = (int) Math.round(Math.hypot(p.pos().x() - me.x(), p.pos().z() - me.z()));
+            now.put(p.name(), d);
+            if (!lastInView.containsKey(p.name())) log.record(p.name() + " came into view", d + " blocks away");
+        }
+        for (var en : lastInView.entrySet()) {
+            if (!now.containsKey(en.getKey())) log.record(en.getKey() + " went out of view", "last seen " + en.getValue() + " blocks away");
+        }
+        lastInView = now;
+    }
+
+    /**
+     * Whether this client answers the chat check and keeps its lines (its own asks echoed back too)
+     * off the chat screen: a Bot that is playing. Stopped, a human has it, so it is a human.
+     */
+    public boolean hidesHandshakes() { return role() == ZymbotConfig.Role.BOT && phase.controlling(); }
 
     /** Swimming costs ~85× walking per block: always say when and why. */
     private void reportSwim(String why) {
@@ -1338,7 +1425,7 @@ public final class Bot {
     /** ROSTER on the bus: everyone we know, so early and late joiners converge (BOT_DESIGN §2.23). */
     private void shareRoster() {
         WorldView w = current;
-        if (w == null) return;
+        if (w == null || !sharesKnowledge()) return;
         bus.publish(serverId, w.day(), (int) Math.floor(w.position().x()), (int) Math.floor(w.position().z()),
                 MessageTypes.ROSTER, List.of(String.join(",", memory.roster.keySet()), Integer.toString(memory.roster.size())));
     }
@@ -1366,7 +1453,7 @@ public final class Bot {
     /** Ask the team for fresh positions: teammates answer with a HELLO at once. */
     private void askWhere() {
         WorldView w = current;
-        if (w == null) return;
+        if (w == null || !sharesKnowledge()) return;
         bus.publish(serverId, w.day(), (int) Math.floor(w.position().x()), (int) Math.floor(w.position().z()),
                 MessageTypes.WHERE, List.of(selfName));
     }

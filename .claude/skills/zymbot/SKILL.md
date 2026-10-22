@@ -175,6 +175,13 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `lan` / `lan auto on\|off` | open this world to LAN, port 25565, online mode off (auto: every time it loads) |
 | `autostart add\|remove\|list` | servers where Zymbot activates by itself |
 
+**Emergency stop key** (0.1.48): Options → Controls → Zymbot → "Emergency stop", **unbound** until
+you set it. It does `/zbot stop` and cancels Baritone (path, goal, `#` commands), lets go of held keys
+and mining, and works with a screen open (the bot's inventory, where chat can't be reached). A screen
+the bot opened stays open: Esc closes it. Ignored while typing (chat, text boxes, the Controls screen).
+The Servers tab's **On / Off** keeps a server listed but silent; "singleplayer" off also stops your
+worlds opening to LAN by themselves (`autostart_off` in the config).
+
 Config (`gamedir/config/zymbot.json`, snake_case) also holds `never_eat`, `swim_cost_blocks` (3),
 `route_radius` (96), `plan_timeout_ms`, `lag_tps`, `auto_respawn`, `skip_experimental_world_warning`,
 `team_key` (secret), `accounts` (uuid → role).

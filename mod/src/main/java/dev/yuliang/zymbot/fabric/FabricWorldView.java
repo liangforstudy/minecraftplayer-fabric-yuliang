@@ -228,6 +228,18 @@ final class FabricWorldView implements WorldView {
         return nearby;
     }
 
+    @Override
+    public List<EntityView> playersInView() {
+        List<EntityView> out = new ArrayList<>();
+        for (Player p : level.players()) {                      // all the server tracks for us: no distance cap
+            if (p == player || !p.isAlive()) continue;
+            out.add(new EntityView(p.getId(), p.getUUID(), p.getName().getString(),
+                    BuiltInRegistries.ENTITY_TYPE.getKey(p.getType()).toString(), EntityView.Kind.PLAYER,
+                    new Vec3(p.getX(), p.getY(), p.getZ())));
+        }
+        return out;
+    }
+
     /**
      * The surface, from the client's MOTION_BLOCKING heightmap — the only surface map the server
      * sends clients (NO_LEAVES is server-only: on a client it's empty, and every column read as flat

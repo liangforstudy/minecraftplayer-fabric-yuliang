@@ -55,7 +55,7 @@ class ComeAndWatchTest {
     @Test
     void watch_sendsMyDecisionsByMsg_untilStopped() {
         FakeBus net = new FakeBus();
-        ZymbotConfig a = new ZymbotConfig(), c = new ZymbotConfig();
+        ZymbotConfig a = FakeBus.busOnConfig(), c = FakeBus.busOnConfig();
         a.teamKey = c.teamKey = "shared-team-key-123";
         FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Bot2");
         FakeWorld.sameServer(w1, w2);
@@ -81,9 +81,33 @@ class ComeAndWatchTest {
     }
 
     @Test
+    void aBotCantSeeOrWatchOtherBots_onlyItself() {           // owner, 2026-10-15
+        FakeBus net = new FakeBus();
+        FakeWorld w1 = new FakeWorld("Bot1");
+        Bot bot = running(w1, new ZymbotConfig());
+        bot.attachTransport(net.endpoint());
+        assertTrue(bot.see("Bot3").get(0).startsWith("a bot can't see other bots"));
+        assertTrue(bot.watch("Bot3", true).startsWith("a bot can't see other bots"));
+        assertTrue(net.wire.isEmpty());
+        assertTrue(bot.see("Bot1").size() > 1, "its own status still works");
+    }
+
+    @Test
+    void busOff_seeAndWatchSendNothing() {                    // owner, 2026-10-15: nothing over the network
+        FakeBus net = new FakeBus();
+        FakeWorld w2 = new FakeWorld("Bluetails");
+        Bot human = new Bot(new ZymbotConfig(), dir.resolve("h.json"), dir.resolve("h"), w2.id, false, clock);
+        human.onJoin("127.0.0.1:25565", "Bluetails");
+        human.attachTransport(net.endpoint());
+        assertTrue(human.see("Bot1").get(0).startsWith("the local bus is off"));
+        assertTrue(human.watch("Bot1", true).startsWith("the local bus is off"));
+        assertTrue(net.wire.isEmpty());
+    }
+
+    @Test
     void see_asksTheBotOverTheBus_andPrintsItsStatus() {
         FakeBus net = new FakeBus();
-        ZymbotConfig a = new ZymbotConfig(), c = new ZymbotConfig();
+        ZymbotConfig a = FakeBus.busOnConfig(), c = FakeBus.busOnConfig();
         a.teamKey = c.teamKey = "shared-team-key-123";
         FakeWorld w1 = new FakeWorld("Bot1"), w2 = new FakeWorld("Bot2");
         FakeWorld.sameServer(w1, w2);
@@ -106,7 +130,7 @@ class ComeAndWatchTest {
     @Test
     void see_saysNoAnswer_afterTheTimeout() {
         FakeWorld w2 = new FakeWorld("Bot2");
-        Bot human = new Bot(new ZymbotConfig(), dir.resolve("h.json"), dir.resolve("h"), w2.id, false, clock);
+        Bot human = new Bot(FakeBus.busOnConfig(), dir.resolve("h.json"), dir.resolve("h"), w2.id, false, clock);
         human.onJoin("127.0.0.1:25565", "Bot2");
         human.tick(w2, w2);
         human.see("Bot9");
