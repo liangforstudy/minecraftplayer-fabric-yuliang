@@ -26,6 +26,12 @@ danger, knocked out, …) over a milestone planner, with every choice logged as
 
 > **Status (2026-10-01): Zymbot 0.1.42 runs headless and is live-tested** — survival reflexes, regroup and
 > follow, survey, break and collect, graves (diving too). Next: crafting (PHASE3.md).
+>
+> **A different project is further along (2026-10-23).** ZymBot (`lol.zym.zymbot`) is a separate mod
+> for the same server, with no code shared with this repo. It has met M0–M2 and M4 of this repo's
+> milestone ladder in live play, and two of its bots reached their first class rank (Apprentice).
+> [BOT_BEHAVIOUR.md → The milestone ladder](BOT_BEHAVIOUR.md#the-milestone-ladder) marks which rungs
+> it has done.
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail
 every harvest, and die on the first blood moon. Much of this repo is the work of finding out

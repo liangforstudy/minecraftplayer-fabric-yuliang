@@ -140,24 +140,60 @@ event-driven — not a per-tick cost.
 The end goal is to **beat the game**. On this server that is mostly a class-XP problem, and
 food is what funds the grind. Each milestone has a concrete check:
 
-| # | milestone | met when | owner | min players |
-|---|---|---|---|---|
-| M0 | `HAS_TOOL` | a hoe is in inventory or reachable storage | bot | 1 |
-| M1 | `HAS_FOOD` | food buffer ≥ floor | bot | 1 |
-| M2 | `HAS_BED` | owned bed claimed, heat source within radius 4 | bot | 1 |
-| M3 | `HAS_SHELTER` | enclosed, roofed space adjacent to the bed | bot / BUILDER | 1 |
-| M4 | `HAS_FARM` | tilled plot under open sky, ≥1 crop planted | bot (FARMER) | 1 |
-| M5 | `FARM_SUSTAINS` | ≥6 distinct foods (70%) sustained, production > consumption; 12 for full value | bot (FARMER) | 1 |
-| M6 | `TOWN` | ≥3 claimed beds within 64 blocks | group | **3** |
-| M7 | `CLASSES_COVERED` | FARMER, BLACKSMITH, MINER, MEDIC all held by someone | group | roster |
-| M8 | `IRON_AGE` | MINER 2 reached, iron flowing | bot (MINER) | 1 |
-| M9 | `TOOLED` | BLACKSMITH 2 → iron hoe; BLACKSMITH 3 → bucket, flint & steel | BLACKSMITH | 1* |
-| M10 | `NETHER_READY` | portal route secured, gear and food stocked | group | 1* |
-| M11 | `NETHER` | blaze rods obtained | group | 1* |
-| M12 | `END` | pearls → eyes → stronghold | group | 1* |
+| # | milestone | met when | owner | min players | already done by ZymBot ([below](#already-done-by-a-different-project-zymbot)) |
+|---|---|---|---|---|---|
+| M0 | `HAS_TOOL` | a hoe is in inventory or reachable storage | bot | 1 | ✅ wooden hoe; 36 crops harvested |
+| M1 | `HAS_FOOD` | food buffer ≥ floor | bot | 1 | ✅ all three bots, cooked meat |
+| M2 | `HAS_BED` | owned bed claimed, heat source within radius 4 | bot | 1 | ✅ all three: claimed and warm (campfire) |
+| M3 | `HAS_SHELTER` | enclosed, roofed space adjacent to the bed | bot / BUILDER | 1 | ❌ builds no houses; only digs in for one night |
+| M4 | `HAS_FARM` | tilled plot under open sky, ≥1 crop planted | bot (FARMER) | 1 | ✅ 42 plots planted, 79 sown |
+| M5 | `FARM_SUSTAINS` | ≥6 distinct foods (70%) sustained, production > consumption; 12 for full value | bot (FARMER) | 1 | ◐ 5 distinct foods per bot, not 6; surplus not measured |
+| M6 | `TOWN` | ≥3 claimed beds within 64 blocks | group | **3** | ◐ 2 beds side by side; the 3rd is ~77 blocks off |
+| M7 | `CLASSES_COVERED` | FARMER, BLACKSMITH, MINER, MEDIC all held by someone | group | roster | ◐ FARMER, MINER, MEDIC picked; no BLACKSMITH seen |
+| M8 | `IRON_AGE` | MINER 2 reached, iron flowing | bot (MINER) | 1 | ❌ best MINER XP 209 of 2,221 |
+| M9 | `TOOLED` | BLACKSMITH 2 → iron hoe; BLACKSMITH 3 → bucket, flint & steel | BLACKSMITH | 1* | ❌ |
+| M10 | `NETHER_READY` | portal route secured, gear and food stocked | group | 1* | ❌ |
+| M11 | `NETHER` | blaze rods obtained | group | 1* | ❌ |
+| M12 | `END` | pearls → eyes → stronghold | group | 1* | ❌ |
 
 `1*` = achievable by one player only if that player holds the needed class. `roster` = depends
 on who's present and what they picked, not a fixed count.
+
+#### Already done by a different project: ZymBot
+
+**ZymBot** (Java package `lol.zym.zymbot`) is a separate Fabric mod for the same ZymCivModded
+server, built on a Mac. It doesn't share any code with this repo. It has already climbed further up
+this ladder than Zymbot here, which on 2026-10-23 is still on M0: built, with the fixes from its
+first live test not yet tested (PHASE3.md). The last column above marks how far it got, and the evidence for each mark:
+
+- **What counts:** only what ZymBot's own saved memory shows its bots did on the test server
+  (Bot3, Bot4 and Bot5, last saved 2026-10-22 11:26, world about 64 days old). ✅ is met, ◐ is
+  partly met, ❌ is not met. Bot1 and Bot2 run on the Mac and weren't visible, so ◐ under M6 and M7
+  may be better than shown.
+- **Past the ladder:** Bot5 (Farmer 809 XP) and Bot3 (Librarian 777 XP) reached their first class
+  rank, Apprentice (640 XP). Nobody is near Journeyman (2,221).
+- **The ◐ rows:**
+  - **M5.** Each bot's last 11 meals hold 5 different foods; M5 needs 6. ZymBot's own version of
+    this goal, a warm bed and 80 food points per player, is still a proposal there.
+  - **M6.** Bot3's and Bot4's beds are next to each other at about 67 62 373. Bot5's is at
+    -9 68 360, about 77 blocks away. The bots also disagree on where their base is: Bot5 has it at
+    -1 62 362, the others at 76 62 376.
+  - **M7.** The bots' chosen classes are Farmer/Medic/Hunter, Librarian/Medic/Farmer and
+    Miner/Hunter/Builder.
+- **Built there but missing here** (in ZymBot's code, not evidence of play):
+  - crafting, smelting and hunting chosen by a cost planner over the recipes the server synced;
+  - the 11-meal diet decay (§ The food rotation);
+  - lunar forecasts pooled between bots (§ The lunar forecast);
+  - remembered landmarks, a role for site search;
+  - job boards and a team hub;
+  - Pokémon catching;
+  - farming by Realistic Plant Growth's biome rules;
+  - an MCP server that lets Claude command the bots through a leader bot.
+
+  Its own list of known gaps says it builds no houses, opens no doors and uses no boats.
+
+Use it as a reference for what works on this server, not as code to copy: its package, licence
+and author are its own.
 
 **Rungs the roster can't meet are skipped, not failed.** A milestone carries a minimum player
 count, and the planner skips any rung the current roster can't satisfy, moving on to the next.
