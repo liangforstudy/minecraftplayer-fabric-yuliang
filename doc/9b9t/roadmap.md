@@ -198,22 +198,40 @@ owner:
 1. **Iron golems.** Build golems (4 iron blocks + a carved pumpkin) near the warden as decoys: the
    golem fights the warden while the bot stays out of its reach and sonic boom range. A golem
    doesn't last long against a warden, so expect to build several, or combine with 2.
-2. **Pointed dripstone.** Drop stalactites onto the warden from above; the damage grows with the
-   fall height. The bot places dripstone over the warden, then breaks what holds it up, staying out
-   of sonic boom range the whole time.
+2. **Pointed dripstone, and anvils alongside it.** Drop stalactites (and anvils) onto the warden from
+   above; the damage grows with the fall height. The bot places them over the warden, then breaks what
+   holds them up, staying out of sonic boom range the whole time. Golems are cheaper than anvils, so
+   anvils aren't the first choice.
 3. **Mace, Density V.** Smash damage grows with the fall height, but a **missed smash means fall
    damage and death**. The owner rules this out (2026-10-25); listed only for completeness.
 4. **Entity cramming.** Too many mobs pushed into one block space take damage over and over until
    they die. Works when wardens are bunched up. 9b9t's `maxEntityCramming` gamerule decides how many
    it takes (vanilla: more than 24).
+5. **Arrows from far away**, from beyond sonic boom range.
+6. **A pit with trapdoors on top**: the warden is trapped in the pit.
+7. **Potions** (e.g. splash Harming). The owner has none, so the owner or the bot would have to
+   gather the ingredients first.
 
 ### Where they are: highways
 
-Wardens and withers are **often on the highways** too (spawned there by other players). So fights
-also happen in the middle of a route (§2), not only at a pile the bot is sent to.
+Wardens and withers are **often on the highways** too (spawned there by other players). So the bot
+runs into them in the middle of a route (§2), not only at a pile it is sent to.
 
-Open: when a route runs into withers or wardens, should the bot clear them, go around them, or stop
-and tell the owner? Probably a per-route setting.
+**Decided (owner, 2026-10-25):** when a warden or wither is on the route, the bot **backs off and logs
+out**, with the reason shown to the owner. The bot never fights on its own initiative. The owner then
+chooses: prepare the bot by hand and switch it to wither or warden mode, or give it a detour.
+
+## To test in game
+
+9b9t doesn't run vanilla rules everywhere. Test on 9b9t later (possibly with an MCP for Fabric that
+lets Claude drive the game):
+
+| What | Expected | Why it matters |
+|---|---|---|
+| Dropped item despawn time | **2 minutes** (owner), not vanilla's 5 | ice miner: drops in the ocean must be picked up within 2 minutes, so it mines no more over water than it can collect in time |
+| `maxEntityCramming` for withers | **100** on 9b9t's 1.12.2 days (owner); unknown now | wither and warden cramming (§5) |
+| Meteor's Velocity and Criticals | worked on 1.12.2 | §5 knockback and crits |
+| Meteor's AutoEat | owner judges whether it's good enough | shared eating (§0) |
 
 ## Order
 
