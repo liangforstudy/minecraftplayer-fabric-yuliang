@@ -190,10 +190,30 @@ owner:
 - **Criticals**: fakes the jump with position packets. It worked on 1.12.2, but modern servers often
   catch it. Zymbot's real jump crits don't need it.
 
-### Warden
+### Warden (owner, 2026-10-25)
 
-The owner is still researching tactics. 500 HP; its melee hit is huge even through armour, and its
-sonic boom goes through armour and shields. Avoiding a head-on fight matters.
+500 HP; its melee hit is huge even through armour, and its sonic boom goes through armour and shields.
+**The bot never fights one head-on.** Tactics, in the owner's order of preference:
+
+1. **Iron golems.** Build golems (4 iron blocks + a carved pumpkin) near the warden as decoys: the
+   golem fights the warden while the bot stays out of its reach and sonic boom range. A golem
+   doesn't last long against a warden, so expect to build several, or combine with 2.
+2. **Pointed dripstone.** Drop stalactites onto the warden from above; the damage grows with the
+   fall height. The bot places dripstone over the warden, then breaks what holds it up, staying out
+   of sonic boom range the whole time.
+3. **Mace, Density V.** Smash damage grows with the fall height, but a **missed smash means fall
+   damage and death**. The owner rules this out (2026-10-25); listed only for completeness.
+4. **Entity cramming.** Too many mobs pushed into one block space take damage over and over until
+   they die. Works when wardens are bunched up. 9b9t's `maxEntityCramming` gamerule decides how many
+   it takes (vanilla: more than 24).
+
+### Where they are: highways
+
+Wardens and withers are **often on the highways** too (spawned there by other players). So fights
+also happen in the middle of a route (§2), not only at a pile the bot is sent to.
+
+Open: when a route runs into withers or wardens, should the bot clear them, go around them, or stop
+and tell the owner? Probably a per-route setting.
 
 ## Order
 
