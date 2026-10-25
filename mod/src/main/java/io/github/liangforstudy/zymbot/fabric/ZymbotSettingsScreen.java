@@ -110,8 +110,13 @@ final class ZymbotSettingsScreen extends Screen {
         keyBox = new EditBox(font, cx - 150, top + 12, 300, 20, Component.literal("Team key"));
         keyBox.setMaxLength(128);
         keyBox.setValue(keyDraft);
+        //? if >=1.21.11 {
+        /*keyBox.addFormatter((text, start) ->
+                FormattedCharSequence.forward(shown ? text : "•".repeat(text.length()), Style.EMPTY));
+        *///?} else {
         keyBox.setFormatter((text, start) ->
                 FormattedCharSequence.forward(shown ? text : "•".repeat(text.length()), Style.EMPTY));
+        //?}
         addRenderableWidget(keyBox);
         addRenderableWidget(Button.builder(Component.literal("Paste"), b -> {
             keyBox.setValue(minecraft.keyboardHandler.getClipboard().strip());
@@ -364,12 +369,34 @@ final class ZymbotSettingsScreen extends Screen {
      */
     private final class ScrubBox extends EditBox {
         final Scrub scrub;
-        private double pressX, pressY;
 
         ScrubBox(int x, int y, String name, int min, int max) {
             super(font, x, y, 44, 20, Component.literal(name));
             this.scrub = new Scrub(this, min, max);
         }
+
+        //? if >=1.21.11 {
+        /*private net.minecraft.client.input.MouseButtonEvent press;
+        private boolean pressDouble;
+
+        @Override
+        public void onClick(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {  // wait: a click or a scrub?
+            press = event;
+            pressDouble = doubleClick;
+            scrub.press();
+        }
+
+        @Override
+        protected void onDrag(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
+            scrub.drag(dragX);
+        }
+
+        @Override
+        public void onRelease(net.minecraft.client.input.MouseButtonEvent event) {
+            if (scrub.release()) super.onClick(press, pressDouble);  // a plain click: place the cursor
+        }
+        *///?} else {
+        private double pressX, pressY;
 
         @Override
         public void onClick(double mouseX, double mouseY) {  // wait: a click or a scrub?
@@ -387,6 +414,7 @@ final class ZymbotSettingsScreen extends Screen {
         public void onRelease(double mouseX, double mouseY) {
             if (scrub.release()) super.onClick(pressX, pressY);  // a plain click: place the cursor
         }
+        //?}
     }
 
     /** The scrub accumulator, shared by the box itself and its row's label and range text. */
@@ -421,8 +449,8 @@ final class ZymbotSettingsScreen extends Screen {
                 box.setTextColor(0xFFFF60);
                 dragX = travel;                            // the dead zone counts too
             }
-            double perPx = Screen.hasShiftDown() ? 1.0 / FINE_PX : Math.max(1, (max - min) / 200);
-            if (Screen.hasControlDown()) perPx *= COARSE;
+            double perPx = McCompat.shiftDown() ? 1.0 / FINE_PX : Math.max(1, (max - min) / 200);
+            if (McCompat.controlDown()) perPx *= COARSE;
             carry += dragX * perPx;
             int step = (int) carry;                        // whole steps; the rest waits
             if (step == 0) return;
@@ -450,38 +478,62 @@ final class ZymbotSettingsScreen extends Screen {
     private final List<ScrubZone> scrubZones = new ArrayList<>();
     private ScrubZone activeZone;
 
+    private boolean zonePressed(double mouseX, double mouseY, int button) {
+        if (button != 0) return false;
+        for (ScrubZone z : scrubZones) {
+            if (!z.contains(mouseX, mouseY)) continue;
+            activeZone = z;
+            z.box().scrub.press();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean zoneDragged(double dragX) {
+        if (activeZone == null) return false;
+        activeZone.box().scrub.drag(dragX);
+        return true;
+    }
+
+    private boolean zoneReleased(int button) {
+        if (activeZone == null || button != 0) return false;
+        ScrubBox box = activeZone.box();
+        activeZone = null;
+        if (box.scrub.release()) setFocused(box);          // a plain click: focus the box to type
+        return true;
+    }
+
+    //? if >=1.21.11 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubleClick) {
+        return zonePressed(event.x(), event.y(), event.button()) || super.mouseClicked(event, doubleClick);
+    }
+
+    @Override
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dragX, double dragY) {
+        return zoneDragged(dragX) || super.mouseDragged(event, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+        return zoneReleased(event.button()) || super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            for (ScrubZone z : scrubZones) {
-                if (!z.contains(mouseX, mouseY)) continue;
-                activeZone = z;
-                z.box().scrub.press();
-                return true;
-            }
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return zonePressed(mouseX, mouseY, button) || super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (activeZone != null) {
-            activeZone.box().scrub.drag(dragX);
-            return true;
-        }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return zoneDragged(dragX) || super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (activeZone != null && button == 0) {
-            ScrubBox box = activeZone.box();
-            activeZone = null;
-            if (box.scrub.release()) setFocused(box);      // a plain click: focus the box to type
-            return true;
-        }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return zoneReleased(button) || super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     // the horizontal-resize cursor over scrubbable values; always handed back in removed()
     private static long resizeCursor;
@@ -496,13 +548,13 @@ final class ZymbotSettingsScreen extends Screen {
         if (activeZone != null) want = true;
         if (want == resizeShown) return;
         if (want && resizeCursor == 0) resizeCursor = GLFW.glfwCreateStandardCursor(GLFW.GLFW_HRESIZE_CURSOR);
-        GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), want ? resizeCursor : 0);
+        GLFW.glfwSetCursor(McCompat.window(minecraft), want ? resizeCursor : 0);
         resizeShown = want;
     }
 
     @Override
     public void removed() {
-        if (resizeShown) GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), 0);
+        if (resizeShown) GLFW.glfwSetCursor(McCompat.window(minecraft), 0);
         resizeShown = false;
         super.removed();
     }
@@ -552,7 +604,11 @@ final class ZymbotSettingsScreen extends Screen {
         if (activeZone == null) {                          // label: full name + command; range: the command
             for (ScrubZone z : scrubZones) {
                 if (z.fullText() != null && z.contains(mouseX, mouseY))
+                    //? if >=1.21.11 {
+                    /*g.setTooltipForNextFrame(Component.literal(z.fullText()), mouseX, mouseY);
+                    *///?} else {
                     setTooltipForNextRenderPass(Component.literal(z.fullText()));
+                    //?}
             }
         }
         int cx = width / 2;

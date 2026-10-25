@@ -18,7 +18,7 @@ plugins {
 // 1.21.8 — our earlier test server — is added here when it's needed again.
 stonecutter {
     create(rootProject) {
-        versions("1.21.1")
+        versions("1.21.1", "1.21.11")
         vcsVersion = "1.21.1"
     }
 }

@@ -188,7 +188,8 @@ Config (`gamedir/config/zymbot.json`, snake_case) also holds `never_eat`, `swim_
 
 ## Baritone
 
-Optional (Baritone 1.11.3 API, `headless/baritone-api-fabric-1.11.3.jar`, compile-only) behind
+Optional (Baritone API, compile-only: `headless/baritone-api-fabric-1.11.3.jar` for the 1.21.1 build,
+`headless/baritone-api-fabric-1.17.0.jar` for 1.21.11; both from Baritone's GitHub releases) behind
 `PathProvider`; `BaritonePaths` is only loaded when Baritone is installed. `[zymbot] pathfinder:
 Baritone 1.11.3` in the log confirms it. Settings Zymbot applies (`BaritonePaths.java`):
 `allowSprint` only while retreating, `allowBreak/allowPlace/allowParkour/allowInventory = false`,

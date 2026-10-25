@@ -99,12 +99,22 @@ public final class ZymbotClient implements ClientModInitializer {
 
         // Emergency stop (owner, 2026-10-16): /zbot stop and Baritone's own cancel, on a key — unbound until
         // set in Options -> Controls. Chat can't be reached while the bot has a screen open, so it works there too.
+        //? if >=1.21.11 {
+        /*stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(),
+                KeyMapping.Category.register(net.minecraft.resources.Identifier.fromNamespaceAndPath("zymbot", "zymbot"))));
+        ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
+                .register((s, key) -> {
+                    if (stopKey.matches(key) && !typingIn(s)) emergencyStop(mc);
+                }));
+        *///?} else {
         stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key, scancode, modifiers) -> {
                     if (stopKey.matches(key, scancode) && !typingIn(s)) emergencyStop(mc);
                 }));
+        //?}
 
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
                 ZymbotCommands.register(dispatcher, () -> bot, this::summon, () -> openLan(Minecraft.getInstance()),
@@ -122,10 +132,10 @@ public final class ZymbotClient implements ClientModInitializer {
             boolean in = params.chatType().is(ChatType.MSG_COMMAND_INCOMING);
             boolean out = params.chatType().is(ChatType.MSG_COMMAND_OUTGOING);
             // no profile on an unsigned (offline-mode) message: the sender is the chat type's bound name
-            String who = sender != null ? sender.getName() : params.name().getString();
+            String who = sender != null ? McCompat.name(sender) : params.name().getString();
             if (Handshake.isHandshake(text)) {
                 LOG.info("[zymbot] chat check line via player chat: type {}, sender {} ({}), {}: {}",
-                        params.chatType().unwrapKey().map(k -> k.location().toString()).orElse("?"), who,
+                        params.chatType().unwrapKey().map(McCompat::id).orElse("?"), who,
                         sender != null ? "profile" : "bound name", signed != null ? "signed" : "unsigned", text);
             }
             if (out) return !(bot.hidesHandshakes() && Handshake.isHandshake(text));   // our own /msg, echoed back
@@ -318,7 +328,7 @@ public final class ZymbotClient implements ClientModInitializer {
             if (child instanceof Button b && b.getMessage().getContents() instanceof TranslatableContents k
                     && "selectWorld.backupJoinSkipButton".equals(k.getKey())) {
                 LOG.info("[zymbot] experimental-settings world: pressed \"I know what I'm doing!\" (skip_experimental_world_warning)");
-                b.onPress();
+                McCompat.press(b);
                 return;
             }
         }

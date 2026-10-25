@@ -101,7 +101,7 @@ final class BaritonePaths implements PathProvider {
     @Override
     public void follow(String playerName, boolean swim) {
         applyServerRules(swim, false);
-        baritone.getFollowProcess().follow(e -> e instanceof Player p && p.getGameProfile().getName().equalsIgnoreCase(playerName));
+        baritone.getFollowProcess().follow(e -> e instanceof Player p && McCompat.name(p.getGameProfile()).equalsIgnoreCase(playerName));
     }
 
     @Override

@@ -57,7 +57,7 @@ final class FabricHands implements Hands {
 
     @Override
     public void selectSlot(int hotbarSlot) {
-        if (mc.player != null && hotbarSlot >= 0 && hotbarSlot < 9) mc.player.getInventory().selected = hotbarSlot;   // sent next tick
+        if (mc.player != null && hotbarSlot >= 0 && hotbarSlot < 9) McCompat.selectSlot(mc.player.getInventory(), hotbarSlot);   // sent next tick
     }
 
     @Override
@@ -183,7 +183,7 @@ final class FabricHands implements Hands {
         boolean onPlant = bh.getBlockPos().equals(pos.above()) && mc.level != null && mc.level.getBlockState(pos.above()).canBeReplaced();
         if (!onTop && !onPlant) return false;
         var result = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, bh);
-        if (result.shouldSwing()) mc.player.swing(InteractionHand.MAIN_HAND);
+        if (McCompat.swings(result)) mc.player.swing(InteractionHand.MAIN_HAND);
         return true;
     }
 
@@ -199,7 +199,7 @@ final class FabricHands implements Hands {
             return false;
         }
         var result = mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, bh);
-        if (result.shouldSwing()) mc.player.swing(InteractionHand.MAIN_HAND);
+        if (McCompat.swings(result)) mc.player.swing(InteractionHand.MAIN_HAND);
         return true;
     }
 
@@ -236,7 +236,7 @@ final class FabricHands implements Hands {
         digging = true;
         boolean hitting = first ? mc.gameMode.startDestroyBlock(pos, bh.getDirection())
                 : mc.gameMode.continueDestroyBlock(pos, bh.getDirection());
-        if (hitting && !first) mc.particleEngine.crack(pos, bh.getDirection());
+        if (hitting && !first) McCompat.crack(mc, pos, bh.getDirection());
         if (first || hitting) mc.player.swing(InteractionHand.MAIN_HAND);
         return true;
     }

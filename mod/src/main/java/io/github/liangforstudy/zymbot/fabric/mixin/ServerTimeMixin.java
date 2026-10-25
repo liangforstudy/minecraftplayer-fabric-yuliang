@@ -17,6 +17,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ServerTimeMixin {
     @Inject(method = "handleSetTime", at = @At("TAIL"))
     private void zymbot$onServerTime(ClientboundSetTimePacket packet, CallbackInfo ci) {
+        //? if >=1.21.11 {
+        /*ZymbotClient.TPS.onServerTime(packet.gameTime(), System.nanoTime());
+        *///?} else {
         ZymbotClient.TPS.onServerTime(packet.getGameTime(), System.nanoTime());
+        //?}
     }
 }
