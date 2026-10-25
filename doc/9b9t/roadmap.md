@@ -130,10 +130,42 @@ ground first) and the critical-health interrupt are the starting points.
 - **Gear durability low** (same threshold logic as the ice pickaxes) → break off and retreat.
 - **Retreat to heal**: go to a known safe spot, **or burrow in** (dig down and seal the roof), eat, get
   health back, return.
-- **Wither clearing** and **warden** are separate fights; the owner's research decides the tactics.
-  - Warden: 500 HP; its melee hit is huge even through armour, and its sonic boom goes through armour
-    and shields. Avoiding a head-on fight matters.
-  - Wither boss: flies and fires explosive skulls, often spawned several at once.
+- **Wither clearing** and **warden** are separate fights.
+
+### Wither clearing (owner, 2026-10-25)
+
+The setup: **a pile of withers on stone or bedrock**, at ground level. The bot fights from the ground:
+**no tower or platform** (too slow).
+
+1. **Checklist before it starts.** If anything is missing, it doesn't start, and it says what's
+   missing:
+   - totem of undying in the offhand
+   - armour and sword durability above the threshold
+   - food, XP bottles, chorus fruit
+   - **milk buckets** (milk clears the Wither effect)
+   - a known safe spot to retreat to
+   - Meteor Client: **KillAura and aim modules off** (they rotate the camera and fight Zymbot's
+     aiming); Velocity on, Criticals on only if they work (below)
+2. **Go to the nearest wither and stand next to it.** That's enough to engage it; there's no luring it
+   away.
+3. **Jump crits all the way to zero.** Zymbot times them itself: jump, swing while falling, off the
+   ground, not sprinting, attack cooldown full. That's vanilla's crit, with no extra client needed.
+   Hits only the chosen wither until it's dead, then the next nearest.
+4. **Every wither in range fires at the bot**, not just the one it's hitting:
+   - the Wither effect stacks: **effect up and health dropping → drink milk**, or back off
+   - on stone, black skulls blow holes in the floor (not on bedrock), so check where it's standing
+5. Durability low or health low → retreat to the safe spot or burrow in, heal, repair, come back.
+
+**Meteor Client: owner to test on 9b9t.**
+- **Velocity** (no knockback): cancelling knockback can't be done fairly, since it means dropping the
+  server's knockback packets. Plan: rely on Meteor's Velocity; build our own only if it doesn't work.
+- **Criticals**: fakes the jump with position packets. It worked on 1.12.2, but modern servers often
+  catch it. Zymbot's real jump crits don't need it.
+
+### Warden
+
+The owner is still researching tactics. 500 HP; its melee hit is huge even through armour, and its
+sonic boom goes through armour and shields. Avoiding a head-on fight matters.
 
 ## Order
 
