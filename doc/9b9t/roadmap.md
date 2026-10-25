@@ -11,18 +11,112 @@ fights with withers and wardens.
 
 ## 0. Versions and builds
 
-| Server | Server version | Client we build | Modules |
-|---|---|---|---|
-| ZymCiv | 1.21.1 (modded) | 1.21.1 | ZymCiv: pack loader, class XP, milestone ladder, ... |
-| 9b9t | 26.2 | **1.21.11** (joins through the server's version support) | 9b9t: routes, ice miner, mapart, fights |
+| Server | Server version | Client we build | Profile | Modules |
+|---|---|---|---|---|
+| ZymCiv | 1.21.1 (modded) | 1.21.1 | `zymciv` | pack loader, class XP, milestone ladder, ... |
+| 9b9t | 26.2 | **1.21.11** (joins through the server's version support) | `anarchy` | routes, ice miner, mapart, fights |
 
 - Stonecutter gets a second version, `1.21.11`, beside `1.21.1` (`mod/settings.gradle.kts`,
   `mod/stonecutter.properties.toml`).
-- **Modules are switched on and off at the Stonecutter level**: per-version properties and `//? if`
-  blocks. The 1.21.1 build turns on the ZymCiv modules, the 1.21.11 build turns on the 9b9t ones.
-- `core` stays plain Java and is shared. General reflexes (interrupt stack, drowning, stranded,
-  fidget watchdog, `BreakTask`, `PlaceTask`, decision log) serve both servers.
-- Baritone: the official repo has a `1.21.11` branch, and the owner has a 1.21.11 jar.
+- `core` stays plain Java, **built once and shared** by both versions. General reflexes (interrupt
+  stack, drowning, stranded, fidget watchdog, `BreakTask`, `PlaceTask`, decision log) serve both.
+- **Later:** a 26.2 client build, once Fabric and Baritone support it. The project already uses
+  Mojang names, as 26.x does, but expect real work in the adapter (`mod/src`) all the same.
+
+### Profiles (decided, owner, 2026-10-25)
+
+Stonecutter only builds the adapter (`mod/src`) per version; `core` is shared, so ZymCiv code can't be
+left out of it at compile time (not without making `core` per-version too, which isn't worth it).
+Instead, **Stonecutter sets a profile per version** (`zymciv` for 1.21.1, `anarchy` for 1.21.11), the
+adapter passes it to `Bot`, and `Bot` wires only that profile's modules. The ZymCiv code is in the
+jar but never runs on 9b9t.
+
+| Off in `anarchy` | Why |
+|---|---|
+| Knocked out (`DownedInterrupt`, `DownedTask`) | civfabric's knocked-out state; vanilla has none |
+| Pack loader (`pack/`) | ZymCiv's data |
+| Milestone ladder (`ladder/`) | ZymCiv's progression |
+| Danger mode `modpack` | ZymCiv's mobs; anarchy defaults to `hard` |
+| Regroup, leash, follow-the-teammate | team play; regroup can walk to **world spawn**, the worst place on 9b9t |
+| Chat handshake, `!lf`, `!where`, sharing coordinates | public chat on an anarchy server; never answer coordinate questions |
+| Local bus, team key | bot-to-bot team messages |
+| Zymbot's own eating | Meteor's AutoEat instead (below) |
+
+Kept: drowning, hazard, critical health, stranded and wading interrupts, fidget watchdog, `RouteTask`,
+`BreakTask`, `PlaceTask`, decision log, commands, emergency stop.
+
+### Settings in the `anarchy` profile (draft, for the owner to review)
+
+Settings screen:
+
+| Tab / setting | What it does | ZymCiv-only? | Anarchy profile |
+|---|---|---|---|
+| **Team key** tab | encrypts bot-to-bot messages (local bus, chat handshake) | yes: both are off on 9b9t | **hide** |
+| **Accounts** → Bot | which account the bot plays | no | keep |
+| **Accounts** → Teammate | "tells your bots you're on the team" | yes: no team features | **hide** |
+| **Servers** tab | where Zymbot is active, On / Off | no | keep |
+| Body → **Leash** | max blocks from the nearest teammate | yes | **hide** |
+| Body → **Follow: stop this close** | follow distance to a teammate | team-based | **hide** for now |
+| Body → **Eat when hunger ≤** | Zymbot's eating | no, but Meteor's AutoEat replaces it | **hide** while AutoEat is used |
+| Body → **Critical health** | heal or retreat threshold | no | keep |
+| Body → **Knocked out: wait for a human** | civfabric's knocked-out state | yes | **hide** |
+| Body → **Regroup** | walk back to teammates | yes (and it can walk to world spawn) | **hide** |
+| Body → **Wait for a teammate's answer, then spawn** | part of regroup | yes | **hide** |
+| Body → **Route search time limit** | path planning budget | no | keep |
+| Body → **Server lagging below (TPS)** | plan less when the server lags | no | keep |
+| Help text: "No natural regeneration here…" | ZymCiv rule | yes, and **wrong on 9b9t** | **change** to profile-specific text |
+
+Only in commands or `zymbot.json`:
+
+| Setting | ZymCiv-only? | Anarchy profile |
+|---|---|---|
+| `danger` = `modpack` (run at the first hit) | `modpack` is ZymCiv | default **`hard`**, no `modpack` option |
+| LAN: auto-summon, auto-open LAN worlds, LAN port | for testing in the owner's worlds | off; open: keep for local tests? |
+| `!lf`, `!where`, sharing coordinates with humans | chat features; chat is off | **hide** |
+| `neverEat` (includes rotten flesh and chorus fruit) | ZymCiv list | an anarchy default list, for when we write our own eating |
+
+### Phase 0 plan
+
+Checked in a cloud container on 2026-10-25:
+- Today's 1.21.1 build compiles and all tests pass.
+- Everything 1.21.11 needs is published: **Baritone 1.17.0** (built from the official `1.21.11`
+  branch), **Fabric API 0.141.6+1.21.11**, **Mod Menu 17.0.1**. Java 21 is still enough.
+- A trial compile against 1.21.11 (not committed): **about 44 errors, all in 6 adapter files;
+  `core` has none.** All are known renames, fixed with Stonecutter `//? if` blocks:
+
+| File | Errors | What changed in Minecraft |
+|---|---|---|
+| `ZymbotSettingsScreen` | ~16 | mouse and keyboard handling rewritten in 1.21.9 (`MouseButtonEvent`), `hasShiftDown` moved, tooltip API |
+| `FabricWorldView` | ~17 | `getMinBuildHeight` → `getMinY`; NBT getters return `Optional`; `ResourceKey.location()` renamed (1.21.11); `Inventory.selected` private; spawn position API; food effects moved |
+| `ZymbotClient` | ~6 | key binding categories are objects, not strings; `Button.onPress` signature |
+| `FabricHands` | ~4 | `InteractionResult` reworked; block-cracking call; selected slot |
+| `BaritonePaths` | 1 | `GameProfile.getName()` → `name()` |
+| `ServerTimeMixin` | 1 | the time packet changed |
+
+The 4 mixins (`ContinueAttackMixin`, `ServerTimeMixin`, `MinecraftAccessor`,
+`BossHealthOverlayAccessor`) also need checking in game: a renamed target method isn't a compile
+error.
+
+Steps:
+1. **Build**: add `1.21.11` to `mod/settings.gradle.kts` and `mod/stonecutter.properties.toml`
+   (versions above). `headless` setup downloads the Baritone 1.17.0 API jar too.
+2. **Port the adapter**: the table above, file by file, until both versions compile. The settings
+   screen is ported too, with the anarchy settings above.
+3. **Profiles**: a profile constant per version, `Bot` wiring modules from it, and `core` tests
+   checking that `anarchy` never creates anything on the off-list.
+4. **Smoke test** on the owner's own Prism client (1.21.11 instance with Meteor, Baritone 1.17.0 and
+   Zymbot): first a singleplayer or LAN world (join, `/zbot status`, a Baritone walk, break one
+   block, emergency stop), then join 9b9t and stand idle.
+
+**Done when:** both jars build from one tree, all tests pass, the 1.21.1 bot behaves exactly as
+before on ZymCiv, and the 1.21.11 bot joins 9b9t and runs nothing ZymCiv-specific.
+
+**Later, not Phase 0** (owner, 2026-10-25): a headless 9b9t rig with a Microsoft login through
+HeadlessMC. Tedious, so it waits until Routes and the ice miner need it. Then `headless/bots.py`'s
+built-in `MC_VERSION = "1.21.1"` becomes per rig, and it's checked that HeadlessMC can install
+1.21.11.
+
+**Open:** the version number. Whether the first two-version build is 0.2.0 is still to be discussed.
 
 ### Shared: eating (all 9b9t modules: ice miner, mapart, fights)
 
@@ -31,8 +125,6 @@ fights with withers and wardens.
   may run at a time, or they fight over the hotbar. In the 9b9t build, Zymbot's eating is off while
   Meteor's AutoEat is in use.
 - Food and thresholds come from the config (e.g. rotten flesh for the ice miner, §3).
-- **Later:** a 26.2 client build, once Fabric and Baritone support it. 26.x uses unobfuscated
-  Mojang names, so expect real work in the adapter (`mod/src`).
 
 ## 1. Baritone findings (`1.21.11` branch, checked 2026-10-25)
 
@@ -248,7 +340,7 @@ lets Claude drive the game):
 
 ## Order
 
-1. §0: 1.21.11 build, ZymCiv modules off in it
+1. §0: 1.21.11 build, `anarchy` profile (Phase 0 plan above)
 2. §2: Routes
 3. §3: Ice miner
 4. §4: Mapart
