@@ -223,7 +223,7 @@ runs into them in the middle of a route (§2), not only at a pile it is sent to.
 out**, with the reason shown to the owner. The bot never fights on its own initiative. The owner then
 chooses: prepare the bot by hand and switch it to wither or warden mode, or give it a detour.
 
-**On a main axis** (the highways along x = 0 and z = 0; the diagonals can be added as config):
+**On a main axis** (the highways along x = 0 and z = 0; diagonals come later, the owner rarely uses them):
 1. Back away from the warden or wither.
 2. Get **off the axis, about 30 blocks in**, preferably into a **player-made side tunnel**. It uses
    tunnels that are already there and **never digs one**.
