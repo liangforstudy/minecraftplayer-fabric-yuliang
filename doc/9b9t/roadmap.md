@@ -51,7 +51,7 @@ Settings screen:
 
 | Tab / setting | What it does | ZymCiv-only? | Anarchy profile |
 |---|---|---|---|
-| **Team key** tab | encrypts bot-to-bot messages (local bus, chat handshake) | yes: both are off on 9b9t | **hide** |
+| **Team key** tab | encrypts bot-to-bot messages (local bus, chat handshake) | yes: both are off on 9b9t | **hide**: off for now (owner, 2026-10-25) |
 | **Accounts** → Bot | which account the bot plays | no | keep |
 | **Accounts** → Teammate | "tells your bots you're on the team" | yes: no team features | **hide** |
 | **Servers** tab | where Zymbot is active, On / Off | no | keep |
