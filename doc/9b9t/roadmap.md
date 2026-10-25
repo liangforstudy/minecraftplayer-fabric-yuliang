@@ -114,6 +114,8 @@ Mines **regular, packed and blue ice** for boat highways.
   the build resumes cleanly after a disconnect or death.
 - Baritone's `#build` reads `.litematic`, but it handles refills and large flat builds poorly. Plan:
   a dedicated placer for the build, with Baritone only for getting around.
+- **Wrongly placed blocks** are broken and their drops **picked up before they despawn (2 minutes on
+  9b9t), no matter what**. No block left lying around.
 - **Roadmap, later:** gather materials itself **only if the stash has been griefed**.
 
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
@@ -221,6 +223,17 @@ runs into them in the middle of a route (§2), not only at a pile it is sent to.
 out**, with the reason shown to the owner. The bot never fights on its own initiative. The owner then
 chooses: prepare the bot by hand and switch it to wither or warden mode, or give it a detour.
 
+**On a main axis** (the highways along x = 0 and z = 0; the diagonals can be added as config):
+1. Back away from the warden or wither.
+2. Get **off the axis, about 30 blocks in**, preferably into a **player-made side tunnel**. It uses
+   tunnels that are already there and **never digs one**.
+3. Log off. **No tunnel nearby → log off** straight away.
+4. Show the owner the **coordinates of the warden or wither**: in the logout reason, and perhaps as a
+   **temporary JourneyMap waypoint**.
+
+**Later: gearing up by itself** before a fight. It always gears up **off the main axis** (in a
+tunnel, like above), never on the highway.
+
 ## To test in game
 
 9b9t doesn't run vanilla rules everywhere. Test on 9b9t later (possibly with an MCP for Fabric that
@@ -228,7 +241,7 @@ lets Claude drive the game):
 
 | What | Expected | Why it matters |
 |---|---|---|
-| Dropped item despawn time | **2 minutes** (owner), not vanilla's 5 | ice miner: drops in the ocean must be picked up within 2 minutes, so it mines no more over water than it can collect in time |
+| Dropped item despawn time | **2 minutes** (owner), not vanilla's 5 | ice miner: drops in the ocean must be picked up within 2 minutes, so it mines no more over water than it can collect in time; mapart: wrongly placed blocks, the same |
 | `maxEntityCramming` for withers | **100** on 9b9t's 1.12.2 days (owner); unknown now | wither and warden cramming (§5) |
 | Meteor's Velocity and Criticals | worked on 1.12.2 | §5 knockback and crits |
 | Meteor's AutoEat | owner judges whether it's good enough | shared eating (§0) |
