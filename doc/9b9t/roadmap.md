@@ -23,6 +23,14 @@ fights with withers and wardens.
 - `core` stays plain Java and is shared. General reflexes (interrupt stack, drowning, stranded,
   fidget watchdog, `BreakTask`, `PlaceTask`, decision log) serve both servers.
 - Baritone: the official repo has a `1.21.11` branch, and the owner has a 1.21.11 jar.
+
+### Shared: eating (all 9b9t modules: ice miner, mapart, fights)
+
+- **Meteor Client's AutoEat first.** If the owner finds it unsatisfactory, we write our own.
+- Zymbot already has its own eating (`HungerInterrupt`, `EatTask`, `FoodChooser`). Only one of the two
+  may run at a time, or they fight over the hotbar. In the 9b9t build, Zymbot's eating is off while
+  Meteor's AutoEat is in use.
+- Food and thresholds come from the config (e.g. rotten flesh for the ice miner, §3).
 - **Later:** a 26.2 client build, once Fabric and Baritone support it. 26.x uses unobfuscated
   Mojang names, so expect real work in the adapter (`mod/src`).
 
@@ -139,11 +147,12 @@ The setup: **a pile of withers on stone or bedrock**, at ground level. The bot f
 
 1. **Checklist before it starts.** If anything is missing, it doesn't start, and it says what's
    missing:
-   - totem of undying in the offhand
+   - a totem of undying in the offhand, plus **spare totems in the inventory: 5 by default,
+     adjustable** (the owner sets the numbers in game)
    - armour and sword durability above the threshold
    - food, XP bottles, chorus fruit
-   - **milk buckets** (milk clears the Wither effect)
    - a known safe spot to retreat to
+   - no milk buckets: too expensive
    - Meteor Client: **KillAura and aim modules off** (they rotate the camera and fight Zymbot's
      aiming); Velocity on, Criticals on only if they work (below)
 2. **Go to the nearest wither and stand next to it.** That's enough to engage it; there's no luring it
@@ -152,9 +161,28 @@ The setup: **a pile of withers on stone or bedrock**, at ground level. The bot f
    ground, not sprinting, attack cooldown full. That's vanilla's crit, with no extra client needed.
    Hits only the chosen wither until it's dead, then the next nearest.
 4. **Every wither in range fires at the bot**, not just the one it's hitting:
-   - the Wither effect stacks: **effect up and health dropping → drink milk**, or back off
+   - the Wither effect stacks: **effect up and health dropping → back off** until it wears off
    - on stone, black skulls blow holes in the floor (not on bedrock), so check where it's standing
-5. Durability low or health low → retreat to the safe spot or burrow in, heal, repair, come back.
+5. **Totems:** when one pops, put the next one in the offhand at once. **Out of spare totems →
+   retreat** (the offhand totem is the last one).
+6. Durability low or health low → retreat to the safe spot or burrow in, heal, repair, come back.
+
+**Never dying comes first, then speed.** Inventory is expensive, so the bot never trades safety for a
+faster kill. But clearing a pile takes a long time, so it should be fast within that rule. It times
+itself: seconds per kill, kills per hour, totems used per run, written to the decision log, so
+tactics can be compared.
+
+**Dying with a totem left** (owner, on 9b9t's 1.12.2 days, with 200-1000 withers around): a totem
+only saves you if it's **in your hand at the moment** of lethal damage. After one pops, the offhand is
+empty until it's refilled. Refilling is an inventory click that has to reach the server, so with ping
+and lag, a second lethal hit in that gap kills even with totems in the inventory. That's still true
+in current versions. With hundreds of withers firing, that gap is the danger. To be decided with the
+owner:
+- refill the offhand the same tick a totem pops (Meteor's AutoTotem does this; ours would need to as
+  well)
+- retreat **earlier** when many withers are in range or the server is lagging (low TPS, high ping),
+  not only when spares run out
+- keep the number of withers in range down, e.g. work the edge of the pile, not the middle
 
 **Meteor Client: owner to test on 9b9t.**
 - **Velocity** (no knockback): cancelling knockback can't be done fairly, since it means dropping the
