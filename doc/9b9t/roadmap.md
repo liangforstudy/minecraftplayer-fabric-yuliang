@@ -34,6 +34,21 @@ fights with withers and wardens.
   - So our 1.21.11 client goes through version translation (ViaVersion/ViaBackwards or the like).
     The game time that stays put and then jumps (§Probes) is likely that translation; a 26.2 client
     build would skip it.
+- **What the other mods support, checked 2026-10-26** (for choosing what a 26.x Zymbot leans on):
+  - **Baritone:** branches 26.1, 26.2, 26.3; 1.19.0 is 26.2, release 1.20.0 is 26.3. Keeps up.
+  - **Meteor Client:** master is on 26.3. Keeps up, but supports only its newest build: the site
+    lists 26.3. The owner's `26.2` instance already runs Meteor 26.2-35 with Baritone API 1.19.0
+    (Meteor's own `baritone-meteor-26.2` there is disabled), so a 26.2 Zymbot would sit next to an
+    unsupported but working Meteor. Fine for us (owner, 2026-10-26).
+  - **Lambda** (lambda-client/lambda, GPL-3.0, active: commits 2026-10-22): **1.21.11 only**, no 26.x
+    branch or issue. It has skipped versions before (branches 1.20.4 → 1.21.5 → 1.21.11). Its
+    `HighwayTools` and its `Printer` (places blocks from a loaded Litematica schematic; reads
+    Litematica's `DataManager` / `SchematicWorldHandler`, so Litematica + MaLiLib must be installed)
+    would fit the highways and mapart, but **nothing in Zymbot should depend on Lambda**: a 26.x
+    Zymbot would lose it. Highways: Meteor's HighwayBuilder (§2). Mapart: Zymbot's own placer
+    reading the Litematica placement itself, as Lambda's Printer does (§4).
+  - 9b9t also accepts 26.3 clients (protocol 777 echoed), so the 26.x build could follow Meteor to
+    26.3 instead of 26.2, at the cost of going back through translation.
 
 ### Profiles (decided, owner, 2026-10-25)
 
