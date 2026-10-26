@@ -30,7 +30,8 @@ import org.lwjgl.glfw.GLFW;
 final class ZymbotSettingsScreen extends Screen {
     private enum Tab { KEY, ACCOUNTS, SERVERS, BODY }
 
-    private static final int GREY = 0xA0A0A0, WHITE = 0xFFFFFF, RED = 0xFF6060, GREEN = 0x70E070;
+    // ARGB: from 1.21.6 on, text drawn without an alpha byte is invisible
+    private static final int GREY = 0xFFA0A0A0, WHITE = 0xFFFFFFFF, RED = 0xFFFF6060, GREEN = 0xFF70E070;
     private static final int ROW_H = 22, MAX_ROWS = 6;
 
     private final Screen parent;
@@ -446,7 +447,7 @@ final class ZymbotSettingsScreen extends Screen {
             if (!scrubbing) {
                 if (Math.abs(travel) < DEAD_ZONE) return;
                 scrubbing = true;
-                box.setTextColor(0xFFFF60);
+                box.setTextColor(0xFFFFFF60);
                 dragX = travel;                            // the dead zone counts too
             }
             double perPx = McCompat.shiftDown() ? 1.0 / FINE_PX : Math.max(1, (max - min) / 200);
@@ -465,7 +466,7 @@ final class ZymbotSettingsScreen extends Screen {
             boolean click = pressed && !scrubbing;
             pressed = false;
             scrubbing = false;
-            box.setTextColor(0xE0E0E0);                    // EditBox's default text colour
+            box.setTextColor(0xFFE0E0E0);                    // EditBox's default text colour
             return click;
         }
     }
