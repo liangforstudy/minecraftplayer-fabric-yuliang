@@ -166,6 +166,7 @@ public final class ZymbotClient implements ClientModInitializer {
         if (bot != null) return;
         bot = new Bot(config, configFile, FabricLoader.getInstance().getGameDir().resolve("zymbot"),
                 mc.getUser().getProfileId(), HEADLESS, System::currentTimeMillis);
+        bot.knowName(mc.getUser().getName());
         if (config.transports.localBus) {
             try {
                 bot.attachTransport(new LocalBusTransport());

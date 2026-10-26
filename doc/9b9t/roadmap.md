@@ -47,14 +47,24 @@ Kept: drowning, hazard, critical health, stranded and wading interrupts, fidget 
 
 ### Settings in the `anarchy` profile (draft, for the owner to review)
 
+**Works out of the box (owner, 2026-10-26).** In the `anarchy` profile nobody has to list their account
+or a server first: the settings for that are hidden and confuse players. By default Zymbot is active
+**on every server, for the account that's playing**. A blacklist / whitelist of servers comes later,
+as an option.
+
+Open: "active" here means it listens for orders and runs the jobs it's given. Does it also **take
+control by itself when you join**, or only when given a job (`/zbot start`, a route, the ice miner)?
+Taking control on every join would also take over when the owner just wants to play, so the draft is:
+active everywhere, but it only takes control when given a job.
+
 Settings screen:
 
 | Tab / setting | What it does | ZymCiv-only? | Anarchy profile |
 |---|---|---|---|
 | **Team key** tab | encrypts bot-to-bot messages (local bus, chat handshake) | yes: both are off on 9b9t | **hide**: off for now (owner, 2026-10-25) |
-| **Accounts** → Bot | which account the bot plays | no | keep |
+| **Accounts** → Bot | which account the bot plays | no | **hide**: the playing account, by default (above) |
 | **Accounts** → Teammate | "tells your bots you're on the team" | yes: no team features | **hide** |
-| **Servers** tab | where Zymbot is active, On / Off | no | keep |
+| **Servers** tab | where Zymbot is active, On / Off | no | **hide** for now: every server, by default (above); a blacklist / whitelist later |
 | Body → **Leash** | max blocks from the nearest teammate | yes | **hide** |
 | Body → **Follow: stop this close** | follow distance to a teammate | team-based | **hide** for now |
 | Body → **Eat when hunger ≤** | Zymbot's eating | no, but Meteor's AutoEat replaces it | **hide** while AutoEat is used |
