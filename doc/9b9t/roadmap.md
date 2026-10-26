@@ -47,14 +47,23 @@ Kept: drowning, hazard, critical health, stranded and wading interrupts, fidget 
 
 ### Settings in the `anarchy` profile (draft, for the owner to review)
 
+**Works out of the box (owner, 2026-10-26).** In the `anarchy` profile nobody has to list their account
+or a server first: the settings for that are hidden and confuse players. By default Zymbot is active
+**on every server, for the account that's playing**. A blacklist / whitelist of servers comes later,
+as an option.
+
+**"Active" means standby and ready** (owner, 2026-10-26): switched on, not disabled, waiting for
+orders. It **never takes control on join**; it takes control only when given a job (`/zbot start`, a
+route, the ice miner, ...).
+
 Settings screen:
 
 | Tab / setting | What it does | ZymCiv-only? | Anarchy profile |
 |---|---|---|---|
 | **Team key** tab | encrypts bot-to-bot messages (local bus, chat handshake) | yes: both are off on 9b9t | **hide**: off for now (owner, 2026-10-25) |
-| **Accounts** → Bot | which account the bot plays | no | keep |
+| **Accounts** → Bot | which account the bot plays | no | **hide**: the playing account, by default (above) |
 | **Accounts** → Teammate | "tells your bots you're on the team" | yes: no team features | **hide** |
-| **Servers** tab | where Zymbot is active, On / Off | no | keep |
+| **Servers** tab | where Zymbot is active, On / Off | no | **hide** for now: every server, by default (above); a blacklist / whitelist later |
 | Body → **Leash** | max blocks from the nearest teammate | yes | **hide** |
 | Body → **Follow: stop this close** | follow distance to a teammate | team-based | **hide** for now |
 | Body → **Eat when hunger ≤** | Zymbot's eating | no, but Meteor's AutoEat replaces it | **hide** while AutoEat is used |
@@ -95,13 +104,17 @@ Checked in a cloud container on 2026-10-25:
 
 The 4 mixins (`ContinueAttackMixin`, `ServerTimeMixin`, `MinecraftAccessor`,
 `BossHealthOverlayAccessor`) also need checking in game: a renamed target method isn't a compile
-error.
+error. (Their targets, `continueAttack`, `handleSetTime`, `rightClickDelay` and `events`, are all still
+in the 1.21.11 jar under the same names, checked with `javap`.)
 
 Steps:
-1. **Build**: add `1.21.11` to `mod/settings.gradle.kts` and `mod/stonecutter.properties.toml`
-   (versions above). `headless` setup downloads the Baritone 1.17.0 API jar too.
-2. **Port the adapter**: the table above, file by file, until both versions compile. The settings
-   screen is ported too, with the anarchy settings above.
+1. **Build** (done, 2026-10-25): `1.21.11` added to `mod/settings.gradle.kts` and
+   `mod/stonecutter.properties.toml`. Compiling it needs `headless/baritone-api-fabric-1.17.0.jar`
+   (from Baritone's GitHub releases, gitignored like the 1.11.3 one).
+2. **Port the adapter** (done, 2026-10-25): both versions compile and all 235 `core` tests pass. The
+   version differences live in one class, `McCompat`; the settings screen's mouse handling and the
+   emergency stop key have their own `//? if` blocks. Not yet tried in game. The settings screen
+   isn't trimmed to the anarchy settings yet; that comes with step 3.
 3. **Profiles**: a profile constant per version, `Bot` wiring modules from it, and `core` tests
    checking that `anarchy` never creates anything on the off-list.
 4. **Smoke test** on the owner's own Prism client (1.21.11 instance with Meteor, Baritone 1.17.0 and
@@ -116,7 +129,7 @@ HeadlessMC. Tedious, so it waits until Routes and the ice miner need it. Then `h
 built-in `MC_VERSION = "1.21.1"` becomes per rig, and it's checked that HeadlessMC can install
 1.21.11.
 
-**Open:** the version number. Whether the first two-version build is 0.2.0 is still to be discussed.
+**Version (decided, owner, 2026-10-26):** the first build for both versions is **0.2.0** (`0.2.0+1.21.1` and `0.2.0+1.21.11`).
 
 ### Shared: eating (all 9b9t modules: ice miner, mapart, fights)
 
@@ -326,6 +339,19 @@ chooses: prepare the bot by hand and switch it to wither or warden mode, or give
 **Later: gearing up by itself** before a fight. It always gears up **off the main axis** (in a
 tunnel, like above), never on the highway.
 
+## Later ideas
+
+### Snapshot, build offline, ghost blocks back on 9b9t (owner, 2026-10-26)
+
+Download the area around the owner on 9b9t, switch to singleplayer, build there with **Axiom**,
+then go back to 9b9t and see what was built as **ghost blocks** to place for real. Needs Zymbot to
+work alongside the owner's 9b9t client mods: Meteor Client, Sodium, Axiom and the rest.
+
+Notes for when it comes up:
+- This is close to the existing flow of a world downloader + **Litematica**'s ghost-block overlay;
+  Zymbot's part could be the glue (snapshot, export the build as a schematic, load it on 9b9t).
+- The ghost blocks are then a build plan the bot can place itself, the same thing mapart (§4) needs.
+
 ## To test in game
 
 9b9t doesn't run vanilla rules everywhere. Test on 9b9t later (possibly with an MCP for Fabric that
@@ -333,7 +359,7 @@ lets Claude drive the game):
 
 | What | Expected | Why it matters |
 |---|---|---|
-| Dropped item despawn time | **2 minutes** (owner), not vanilla's 5 | ice miner: drops in the ocean must be picked up within 2 minutes, so it mines no more over water than it can collect in time; mapart: wrongly placed blocks, the same |
+| Dropped item despawn time | **2 minutes** (owner), not vanilla's 5. **No ClearLag-style warning in chat** (owner, 2026-10-25); still to check whether each item has its own timer or all items are cleared at once | ice miner: drops in the ocean must be picked up within 2 minutes, so it mines no more over water than it can collect in time; mapart: wrongly placed blocks, the same |
 | `maxEntityCramming` for withers | **100** on 9b9t's 1.12.2 days (owner); unknown now | wither and warden cramming (§5) |
 | Meteor's Velocity and Criticals | worked on 1.12.2 | §5 knockback and crits |
 | Meteor's AutoEat | owner judges whether it's good enough | shared eating (§0) |

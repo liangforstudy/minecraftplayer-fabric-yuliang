@@ -80,7 +80,7 @@ final class FabricWorldView implements WorldView {
         this.onGround = player.onGround();
         this.sprinting = player.isSprinting();
         this.using = player.isUsingItem();
-        this.selected = player.getInventory().selected;
+        this.selected = McCompat.selectedSlot(player.getInventory());
         this.air = player.getAirSupply();
         this.maxAir = player.getMaxAirSupply();
         this.headInWater = player.isEyeInFluid(FluidTags.WATER);
@@ -94,7 +94,7 @@ final class FabricWorldView implements WorldView {
         this.downedSecs = downed;
         this.beingRevived = reviving;
         this.lastDeath = player.getLastDeathLocation()
-                .map(g -> g.dimension().location() + " " + g.pos().toShortString()).orElse("");
+                .map(g -> McCompat.id(g.dimension()) + " " + g.pos().toShortString()).orElse("");
         this.dayTime = level.getDayTime();
         this.tps = ZymbotClient.TPS.tps(System.nanoTime());
         this.online = connection == null ? Set.of() : Set.copyOf(connection.getOnlinePlayerIds());   // the tab list
@@ -124,7 +124,7 @@ final class FabricWorldView implements WorldView {
 
     @Override
     public Optional<BlockPos> worldSpawn() {
-        var s = level.getSharedSpawnPos();
+        var s = McCompat.worldSpawn(level);
         return Optional.of(new BlockPos(s.getX(), s.getY(), s.getZ()));
     }
 
@@ -192,12 +192,13 @@ final class FabricWorldView implements WorldView {
     private static Food food(ItemStack st) {
         FoodProperties fp = st.get(DataComponents.FOOD);
         if (fp == null) return null;
-        boolean harmful = fp.effects().stream()
-                .anyMatch(e -> e.effect().getEffect().value().getCategory() == MobEffectCategory.HARMFUL);
+        var effects = McCompat.foodEffects(st);
+        boolean harmful = effects.stream()
+                .anyMatch(e -> e.getEffect().value().getCategory() == MobEffectCategory.HARMFUL);
         // an instant effect from food only fires if its duration is at least 1 tick — Farm & Charm's
         // nettle tea cup gives Instant Health for 0 ticks, which never heals (FIXLIST #5)
-        boolean heals = fp.effects().stream().anyMatch(e -> e.effect().getDuration() > 0
-                && (e.effect().is(MobEffects.HEAL) || e.effect().is(MobEffects.REGENERATION) || e.effect().is(MobEffects.ABSORPTION)));
+        boolean heals = effects.stream().anyMatch(e -> e.getDuration() > 0
+                && (e.is(McCompat.instantHealth()) || e.is(MobEffects.REGENERATION) || e.is(MobEffects.ABSORPTION)));
         return new Food(fp.nutrition(), fp.saturation(), fp.canAlwaysEat(), harmful, heals);
     }
 
@@ -205,7 +206,7 @@ final class FabricWorldView implements WorldView {
     public Optional<Damage> recentDamage() {
         DamageSource src = player.getLastDamageSource();       // the client keeps it ~2s
         if (src == null) return Optional.empty();
-        String type = src.typeHolder().unwrapKey().map(k -> k.location().toString()).orElse("unknown");
+        String type = src.typeHolder().unwrapKey().map(McCompat::id).orElse("unknown");
         Entity by = src.getEntity();
         return Optional.of(new Damage(type, by == null ? null : by.getName().getString(),
                 by == null ? null : new Vec3(by.getX(), by.getY(), by.getZ()), by == null ? null : by.getUUID()));
@@ -255,7 +256,7 @@ final class FabricWorldView implements WorldView {
             /** Feet height on this column: the heightmap, then down through any leaves. */
             private int surface(int x, int z) {
                 int y = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, x, z);
-                int floor = level.getMinBuildHeight();
+                int floor = McCompat.minY(level);
                 while (y > floor && level.getBlockState(mp.set(x, y - 1, z)).is(net.minecraft.tags.BlockTags.LEAVES)) y--;
                 return y;
             }
@@ -358,8 +359,8 @@ final class FabricWorldView implements WorldView {
         if (be == null) return Optional.empty();
         try {
             var tag = be.saveWithoutMetadata(level.registryAccess());
-            String owner = tag.getString("owner");
-            UUID ownerId = tag.hasUUID("owner_id") ? tag.getUUID("owner_id") : null;
+            String owner = McCompat.string(tag, "owner");
+            UUID ownerId = McCompat.uuid(tag, "owner_id");
             if (owner.isEmpty() && ownerId == null) return Optional.empty();
             return Optional.of(new io.github.liangforstudy.zymbot.core.api.GraveOwner(owner, ownerId));
         } catch (RuntimeException e) {                          // someone else's block entity: no owner to read
@@ -457,7 +458,7 @@ final class FabricWorldView implements WorldView {
 
     @Override
     public String biome() {
-        return level.getBiome(player.blockPosition()).unwrapKey().map(k -> k.location().toString()).orElse("unknown");
+        return level.getBiome(player.blockPosition()).unwrapKey().map(McCompat::id).orElse("unknown");
     }
 
     /** Per block type: does the survey want it? Asked once per type, not once per block. */
@@ -475,7 +476,7 @@ final class FabricWorldView implements WorldView {
         java.util.function.Predicate<net.minecraft.world.level.block.state.BlockState> want = st -> WANTED.computeIfAbsent(
                 st.getBlock(), b -> wanted.test(BuiltInRegistries.BLOCK.getKey(b).toString()));
         BlockPos at = BlockPos.of(pos);
-        int minY = Math.max(level.getMinBuildHeight(), at.y() - below), maxY = Math.min(level.getMaxBuildHeight() - 1, at.y() + above);
+        int minY = Math.max(McCompat.minY(level), at.y() - below), maxY = Math.min(McCompat.maxY(level), at.y() + above);
         List<io.github.liangforstudy.zymbot.core.api.BlockHit> out = new ArrayList<>();
         for (int cx = (at.x() - radius) >> 4; cx <= (at.x() + radius) >> 4; cx++) {
             for (int cz = (at.z() - radius) >> 4; cz <= (at.z() + radius) >> 4; cz++) {

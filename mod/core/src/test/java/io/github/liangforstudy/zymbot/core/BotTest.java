@@ -20,6 +20,16 @@ class BotTest {
     }
 
     @Test
+    void listingThisAccountBeforeAnyWorldSavesItsName() {
+        FakeWorld me = new FakeWorld("ZymSB");
+        ZymbotConfig cfg = new ZymbotConfig();
+        Bot b = bot(me, cfg, false);
+        b.knowName("ZymSB");
+        b.setOwnRole(ZymbotConfig.Role.BOT);
+        assertEquals("ZymSB", cfg.accounts.get(0).name, "listed from the title screen, not as \"?\"");
+    }
+
+    @Test
     void autostartsOnlyOnWhitelistedServers() {
         ZymbotConfig cfg = FakeBus.busOnConfig();
         cfg.autostartServers.add("127.0.0.1:25565");

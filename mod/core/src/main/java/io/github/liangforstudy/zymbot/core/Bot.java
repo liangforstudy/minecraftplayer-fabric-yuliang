@@ -770,6 +770,14 @@ public final class Bot {
     }
 
     /** Set this account's role (Bot / Teammate / NONE = remove). */
+    /**
+     * The account name, known before any world: without it, listing this account from the title
+     * screen saved it as "?" (owner's test, 2026-10-26). A join still sets it as joined.
+     */
+    public void knowName(String name) {
+        if (name != null && !name.isBlank() && "?".equals(selfName)) selfName = name;
+    }
+
     public String setOwnRole(ZymbotConfig.Role role) {
         config.setRole(selfId, selfName, role);
         ConfigIO.save(configFile, config);
