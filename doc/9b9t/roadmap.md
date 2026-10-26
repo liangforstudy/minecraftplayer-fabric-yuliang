@@ -23,6 +23,17 @@ fights with withers and wardens.
   stack, drowning, stranded, fidget watchdog, `BreakTask`, `PlaceTask`, decision log) serve both.
 - **Later:** a 26.2 client build, once Fabric and Baritone support it. The project already uses
   Mojang names, as 26.x does, but expect real work in the adapter (`mod/src`) all the same.
+- **9b9t's version, checked 2026-10-26:** **26.2, with 1.21.4 and newer accepted.**
+  - `tools/mcping.py` (server-list ping, no login; follows the `_minecraft._tcp` SRV record, since
+    2b2t.com's plain address is a web IP): the version name is "9b9t 26.2" whatever we send; protocols
+    774 (1.21.11), 776 (26.2) and 777 (26.3) are echoed back, i.e. accepted; 340 (1.12.2) gets −1,
+    refused. `preventsChatReports` is set. Pings sent back to back time out (rate limit); 15 s apart
+    they answer.
+  - Inside, with the owner's 26.2 client: the tab footer says "Current version: 26.2 (1.21.4+
+    accepted)"; F3 shows the brand only as `"9b9t" server` (the software is hidden).
+  - So our 1.21.11 client goes through version translation (ViaVersion/ViaBackwards or the like).
+    The game time that stays put and then jumps (§Probes) is likely that translation; a 26.2 client
+    build would skip it.
 
 ### Profiles (decided, owner, 2026-10-25)
 
