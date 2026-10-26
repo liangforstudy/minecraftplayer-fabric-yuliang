@@ -330,6 +330,19 @@ chooses: prepare the bot by hand and switch it to wither or warden mode, or give
 **Later: gearing up by itself** before a fight. It always gears up **off the main axis** (in a
 tunnel, like above), never on the highway.
 
+## Later ideas
+
+### Snapshot, build offline, ghost blocks back on 9b9t (owner, 2026-10-26)
+
+Download the area around the owner on 9b9t, switch to singleplayer, build there with **Axiom**,
+then go back to 9b9t and see what was built as **ghost blocks** to place for real. Needs Zymbot to
+work alongside the owner's 9b9t client mods: Meteor Client, Sodium, Axiom and the rest.
+
+Notes for when it comes up:
+- This is close to the existing flow of a world downloader + **Litematica**'s ghost-block overlay;
+  Zymbot's part could be the glue (snapshot, export the build as a schematic, load it on 9b9t).
+- The ghost blocks are then a build plan the bot can place itself, the same thing mapart (§4) needs.
+
 ## To test in game
 
 9b9t doesn't run vanilla rules everywhere. Test on 9b9t later (possibly with an MCP for Fabric that
