@@ -2,7 +2,7 @@
 mod.id = "zymbot"
 mod.name = "Zymbot"
 mod.group = "io.github.liangforstudy"
-mod.version = "0.1.49"
+mod.version = "0.2.0"
 
 deps.fabric_loader = "0.19.3"
 loomx.loom_version = "1.17-SNAPSHOT"

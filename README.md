@@ -32,6 +32,11 @@ danger, knocked out, …) over a milestone planner, with every choice logged as
 > milestone ladder in live play, and two of its bots reached their first class rank (Apprentice).
 > [BOT_BEHAVIOUR.md → The milestone ladder](BOT_BEHAVIOUR.md#the-milestone-ladder) marks which rungs
 > it has done.
+>
+> **Zymbot 0.2.0 (2026-10-26) builds for two Minecraft versions:** 1.21.1 for ZymCiv, and 1.21.11 for
+> the anarchy server 9b9t (routes, ice mining, mapart, fights). The 1.21.11 build still runs the
+> ZymCiv behaviour until its own profile is in: don't take it to 9b9t yet.
+> [doc/9b9t/roadmap.md](doc/9b9t/roadmap.md) has the plan.
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail
 every harvest, and die on the first blood moon. Much of this repo is the work of finding out

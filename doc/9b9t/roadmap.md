@@ -129,7 +129,7 @@ HeadlessMC. Tedious, so it waits until Routes and the ice miner need it. Then `h
 built-in `MC_VERSION = "1.21.1"` becomes per rig, and it's checked that HeadlessMC can install
 1.21.11.
 
-**Open:** the version number. Whether the first two-version build is 0.2.0 is still to be discussed.
+**Version (decided, owner, 2026-10-26):** the first build for both versions is **0.2.0** (`0.2.0+1.21.1` and `0.2.0+1.21.11`).
 
 ### Shared: eating (all 9b9t modules: ice miner, mapart, fights)
 

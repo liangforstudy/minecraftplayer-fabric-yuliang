@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "io.github.liangforstudy"
-version = "0.1.49"   // keep in step with mod.version in stonecutter.properties.toml
+version = "0.2.0"   // keep in step with mod.version in stonecutter.properties.toml
 
 repositories {
     mavenCentral()
