@@ -52,10 +52,9 @@ or a server first: the settings for that are hidden and confuse players. By defa
 **on every server, for the account that's playing**. A blacklist / whitelist of servers comes later,
 as an option.
 
-Open: "active" here means it listens for orders and runs the jobs it's given. Does it also **take
-control by itself when you join**, or only when given a job (`/zbot start`, a route, the ice miner)?
-Taking control on every join would also take over when the owner just wants to play, so the draft is:
-active everywhere, but it only takes control when given a job.
+**"Active" means standby and ready** (owner, 2026-10-26): switched on, not disabled, waiting for
+orders. It **never takes control on join**; it takes control only when given a job (`/zbot start`, a
+route, the ice miner, ...).
 
 Settings screen:
 
