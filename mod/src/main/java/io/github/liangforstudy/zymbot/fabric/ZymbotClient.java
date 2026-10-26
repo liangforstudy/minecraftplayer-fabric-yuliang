@@ -49,6 +49,8 @@ public final class ZymbotClient implements ClientModInitializer {
     private static ZymbotClient instance;
     /** The server's tick rate, from its time updates (mixin.ServerTimeMixin). */
     public static final io.github.liangforstudy.zymbot.core.body.TpsMeter TPS = new io.github.liangforstudy.zymbot.core.body.TpsMeter();
+    /** How long the server takes to confirm a block action (mixin.BlockAckMixin). */
+    public static final io.github.liangforstudy.zymbot.core.body.AckMeter ACKS = new io.github.liangforstudy.zymbot.core.body.AckMeter();
     private ZymbotConfig config;
     private Path configFile;
     private Bot bot;
@@ -93,9 +95,9 @@ public final class ZymbotClient implements ClientModInitializer {
         instance = this;
         configFile = FabricLoader.getInstance().getConfigDir().resolve("zymbot.json");
         config = ConfigIO.load(configFile);
-        LOG.info("[zymbot] loaded — command /{}{}, {}", config.commandRoot,
+        LOG.info("[zymbot] loaded — command /{}{}, {}, profile {}", config.commandRoot,
                 config.commandAliases.isEmpty() ? "" : " (aliases " + config.commandAliases + ")",
-                HEADLESS ? "headless" : "with a human at the keys");
+                HEADLESS ? "headless" : "with a human at the keys", McCompat.PROFILE.id());
 
         // Emergency stop (owner, 2026-10-16): /zbot stop and Baritone's own cancel, on a key — unbound until
         // set in Options -> Controls. Chat can't be reached while the bot has a screen open, so it works there too.
@@ -121,7 +123,7 @@ public final class ZymbotClient implements ClientModInitializer {
                         () -> levelName(Minecraft.getInstance()), config.commandRoot, config.commandAliases));
         // the bot exists from the title screen on, so a summon can reach it before any world
         ClientLifecycleEvents.CLIENT_STARTED.register(this::createBot);
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); onJoin(mc); });
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); ACKS.reset(); onJoin(mc); });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
         // ALLOW_CHAT, not CHAT: a bot keeps the chat check (roadmap3.md §4) off its chat screen, and a
@@ -165,9 +167,9 @@ public final class ZymbotClient implements ClientModInitializer {
     private void createBot(Minecraft mc) {
         if (bot != null) return;
         bot = new Bot(config, configFile, FabricLoader.getInstance().getGameDir().resolve("zymbot"),
-                mc.getUser().getProfileId(), HEADLESS, System::currentTimeMillis);
+                mc.getUser().getProfileId(), HEADLESS, System::currentTimeMillis, McCompat.PROFILE);
         bot.knowName(mc.getUser().getName());
-        if (config.transports.localBus) {
+        if (config.transports.localBus && McCompat.PROFILE.has(io.github.liangforstudy.zymbot.core.Profile.BUS)) {
             try {
                 bot.attachTransport(new LocalBusTransport());
             } catch (IOException e) {
@@ -178,6 +180,8 @@ public final class ZymbotClient implements ClientModInitializer {
 
     /** /zbot summon: our LAN world if it's open, else the server we're on. */
     private String summon(Bot b) {
+        String no = b.zymcivOnly("summon");                     // before the LAN hint: anarchy has no summon at all
+        if (no != null) return no;
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer s = mc.getSingleplayerServer();
         if (s != null) {

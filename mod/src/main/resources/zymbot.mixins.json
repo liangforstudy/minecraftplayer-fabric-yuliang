@@ -4,6 +4,7 @@
   "package": "io.github.liangforstudy.zymbot.fabric.mixin",
   "compatibilityLevel": "${java}",
   "client": [
+    "BlockAckMixin",
     "BossHealthOverlayAccessor",
     "ContinueAttackMixin",
     "MinecraftAccessor",

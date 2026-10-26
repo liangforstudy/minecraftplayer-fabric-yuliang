@@ -100,6 +100,9 @@ public final class Bot {
     private static final Logger LOG = LoggerFactory.getLogger("zymbot");
 
     private final ZymbotConfig config;
+    private final Profile profile;
+    /** What this profile created, by {@link Profile} module name: the off-list tests read it. */
+    private final java.util.Set<String> modules = new java.util.LinkedHashSet<>();
     private final Path configFile;
     private final Path dataDir;
     private final UUID selfId;
@@ -117,7 +120,7 @@ public final class Bot {
     private final io.github.liangforstudy.zymbot.core.body.FidgetWatchdog fidget = new io.github.liangforstudy.zymbot.core.body.FidgetWatchdog();
     private final ChatIn chatIn = new ChatIn();
     private final ChatOut chatOut;
-    /** Bot or human, told apart in game chat (roadmap3.md §4). */
+    /** Bot or human, told apart in game chat (roadmap3.md §4). Null under {@link Profile#ANARCHY}. */
     private final io.github.liangforstudy.zymbot.core.team.Handshake handshake;
     /** Players in view last tick, by name, with their distance then. */
     private java.util.Map<String, Integer> lastInView = new java.util.HashMap<>();
@@ -130,6 +133,7 @@ public final class Bot {
     private long pausedUntil;
     private boolean resumeWarned;
     private long nextHello;
+    /** The team and the milestone ladder: ZymCiv only, null under {@link Profile#ANARCHY}. */
     private final io.github.liangforstudy.zymbot.core.team.Regroup regroup;
     private final ToolRung toolRung;
     private final Ladder ladder;
@@ -182,52 +186,85 @@ public final class Bot {
     private record Pending(Envelope envelope, long since) {}
 
     public Bot(ZymbotConfig config, Path configFile, Path dataDir, UUID selfId, boolean headless, LongSupplier clock) {
+        this(config, configFile, dataDir, selfId, headless, clock, Profile.ZYMCIV);
+    }
+
+    public Bot(ZymbotConfig config, Path configFile, Path dataDir, UUID selfId, boolean headless, LongSupplier clock,
+               Profile profile) {
         this.config = config;
+        this.profile = profile;
         this.configFile = configFile;
         this.dataDir = dataDir;
         this.selfId = selfId;
         this.headless = headless;
         this.clock = clock;
+        // "modpack" is ZymCiv's mobs: an anarchy build runs at critical health ("hard" unless set)
+        if (!profile.dangerModes().contains(config.danger)) config.danger = profile.defaultDanger();
         this.log = new DecisionLog(50, clock);
-        this.bus = new Bus(selfId, config.teamKey, clock);
+        this.bus = new Bus(selfId, config.teamKey, clock);           // no transport attached under anarchy: inert
         this.chatOut = new ChatOut(clock);
-        this.handshake = new io.github.liangforstudy.zymbot.core.team.Handshake(config.teamKey, chatOut, clock, (what, why) -> log.record(what, why));
+        this.handshake = !profile.has(Profile.HANDSHAKE) ? null : made(Profile.HANDSHAKE,
+                new io.github.liangforstudy.zymbot.core.team.Handshake(config.teamKey, chatOut, clock, (what, why) -> log.record(what, why)));
         this.body = new Body(() -> memory.recentFoods, this::isKnownBot, this::isTeammate, clock, () -> memoryDirty = true);
         body.onSwim(this::reportSwim);
-        // BOT_BEHAVIOUR.md interrupt table, phase 1 rows, in priority order
-        DownedTask.Help help = new DownedTask.Help() {
-            public void callForHelp(WorldView w, List<EntityView> humans) { announceDowned(w, humans); }
-            public boolean medicNear(WorldView w) { return false; }   // bots announce their class in a later phase
-            // a teammate who hurt us (a test /damage, friendly fire) and then revived us isn't a threat:
-            // Bot1 ran from its reviver straight after getting up (2026-09-26)
-            public void revived(WorldView w) { body.forgetTeammateAttacker(); }
-        };
-        this.regroup = new io.github.liangforstudy.zymbot.core.team.Regroup(config, body, () -> memory.roster, clock,
-                target -> new io.github.liangforstudy.zymbot.core.task.RouteTask(hands.paths(), target, true, COME_WITHIN,
-                        config.routeRadius, config.swimCostBlocks, log::record, "walking back to the team")
-                        .limits(config.planTimeoutMs, config.lagTps),
-                this::askWhere, COME_WITHIN, log::record);
-        // the milestone ladder (PHASE3.md step 4), below the regroup: a bot far from its team walks back first
-        this.toolRung = new ToolRung(() -> java.util.Optional.ofNullable(survey),
-                why -> { if (surveying == null) surveyWanted = why; },
-                w -> regroup.nearestTeammate(w).map(EntityView::pos), chatIn, clock, log::record);
-        this.ladder = new Ladder(List.of(toolRung));
-        regroup.workFirst(ladder::hasWork);
+        if (profile.has(Profile.BUS)) modules.add(Profile.BUS);
+        if (profile.has(Profile.GRAVES)) modules.add(Profile.GRAVES);
+        if (profile.has(Profile.REGROUP)) {
+            this.regroup = made(Profile.REGROUP, new io.github.liangforstudy.zymbot.core.team.Regroup(config, body, () -> memory.roster, clock,
+                    target -> new io.github.liangforstudy.zymbot.core.task.RouteTask(hands.paths(), target, true, COME_WITHIN,
+                            config.routeRadius, config.swimCostBlocks, log::record, "walking back to the team")
+                            .limits(config.planTimeoutMs, config.lagTps),
+                    this::askWhere, COME_WITHIN, log::record));
+        } else this.regroup = null;
+        if (profile.has(Profile.LADDER)) {
+            // the milestone ladder (PHASE3.md step 4), below the regroup: a bot far from its team walks back first
+            this.toolRung = new ToolRung(() -> java.util.Optional.ofNullable(survey),
+                    why -> { if (surveying == null) surveyWanted = why; },
+                    w -> nearestTeammate(w).map(EntityView::pos), chatIn, clock, log::record);
+            this.ladder = made(Profile.LADDER, new Ladder(List.of(toolRung)));
+            if (regroup != null) regroup.workFirst(ladder::hasWork);
+        } else {
+            this.toolRung = null;
+            this.ladder = null;
+        }
         Planner planner = world -> {
-            var back = regroup.best(world);
-            return back.isPresent() ? back : ladder.best(world);
+            var back = regroup == null ? java.util.Optional.<Objective>empty() : regroup.best(world);
+            return back.isPresent() || ladder == null ? back : ladder.best(world);
         };
-        this.brain = new Brain(List.of(
-                new DownedInterrupt(config, body, help, log::record),
-                new DrowningInterrupt(),
-                new HazardInterrupt(body),
-                new CriticalHealthInterrupt(config, body),
-                new StrandedInterrupt(body, this::nothingToDo),
-                new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, regroup::nearestTeammate),
-                new HungerInterrupt(config, body),
-                new WadingInterrupt(body, this::idleForWading)), planner, log);
+        // BOT_BEHAVIOUR.md interrupt table, phase 1 rows, in priority order
+        List<io.github.liangforstudy.zymbot.core.brain.Interrupt> reflexes = new ArrayList<>();
+        if (profile.has(Profile.DOWNED)) {
+            DownedTask.Help help = new DownedTask.Help() {
+                public void callForHelp(WorldView w, List<EntityView> humans) { announceDowned(w, humans); }
+                public boolean medicNear(WorldView w) { return false; }   // bots announce their class in a later phase
+                // a teammate who hurt us (a test /damage, friendly fire) and then revived us isn't a threat:
+                // Bot1 ran from its reviver straight after getting up (2026-09-26)
+                public void revived(WorldView w) { body.forgetTeammateAttacker(); }
+            };
+            reflexes.add(made(Profile.DOWNED, new DownedInterrupt(config, body, help, log::record)));
+        }
+        reflexes.add(new DrowningInterrupt());
+        reflexes.add(new HazardInterrupt(body));
+        reflexes.add(new CriticalHealthInterrupt(config, body));
+        reflexes.add(new StrandedInterrupt(body, this::nothingToDo));
+        if (profile.has(Profile.LEASH)) {
+            reflexes.add(made(Profile.LEASH, new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, this::nearestTeammate)));
+        }
+        // anarchy: Meteor's AutoEat feeds the player; two eaters fight over the hotbar (roadmap §0, eating)
+        if (profile.has(Profile.HUNGER)) reflexes.add(made(Profile.HUNGER, new HungerInterrupt(config, body)));
+        reflexes.add(new WadingInterrupt(body, this::idleForWading));
+        this.brain = new Brain(reflexes, planner, log);
         bus.subscribe(this::onEnvelope);
         log.onRecord(this::toWatchers);
+    }
+
+    private <T> T made(String module, T thing) {
+        modules.add(module);
+        return thing;
+    }
+
+    private java.util.Optional<EntityView> nearestTeammate(WorldView w) {
+        return regroup == null ? java.util.Optional.empty() : regroup.nearestTeammate(w);
     }
 
     public void attachTransport(Transport t) {
@@ -262,10 +299,15 @@ public final class Bot {
         wasDowned = sawRevive = false;
         reviveCheckTicks = 0;
         heardThisSession.clear();
-        handshake.reset();
+        if (handshake != null) handshake.reset();
         lastInView = new java.util.HashMap<>();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
+        if (!profile.autostarts()) {                             // anarchy: active everywhere, never grabs the controls
+            log.record("standing by", "ready for orders on " + where + " — one-shot jobs borrow the controls, /"
+                    + config.commandRoot + " start hands them over");
+            return;
+        }
         if (!onWhitelist()) {
             log.record("silent", where + (config.isServerOff(address) ? " is switched off on the server list"
                     : " isn't on the server list") + " — /" + config.commandRoot + " start to begin");
@@ -280,12 +322,13 @@ public final class Bot {
 
     /** This account's role. A headless client with no accounts listed is a bot — nobody else plays it. */
     public ZymbotConfig.Role role() {
+        if (profile == Profile.ANARCHY) return ZymbotConfig.Role.BOT;   // the playing account, with no list to fill in
         ZymbotConfig.Role r = config.roleOf(selfId);
         return r == ZymbotConfig.Role.NONE && headless && config.accounts.isEmpty() ? ZymbotConfig.Role.BOT : r;
     }
 
     private boolean onWhitelist() {
-        return address != null && config.activeOn(address);
+        return address != null && (profile == Profile.ANARCHY || config.activeOn(address));
     }
 
     /** Teammate mode: say HELLO so bots know we're here; never touch the controls. */
@@ -321,7 +364,7 @@ public final class Bot {
         phase = Phase.DISCOVERY;
         nextHello = 0;                  // say hello on the next tick
         pausedUntil = 0;
-        regroup.arm();                  // first objective: find the team (PHASE2.md §1)
+        if (regroup != null) regroup.arm();   // first objective: find the team (PHASE2.md §1)
         surveyWanted = "started";       // and look around (PHASE3.md §2)
         log.record("started: " + phase, why);
     }
@@ -463,7 +506,7 @@ public final class Bot {
         }
         watchForFidgeting(world, hands);
         brain.tick(world, hands);
-        if (role() == ZymbotConfig.Role.BOT) {
+        if (role() == ZymbotConfig.Role.BOT && handshake != null) {   // the chat check, and how far it reaches
             List<EntityView> inView = world.playersInView();
             trackView(world, inView);
             handshake.tick(selfName, inView);
@@ -556,7 +599,7 @@ public final class Bot {
             brain.halt("died");
         }
         hungerMeter.settle();
-        regroup.arm();                                           // respawned somewhere else: find the team again
+        if (regroup != null) regroup.arm();                      // respawned somewhere else: find the team again
         if (phase.controlling()) surveyWanted = "respawned";      // somewhere new: look around again
         if (respawnedWhy != null) log.record("respawned", respawnedWhy);
     }
@@ -681,23 +724,30 @@ public final class Bot {
         out.add("phase: " + phase + (pausedUntil > now ? " (paused " + ((pausedUntil - now + 999) / 1000) + "s — human)" : "")
                 + (borrowedFor != null ? " (controls borrowed for: " + borrowedFor + ")" : ""));
         out.add("doing: " + (borrowedFor != null ? brain.describe() : switch (phase) {
-            case STOPPED -> "nothing — silent";
+            case STOPPED -> profile.autostarts() ? "nothing — silent" : "standing by — ready for orders";
             case TEAMMATE -> (sharesKnowledge() ? "announcing to the team" : "a human to the bots (bus off, no chat check answered)")
                     + " — never takes control";
             default -> brain.describe();
         }));
-        out.add("role: " + role().label() + (config.roleOf(selfId) == ZymbotConfig.Role.NONE && role() == ZymbotConfig.Role.BOT
-                ? " (headless, no accounts listed)" : ""));
-        out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
-                + (onWhitelist() ? " (on the server list)" : config.isServerOff(address) ? " (on the server list, switched off)"
-                        : " (not on the server list)")));
+        out.add("profile: " + profile.id());
+        if (profile.autostarts()) {
+            out.add("role: " + role().label() + (config.roleOf(selfId) == ZymbotConfig.Role.NONE && role() == ZymbotConfig.Role.BOT
+                    ? " (headless, no accounts listed)" : ""));
+            out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)
+                    + (onWhitelist() ? " (on the server list)" : config.isServerOff(address) ? " (on the server list, switched off)"
+                            : " (not on the server list)")));
+        } else {
+            out.add("server: " + (address == null ? "not in a world" : AutostartPolicy.normalize(address)));
+        }
         WorldView w = current;
         if (w != null && address != null) {
-            out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — eats at ≤%d, critical ≤%d, leash %d, danger %s",
-                    Math.round(w.health()), w.hunger(), w.saturation(), config.eatBelowHunger, config.criticalFor(), config.leashBlocks, config.danger));
+            out.add(String.format(Locale.ROOT, "body: health %d, hunger %d/20 (+%.1f saturation) — %scritical ≤%d, %sdanger %s",
+                    Math.round(w.health()), w.hunger(), w.saturation(),
+                    profile.has(Profile.HUNGER) ? "eats at ≤" + config.eatBelowHunger + ", " : "",
+                    config.criticalFor(), profile.has(Profile.LEASH) ? "leash " + config.leashBlocks + ", " : "", config.danger));
         }
         out.add("pathfinder: " + (hands == null ? "?" : hands.paths().name()));
-        if (w != null && address != null) out.add(ladder.describe(w));
+        if (w != null && address != null && ladder != null) out.add(ladder.describe(w));
         if (w != null && address != null) {
             java.util.Map<String, Integer> food = new java.util.TreeMap<>();
             w.inventory().stream().filter(io.github.liangforstudy.zymbot.core.api.ItemView::edible)
@@ -708,6 +758,13 @@ public final class Bot {
         if (!memory.recentFoods.isEmpty()) out.add("recent foods: " + String.join(", ", memory.recentFoods));
         List<String> meter = hungerMeter.lines();
         if (!meter.isEmpty()) out.add("hunger meter: " + String.join("; ", meter));
+        if (profile.has(Profile.BUS)) teamStatus(out, now);
+        log.latest(3).forEach(d -> out.add("  · " + d));
+        return out;
+    }
+
+    /** The bus, the chat check and the roster: ZymCiv's team. */
+    private void teamStatus(List<String> out, long now) {
         out.add("bus: " + String.join(", ", bus.transportNames())
                 + (config.teamKey.isEmpty() ? " — NO TEAM KEY (anyone on the network can read and fake messages)"
                                               : " — signed + encrypted, key " + ZymbotConfig.fingerprint(config.teamKey))
@@ -723,8 +780,6 @@ public final class Bot {
             memory.roster.values().forEach(r -> out.add("  " + r.name + " — " + r.label() + ", " + r.phase + ", last "
                     + ((now - r.lastSeenMillis) / 1000) + "s ago near " + r.x + ", " + r.z));
         }
-        log.latest(3).forEach(d -> out.add("  · " + d));
-        return out;
     }
 
     /** Apply a new team key now: saved to config, and used for the very next message. */
@@ -734,7 +789,7 @@ public final class Bot {
         config.teamKey = key.strip();
         ConfigIO.save(configFile, config);
         bus.rekey(config.teamKey);
-        handshake.teamKey(config.teamKey);
+        if (handshake != null) handshake.teamKey(config.teamKey);
         nextHello = 0;                                   // announce ourselves under the new key
         log.record("team key changed", "fingerprint " + ZymbotConfig.fingerprint(config.teamKey));
         return null;
@@ -748,8 +803,18 @@ public final class Bot {
         return address == null ? "not in a world" : serverRemove(address);
     }
 
+    /**
+     * Why a ZymCiv-only command does nothing in this build, or null when it may run. Anarchy keeps the
+     * commands registered (one help text, one Tab list) and answers this instead.
+     */
+    public String zymcivOnly(String what) {
+        return profile == Profile.ANARCHY ? what + " is a ZymCiv feature — not in this " + profile.id() + " build" : null;
+    }
+
     /** Add any server to the list (the settings screen can add one before you've joined it). */
     public String serverAdd(String server) {
+        String no = zymcivOnly("the server list");
+        if (no != null) return no;
         String key = AutostartPolicy.normalize(server);
         if (key.equals(":25565")) return "type an address first";
         if (AutostartPolicy.shouldAutostart(config.autostartServers, server)) return key + " is already on the list";
@@ -760,6 +825,8 @@ public final class Bot {
     }
 
     public String serverRemove(String server) {
+        String no = zymcivOnly("the server list");
+        if (no != null) return no;
         String key = AutostartPolicy.normalize(server);
         boolean removed = config.autostartServers.removeIf(s -> AutostartPolicy.normalize(s).equals(key));
         if (!removed) return key + " wasn't on the list";
@@ -779,6 +846,8 @@ public final class Bot {
     }
 
     public String setOwnRole(ZymbotConfig.Role role) {
+        String no = zymcivOnly("roles");
+        if (no != null) return no + " (it plays the account you're on)";
         config.setRole(selfId, selfName, role);
         ConfigIO.save(configFile, config);
         settingsChanged();
@@ -803,6 +872,8 @@ public final class Bot {
     }
 
     public List<String> autostartList() {
+        String no = zymcivOnly("the server list");
+        if (no != null) return List.of(no + " (active on every server, standing by)");
         return config.autostartServers.isEmpty() ? List.of("autostart list is empty")
                 : config.autostartServers.stream().map(s -> AutostartPolicy.normalize(s) + (config.isServerOff(s) ? " (off)" : "")).toList();
     }
@@ -854,6 +925,8 @@ public final class Bot {
 
     /** Ask the team's bots waiting at their title screens to join us there. */
     public String summon(SummonTarget target) {
+        String no = zymcivOnly("summon");
+        if (no != null) return no;
         if (!sharesKnowledge()) return "summon needs the local bus, and it's off (transports.local_bus) - start the bots with play / run-bot instead";
         sendSummon(target);
         log.record("summoned the team's bots", "to " + target.describe());
@@ -886,10 +959,12 @@ public final class Bot {
      * on the server list: that switch is mainly for this, a world that stays closed (owner, 2026-10-16).
      */
     public boolean autoOpensLan(String levelName) {
-        return config.autoOpenLanWorlds.contains(levelName) && !config.isServerOff(AutostartPolicy.SINGLEPLAYER);
+        return profile.autostarts() && config.autoOpenLanWorlds.contains(levelName) && !config.isServerOff(AutostartPolicy.SINGLEPLAYER);
     }
 
     public String setAutoOpenLan(String levelName, boolean on) {
+        String no = zymcivOnly("opening worlds to LAN by themselves");
+        if (no != null) return no + " — /" + config.commandRoot + " lan still opens this one now";
         config.autoOpenLanWorlds.remove(levelName);
         if (on) config.autoOpenLanWorlds.add(levelName);
         ConfigIO.save(configFile, config);
@@ -898,6 +973,8 @@ public final class Bot {
     }
 
     public String setAutoSummon(boolean on) {
+        String no = zymcivOnly("summon");
+        if (no != null) return no;
         config.autoSummonOnLan = on;
         ConfigIO.save(configFile, config);
         return "auto-summon when you open to LAN: " + (on ? "on" : "off");
@@ -980,7 +1057,8 @@ public final class Bot {
     }
 
     private String grave(GraveTask.Filter filter, String command, boolean walkToDeath) {
-        String no = oneShotRefusal();
+        String no = zymcivOnly("graves (civfabric)");
+        if (no == null) no = oneShotRefusal();
         if (no != null) return no;
         if (current == null) return "not in a world";
         String why = "ordered by /" + config.commandRoot + " " + command;
@@ -1139,13 +1217,15 @@ public final class Bot {
      * Whether the bus shares world knowledge (positions, roster, summons). Off by default: a bot
      * finds players, bots and places in the world itself (roadmap3.md).
      */
-    private boolean sharesKnowledge() { return config.transports.localBus; }
+    private boolean sharesKnowledge() { return profile.has(Profile.BUS) && config.transports.localBus; }
 
     /**
      * /zbot see and watch ask over the local bus, so they need it on; a bot never asks another bot
      * (owner, 2026-10-15). With the bus off: send.bat &lt;bot&gt; /zbot status, or the bot's log.
      */
     private String ownerToolRefusal() {
+        String no = zymcivOnly("asking other bots (the team bus)");
+        if (no != null) return no;
         if (role() == ZymbotConfig.Role.BOT) return "a bot can't see other bots - run it from your own client";
         if (!sharesKnowledge()) return "the local bus is off (transports.local_bus), so nothing crosses the network - use the bot's own /zbot status or its log";
         return null;
@@ -1217,7 +1297,7 @@ public final class Bot {
         if (r == null) return "craft what? " + Recipe.ALL.stream().map(Recipe::name).collect(java.util.stream.Collectors.joining(", "));
         BlockPos table = null;
         if (!r.fitsHand()) {
-            table = toolRung.nearestTable(current);
+            if (toolRung != null) table = toolRung.nearestTable(current);
             if (table == null) table = current.findBlock(ToolRung.TABLE, 16).orElse(null);
             if (table == null) return r.name() + " needs a crafting table, and there's none within " + ToolRung.TABLE_RADIUS
                     + " blocks — /" + config.commandRoot + " debug place table";
@@ -1241,7 +1321,10 @@ public final class Bot {
         if (current.inventory().stream().noneMatch(i -> i.id().equals(ToolRung.TABLE))) return "no crafting table in the inventory";
         String why = "ordered by /" + config.commandRoot + " debug place table";
         String lent = oneShot(Objective.of("place a crafting table", why,
-                (world, h) -> toolRung.remembering(new PlaceTask(h, ToolRung.TABLE, ToolRung.TABLE, why, log::record))));
+                (world, h) -> {
+                    PlaceTask place = new PlaceTask(h, ToolRung.TABLE, ToolRung.TABLE, why, log::record);
+                    return toolRung == null ? place : toolRung.remembering(place);
+                }));
         return "placing a crafting table next to me" + lent;
     }
 
@@ -1292,7 +1375,11 @@ public final class Bot {
 
     /** Change a body threshold (leash / eat / critical) and save it. */
     public String set(String name, int value) {
-        String problem = config.setTunable(name.toLowerCase(Locale.ROOT), value);
+        String key = name.toLowerCase(Locale.ROOT);
+        if (ZymbotConfig.TUNABLES.containsKey(key) && !profile.hasTunable(key)) {
+            return zymcivOnly("'" + key + "'") + " — here: " + String.join(", ", tunables());
+        }
+        String problem = config.setTunable(key, value);
         if (problem != null) return problem;
         ConfigIO.save(configFile, config);
         log.record("set " + name + " = " + value, "changed by a player");
@@ -1302,7 +1389,7 @@ public final class Bot {
     /** "modpack" (run at the first hit) or vanilla "easy" / "normal" / "hard" (run at critical health). */
     public String setDanger(String mode) {
         String m = mode.trim().toLowerCase(Locale.ROOT);
-        if (!ZymbotConfig.DANGER_MODES.contains(m)) return "danger must be one of " + String.join(", ", ZymbotConfig.DANGER_MODES);
+        if (!profile.dangerModes().contains(m)) return "danger must be one of " + String.join(", ", profile.dangerModes());
         config.danger = m;
         ConfigIO.save(configFile, config);
         log.record("danger = " + m, "changed by a player");
@@ -1323,7 +1410,7 @@ public final class Bot {
      */
     public boolean onChat(String sender, String text, boolean whisper) {
         chatIn.heard(new ChatIn.Line(sender, text, whisper, clock.getAsLong()));
-        if (!whisper || address == null) return false;
+        if (!whisper || address == null || handshake == null) return false;
         boolean answers = hidesHandshakes();
         return handshake.onWhisper(sender, selfName, text, answers) && answers;
     }
@@ -1350,7 +1437,7 @@ public final class Bot {
      * Whether this client answers the chat check and keeps its lines (its own asks echoed back too)
      * off the chat screen: a Bot that is playing. Stopped, a human has it, so it is a human.
      */
-    public boolean hidesHandshakes() { return role() == ZymbotConfig.Role.BOT && phase.controlling(); }
+    public boolean hidesHandshakes() { return handshake != null && role() == ZymbotConfig.Role.BOT && phase.controlling(); }
 
     /** Swimming costs ~85× walking per block: always say when and why. */
     private void reportSwim(String why) {
@@ -1377,16 +1464,16 @@ public final class Bot {
      */
     private String oneShotRefusal() {
         if (phase.controlling()) return null;
-        if (role() == ZymbotConfig.Role.TEAMMATE && address != null) return null;
+        if ((role() == ZymbotConfig.Role.TEAMMATE || !profile.autostarts()) && address != null) return null;   // anarchy: standing by
         return needsControl();
     }
 
-    /** Give the brain a one-shot order, borrowing a Teammate's controls for it; the reply's tail. */
+    /** Give the brain a one-shot order, borrowing a Teammate's (or a standing-by anarchy player's) controls for it; the reply's tail. */
     private String oneShot(Objective order) {
         boolean borrow = !phase.controlling();
         if (borrow) {
-            if (borrowedFor == null) log.record("borrowed the controls", "this Teammate account ordered \"" + order.name()
-                    + "\" — only until it's done, or a movement key is touched");
+            if (borrowedFor == null) log.record("borrowed the controls", (profile.autostarts() ? "this Teammate account" : "standing by,")
+                    + " ordered \"" + order.name() + "\" — only until it's done, or a movement key is touched");
             borrowedFor = order.name();
         }
         brain.order(order);
@@ -1404,7 +1491,9 @@ public final class Bot {
         return new io.github.liangforstudy.zymbot.core.api.Vec3(p.pos().x(), p.pos().y() + 1.62, p.pos().z());
     }
 
-    private boolean workingOnItsOwn() { return brain.autonomous() && !regroup.active(); }   // regroup is the walk back
+    private boolean workingOnItsOwn() { return brain.autonomous() && !regrouping(); }   // regroup is the walk back
+
+    private boolean regrouping() { return regroup != null && regroup.active(); }
 
     /**
      * Who of the team is on this server: the tab list, checked once a second. Says when someone
@@ -1440,6 +1529,8 @@ public final class Bot {
 
     /** /zbot roster: each member, Bot or Teammate, online or not, last heard, where, and how we know. */
     public List<String> roster() {
+        String no = zymcivOnly("the team roster");
+        if (no != null) return List.of(no);
         if (memory.roster.isEmpty()) return List.of("roster: nobody yet — no HELLO heard on this server");
         long now = clock.getAsLong();
         List<String> out = new ArrayList<>();
@@ -1519,7 +1610,8 @@ public final class Bot {
     }
 
     public String regroupNow() {
-        String no = needsControl();
+        String no = zymcivOnly("regroup");
+        if (no == null) no = needsControl();
         if (no != null) return no;
         regroup.arm();
         return "looking for the team — regrouping unless a teammate is within " + config.regroupWithin + " blocks";
@@ -1528,14 +1620,14 @@ public final class Bot {
     private boolean noOrder() { return !brain.hasOrder(); }
 
     /** No order, and no objective crossing on purpose (a regroup may swim) — the stranded reflex may act. */
-    private boolean nothingToDo() { return noOrder() && !regroup.active() && !"leash".equals(brain.runningReflex()); }
+    private boolean nothingToDo() { return noOrder() && !regrouping() && !"leash".equals(brain.runningReflex()); }
 
     /**
      * Idle, for the leash's idle follow (PHASE2.md check 6): no order, no regroup armed or under way
      * (out of sight or far off at a start is the regroup's job), and nothing running but its own follow.
      */
     private boolean idleForTheLeash() {
-        return noOrder() && !regroup.armed() && !regroup.active()
+        return noOrder() && regroup != null && !regroup.armed() && !regroup.active()
                 && (brain.idle() || "leash".equals(brain.runningReflex()));
     }
 
@@ -1586,6 +1678,16 @@ public final class Bot {
     /** As joined, or null when not in a world. */
     public String currentServer() { return address; }
     public ZymbotConfig config() { return config; }
+    public Profile profile() { return profile; }
+    /** The {@link Profile} modules this bot created (ZymCiv-only ones never exist under anarchy). */
+    public java.util.Set<String> modules() { return java.util.Collections.unmodifiableSet(modules); }
+    /** The reflexes wired, in priority order, by interrupt name. */
+    public List<String> reflexes() { return brain.interruptNames(); }
+    /** The tunables /zbot set and the settings screen offer in this profile, in the screen's order. */
+    public List<String> tunables() {
+        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps")
+                .stream().filter(profile::hasTunable).toList();
+    }
     public BotMemory memory() { return memory; }
     public DecisionLog decisions() { return log; }
     public void shutdown() { onLeave(); bus.close(); }

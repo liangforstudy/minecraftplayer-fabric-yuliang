@@ -34,9 +34,10 @@ danger, knocked out, …) over a milestone planner, with every choice logged as
 > it has done.
 >
 > **Zymbot 0.2.0 (2026-10-26) builds for two Minecraft versions:** 1.21.1 for ZymCiv, and 1.21.11 for
-> the anarchy server 9b9t (routes, ice mining, mapart, fights). The 1.21.11 build still runs the
-> ZymCiv behaviour until its own profile is in: don't take it to 9b9t yet.
-> [doc/9b9t/roadmap.md](doc/9b9t/roadmap.md) has the plan.
+> the anarchy server 9b9t (routes, ice mining, mapart, fights). The 1.21.11 build plays the
+> `anarchy` profile: no team, no ZymCiv rules, and it stands by until given a job. It has joined
+> 9b9t and stood by there (2026-10-26); it has no 9b9t jobs yet, and `/zbot probe` measures the
+> server. [doc/9b9t/roadmap.md](doc/9b9t/roadmap.md) has the plan.
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail
 every harvest, and die on the first blood moon. Much of this repo is the work of finding out

@@ -53,6 +53,9 @@ public final class Brain {
         this.log = log;
     }
 
+    /** The reflexes wired, in priority order. */
+    public List<String> interruptNames() { return interrupts.stream().map(Interrupt::name).toList(); }
+
     public void tick(WorldView world, Hands hands) {
         ticks++;
         for (Interrupt i : interrupts) {

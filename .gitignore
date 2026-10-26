@@ -35,3 +35,6 @@ __pycache__/
 mod/run/
 .kotlin/
 docs_and_tables.zip
+
+# MCP Fabric bridge config (holds a local token)
+.mcp.json

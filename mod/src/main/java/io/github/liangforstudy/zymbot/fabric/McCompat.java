@@ -23,6 +23,13 @@ import net.minecraft.world.level.Level;
 public final class McCompat {
     private McCompat() {}
 
+    /** The server family this build plays (doc/9b9t/roadmap.md §0, Profiles): one per Minecraft version. */
+    //? if >=1.21.11 {
+    /*public static final io.github.liangforstudy.zymbot.core.Profile PROFILE = io.github.liangforstudy.zymbot.core.Profile.ANARCHY;
+    *///?} else {
+    public static final io.github.liangforstudy.zymbot.core.Profile PROFILE = io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
+    //?}
+
     public static int selectedSlot(Inventory inv) {
         //? if >=1.21.11 {
         /*return inv.getSelectedSlot();

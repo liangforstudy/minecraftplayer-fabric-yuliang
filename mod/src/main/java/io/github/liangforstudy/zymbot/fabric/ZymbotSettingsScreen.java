@@ -26,16 +26,20 @@ import org.lwjgl.glfw.GLFW;
  * </ul>
  * Everything applies immediately, except that giving an account the Bot role never grabs the
  * controls from a menu — it takes effect on the next join (or /zbot start).
+ * <p>The anarchy build (doc/9b9t/roadmap.md §0) shows the Body tab only, with only the settings that
+ * mean something there: no team key, no account list, no server list — it works out of the box.
  */
 final class ZymbotSettingsScreen extends Screen {
     private enum Tab { KEY, ACCOUNTS, SERVERS, BODY }
+    private static final io.github.liangforstudy.zymbot.core.Profile PROFILE = McCompat.PROFILE;
+    private static final boolean TEAM_TABS = PROFILE == io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
 
     // ARGB: from 1.21.6 on, text drawn without an alpha byte is invisible
     private static final int GREY = 0xFFA0A0A0, WHITE = 0xFFFFFFFF, RED = 0xFFFF6060, GREEN = 0xFF70E070;
     private static final int ROW_H = 22, MAX_ROWS = 6;
 
     private final Screen parent;
-    private Tab tab = Tab.KEY;
+    private Tab tab = TEAM_TABS ? Tab.KEY : Tab.BODY;
     private EditBox keyBox, serverBox;
     private String keyDraft, serverDraft = "";
     private boolean shown;
@@ -74,11 +78,13 @@ final class ZymbotSettingsScreen extends Screen {
         activeZone = null;
         labels.clear();
         int cx = width / 2;
-        tabButton("Team key", Tab.KEY, cx - 153, 36);
-        tabButton("Accounts", Tab.ACCOUNTS, cx - 76, 36);
-        tabButton("Servers", Tab.SERVERS, cx + 1, 36);
-        tabButton("Body", Tab.BODY, cx + 78, 36);
-        int top = 68;
+        if (TEAM_TABS) {                                   // anarchy has the one tab: no tab row
+            tabButton("Team key", Tab.KEY, cx - 153, 36);
+            tabButton("Accounts", Tab.ACCOUNTS, cx - 76, 36);
+            tabButton("Servers", Tab.SERVERS, cx + 1, 36);
+            tabButton("Body", Tab.BODY, cx + 78, 36);
+        }
+        int top = TEAM_TABS ? 68 : 40;
         switch (tab) {
             case KEY -> initKey(cx, top);
             case ACCOUNTS -> initAccounts(cx, top);
@@ -271,7 +277,7 @@ final class ZymbotSettingsScreen extends Screen {
 
     // ------------------------------------------------------------------ body
 
-    private static final String[][] TUNABLE_ROWS = {
+    private static final String[][] TUNABLE_ROWS = java.util.Arrays.stream(new String[][] {
             {"leash", "Leash — max blocks from the nearest teammate"},
             {"heel", "Follow: stop this close to the teammate"},
             {"eat", "Eat when hunger is at or below (of 20)"},
@@ -280,7 +286,8 @@ final class ZymbotSettingsScreen extends Screen {
             {"regroup", "Regroup when no teammate within (blocks)"},
             {"probewait", "Wait for a teammate's answer (s), then spawn"},
             {"plantime", "Route search time limit (ms)"},
-            {"lagtps", "Server lagging below (TPS) — plan less"}};
+            {"lagtps", "Server lagging below (TPS) — plan less"}})
+            .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
     private java.util.Map<String, Integer> defaults;       // read once per screen open
@@ -314,8 +321,14 @@ final class ZymbotSettingsScreen extends Screen {
         int perPage = rowsThatFit(top, 0);                 // Save sits beside Done, not below the rows
         int pages = (TUNABLE_ROWS.length + perPage - 1) / perPage;
         bodyPage = Math.min(bodyPage, pages - 1);
-        // label | box (44) | range ("50–5000" is the widest, ~40 px) | reset (20): all inside cx ± 150
-        int labelX = cx - 150, boxX = cx + 36, rangeX = cx + 86, resetX = cx + 130;
+        // label | box (44) | range | reset (20), all inside cx ± 150, laid out from the right: the range
+        // column is as wide as its widest text ("50–5000" ran under ↺ at a fixed 44 px, 2026-10-26)
+        int rangeW = 0;
+        for (String[] row : TUNABLE_ROWS) {
+            int[] r = ZymbotConfig.TUNABLES.get(row[0]);
+            rangeW = Math.max(rangeW, font.width(r[0] + "–" + r[1]));
+        }
+        int resetX = cx + 130, rangeX = resetX - 4 - rangeW, boxX = rangeX - 6 - 44, labelX = cx - 150;
         int y = top;
         for (int i = bodyPage * perPage; i < Math.min(TUNABLE_ROWS.length, (bodyPage + 1) * perPage); i++) {
             String key = TUNABLE_ROWS[i][0], text = TUNABLE_ROWS[i][1];
@@ -604,9 +617,10 @@ final class ZymbotSettingsScreen extends Screen {
         updateCursor(mouseX, mouseY);
         if (activeZone == null) {                          // label: full name + command; range: the command
             for (ScrubZone z : scrubZones) {
+                // 1.21.11: the one-Component overload draws "\n" as an LF box, so split into lines first, as Tooltip does
                 if (z.fullText() != null && z.contains(mouseX, mouseY))
                     //? if >=1.21.11 {
-                    /*g.setTooltipForNextFrame(Component.literal(z.fullText()), mouseX, mouseY);
+                    /*g.setTooltipForNextFrame(font, font.split(Component.literal(z.fullText()), 170), mouseX, mouseY);
                     *///?} else {
                     setTooltipForNextRenderPass(Component.literal(z.fullText()));
                     //?}
@@ -631,9 +645,14 @@ final class ZymbotSettingsScreen extends Screen {
             case SERVERS -> new String[] {
                     "Zymbot is only active on these servers — silent everywhere else.",
                     "Add \"singleplayer\" to include your own worlds."};
-            case BODY -> new String[] {
+            case BODY -> TEAM_TABS ? new String[] {
                     "No natural regeneration here: only healing food brings health back.",
                     "An idle bot follows its nearest teammate past the leash; never your orders.",
+                    "Drag a value, name or range sideways to scrub (Shift fine, Ctrl coarse).",
+                    "↺ resets to default. Then Save. Also: /" + cfg().commandRoot + " set <setting> <n>"}
+                : new String[] {
+                    "Active on every server for the account you play; it stands by until given a job.",
+                    "Eating is left to Meteor's AutoEat. Danger: /" + cfg().commandRoot + " danger (default hard).",
                     "Drag a value, name or range sideways to scrub (Shift fine, Ctrl coarse).",
                     "↺ resets to default. Then Save. Also: /" + cfg().commandRoot + " set <setting> <n>"};
         };

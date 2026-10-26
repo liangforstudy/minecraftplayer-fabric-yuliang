@@ -10,6 +10,11 @@ on the ZymCiv modpack. Bots run **headless** through HeadlessMC; the owner plays
 the world (Open to LAN). Read `PHASE1.md` (what's built, the test commands) and `headless/README.md`
 (the rig) for depth — this file is the operating manual.
 
+Since 0.2.0 there is also a **1.21.11 build for 9b9t**, which plays the `anarchy` profile
+(doc/9b9t/roadmap.md §0): it stands by on join, has no team, bus, chat check, knocked-out, regroup,
+leash, ladder, graves or hunger reflex, and the ZymCiv commands below answer "a ZymCiv feature" there.
+Everything else in this file is about the 1.21.1 ZymCiv build.
+
 > **Keep this file true.** The command table below must match
 > `mod/src/main/java/io/github/liangforstudy/zymbot/fabric/ZymbotCommands.java`. When you **add** a `/zbot`
 > command, add a row here; when you **remove** one, delete its row; when you change its arguments,
@@ -157,6 +162,7 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `watch <bot> [off]` | that bot /msg's you its decisions for 30 min |
 | `look <player>` | face a player |
 | `eat` | eat the best food now |
+| `probe tps \| ping \| ack \| meteor` | read only, nothing sent: the server's TPS (Zymbot's meter and Meteor's), ping as the tab list shows it, how long the server takes to confirm a block break or place (average, worst, unanswered), and which Meteor modules are on, warning where they'd fight Zymbot (9b9t roadmap §Probes) |
 | `debug terrain <x> <z>` | what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
 | `debug block <x> <y> <z>` | the block id there |
 | `debug foods` | the food carried, with the game's live (Spice of Fabric–decayed) values |

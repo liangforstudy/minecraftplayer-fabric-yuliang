@@ -1,6 +1,7 @@
 # 9b9t roadmap (draft)
 
-Status: **plan, 2026-10-25**, from talks with the owner. Nothing here is built yet.
+Status: **plan, 2026-10-25**, from talks with the owner. Built so far: §0 Phase 0 steps 1–3 (both
+versions, the profiles); everything from §2 on is still a plan.
 
 Why: ZymBot (`lol.zym.zymbot`, a separate project) is further up the ZymCiv milestone ladder than
 this repo ([BOT_BEHAVIOUR.md](../../BOT_BEHAVIOUR.md#the-milestone-ladder)). So Zymbot also learns
@@ -115,11 +116,71 @@ Steps:
    version differences live in one class, `McCompat`; the settings screen's mouse handling and the
    emergency stop key have their own `//? if` blocks. Not yet tried in game. The settings screen
    isn't trimmed to the anarchy settings yet; that comes with step 3.
-3. **Profiles**: a profile constant per version, `Bot` wiring modules from it, and `core` tests
-   checking that `anarchy` never creates anything on the off-list.
+3. **Profiles** (done, 2026-10-26, not yet tried in game): `core/Profile` (`ZYMCIV`, `ANARCHY`);
+   `McCompat.PROFILE` picks it per version; `Bot` creates the off-list modules (knocked out, regroup,
+   leash, ladder, chat check, bus, Zymbot's own hunger reflex, graves) only under `zymciv`, and
+   `ProfileTest` checks that `anarchy` creates none of them and keeps the `zymciv` reflexes as they
+   were. In `anarchy`:
+   - **Standby:** active on every server for the playing account, never takes control on join.
+     One-shot jobs (`goto`, `come`, `debug punch`, `debug craft`, `debug place table`) borrow the
+     controls like a Teammate's errand and hand them back when done or when a movement key is
+     touched; standing jobs (`follow`, `eat`, `look`) still need `/zbot start`.
+   - **Eating:** the hunger reflex is off (Meteor's AutoEat). `/zbot eat` stays as an order, on purpose.
+   - **Danger:** `easy` / `normal` / `hard` only; a config still on `modpack` runs as `hard`.
+   - **Commands** stay registered (one help text, one Tab list) but the ZymCiv ones answer "a ZymCiv
+     feature — not in this anarchy build": `role`, `autostart`, `summon` (and `lan auto`, `summon
+     auto`), `regroup`, `roster`, `see`/`view`/`spy`/`watch` of another bot, `grave`, and the
+     tunables `leash`, `heel`, `eat`, `downed`, `regroup`, `probewait`. `/zbot lan` still opens a world
+     by hand, for local tests.
+   - **Settings screen:** the Body tab only (critical health, route search time limit, lag TPS),
+     with anarchy help text instead of "No natural regeneration here".
+   - Players coming into and going out of view are no longer logged (that was the chat check's reach;
+     at 9b9t's spawn it would flood the log).
 4. **Smoke test** on the owner's own Prism client (1.21.11 instance with Meteor, Baritone 1.17.0 and
    Zymbot): first a singleplayer or LAN world (join, `/zbot status`, a Baritone walk, break one
-   block, emergency stop), then join 9b9t and stand idle.
+   block, emergency stop), then join 9b9t and stand idle. Plan (2026-10-26):
+   - **4a. Stage 0 instance, singleplayer, Claude drives it through MCP Fabric.** With the game
+     closed, swap `zymbot-0.1.49…` for `zymbot-0.2.0+1.21.11.jar`. Its `zymbot.json` still lists the
+     account as a Bot with `singleplayer` on the server list, which `anarchy` must ignore. Check: the
+     log says `profile anarchy`; joining logs "standing by" and doesn't start; `/zbot status` shows the
+     trimmed lines and `danger hard`; `goto` and `debug punch` borrow the controls and give them back;
+     `/zbot eat` and `follow` ask for `/zbot start`; with Hunger and food in the inventory it doesn't
+     eat by itself; `role`, `regroup`, `roster`, `grave` and `set leash` answer "a ZymCiv feature"; the
+     world doesn't open to LAN by itself; Mod Menu → Zymbot shows the Body tab only. Emergency stop:
+     the owner binds the key, presses it during a `goto`, then unbinds it (MCP Fabric can't press keys).
+     **Result (2026-10-26): passed**, 0.2.0 in Stage 0. Standby on join despite the Bot listing; no
+     LAN; status trimmed, `danger hard`; `goto` and `debug punch` borrowed and gave back; the ZymCiv
+     commands refused; running at hunger 0 with food it didn't eat by itself, and `/zbot eat` did;
+     settings screen Body-only (owner's screenshot); the emergency stop key stopped a borrowed `goto`
+     mid-walk (Baritone cancelled, controls given back, same tick); the key is to be unbound again after the test. Found
+     and fixed: `/zbot summon` gave the LAN hint before "a ZymCiv feature" (fixed in source, after
+     this jar). Cosmetic, fixed in source the same day, not yet seen in game: on 1.21.11 a setting's
+     tooltip showed its line break as an `LF` box (now split into lines before
+     `setTooltipForNextFrame`), and "50–5000" ran under the ↺ button (the range column is now as wide
+     as its widest text, laid out from the right).
+   - **4b. The 9b9t instance, offline.** Add `zymbot-0.2.0+1.21.11.jar` beside Meteor 85 and Baritone
+     1.17.0 (Meteor 85 doesn't bundle Baritone, checked 2026-10-26, so there's one Baritone). The owner
+     starts it and opens a singleplayer world: no crash, Zymbot and Meteor both load, `/zbot status`
+     says `pathfinder: Baritone 1.17.0`, the settings screen opens. Meteor's AutoEat is the eater from
+     here on.
+     **Result (2026-10-26): passed**, except the settings screen, not yet looked at. The jar is the build
+     with the tooltip, range-column and summon fixes. In world `lambda testing`: no crash; the log says
+     `profile anarchy` and `pathfinder: Baritone 1.17.0`; `/zbot status` shows standing by, `danger
+     hard`; `/zbot summon` now answers "a ZymCiv feature" alone (fix seen in game). Harmless log noise:
+     Meteor's `ComeCommandMixin` finds no target (the Baritone *API* jar has no default commands), and
+     Zymbot still generates a `team_key` on first start though `anarchy` has no bus (cosmetic).
+   - **4c. Join 9b9t and stand idle.** The owner joins with their own account; Claude doesn't drive the
+     game there (no MCP Fabric in that instance) and reads `latest.log` afterwards. Expected: "standing
+     by", no `[decision]` lines that move or act, nothing sent to chat by Zymbot (no chat check, no
+     bus), `[zymbot]` errors none, and the TPS reading (the time-packet mixin) sane on a real server
+     joined through its version support. A Baritone walk on 9b9t is a later, separate test.
+     **Result (2026-10-26): passed**, except the TPS reading. The owner joined via the 2b2t.com entry;
+     over ~3.5 min idle the only Zymbot line was `[decision] standing by — … on 2b2t.com:25565`; no
+     chat sent, no `[zymbot]` errors, no mixin warnings. The TPS value can't be checked: nothing
+     prints it (not `/zbot status`, not the log), so only "the time-packet mixin applies" is known.
+
+   **Done when** 4a-4c pass. Not covered here: mob avoidance for Baritone (proposed after the skeleton
+   chase in the 2026-10-26 Stage 0 test, not decided).
 
 **Done when:** both jars build from one tree, all tests pass, the 1.21.1 bot behaves exactly as
 before on ZymCiv, and the 1.21.11 bot joins 9b9t and runs nothing ZymCiv-specific.
@@ -139,6 +200,25 @@ built-in `MC_VERSION = "1.21.1"` becomes per rig, and it's checked that Headless
   Meteor's AutoEat is in use.
 - Food and thresholds come from the config (e.g. rotten flesh for the ice miner, §3).
 
+**Why eating pauses everything else** (Meteor's AutoEat and AutoGap both pause Baritone; agreed with
+the owner, 2026-10-26). It's vanilla, not lag:
+- While an item is in use, the client drops attack and use clicks: no breaking a block, no hit, mid-bite,
+  even when eating from the offhand (the check is "using any item", not per hand).
+- A bite is 32 ticks (1.6 s) of holding use with the food selected. A hotbar change (Baritone picks its
+  own tools) or a click cancels it, and the bite starts again.
+- Eating slows movement to about 20% and stops sprinting, so a path planned at walking speed misses
+  its jumps and replans.
+- Lag makes it worse but isn't the cause: the server counts the 32 ticks, so at 10 TPS a bite takes ~3.2 s,
+  and with high ping a slot change can reach the server before the client thinks the bite is done.
+
+**So our own eating picks the gaps** (when we write it):
+- mining: between blocks (one break done, the next not started), never standing over water or at an edge;
+- fighting: while no hit is due (attack cooldown recovering) or after backing off out of reach; walking
+  while eating is allowed but too slow to be an escape;
+- our walks: Zymbot holds its own path, eats, and carries on; a pause from Meteor's AutoEat must read
+  as a pause, not a failed path;
+- lagging server (the TPS meter): eat earlier, at a higher threshold, since each bite takes longer.
+
 ## 1. Baritone findings (`1.21.11` branch, checked 2026-10-25)
 
 - **No slipperiness handling.** Movement and path execution don't account for ice friction, so the
@@ -149,6 +229,19 @@ built-in `MC_VERSION = "1.21.1"` becomes per rig, and it's checked that Headless
   with Silk Touch. So `#mine ice` can't mine regular ice (packed and blue ice are allowed).
   → **Zymbot picks and breaks every ice block itself** (`BotDigging`). Baritone only walks, on
   solid ground.
+- **Liquids** (`MovementHelper`, checked 2026-10-26; the owner suspected this):
+  - **Still water: yes.** It walks through a full (level 8) water block when the block above it isn't
+    liquid or a lily pad, i.e. at the surface, and it stands on water only with water above it
+    (going through a submerged column) or with `assumeWalkOnWater` (a Jesus-style hack).
+  - **Flowing water: no.** A block below level 8, or a full one next to a block that may be flowing,
+    counts as flowing and is refused. So a source block at the edge of a current is refused too.
+  - **Lava: never walked through**, still or flowing. It stands on still lava only with
+    `assumeWalkOnLava`, again for a hack that makes lava solid.
+  - **No Fire Resistance logic** anywhere in `MovementHelper`: with the effect it still treats lava as a
+    wall. Swimming through lava under Fire Resistance would be Zymbot's own move, like the water
+    crossings `RouteTask` already does itself.
+  - Zymbot's walks put water on `blocksToAvoid` anyway (dry paths first); this matters for the ice
+    miner's frozen-ocean pickups (§3) and the Nether.
 
 ## 2. Routes (named waypoints, A → B → C → D → E)
 
@@ -168,6 +261,37 @@ Baritone goes straight to one goal. Routes walk a list of points in order.
 - Later: actions at a waypoint (pause, open a chest, wait for chunks to load).
 
 The ice miner and mapart both use routes (stash → work site → storage).
+
+### Nether boat highway: Meteor's HighwayBuilder (owner, 2026-10-26)
+
+For the Nether boat-highway route, look at **Meteor's `HighwayBuilder`** (World category) before
+writing our own. What it has (read from the Meteor 85 jar, 2026-10-26, not yet tried):
+- Digs and paves along the highway it faces, straight or diagonal (diagonals need width ≥ 3):
+  `width`, `height`, `floor` mode, `railings` (+ `corner-support-block`, `mine-above-railings`),
+  `blocks-to-place` (so the floor block could be the ice from §3).
+- Its own pickaxe care (`dont-break-tools`, `durability-percentage`, `save-pickaxes`) and restocking
+  from shulkers and the ender chest; can mine ender chests for obsidian.
+- `pause-on-lag`; `disconnect-on-toggle` (logs out when it runs out of blocks); `destroy-crystal-traps`
+  with a bow. Its tips: Velocity on, Speed off.
+- It moves the player itself, so while it runs Zymbot stays on standby (like Meteor's AutoEat pausing
+  Baritone). What's left to Zymbot: getting there and back (a route), supplies, eating gaps, and fights
+  (withers and wardens on the highways, §5).
+
+### Riding the boat highway (owner, 2026-10-26; ideas, not decided in detail)
+
+The owner rides ice boat highways in the Nether. Zymbot helps while the owner (or later the bot) is in
+the boat:
+- **Hold W and keep the boat aligned** on the highway: steer back to the lane's centre line and axis
+  heading, so the boat doesn't drift into the railings.
+- **Spot cracks and griefs** ahead: missing or broken ice, holes, blocks placed on the lane, lava. Slow
+  down or stop before them and say where they are. ("grifts" in the owner's note is read as griefs;
+  to confirm.)
+- **Back off if a boss suddenly appears** on the highway: brake or back the boat away, then the
+  highway backoff from §5 (off the axis into a side tunnel, log out, coordinates to the owner). In a
+  boat on ice this is much faster than on foot, so it must see further ahead and react earlier.
+- **Clearing end crystals safely**, the owner's way: place a block between the bot and the crystal,
+  then detonate the crystal from behind it. Meteor's HighwayBuilder uses arrows
+  (`destroy-crystal-traps`); it would be good to have both.
 
 ## 3. Ice miner
 
@@ -238,6 +362,35 @@ ground first) and the critical-health interrupt are the starting points.
 - A sword with **Smite** (extra damage to undead: withers, wither skeletons).
 - **Diamond armour with Mending**, plus **XP bottles** to repair it.
 - **Chorus fruit** to get unstuck (random teleport).
+- **Golden apples** for healing in a fight (owner, 2026-10-26).
+
+### Food in a fight (owner, 2026-10-26; details to decide with the owner)
+
+Eating in a fight is its own system, not the hunger bar's. Mapart and the ice miner just eat
+**rotten flesh** when hungry (§3); a fight also has **golden apples**, eaten for what they do rather
+than for hunger:
+- golden apple (vanilla 1.21): Regeneration II for 5 s and Absorption (4 extra health) for 2 min;
+  edible at full hunger.
+- enchanted golden apple, if the owner provides any: Regeneration II 20 s, Absorption IV, Resistance
+  and Fire Resistance; far too rare to spend lightly.
+- Eating takes 1.6 s with the hand busy and the player slowed, so **when** to eat matters: between
+  hits or after backing off, not in the middle of a wither's barrage. Rotten flesh still covers
+  hunger, so the golden apples are kept for health.
+- To decide: the health or Absorption level that triggers an apple, how many to keep in reserve
+  before retreating (like the spare totems), and how this works alongside Meteor's AutoEat (§0) or
+  replaces it.
+- **What Meteor 85 has** (read from the jar, 2026-10-26; owner to try on 9b9t):
+  - **AutoEat** is hunger food: `hunger-threshold`, `health-threshold`, `threshold-mode`
+    (Health / Hunger / Any / Both), `food-priority`, `search-inventory`, `pause-baritone`. Its default
+    `blacklist` holds golden and enchanted golden apples, **rotten flesh**, chorus fruit, spider eye,
+    pufferfish, poisonous potato, raw chicken and suspicious stew, so rotten flesh (§3) must be taken
+    off the blacklist for the ice miner.
+  - **AutoGap** is the golden apple module: `health-enabled` + `health-threshold` (counts
+    Absorption), eat when Regeneration (or, with E-Gaps, Fire Resistance / Absorption) runs out,
+    `before-expiry` + `expiry-threshold`, `allow-egap`, `always`, `pause-baritone`. No reserve count:
+    it eats the last apple too, so keeping some back stays Zymbot's job (or the owner's).
+  - Both pause Baritone while eating, which Zymbot's walks need to tolerate (a paused path isn't a
+    failed one).
 
 ### Behaviour
 - **One at a time** (preferred): when mobs are bunched up, pull one away and fight it alone, rather
@@ -257,7 +410,7 @@ The setup: **a pile of withers on stone or bedrock**, at ground level. The bot f
    - a totem of undying in the offhand, plus **spare totems in the inventory: 5 by default,
      adjustable** (the owner sets the numbers in game)
    - armour and sword durability above the threshold
-   - food, XP bottles, chorus fruit
+   - food (rotten flesh), golden apples, XP bottles, chorus fruit
    - a known safe spot to retreat to
    - no milk buckets: too expensive
    - Meteor Client: **KillAura and aim modules off** (they rotate the camera and fight Zymbot's
@@ -352,6 +505,43 @@ Notes for when it comes up:
   Zymbot's part could be the glue (snapshot, export the build as a schematic, load it on 9b9t).
 - The ghost blocks are then a build plan the bot can place itself, the same thing mapart (§4) needs.
 
+## Probes: `/zbot probe …` (owner, 2026-10-26)
+
+Numbers the plans above depend on, measured on 9b9t. Local client commands: nothing goes to chat, and
+only `despawn` acts. First batch built in 0.2.1 (2026-10-26): `tps`, `ping`, `ack`, `meteor`.
+
+**First readings on 9b9t (2026-10-26):** ping 447 ms in the tab list (the owner's HUD: 216 ms; most
+players list 2–3 s, so tab ping there is inflated by lag). **The game time in 9b9t's time updates
+doesn't move like a clock**: it stays put for several updates, then jumps (`+0/2.3s +0/2.4s +0/2.0s
++255/2.8s`), so a meter on game time read 0 or 20. `TpsMeter` now counts updates as 20 ticks each
+when that happens (as Meteor's `TickRate` does; it read 6.6–7.9, the owner saw ~5–11); unit-tested
+on those numbers and **seen live** the same day: 8.9 TPS by counting (`+0/2.3s +0/2.1s +0/1.9s +0/2.7s`),
+Meteor 6.1 (it averages over a longer stretch). Later the same session the server sent nothing for
+31.8 s, then +867: under the first "impossible jump" limit, so it read 19.9 (Meteor 4.7); the limit is
+now 25 ticks a second plus jitter, so that counts as a stall too (unit-tested; in the next jar, not seen live).
+
+**`ack` on 9b9t (owner breaking and placing by hand, 2026-10-26): average 5.1 s, worst 7.1 s, last
+1.9 s** (3 samples, TPS ~5). `PlaceTask` waits 1 s, so on 9b9t nearly every place would be called a
+failure and retried. **To do before any building on 9b9t:** the confirm window grows with the
+measured ack (and NoGhostBlocks on, so the check is honest); `BreakTask` the same. Tab ping read 0 ms
+just after joining (the server hadn't listed us yet), another reason not to lean on it.
+
+| Command | Shows | Needed by |
+|---|---|---|
+| `probe tps` | Zymbot's TPS meter, Meteor's (`TickRate`), seconds since the last time packet | lag back-off, eating earlier when slow (§0), checks our meter against Meteor's |
+| `probe ping` | the latency the server lists for us (tab list) | totem refill gap (§5), eating (§0) |
+| `probe ack` | average and worst time from a block break or place to the server's confirmation (block-change ack), over the last ones seen | `PlaceTask`'s fixed 1 s confirm window (should grow with this); NoGhostBlocks |
+| `probe meteor` | which relevant Meteor modules are on, with warnings where they'd fight Zymbot: AutoEat with rotten flesh still blacklisted, KillAura or aim modules on, NoGhostBlocks off | §0 eating, §3, §5 |
+| `probe setbacks` (later) | server teleports (rubber-banding) in the last minute | lag, anticheat |
+| `probe server` (later) | brand, view and simulation distance, chunk arrival | routes, highway riding |
+| `probe despawn` (later) | drops two items ~30 s apart and times each | the 2-minute question below |
+
+**Meteor's NoGhostBlocks** (World; `breaking`, `placing`): the client stops predicting breaks and
+places, so a block changes only when the server's update arrives. Without it, a place the server
+rejects still looks done (a ghost block) and `PlaceTask`'s check passes; with it the check is honest,
+but a lagging server can take longer than the 1 s window. So: NoGhostBlocks on, and the confirm window
+scaled by `ack`.
+
 ## To test in game
 
 9b9t doesn't run vanilla rules everywhere. Test on 9b9t later (possibly with an MCP for Fabric that
@@ -363,6 +553,7 @@ lets Claude drive the game):
 | `maxEntityCramming` for withers | **100** on 9b9t's 1.12.2 days (owner); unknown now | wither and warden cramming (§5) |
 | Meteor's Velocity and Criticals | worked on 1.12.2 | §5 knockback and crits |
 | Meteor's AutoEat | owner judges whether it's good enough | shared eating (§0) |
+| Meteor's Jesus (walking on water / lava) | **doesn't work: confirmed** on 9b9t (owner, 2026-10-26); not worth trying again | so Baritone's `assumeWalkOnWater` / `assumeWalkOnLava` must stay off (Zymbot already sets `assumeWalkOnWater = false`; `assumeWalkOnLava` is off by default), and water and lava crossings stay Zymbot's own moves (§1) |
 
 ## Order
 

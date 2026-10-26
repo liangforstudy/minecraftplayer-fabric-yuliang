@@ -89,6 +89,13 @@ final class ZymbotCommands {
                         })
                         .executes(c -> withBot(c, bot, b -> List.of(b.look(StringArgumentType.getString(c, "player")))))))
                 .then(literal("eat").executes(c -> withBot(c, bot, b -> List.of(b.eat()))))
+                // measured on this server, nothing sent (9b9t roadmap, §Probes)
+                .then(literal("probe")
+                        .executes(c -> reply(c, List.of("probe tps | ping | ack | meteor")))
+                        .then(literal("tps").executes(c -> reply(c, ZymbotProbes.tps())))
+                        .then(literal("ping").executes(c -> reply(c, ZymbotProbes.ping())))
+                        .then(literal("ack").executes(c -> reply(c, ZymbotProbes.ack())))
+                        .then(literal("meteor").executes(c -> reply(c, ZymbotProbes.meteor()))))
                 // debug readouts and test orders, out of the everyday list (owner, 2026-09-27)
                 .then(literal("debug")
                         .then(literal("terrain").then(argument("coords", StringArgumentType.greedyString())
@@ -217,6 +224,7 @@ final class ZymbotCommands {
                 r + " roster — the team: Bot / Teammate, online, last heard, where, how we know",
                 r + " regroup — walk back to the nearest teammate now (automatic on start and after a respawn)",
                 r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",
+                r + " probe tps | ping | ack | meteor — this server's tick rate, ping, block-action confirmation time; Meteor modules that matter",
                 r + " debug terrain <x> <z> | block <x> <y> <z> | punch <x> <y> <z> | foods | survey — readouts and test orders",
                 r + " debug craft planks | sticks | table | axe | hoe, debug place table — one bootstrap step by hand",
                 r + " grave — walk to our own nearest grave (16 blocks; else where we died) and take our things back",
