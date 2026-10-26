@@ -157,7 +157,8 @@ Steps:
      this jar). Cosmetic, fixed in source the same day, not yet seen in game: on 1.21.11 a setting's
      tooltip showed its line break as an `LF` box (now split into lines before
      `setTooltipForNextFrame`), and "50–5000" ran under the ↺ button (the range column is now as wide
-     as its widest text, laid out from the right).
+     as its widest text, laid out from the right). **Both seen fixed in game** (0.2.1 on 9b9t, owner's
+     screenshots, 2026-10-26).
    - **4b. The 9b9t instance, offline.** Add `zymbot-0.2.0+1.21.11.jar` beside Meteor 85 and Baritone
      1.17.0 (Meteor 85 doesn't bundle Baritone, checked 2026-10-26, so there's one Baritone). The owner
      starts it and opens a singleplayer world: no crash, Zymbot and Meteor both load, `/zbot status`
@@ -181,6 +182,15 @@ Steps:
 
    **Done when** 4a-4c pass. Not covered here: mob avoidance for Baritone (proposed after the skeleton
    chase in the 2026-10-26 Stage 0 test, not decided).
+
+**ZymCiv regression (2026-10-26, headless Bot1 on 0.2.1+1.21.1, owner's client on 0.1.48): passed as
+far as it went.** Loaded `profile zymciv`, started DISCOVERY by itself, surveyed, full ZymCiv status
+(danger `modpack`, leash, ladder, bus, chat check), no Zymbot errors. It stood still, as the
+unchanged logic says: the owner's Zymbot was silent ("singleplayer is switched off on the server
+list"), so no current teammate; "work first" (2026-10-14) held the walk to spawn because the ladder
+wanted a tree, and the only tree was 52 blocks off, past its 48. **Not exercised:** the team bus, the
+chat check and an actual regroup (they need the owner's Zymbot talking). The first two joins timed out
+(login 15 s vs ~16 s of config sync, known); the third got in.
 
 **Done when:** both jars build from one tree, all tests pass, the 1.21.1 bot behaves exactly as
 before on ZymCiv, and the 1.21.11 bot joins 9b9t and runs nothing ZymCiv-specific.
@@ -246,6 +256,36 @@ the owner, 2026-10-26). It's vanilla, not lag:
 ## 2. Routes (named waypoints, A → B → C → D → E)
 
 Baritone goes straight to one goal. Routes walk a list of points in order.
+
+**First Baritone walk on 9b9t (2026-10-26, 0.2.1, owner watching): passed.** `/zbot goto ~-200 ~`
+from x 249405 z 3404 (a beach; east, north and south water): 200 blocks west in 56 s, arriving on the
+target block, controls given back. It planned past the loaded chunks (105 land + 8 water to the edge,
+then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag back-off ran. Found:
+- **A false "you touched a movement key"** on the first try: borrowed and given back in the same
+  second, no key pressed. The second try ran clean. The check is "a movement key is down while
+  Zymbot holds none" (`ZymbotClient.humanIsMoving`); a key still down from the window taking focus is
+  the likely cause. Not fixed; watch for it.
+- **The lag back-off flaps**: TPS read 14–15 and 19–20 by turns (each a few seconds), so "planning
+  less" / "planning normally" logged every 3–10 s, right at the `lagtps` 15 line. Wants some
+  hysteresis (e.g. back to normal only above 17) so the log isn't flooded on 9b9t. It also read 1 TPS
+  in the first second of the first try (just after a stall), which was fair.
+
+**Night ambushes (owner, 2026-10-26):** on 9b9t a walk can get ambushed by hard mobs at night. Today
+the anarchy build only reacts at low health (danger `hard`: critical health + 4) and Baritone doesn't
+steer around mobs (the mob-avoidance idea from the Stage 0 skeleton chase, §0, still undecided). To
+decide before long routes: avoid walking at night (wait it out somewhere safe, or a route step "wait
+for day"), keep away from mobs while walking (Baritone's `avoidance` settings, or Zymbot's own
+detour), and/or back off earlier than critical health on a route.
+
+**Routes are mostly in the Nether (owner, 2026-10-26)**, with its own hostile mobs. So:
+- No day or night there: "wait for day" doesn't help; mobs spawn all the time.
+- The threats: ghasts (fireballs from range, knockback off edges and bridges), hoglins (hostile, hit
+  hard), piglins (hostile unless the player wears gold: one gold piece is worth having on), wither
+  skeletons and blazes near fortresses, piglin brutes in bastions, magma cubes.
+- Lava, not water, is the hazard: Zymbot's planner is built around water crossings; in the Nether
+  the questions are lava next to the path, falls into lava, and ghast knockback near edges.
+- Many Nether routes run on the highways (and the boat highway, §2 above), where withers and wardens
+  also turn up (§5).
 
 - **Waypoint**: a name plus absolute `x y z`, saved per server.
 - **Route**: a name plus an ordered list of waypoints. Many routes can share waypoints, and each takes
@@ -345,6 +385,9 @@ Mines **regular, packed and blue ice** for boat highways.
   a dedicated placer for the build, with Baritone only for getting around.
 - **Wrongly placed blocks** are broken and their drops **picked up before they despawn (2 minutes on
   9b9t), no matter what**. No block left lying around.
+- **Ghost blocks and lag:** a place the server rejects can still show on the client, and 9b9t takes
+  0.3–9.5 s to confirm a place depending on its lag spikes (§Probes). So a layer is checked by
+  rereading it once the recent ack has passed, not trusted per place (§Probes, "Not needed now").
 - **Roadmap, later:** gather materials itself **only if the stash has been griefed**.
 
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
@@ -522,8 +565,18 @@ now 25 ticks a second plus jitter, so that counts as a stall too (unit-tested; i
 
 **`ack` on 9b9t (owner breaking and placing by hand, 2026-10-26): average 5.1 s, worst 7.1 s, last
 1.9 s** (3 samples, TPS ~5). `PlaceTask` waits 1 s, so on 9b9t nearly every place would be called a
-failure and retried. **To do before any building on 9b9t:** the confirm window grows with the
-measured ack (and NoGhostBlocks on, so the check is honest); `BreakTask` the same. Tab ping read 0 ms
+failure and retried. Over that session it swung widely: 21 samples averaged 3.15 s (worst 9.5 s), and
+under an hour later the last 50 averaged 0.32 s (worst 0.47 s). **9b9t's lag spikes come and go**
+(owner).
+
+**Not needed now** (checked with the owner, 2026-10-26): `PlaceTask` only places a crafting table
+(ZymCiv's ladder, `debug place table`), and with NoGhostBlocks off (the owner's setting) the client
+shows a place at once, so its 1 s window never meets the server's lag. `BreakTask` is done when the
+block is gone on the client (also at once) and allows 30 s, so the ice miner is fine on a lagging 9b9t;
+a break the server undoes just shows up again. HighwayBuilder places its own blocks. **It matters for
+mapart (§4)**, where a ghost block is a wrong pixel: there, rather than timing each place, build a
+layer, reread it once the ack has passed (`probe ack`'s recent worst, plus a margin) and fix what's
+wrong. Tab ping read 0 ms
 just after joining (the server hadn't listed us yet), another reason not to lean on it.
 
 | Command | Shows | Needed by |
