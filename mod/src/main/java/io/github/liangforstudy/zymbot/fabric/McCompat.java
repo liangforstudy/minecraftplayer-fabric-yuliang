@@ -17,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Where Minecraft's API differs between the versions we build (1.21.1, 1.21.11), so the rest of the
+ * Where Minecraft's API differs between the versions we build (1.21.1, 1.21.11, 26.2), so the rest of the
  * adapter reads the same in both. Stonecutter picks the branch per version (doc/9b9t/roadmap.md §0).
  */
 public final class McCompat {
@@ -168,6 +168,34 @@ public final class McCompat {
         /*return mc.getWindow().handle();
         *///?} else {
         return mc.getWindow().getWindow();
+        //?}
+    }
+
+    /** A line in our own chat, not sent to the server. */
+    public static void say(net.minecraft.client.player.LocalPlayer player, net.minecraft.network.chat.Component line) {
+        //? if >=26.2 {
+        /*player.sendSystemMessage(line);
+        *///?} else {
+        player.displayClientMessage(line, false);
+        //?}
+    }
+
+    /** The overworld's time of day, counting up across days (26.x: the overworld clock). */
+    public static long dayTime(Level level) {
+        //? if >=26.2 {
+        /*return level.getOverworldClockTime();
+        *///?} else {
+        return level.getDayTime();
+        //?}
+    }
+
+    /** Open our singleplayer world to LAN on this port, with its own game mode and cheats setting. */
+    public static boolean publishLan(net.minecraft.client.server.IntegratedServer s, int port) {
+        //? if >=26.2 {
+        /*return s.publishServer(net.minecraft.server.MinecraftServer.MultiplayerScope.LAN, s.getDefaultGameType(),
+                s.getWorldData().isAllowCommands(), port);
+        *///?} else {
+        return s.publishServer(s.getDefaultGameType(), s.getWorldData().isAllowCommands(), port);
         //?}
     }
 

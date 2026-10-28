@@ -95,7 +95,7 @@ final class FabricWorldView implements WorldView {
         this.beingRevived = reviving;
         this.lastDeath = player.getLastDeathLocation()
                 .map(g -> McCompat.id(g.dimension()) + " " + g.pos().toShortString()).orElse("");
-        this.dayTime = level.getDayTime();
+        this.dayTime = McCompat.dayTime(level);
         this.tps = ZymbotClient.TPS.tps(System.nanoTime());
         this.online = connection == null ? Set.of() : Set.copyOf(connection.getOnlinePlayerIds());   // the tab list
     }

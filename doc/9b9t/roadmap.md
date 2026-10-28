@@ -21,8 +21,26 @@ fights with withers and wardens.
   `mod/stonecutter.properties.toml`).
 - `core` stays plain Java, **built once and shared** by both versions. General reflexes (interrupt
   stack, drowning, stranded, fidget watchdog, `BreakTask`, `PlaceTask`, decision log) serve both.
-- **Later:** a 26.2 client build, once Fabric and Baritone support it. The project already uses
-  Mojang names, as 26.x does, but expect real work in the adapter (`mod/src`) all the same.
+- **26.2 client build: built 2026-10-28, not yet tried in a world.** Third Stonecutter version
+  beside 1.21.1 and 1.21.11 (profile `anarchy`, like 1.21.11). Done:
+  - Build: loom-back-compat 0.4.3 with both Loom plugins (1.19.3) declared in
+    `stonecutter.gradle.kts`, Gradle 9.8.1 run on JDK 25 (`gradle/gradle-daemon-jvm.properties`),
+    Java 25 for 26.x and 21 for the rest. 26.2 deps: Fabric API 0.161.0+26.2, Mod Menu 20.0.3,
+    Baritone API 1.19.0 (`headless/baritone-api-fabric-1.19.0.jar`, gitignored, copied from the
+    owner's 26.2 instance). Set up as in the owner's Chest Tracker port.
+  - Renames as Stonecutter replacements in `build.gradle.kts` (26.2 only): `ClientCommands`,
+    `KeyMappingHelper`, `ContainerInput` / `handleContainerInput`, `mc.gui.screen()` /
+    `gui.setScreen`, `mc.gui.hud.getBossOverlay()`, `GuiGraphicsExtractor` / `extractRenderState` /
+    `text` / `centeredText`. Real changes in `McCompat` (`say`, `dayTime` = overworld clock,
+    `publishLan` with `MultiplayerScope.LAN`) and a `//?` block for the tooltip. The settings
+    boxes drop non-digits in `insertText` on every version (26.x's EditBox has no `setFilter`).
+  - `fabric.mod.json` depends on `${key_module}`: `fabric-key-mapping-api-v1` on 26.x (the first
+    launch failed on the old name, which compiling doesn't catch).
+  - All three jars build, 250 core tests pass. In the owner's `26.2` instance (Meteor 26.2-35,
+    Baritone 1.19.0) it loads: "profile anarchy", no mixin errors at startup.
+  - **Next (owner, in a 26.2 world; no MCP there):** `/zbot status`, `probe tps` (does the game time
+    still jump without translation?), break blocks then `probe ack`, a short `goto`, Mod Menu →
+    Zymbot. The world-time, block-ack and boss-bar hooks only attach in a world.
 - **9b9t's version, checked 2026-10-26:** **26.2, with 1.21.4 and newer accepted.**
   - `tools/mcping.py` (server-list ping, no login; follows the `_minecraft._tcp` SRV record, since
     2b2t.com's plain address is a web IP): the version name is "9b9t 26.2" whatever we send; protocols

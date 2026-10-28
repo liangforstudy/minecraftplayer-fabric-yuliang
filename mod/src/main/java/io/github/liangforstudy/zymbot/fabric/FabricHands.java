@@ -36,7 +36,7 @@ final class FabricHands implements Hands {
     @Override
     public void notifyLocal(String message) {
         LOG.info("[zymbot] {}", message);
-        if (mc.player != null) mc.player.displayClientMessage(Component.literal("§7[zymbot]§r " + message), false);
+        if (mc.player != null) McCompat.say(mc.player, Component.literal("§7[zymbot]§r " + message));
     }
 
     @Override public PathProvider paths() { return paths; }

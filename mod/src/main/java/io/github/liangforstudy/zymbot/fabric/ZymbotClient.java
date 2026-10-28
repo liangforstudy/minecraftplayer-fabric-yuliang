@@ -206,7 +206,7 @@ public final class ZymbotClient implements ClientModInitializer {
         }
         int port = config.lanPort;
         if (!net.minecraft.util.HttpUtil.isPortAvailable(port)) return "port " + port + " is in use — close whatever holds it";
-        if (!s.publishServer(s.getDefaultGameType(), s.getWorldData().isAllowCommands(), port)) return "couldn't open to LAN on port " + port;
+        if (!McCompat.publishLan(s, port)) return "couldn't open to LAN on port " + port;
         s.setUsesAuthentication(false);
         return "opened to LAN on port " + port + " — online mode off, so the bots' offline accounts can join";
     }

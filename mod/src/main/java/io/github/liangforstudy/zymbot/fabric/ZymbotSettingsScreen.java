@@ -341,7 +341,6 @@ final class ZymbotSettingsScreen extends Screen {
             box.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
                     Component.literal(text + "\n§7" + cmd + "\n§7drag left/right to change (Shift fine, Ctrl coarse)")));
             box.setMaxLength(4);
-            box.setFilter(t -> t.chars().allMatch(Character::isDigit));
             box.setValue(tunableDrafts.getOrDefault(key, String.valueOf(cfg().tunable(key))));
             addRenderableWidget(box);
             tunableBoxes.put(key, box);
@@ -387,6 +386,12 @@ final class ZymbotSettingsScreen extends Screen {
         ScrubBox(int x, int y, String name, int min, int max) {
             super(font, x, y, 44, 20, Component.literal(name));
             this.scrub = new Scrub(this, min, max);
+        }
+
+        /** Digits only, typed or pasted (26.x's EditBox has no setFilter, so all versions do it here). */
+        @Override
+        public void insertText(String text) {
+            super.insertText(text.replaceAll("[^0-9]", ""));
         }
 
         //? if >=1.21.11 {
@@ -619,7 +624,9 @@ final class ZymbotSettingsScreen extends Screen {
             for (ScrubZone z : scrubZones) {
                 // 1.21.11: the one-Component overload draws "\n" as an LF box, so split into lines first, as Tooltip does
                 if (z.fullText() != null && z.contains(mouseX, mouseY))
-                    //? if >=1.21.11 {
+                    //? if >=26.2 {
+                    /*g.setTooltipForNextFrame(font.split(Component.literal(z.fullText()), 170), mouseX, mouseY);
+                    *///?} else if >=1.21.11 {
                     /*g.setTooltipForNextFrame(font, font.split(Component.literal(z.fullText()), 170), mouseX, mouseY);
                     *///?} else {
                     setTooltipForNextRenderPass(Component.literal(z.fullText()));
