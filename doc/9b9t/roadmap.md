@@ -377,6 +377,35 @@ the boat:
   then detonate the crystal from behind it. Meteor's HighwayBuilder uses arrows
   (`destroy-crystal-traps`); it would be good to have both.
 
+## Chest opener (idea, owner, 2026-10-29)
+
+A module that goes around opening the nearest chests: start it, and it walks to the chests nearby and
+opens each one, then the next nearest. It needn't be a base; any chests it can see will do. Opening is
+what matters (the owner's Chest Tracker records what's inside).
+
+First done by hand on 9b9t on 2026-10-29 (a stash in a mushroom fields biome near x 249816 z 3419,
+with a script over MCP Fabric, 26.2 build): all 149 surface chest blocks, 82 chests, opened in about
+13 minutes with nothing broken or placed. What it taught:
+- **Which chests:** a scan of the loaded chunks found 197 chest blocks within 150 blocks; 48 were buried
+  or indoors (solid blocks above). "Surface" = nothing solid overhead; another chest on top doesn't
+  count (a chest opens under a chest, not under a solid block).
+- **Walking:** Zymbot's `goto` (Baritone, breaking and placing off) walks on chests; MCP Fabric's own
+  A* didn't (stuck on chest tops at 7/8 of a block).
+- **Always give a height.** A bare `goto x z` means any height: once it led through a cave to y 15
+  under the stash. A guard stopped the run if the player dropped below the stash's level.
+- **Where to stand:** on the ground beside a stack, not on top. Free-standing stacks are up to 3 chests
+  high and can't be climbed without placing blocks; from the ground every chest in the stack is in
+  reach (≤ 4.3 blocks from the eyes).
+- **Double chests** open as one (54 slots): the other half needn't be opened.
+- On 9b9t a chest sometimes gave no menu within 15 s (lag); those were retried or covered by their
+  other half.
+- The pause menu opens when the game window loses focus; in multiplayer it doesn't stop the game, so
+  the run closes it and carries on. Any other screen (chat, inventory) stops it, as does damage.
+
+As a Zymbot module it would add: its own reach and stack logic in `core`, a radius and a "done" list
+per server (opened chests aren't opened again), staying out of buried chests unless asked, and the
+usual stops (damage, mobs, night, a player in view).
+
 ## 3. Ice miner
 
 Mines **regular, packed and blue ice** for boat highways.
