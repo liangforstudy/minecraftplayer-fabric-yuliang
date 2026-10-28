@@ -98,9 +98,12 @@ public final class ZymbotClient implements ClientModInitializer {
         instance = this;
         configFile = FabricLoader.getInstance().getConfigDir().resolve("zymbot.json");
         config = ConfigIO.load(configFile);
-        LOG.info("[zymbot] loaded — command /{}{}, {}, profile {}", config.commandRoot,
+        io.github.liangforstudy.zymbot.core.Profile.parkTeam(McCompat.TEAM_PARKED);   // before any Bot is made
+        LOG.info("[zymbot] loaded — command /{}{}, {}, profile {}{}", config.commandRoot,
                 config.commandAliases.isEmpty() ? "" : " (aliases " + config.commandAliases + ")",
-                HEADLESS ? "headless" : "with a human at the keys", McCompat.PROFILE.id());
+                HEADLESS ? "headless" : "with a human at the keys", McCompat.PROFILE.id(),
+                McCompat.TEAM_PARKED && McCompat.PROFILE == io.github.liangforstudy.zymbot.core.Profile.ZYMCIV
+                        ? " (team features parked)" : "");
 
         // Emergency stop (owner, 2026-10-16): /zbot stop and Baritone's own cancel, on a key — unbound until
         // set in Options -> Controls. Chat can't be reached while the bot has a screen open, so it works there too.
@@ -183,7 +186,7 @@ public final class ZymbotClient implements ClientModInitializer {
 
     /** /zbot summon: our LAN world if it's open, else the server we're on. */
     private String summon(Bot b) {
-        String no = b.zymcivOnly("summon");                     // before the LAN hint: anarchy has no summon at all
+        String no = b.teamOnly("summon", io.github.liangforstudy.zymbot.core.Profile.BUS);   // before the LAN hint: no summon in anarchy, or while the team is parked
         if (no != null) return no;
         Minecraft mc = Minecraft.getInstance();
         IntegratedServer s = mc.getSingleplayerServer();

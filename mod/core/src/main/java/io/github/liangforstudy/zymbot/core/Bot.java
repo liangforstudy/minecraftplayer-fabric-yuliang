@@ -811,6 +811,13 @@ public final class Bot {
         return profile == Profile.ANARCHY ? what + " is a ZymCiv feature — not in this " + profile.id() + " build" : null;
     }
 
+    /** As {@link #zymcivOnly}, and also null only while that team module is on (they're parked: Profile.TEAM). */
+    public String teamOnly(String what, String module) {
+        String no = zymcivOnly(what);
+        if (no != null || profile.has(module)) return no;
+        return what + " is switched off for now — ZymCiv's team features (team bus, chat check, regroup) are parked";
+    }
+
     /** Add any server to the list (the settings screen can add one before you've joined it). */
     public String serverAdd(String server) {
         String no = zymcivOnly("the server list");
@@ -925,7 +932,7 @@ public final class Bot {
 
     /** Ask the team's bots waiting at their title screens to join us there. */
     public String summon(SummonTarget target) {
-        String no = zymcivOnly("summon");
+        String no = teamOnly("summon", Profile.BUS);
         if (no != null) return no;
         if (!sharesKnowledge()) return "summon needs the local bus, and it's off (transports.local_bus) - start the bots with play / run-bot instead";
         sendSummon(target);
@@ -973,7 +980,7 @@ public final class Bot {
     }
 
     public String setAutoSummon(boolean on) {
-        String no = zymcivOnly("summon");
+        String no = teamOnly("summon", Profile.BUS);
         if (no != null) return no;
         config.autoSummonOnLan = on;
         ConfigIO.save(configFile, config);
@@ -1224,7 +1231,7 @@ public final class Bot {
      * (owner, 2026-10-15). With the bus off: send.bat &lt;bot&gt; /zbot status, or the bot's log.
      */
     private String ownerToolRefusal() {
-        String no = zymcivOnly("asking other bots (the team bus)");
+        String no = teamOnly("asking other bots (the team bus)", Profile.BUS);
         if (no != null) return no;
         if (role() == ZymbotConfig.Role.BOT) return "a bot can't see other bots - run it from your own client";
         if (!sharesKnowledge()) return "the local bus is off (transports.local_bus), so nothing crosses the network - use the bot's own /zbot status or its log";
@@ -1529,7 +1536,7 @@ public final class Bot {
 
     /** /zbot roster: each member, Bot or Teammate, online or not, last heard, where, and how we know. */
     public List<String> roster() {
-        String no = zymcivOnly("the team roster");
+        String no = teamOnly("the team roster", Profile.BUS);
         if (no != null) return List.of(no);
         if (memory.roster.isEmpty()) return List.of("roster: nobody yet — no HELLO heard on this server");
         long now = clock.getAsLong();
@@ -1610,7 +1617,7 @@ public final class Bot {
     }
 
     public String regroupNow() {
-        String no = zymcivOnly("regroup");
+        String no = teamOnly("regroup", Profile.REGROUP);
         if (no == null) no = needsControl();
         if (no != null) return no;
         regroup.arm();

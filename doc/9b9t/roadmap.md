@@ -76,6 +76,13 @@ Instead, **Stonecutter sets a profile per version** (`zymciv` for 1.21.1, `anarc
 adapter passes it to `Bot`, and `Bot` wires only that profile's modules. The ZymCiv code is in the
 jar but never runs on 9b9t.
 
+**Team features parked in ZymCiv too (owner, 2026-10-29):** the team bus, the chat check and regroup
+are off in the 1.21.1 build as well, for now. `McCompat.TEAM_PARKED` (true) calls `Profile.parkTeam`
+at startup; the log line says "(team features parked)". `summon`, `see <bot>`, `watch`, `roster` and
+`regroup` answer that they're switched off. Core's tests still cover the features (parked only in a
+test of its own). Back on: set `TEAM_PARKED` false. In place on headless Bot1 (2026-10-29); the
+owner's own 1.21.1 client is still 0.1.48.
+
 | Off in `anarchy` | Why |
 |---|---|
 | Knocked out (`DownedInterrupt`, `DownedTask`) | civfabric's knocked-out state; vanilla has none |
@@ -330,6 +337,28 @@ detour), and/or back off earlier than critical health on a route.
   the questions are lava next to the path, falls into lava, and ghast knockback near edges.
 - Many Nether routes run on the highways (and the boat highway, §2 above), where withers and wardens
   also turn up (§5).
+
+**Attacked mid-route (decided, owner, 2026-10-29): fight weak mobs, back off from the rest.**
+Today the anarchy build only reacts at health ≤ 12 (danger `hard`: critical 8 + 4), then eats or runs
+32 blocks from the attacker (`RetreatTask`); it never hits back. Too late and wrong for the Nether. On
+a route instead:
+- **Scaled to the gear (owner, 2026-10-29: "I'm geared up, I can take more damage").** At the start of
+  a route read the armor (points, toughness, Protection levels), totems and golden apples carried, and
+  judge each mob by what its hits cost *through that gear* (the game's armor and enchantment
+  reduction): a well-geared player keeps going (or fights) through hits that would send a bare one
+  running. Netherite's knockback resistance (10% a piece) counts too, near lava and edges.
+- Armor doesn't help with lava, falls (Feather Falling aside), the wither effect or a swarm, so those
+  rules stay whatever the gear.
+- React early only when the hits are big for the gear, not at the **first hit** of anything.
+- **Hit back** simple melee mobs (zombies, a lone hoglin or magma cube) instead of running.
+- **Back off** from the rest; from ranged ones (ghasts, blazes, skeletons) take **cover** (break line of
+  sight) rather than run, since running 32 blocks doesn't escape a ghast's range.
+- **Never hit a zombified piglin** (the whole group turns on us); wear a gold piece for piglins.
+- Then **resume the leg** where it was.
+- **Log out** if health keeps falling below a threshold, as with withers and wardens; lower with a
+  totem in the offhand and golden apples on hand, higher without.
+Still to settle: the "weak" list per gear, the log-out thresholds, and how this sits with Meteor's modules
+(KillAura stays off: it turns the camera).
 
 - **Waypoint**: a name plus absolute `x y z`, saved per server.
 - **Route**: a name plus an ordered list of waypoints. Many routes can share waypoints, and each takes

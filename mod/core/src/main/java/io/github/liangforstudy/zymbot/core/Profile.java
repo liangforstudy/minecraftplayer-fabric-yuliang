@@ -22,12 +22,27 @@ public enum Profile {
     /** Everything on the roadmap's "Off in anarchy" table that exists in code today. */
     public static final Set<String> ZYMCIV_ONLY = Set.of(DOWNED, REGROUP, LEASH, LADDER, HANDSHAKE, BUS, HUNGER, GRAVES);
 
+    /**
+     * ZymCiv's team features: the team bus, the chat check and regroup. Parked for now in the ZymCiv
+     * build too (owner, 2026-10-29): the adapter calls {@link #parkTeam} at startup (McCompat.TEAM_PARKED).
+     * Off by default here, so core's own tests still cover them.
+     */
+    public static final Set<String> TEAM = Set.of(BUS, HANDSHAKE, REGROUP);
+    private static volatile boolean teamParked;
+
+    public static void parkTeam(boolean parked) { teamParked = parked; }
+
+    public static boolean teamParked() { return teamParked; }
+
     /** Tunables (/zbot set, the settings screen's Body tab) that mean something here. */
     private static final List<String> ANARCHY_TUNABLES = List.of("critical", "plantime", "lagtps");
 
     public String id() { return name().toLowerCase(Locale.ROOT); }
 
-    public boolean has(String module) { return this == ZYMCIV || !ZYMCIV_ONLY.contains(module); }
+    public boolean has(String module) {
+        if (teamParked && TEAM.contains(module)) return false;
+        return this == ZYMCIV || !ZYMCIV_ONLY.contains(module);
+    }
 
     /**
      * Takes control by itself on joining a listed server (ZymCiv's Bot accounts). Anarchy is active

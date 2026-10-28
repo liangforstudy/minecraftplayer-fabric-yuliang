@@ -31,6 +31,22 @@ class ProfileTest {
     }
 
     @Test
+    void zymcivWithTheTeamParked_hasNoBusChatCheckOrRegroup() {
+        Profile.parkTeam(true);
+        try {
+            Bot b = bot(new FakeWorld("Bot1"), new ZymbotConfig(), Profile.ZYMCIV);
+            for (String t : Profile.TEAM) assertFalse(b.modules().contains(t), "parked: " + t);
+            var rest = new java.util.HashSet<>(Profile.ZYMCIV_ONLY);
+            rest.removeAll(Profile.TEAM);
+            assertTrue(b.modules().containsAll(rest), "the rest of ZymCiv stays: " + b.modules());
+            assertTrue(b.regroupNow().contains("parked"), b.regroupNow());
+            assertTrue(b.roster().get(0).contains("parked"), b.roster().toString());
+        } finally {
+            Profile.parkTeam(false);
+        }
+    }
+
+    @Test
     void zymcivStillHasEveryModule() {
         Bot b = bot(new FakeWorld("Bot1"), new ZymbotConfig(), Profile.ZYMCIV);
         assertTrue(b.modules().containsAll(Profile.ZYMCIV_ONLY), b.modules().toString());

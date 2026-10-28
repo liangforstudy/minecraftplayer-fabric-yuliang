@@ -30,6 +30,9 @@ public final class McCompat {
     public static final io.github.liangforstudy.zymbot.core.Profile PROFILE = io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
     //?}
 
+    /** ZymCiv's team features (team bus, chat check, regroup): parked for now (owner, 2026-10-29). */
+    public static final boolean TEAM_PARKED = true;
+
     /** How this version works out the sky light: a timeline from 1.21.11 on, a cosine before (core/body/Daylight). */
     //? if >=1.21.11 {
     /*public static final io.github.liangforstudy.zymbot.core.body.Daylight.Model DAYLIGHT = io.github.liangforstudy.zymbot.core.body.Daylight.Model.TIMELINE;
