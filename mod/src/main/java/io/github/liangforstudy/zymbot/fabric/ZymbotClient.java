@@ -51,6 +51,9 @@ public final class ZymbotClient implements ClientModInitializer {
     public static final io.github.liangforstudy.zymbot.core.body.TpsMeter TPS = new io.github.liangforstudy.zymbot.core.body.TpsMeter();
     /** How long the server takes to confirm a block action (mixin.BlockAckMixin). */
     public static final io.github.liangforstudy.zymbot.core.body.AckMeter ACKS = new io.github.liangforstudy.zymbot.core.body.AckMeter();
+    /** How fast the day clock really moves, and the thunderstorm we're in (/zbot daybreak). */
+    public static final io.github.liangforstudy.zymbot.core.body.ClockRate CLOCK = new io.github.liangforstudy.zymbot.core.body.ClockRate();
+    public static final io.github.liangforstudy.zymbot.core.body.StormWatch STORMS = new io.github.liangforstudy.zymbot.core.body.StormWatch();
     private ZymbotConfig config;
     private Path configFile;
     private Bot bot;
@@ -123,7 +126,7 @@ public final class ZymbotClient implements ClientModInitializer {
                         () -> levelName(Minecraft.getInstance()), config.commandRoot, config.commandAliases));
         // the bot exists from the title screen on, so a summon can reach it before any world
         ClientLifecycleEvents.CLIENT_STARTED.register(this::createBot);
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); ACKS.reset(); onJoin(mc); });
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); ACKS.reset(); CLOCK.reset(); STORMS.reset(); onJoin(mc); });
         ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
         // ALLOW_CHAT, not CHAT: a bot keeps the chat check (roadmap3.md §4) off its chat screen, and a
@@ -262,6 +265,11 @@ public final class ZymbotClient implements ClientModInitializer {
     private void onTick(Minecraft mc) {
         while (stopKey != null && stopKey.consumeClick()) emergencyStop(mc);   // no screen open: the usual way
         if (config.skipExperimentalWorldWarning && mc.screen instanceof BackupConfirmScreen s) skipExperimentalWarning(s);
+        if (mc.level != null) {                               // the clock's pace and the weather, for /zbot daybreak
+            long clock = McCompat.dayTime(mc.level);
+            CLOCK.onClock(clock, System.nanoTime());
+            STORMS.tick(mc.level.isThundering(), clock);
+        }
         if (bot == null) return;
         if (mc.player == null || mc.level == null) {
             BotDigging.active = false;                         // no world, nothing being dug

@@ -1111,10 +1111,12 @@ function Cmd-ConsoleLog($bot, [switch]$pane) {
 # it (the SKILL.md command table). Player-name slots offer the bots' names.
 $ZBOT_WORDS = @{
     ''          = @('help', 'status', 'start', 'stop', 'role', 'goto', 'follow', 'come', 'watch', 'look', 'eat', 'debug',
-                    'see', 'view', 'spy', 'grave', 'cancel', 'set', 'roster', 'regroup', 'danger', 'summon', 'lan', 'autostart')
+                    'see', 'view', 'spy', 'grave', 'cancel', 'set', 'roster', 'regroup', 'danger', 'summon', 'lan', 'autostart',
+                    'probe', 'daybreak')
     'role'      = @('bot', 'teammate', 'none')
     'debug'     = @('terrain', 'block', 'punch', 'foods', 'survey')
     'grave'     = @('loot')
+    'probe'     = @('tps', 'ping', 'ack', 'meteor')
     'set'       = @('leash', 'eat', 'critical', 'downed', 'regroup', 'probewait', 'plantime', 'lagtps')
     'danger'    = @('modpack', 'easy', 'normal', 'hard')
     'summon'    = @('auto')

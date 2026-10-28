@@ -89,6 +89,8 @@ final class ZymbotCommands {
                         })
                         .executes(c -> withBot(c, bot, b -> List.of(b.look(StringArgumentType.getString(c, "player")))))))
                 .then(literal("eat").executes(c -> withBot(c, bot, b -> List.of(b.eat()))))
+                // until hostile mobs stop (or start) spawning in the open, at this server's TPS (owner, 2026-10-29)
+                .then(literal("daybreak").executes(c -> reply(c, ZymbotProbes.daybreak())))
                 // measured on this server, nothing sent (9b9t roadmap, §Probes)
                 .then(literal("probe")
                         .executes(c -> reply(c, List.of("probe tps | ping | ack | meteor")))
@@ -224,6 +226,7 @@ final class ZymbotCommands {
                 r + " roster — the team: Bot / Teammate, online, last heard, where, how we know",
                 r + " regroup — walk back to the nearest teammate now (automatic on start and after a respawn)",
                 r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",
+                r + " daybreak — when hostile mobs stop spawning in the open (by day: start), at the server's pace; storms too",
                 r + " probe tps | ping | ack | meteor — this server's tick rate, ping, block-action confirmation time; Meteor modules that matter",
                 r + " debug terrain <x> <z> | block <x> <y> <z> | punch <x> <y> <z> | foods | survey — readouts and test orders",
                 r + " debug craft planks | sticks | table | axe | hoe, debug place table — one bootstrap step by hand",

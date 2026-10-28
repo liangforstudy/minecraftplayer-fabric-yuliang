@@ -83,6 +83,8 @@ The Phase 1 subset of [BOT_BEHAVIOUR.md → Interrupt table](BOT_BEHAVIOUR.md#in
 | command | does |
 |---|---|
 | `/zbot goto <x> <z>` or `<x> <y> <z>` | walk there (any height in that column, or that block); `~` / `~10` relative, like vanilla (0.1.11) |
+| `/zbot daybreak` | the clock time hostile mobs stop spawning in the open (by day: start), at the day clock's measured pace; thunderstorms' end as a range (0.2.1) |
+| `/zbot probe tps \| ping \| ack \| meteor` | read-only readouts of the server we're on (9b9t roadmap, §Probes; 0.2.1) |
 | `/zbot follow <name>` | follow a player until `/zbot cancel` |
 | `/zbot come <name>` | walk to a player — to within 4 blocks: where it sees them, else where they last announced (0.1.16) |
 | `/zbot watch <bot> [off]` | that bot `/msg`s you each decision for 30 min — over the team bus, so only teammates can ask (0.1.16) |

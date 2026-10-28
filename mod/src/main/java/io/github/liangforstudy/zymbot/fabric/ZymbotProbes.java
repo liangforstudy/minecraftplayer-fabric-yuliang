@@ -54,6 +54,25 @@ final class ZymbotProbes {
         return "block ack (action → server's confirmation), last " + s.count() + ": average " + f0(s.avgMs()) + " ms";
     }
 
+    /**
+     * /zbot daybreak: the clock time hostile mobs stop spawning in the open for the night (by day: when
+     * they start), at the day clock's measured pace, and what a thunderstorm does to it (core/body/DaybreakReport).
+     */
+    static List<String> daybreak() {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return List.of("not in a world");
+        var level = mc.level;
+        if (level.dimensionType().hasFixedTime() || !level.dimensionType().hasSkyLight())
+            return List.of("no day and night here (" + McCompat.id(level.dimension()) + "): mobs spawn by darkness alone");
+        long now = McCompat.dayTime(level);
+        var sky = new io.github.liangforstudy.zymbot.core.body.DaybreakReport.Sky(now, level.getRainLevel(1f),
+                level.getThunderLevel(1f), level.isThundering(), McCompat.DAYLIGHT);
+        var pace = new io.github.liangforstudy.zymbot.core.body.DaybreakReport.Pace(ZymbotClient.CLOCK.perSecond(),
+                ZymbotClient.CLOCK.spanSeconds(), ZymbotClient.TPS.tps(System.nanoTime()));
+        return io.github.liangforstudy.zymbot.core.body.DaybreakReport.lines(sky, pace, ZymbotClient.STORMS.estimate(now),
+                ZymbotClient.STORMS.calmFor(now), java.time.LocalTime.now());
+    }
+
     /** Meteor modules that matter to Zymbot, with a warning where they'd fight it. */
     static List<String> meteor() {
         Object modules = meteorModules();

@@ -30,6 +30,13 @@ public final class McCompat {
     public static final io.github.liangforstudy.zymbot.core.Profile PROFILE = io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
     //?}
 
+    /** How this version works out the sky light: a timeline from 1.21.11 on, a cosine before (core/body/Daylight). */
+    //? if >=1.21.11 {
+    /*public static final io.github.liangforstudy.zymbot.core.body.Daylight.Model DAYLIGHT = io.github.liangforstudy.zymbot.core.body.Daylight.Model.TIMELINE;
+    *///?} else {
+    public static final io.github.liangforstudy.zymbot.core.body.Daylight.Model DAYLIGHT = io.github.liangforstudy.zymbot.core.body.Daylight.Model.COSINE;
+    //?}
+
     public static int selectedSlot(Inventory inv) {
         //? if >=1.21.11 {
         /*return inv.getSelectedSlot();

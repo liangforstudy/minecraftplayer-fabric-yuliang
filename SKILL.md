@@ -162,6 +162,7 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `watch <bot> [off]` | that bot /msg's you its decisions for 30 min |
 | `look <player>` | face a player |
 | `eat` | eat the best food now |
+| `daybreak` | read only: the clock time hostile mobs stop spawning in the open for the night (by day: when they start), at the day clock's pace measured over the last 5 min (the TPS meter until it has 30 s); in a thunderstorm (they spawn any time) when it ends: a range if Zymbot saw it start, else the latest; says so in the Nether / End |
 | `probe tps \| ping \| ack \| meteor` | read only, nothing sent: the server's TPS (Zymbot's meter and Meteor's), ping as the tab list shows it, how long the server takes to confirm a block break or place (average, worst, unanswered), and which Meteor modules are on, warning where they'd fight Zymbot (9b9t roadmap §Probes) |
 | `debug terrain <x> <z>` | what the route planner sees in that column (LAND/WATER/BLOCKED + height) |
 | `debug block <x> <y> <z>` | the block id there |
