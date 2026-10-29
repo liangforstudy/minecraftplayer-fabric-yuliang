@@ -124,6 +124,12 @@ final class FabricWorldView implements WorldView {
     @Override public boolean fireResistant() { return player.hasEffect(MobEffects.FIRE_RESISTANCE); }
     @Override public boolean waterEvaporates() { return "minecraft:the_nether".equals(McCompat.id(level.dimension())); }
     @Override public String dimension() { return McCompat.id(level.dimension()); }
+    @Override public float rain() { return level.getRainLevel(1f); }
+    @Override public float thunder() { return level.getThunderLevel(1f); }
+    @Override public boolean thundering() { return level.isThundering(); }
+    @Override public boolean timelineDaylight() {
+        return McCompat.DAYLIGHT == io.github.liangforstudy.zymbot.core.body.Daylight.Model.TIMELINE;
+    }
 
     @Override
     public Optional<ItemView> fireResistancePotion() {

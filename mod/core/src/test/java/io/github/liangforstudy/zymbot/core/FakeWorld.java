@@ -463,6 +463,11 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public boolean fireResistant() { return fireResistant; }
     @Override public boolean waterEvaporates() { return nether; }
     @Override public String dimension() { return nether ? "minecraft:the_nether" : "minecraft:overworld"; }
+    public float rain, thunder;
+    public boolean thundering;
+    @Override public float rain() { return rain; }
+    @Override public float thunder() { return thunder; }
+    @Override public boolean thundering() { return thundering; }
     @Override public java.util.Optional<ItemView> fireResistancePotion() { return fireResPotion; }
     public String loggedOut;
     @Override public String offhandItem() { return offhand; }

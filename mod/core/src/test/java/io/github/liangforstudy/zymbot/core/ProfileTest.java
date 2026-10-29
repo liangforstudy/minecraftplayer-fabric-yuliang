@@ -26,7 +26,7 @@ class ProfileTest {
         Set<String> made = new HashSet<>(b.modules());
         made.retainAll(Profile.ZYMCIV_ONLY);
         assertEquals(Set.of(), made);
-        assertEquals(List.of("log-out", "drowning", "incoming", "hazard", "burning", "critical-health", "fight-or-flee", "gold", "stranded", "wading"), b.reflexes(),
+        assertEquals(List.of("log-out", "drowning", "incoming", "hazard", "burning", "critical-health", "fight-or-flee", "gold", "ghast tear", "stranded", "wading"), b.reflexes(),
                 "no knocked-out, leash or hunger reflex");
     }
 
@@ -121,7 +121,7 @@ class ProfileTest {
     void anarchyOffersOnlyItsOwnTunables() {
         ZymbotConfig cfg = new ZymbotConfig();
         Bot b = bot(new FakeWorld("Bluetails"), cfg, Profile.ANARCHY);
-        assertEquals(List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar"), b.tunables());
+        assertEquals(List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend"), b.tunables());
         assertTrue(b.set("leash", 30).contains("ZymCiv feature"), b.set("leash", 30));
         assertEquals(21, cfg.leashBlocks);
         assertEquals("critical = 10", b.set("critical", 10));

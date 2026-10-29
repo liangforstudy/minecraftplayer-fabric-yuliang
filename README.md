@@ -34,13 +34,15 @@ danger, knocked out, …) over a milestone planner, with every choice logged as
 > [BOT_BEHAVIOUR.md → The milestone ladder](BOT_BEHAVIOUR.md#the-milestone-ladder) marks which rungs
 > it has done.
 >
-> **Zymbot 0.2.1 (2026-10-29) builds for three Minecraft versions:** 1.21.1 for ZymCiv, and 1.21.11
+> **Zymbot 0.2.2 (2026-10-29) builds for three Minecraft versions:** 1.21.1 for ZymCiv, and 1.21.11
 > and 26.2 for the anarchy server 9b9t, which runs 26.2 (routes, ice mining, mapart, fights). The
 > 9b9t builds play the `anarchy` profile: no team, no ZymCiv rules, and they stand by until given a
 > job. Built and tried there or in a 26.2 test world so far: `/zbot goto` on Baritone, `/zbot probe`
 > and `/zbot daybreak` to measure the server, lag back-off, the emergency stop and start keys, and a
 > `fight-or-flee` reflex (hit back weak mobs, rush a lone skeleton, take cover from ghasts, back off
-> or dig in). The ZymCiv team features (bus, chat check, regroup) are parked for now. Next: routes.
+> or dig in). Routes (named waypoints, walked A → E and back) are built; 0.2.2 adds waiting for day
+> on overworld routes at night and picking up ghast tears, not yet tried in game. The ZymCiv team
+> features (bus, chat check, regroup) are parked for now.
 > [doc/9b9t/roadmap.md](doc/9b9t/roadmap.md) has the plan and the test results.
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail

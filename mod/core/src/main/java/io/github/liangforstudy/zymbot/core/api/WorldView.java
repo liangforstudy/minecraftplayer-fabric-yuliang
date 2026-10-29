@@ -114,6 +114,13 @@ public interface WorldView {
 
     /** Armor points worn, 0–20 (the bar above the hearts): full iron is 15, full diamond 20. */
     default int armorPoints() { return 0; }
+    /** Rain and thunder strength now, 0–1 each (the game's rain and thunder levels). */
+    default float rain() { return 0; }
+    default float thunder() { return 0; }
+    /** A thunderstorm: hostile mobs may spawn in the open at any time of day. */
+    default boolean thundering() { return false; }
+    /** Sky light comes from the day timeline (1.21.11 on), not 1.21.1's cosine (core/body/Daylight). */
+    default boolean timelineDaylight() { return true; }
     /** The dimension we're in, as the game names it ("minecraft:the_nether"). */
     default String dimension() { return "minecraft:overworld"; }
     /** The armor worn, head first (helmet, chestplate, leggings, boots): ids, "" where there's none. */

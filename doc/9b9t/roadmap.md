@@ -473,6 +473,23 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
    teleporting in; in creative the player dropped 20 blocks into a cave below first.
 
 **Overworld routes at night: wait for day (decided, owner, 2026-10-29).** Somewhere safe, then go on.
+**Built 0.2.2 (2026-10-29), from the plan in `doc/9b9t/deepseek suggestions.txt`, with changes:**
+- *When:* from day time **12500** (`nightstop`, 12000–13179: a little before mobs can spawn at 13179,
+  so the hole is dug before they come) until **22822**, first light (`nightend`, 22822–24000; 23000 =
+  sunrise; earlier would mean nothing, the wait lasts while mobs spawn anyway). The suggestions file
+  said 22821, but that is the last tick mobs can spawn (`Daylight`, "13179 to 22821"), so first light
+  is one tick later, and whenever mobs can
+  spawn in the open by day: a thunderstorm, or rain keeping a dawn dark (`core/body/Night`, from
+  `Daylight`). Overworld only; never in creative or spectator. Both in `/zbot set` and Mod Menu.
+- *Where:* the route stops at once if it's on its feet on dry ground; in water or mid-air the leg goes
+  on until it is. The wait is in `RouteWalkTask`, so only routes stop, not `goto` or `come`; at day the
+  same leg starts again from where the bot is.
+- *How:* `NightWaitTask` digs in 3 down (`HideTask`) and stays until it's day and nothing is after us,
+  at most 30 min. Can't dig in here, or still dark after 30 min (a long storm): it **logs out** with the
+  reason, and the route carries on from the same point next time.
+- *An interrupt mid-wait* (a fight at the rim) builds the route again: `HideTask` now sees it's already
+  at the bottom of a 1-wide hole and waits there, instead of digging 3 more.
+- Not yet tried in game.
 
 **Night ambushes (owner, 2026-10-26):** on 9b9t a walk can get ambushed by hard mobs at night. Today
 the anarchy build only reacts at low health (danger `hard`: critical health + 4) and Baritone doesn't
@@ -737,6 +754,12 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   above critical + 4**; otherwise keep hiding (or fighting) and let it go. So in a hole with other
   ghasts about (the owner's 3-ghast run), the tear is lost to the 2-minute despawn rather than risked.
   Going after ghasts on purpose is a fight mode the owner switches on (§5, "Ghasts"), not this.
+  **Built 0.2.2 (2026-10-29)** as the `ghast tear` reflex (after `gold`): a tear within 32 blocks on
+  ground it can stand next to (nothing of lava, water or fire in or under it, something solid under
+  it), with no shooter in range and health above critical + 4. It sweeps 6 blocks round the tear, so
+  the gunpowder comes too; up to 45 s to reach it, 75 s in all. Zymbot's Baritone never paths through
+  lava, so the walk there is as safe as the spot. A tear it went for and didn't get is tried again
+  after 60 s and forgotten after 150 s (despawned). Not yet tried in game.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
@@ -784,8 +807,8 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   335 core tests. Live, overworld sky platform: A → B → C (36 blocks) in 11 s, controls given back;
   `route back`, stopped between B and A, `route list` "back cut short before A", `route back` again
   "carrying on from A (point 3 of 3)", done at A; a waypoint 700 off: refused with the distance, the
-  same order again went (stopped at once). Not built yet: waiting for day on overworld routes at night,
-  portals between dimensions, actions at a waypoint.
+  same order again went (stopped at once). Not built yet: portals between dimensions, actions at a
+  waypoint. Waiting for day at night: built 0.2.2, below.
 
 The ice miner and mapart both use routes (stash → work site → storage).
 

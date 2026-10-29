@@ -24,6 +24,9 @@ public final class RouteWalkTask implements Task {
     private final Reached reached;
     private final BiConsumer<String, String> note;
     private Task current;
+    private java.util.function.Predicate<WorldView> stopFor = w -> false;
+    private java.util.function.Supplier<Task> waitOut;
+    private Task waiting;
     private int at = -1;
     private String failure = "";
 
@@ -42,8 +45,38 @@ public final class RouteWalkTask implements Task {
         this.note = note;
     }
 
+    /**
+     * Anarchy, overworld routes at night (doc/9b9t/roadmap.md): while {@code stop} holds, drop the leg
+     * and run {@code waitOut} (dig in until day) instead, then carry on with the same leg. Never
+     * stops in water or mid-air: the leg goes on until it's on its feet on dry ground.
+     */
+    public RouteWalkTask stopFor(java.util.function.Predicate<WorldView> stop, java.util.function.Supplier<Task> waitOut) {
+        this.stopFor = stop;
+        this.waitOut = waitOut;
+        return this;
+    }
+
     @Override
     public Status tick(WorldView world) {
+        if (waiting != null) {
+            Status w = waiting.tick(world);
+            if (w == Status.RUNNING) return Status.RUNNING;
+            String why = waiting.failure();
+            waiting = null;
+            if (w == Status.FAILED || stopFor.test(world)) {
+                failure = "stopped for the night" + (why.isEmpty() ? "" : ": " + why);
+                return Status.FAILED;
+            }
+            note.accept("carrying on with route " + route, "day: nothing spawns in the open now");
+        }
+        int next = current != null ? at : leg.getAsInt();             // nothing left to walk: no wait
+        if (waitOut != null && next >= 0 && next < points.size() && stopFor.test(world) && world.onGround() && !world.inWater()) {
+            if (current != null) current.cancel();
+            current = null;
+            waiting = waitOut.get();
+            note.accept("stopping route " + route + " for the night", "it gets dark: digging in to wait for day");
+            return Status.RUNNING;
+        }
         if (current == null) {
             at = leg.getAsInt();
             if (at < 0 || at >= points.size()) return Status.DONE;
@@ -71,9 +104,15 @@ public final class RouteWalkTask implements Task {
         return Status.RUNNING;                                   // the next leg starts next tick
     }
 
-    @Override public void cancel() { if (current != null) current.cancel(); current = null; }
+    @Override public void cancel() {
+        if (current != null) current.cancel();
+        current = null;
+        if (waiting != null) waiting.cancel();
+        waiting = null;
+    }
     @Override public String failure() { return failure; }
     @Override public String describe() {
+        if (waiting != null) return waiting.describe() + " (route " + route + ")";
         return at < 0 || at >= names.size() ? "walking route " + route : "walking route " + route + " to " + names.get(at);
     }
 }

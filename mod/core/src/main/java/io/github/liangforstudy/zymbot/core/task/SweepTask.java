@@ -39,6 +39,27 @@ public final class SweepTask implements Task {
     private DroppedItem chasing;
     private int chaseTicks;
     private int sinceGoal;
+    private int chaseLimit = CHASE_TICKS, sweepLimit = SWEEP_TICKS;
+
+    /** Give one drop this long to reach before moving on (a tear 30 blocks off takes longer than a log). */
+    public SweepTask chaseFor(int seconds) {
+        this.chaseLimit = seconds * 20;
+        return this;
+    }
+
+    private String description;
+
+    /** What the decision log calls it (owner's wording for a tear: "walking to ghast tear"). */
+    public SweepTask describedAs(String description) {
+        this.description = description;
+        return this;
+    }
+
+    /** Stop the whole sweep after this long. */
+    public SweepTask sweepFor(int seconds) {
+        this.sweepLimit = seconds * 20;
+        return this;
+    }
 
     /** @param before the inventory's counts before the drops were made ({@link #counts}) */
     public SweepTask(Hands hands, BlockPos around, double radius, Map<String, Integer> before, String what,
@@ -63,7 +84,7 @@ public final class SweepTask implements Task {
             if (ticks < SETTLE_TICKS) return Status.RUNNING;
             return finish(world, "");
         }
-        if (ticks > SWEEP_TICKS) return finish(world, " — left " + drops.size() + " item stack(s) after " + SWEEP_TICKS / 20 + " s");
+        if (ticks > sweepLimit) return finish(world, " — left " + drops.size() + " item stack(s) after " + sweepLimit / 20 + " s");
         DroppedItem next = drops.get(0);
         if (chasing == null || chasing.id() != next.id()) {
             chasing = next;
@@ -72,7 +93,7 @@ public final class SweepTask implements Task {
             hands.paths().goTo(BlockPos.of(next.pos()), false, 0, false);
             return Status.RUNNING;
         }
-        if (++chaseTicks > CHASE_TICKS) {                       // can't get to that one: the next
+        if (++chaseTicks > chaseLimit) {                       // can't get to that one: the next
             given.add(next.id());
             chasing = null;
             return Status.RUNNING;
@@ -118,5 +139,5 @@ public final class SweepTask implements Task {
     @Override public void cancel() { hands.paths().stop(); }
 
     @Override
-    public String describe() { return "picking up what fell around " + what; }
+    public String describe() { return description != null ? description : "picking up what fell around " + what; }
 }
