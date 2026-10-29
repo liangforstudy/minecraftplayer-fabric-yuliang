@@ -478,6 +478,20 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
     looks 12 blocks out when nothing within 5 is clear (netherrack fire never goes out). Still open:
     **a flyer with no cover in reach** — backing off can't escape a ghast; hiding (dig in, wall in) is
     the answer, next.
+- **Hiding, first cut (2026-10-29): dig in, tower back out** (`core/task/HideTask`). Dig the 3 blocks
+  under our feet (best tool), stand in the 1-wide hole until nothing is after us for 5 s (shooters in
+  range, hostiles within 8; at most 3 minutes), then tower out: jump and put the dug blocks under
+  ourselves, one a jump, back to where we stood. Never into lava or water beside the hole, a drop
+  below, or through bedrock, obsidian, a chest or a portal (`canDigIn`, checked where it starts).
+  Reflexes now chain fallbacks (`Fallback`): **cover, else dig in, else back off** for shooters and
+  flyers (critical health too, anarchy only); **back off, else dig in** for crowds that can't be
+  outrun. Wall-in is left for later: 8 blocks placed on the sides, and the hands place on top faces
+  only today. Tested in the fake world (dig, wait, climb out with the dug blocks; the safety checks;
+  a ghast on open netherrack digs in). Not yet seen live: every live ghast run found cover first.
+- **Hostiles and players are seen out to 64 blocks** (was 32 for everything): the ghast at 33–40
+  had dropped out of sight mid-fight, so cover ended and the critical reflex found "nothing to run
+  from"; it then died again, probably knocked into lava by a fireball. On 9b9t players are as
+  dangerous (owner). Live after: the ghast at the owner's spot, cover twice, −4, survived.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no

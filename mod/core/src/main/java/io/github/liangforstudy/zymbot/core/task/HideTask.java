@@ -1,0 +1,193 @@
+package io.github.liangforstudy.zymbot.core.task;
+
+import io.github.liangforstudy.zymbot.core.api.BlockPos;
+import io.github.liangforstudy.zymbot.core.api.Hands;
+import io.github.liangforstudy.zymbot.core.api.ItemView;
+import io.github.liangforstudy.zymbot.core.api.Vec3;
+import io.github.liangforstudy.zymbot.core.api.WorldView;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+
+/**
+ * Dig in when there's nowhere to take cover and running doesn't work (owner's idea, 2026-10-29): dig
+ * the {@link #DEPTH} blocks under our feet, stand in the hole until nothing is after us for
+ * {@link #CLEAR_TICKS}, then tower back out — jump and put the dug blocks under ourselves, one a jump.
+ * A 1-wide hole 3 deep is out of a ghast's or a skeleton's sight unless it's right overhead, and a
+ * zombie at the rim can't reach down. On open netherrack a ghast burned Bluetails to death where it
+ * stood (Nether, 2026-10-29).
+ * <p>Never digs into lava, water or a drop, or through bedrock or obsidian: {@link #canDigIn} checks
+ * on the first tick, and it fails there so the next fallback (backing off) runs instead.
+ */
+public final class HideTask implements Task {
+    public static final int DEPTH = 3;
+    /** Out only once nothing has been after us this long. */
+    static final int CLEAR_TICKS = 5 * 20;
+    /** Longest wait in the hole (then out anyway, to look again). */
+    static final int MAX_WAIT_TICKS = 3 * 60 * 20;
+    /** Longest the digging may take (bare-handed netherrack is under a second a block; dirt ~1 s). */
+    static final int DIG_TICKS = 20 * 20;
+    /** Longest the climb out may take. */
+    static final int CLIMB_TICKS = 20 * 20;
+    /** The hotbar slot the blocks for the climb go to when they're in the main inventory. */
+    static final int BLOCK_SLOT = 8;
+
+    private enum Stage { DIG, WAIT, CLIMB }
+
+    private final Hands hands;
+    private final Predicate<WorldView> danger;
+    private BlockPos top;                     // the block we stood on: the first one dug (set on the first tick)
+    private final List<String> dugIds = new ArrayList<>();
+    private Stage stage = Stage.DIG;
+    private int ticks;
+    private int clearFor;
+    private boolean toolPicked;
+    private BlockPos placingOn;               // the climb: the block under us when the jump started
+    private String failure = "";
+
+    /**
+     * @param danger true while something is still after us (shooters in range, mobs close): the
+     *               wait in the hole lasts until this has been false for {@link #CLEAR_TICKS}
+     */
+    public HideTask(Hands hands, Predicate<WorldView> danger) {
+        this.hands = hands;
+        this.danger = danger;
+    }
+
+    /** Why digging in here is unsafe, or empty when it's fine. */
+    public static Optional<String> canDigIn(WorldView world) {
+        BlockPos f = floor(world.position());
+        for (int d = 0; d < DEPTH; d++) {
+            BlockPos b = new BlockPos(f.x(), f.y() - d, f.z());
+            String id = world.blockAt(b);
+            if (!diggable(id)) return Optional.of("can't dig " + id.replace("minecraft:", "") + " under us");
+            for (int[] s : SIDES) {                                  // lava beside the hole pours in
+                String side = world.blockAt(new BlockPos(b.x() + s[0], b.y(), b.z() + s[1]));
+                if (side.contains("lava") || side.contains("water")) return Optional.of(side.replace("minecraft:", "") + " beside the hole");
+            }
+        }
+        BlockPos bottom = new BlockPos(f.x(), f.y() - DEPTH, f.z());
+        String below = world.blockAt(bottom);
+        if (below.contains("lava") || !world.sturdy(bottom)) return Optional.of("nothing solid " + DEPTH + " down");
+        return Optional.empty();
+    }
+
+    private static final int[][] SIDES = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    static boolean diggable(String id) {
+        if (id.equals("unloaded") || id.endsWith(":air") || id.contains("lava") || id.contains("water") || id.contains("fire")) return false;
+        return !(id.contains("bedrock") || id.contains("obsidian") || id.contains("reinforced_deepslate")
+                || id.contains("ancient_debris") || id.contains("portal") || id.contains("spawner") || id.contains("chest"));
+    }
+
+    @Override
+    public Status tick(WorldView world) {
+        if (top == null) {                                   // here, now — it may start after a run
+            Optional<String> unsafe = canDigIn(world);
+            if (unsafe.isPresent()) return fail(unsafe.get());
+            top = floor(world.position());
+        }
+        ticks++;
+        return switch (stage) {
+            case DIG -> dig(world);
+            case WAIT -> waitIt(world);
+            case CLIMB -> climb(world);
+        };
+    }
+
+    private Status dig(WorldView world) {
+        if (ticks > DIG_TICKS) return fail("still digging after " + DIG_TICKS / 20 + " s");
+        for (int d = 0; d < DEPTH; d++) {
+            BlockPos b = new BlockPos(top.x(), top.y() - d, top.z());
+            String id = world.blockAt(b);
+            if (id.endsWith(":air")) continue;
+            if (!toolPicked) {
+                toolPicked = true;
+                int tool = world.bestToolSlot(b);
+                if (tool >= 0) hands.selectSlot(tool);
+            }
+            if (dugIds.size() <= d) dugIds.add(id);
+            hands.mine(b);
+            return Status.RUNNING;
+        }
+        hands.stopMining();
+        if (world.position().y() > top.y() - DEPTH + 1.5) return Status.RUNNING;   // still falling in
+        stage = Stage.WAIT;
+        ticks = 0;
+        return Status.RUNNING;
+    }
+
+    private Status waitIt(WorldView world) {
+        clearFor = danger.test(world) ? 0 : clearFor + 1;
+        if (clearFor >= CLEAR_TICKS || ticks > MAX_WAIT_TICKS) {
+            stage = Stage.CLIMB;
+            ticks = 0;
+        }
+        return Status.RUNNING;
+    }
+
+    private Status climb(WorldView world) {
+        Vec3 me = world.position();
+        if (me.y() >= top.y() + 1 - 0.01 && world.onGround()) {                   // back up where we stood
+            hands.holdKeys(false, false);
+            return Status.DONE;
+        }
+        if (ticks > CLIMB_TICKS) {
+            hands.holdKeys(false, false);
+            return fail("couldn't climb out of the hole");
+        }
+        if (!holdBlock(world)) {
+            hands.holdKeys(false, false);
+            return fail("no block to climb out with");
+        }
+        if (placingOn == null) {
+            if (!world.onGround()) return Status.RUNNING;
+            placingOn = floor(me);
+            hands.holdKeys(false, true);                                          // jump...
+            return Status.RUNNING;
+        }
+        if (me.y() > placingOn.y() + 2.05) {                                      // ...and at the top of it, put one under us
+            if (hands.placeOn(placingOn)) {
+                hands.holdKeys(false, false);
+                placingOn = null;
+            }
+        }
+        return Status.RUNNING;
+    }
+
+    /** A block we dug (or any we carry of those kinds) in hand, for the climb. */
+    private boolean holdBlock(WorldView world) {
+        List<ItemView> inv = world.inventory();
+        Optional<ItemView> held = inv.stream().filter(i -> i.slot() == world.selectedSlot() && dugIds.contains(i.id())).findFirst();
+        if (held.isPresent()) return true;
+        Optional<ItemView> any = inv.stream().filter(i -> dugIds.contains(i.id())).findFirst();
+        if (any.isEmpty()) return false;
+        if (any.get().inHotbar()) hands.selectSlot(any.get().slot());
+        else {
+            hands.swapToHotbar(any.get().slot(), BLOCK_SLOT);
+            hands.selectSlot(BLOCK_SLOT);
+        }
+        return true;
+    }
+
+    private Status fail(String why) {
+        cancel();
+        failure = why;
+        return Status.FAILED;
+    }
+
+    private static BlockPos floor(Vec3 p) {
+        return new BlockPos((int) Math.floor(p.x()), (int) Math.floor(p.y() - 0.01), (int) Math.floor(p.z()));
+    }
+
+    @Override public void cancel() { hands.stopMining(); hands.holdKeys(false, false); }
+    @Override public String failure() { return failure; }
+    @Override public String describe() {
+        return switch (stage) {
+            case DIG -> "digging in";
+            case WAIT -> "hiding in a hole";
+            case CLIMB -> "climbing out of the hole";
+        };
+    }
+}

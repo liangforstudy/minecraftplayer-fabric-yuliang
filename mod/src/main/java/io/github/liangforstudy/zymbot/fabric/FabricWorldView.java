@@ -35,6 +35,12 @@ import net.minecraft.world.item.ItemStack;
  */
 final class FabricWorldView implements WorldView {
     static final double NEARBY = 32;
+    /**
+     * Hostiles and players further out: a ghast fires from up to 64, and at 32 it dropped out of sight
+     * mid-fight — cover ended, the critical reflex found "nothing to run from", and it burned (Nether,
+     * 2026-10-29). On anarchy servers players are as dangerous (bows, crystals), so the same (owner).
+     */
+    static final double NEARBY_HOSTILE = 64;
 
     private final LocalPlayer player;
     private final ClientLevel level;
@@ -220,7 +226,8 @@ final class FabricWorldView implements WorldView {
             List<EntityView> out = new ArrayList<>();
             for (Entity e : level.entitiesForRendering()) {
                 if (e == player || !(e instanceof LivingEntity living) || e instanceof ArmorStand || !living.isAlive()) continue;
-                if (e.distanceToSqr(player) > NEARBY * NEARBY) continue;
+                double range = e instanceof Enemy || e instanceof Player ? NEARBY_HOSTILE : NEARBY;
+                if (e.distanceToSqr(player) > range * range) continue;
                 EntityView.Kind kind = e instanceof Player ? EntityView.Kind.PLAYER
                         : e instanceof Enemy ? EntityView.Kind.HOSTILE : EntityView.Kind.PASSIVE;
                 out.add(new EntityView(e.getId(), e.getUUID(), e.getName().getString(),

@@ -6,7 +6,8 @@ import io.github.liangforstudy.zymbot.core.api.Vec3;
 import io.github.liangforstudy.zymbot.core.api.WorldView;
 import io.github.liangforstudy.zymbot.core.brain.Interrupt;
 import io.github.liangforstudy.zymbot.core.config.ZymbotConfig;
-import io.github.liangforstudy.zymbot.core.task.CoverOrBackOff;
+import io.github.liangforstudy.zymbot.core.task.Fallback;
+import io.github.liangforstudy.zymbot.core.task.HideTask;
 import io.github.liangforstudy.zymbot.core.task.CoverTask;
 import io.github.liangforstudy.zymbot.core.task.EatTask;
 import io.github.liangforstudy.zymbot.core.task.RetreatTask;
@@ -68,10 +69,12 @@ public final class CriticalHealthInterrupt implements Interrupt {
             run = new RetreatTask(hands.paths(), () -> body.recentAttack().map(Body.Attack::from).orElse(first),
                     human.map(EntityView::pos), body::reportSwim);
         }
-        if (coverFromShooters && !Combat.shooters(world).isEmpty()) {
-            return new CoverOrBackOff(new CoverTask(hands, Combat::shooters, body::reportSwim), run);
+        if (!coverFromShooters) return run;
+        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs);
+        if (!Combat.shooters(world).isEmpty()) {
+            return new Fallback(new CoverTask(hands, Combat::shooters, body::reportSwim), hide, run);
         }
-        return run;
+        return attack.isPresent() ? new Fallback(run, hide) : run;   // no healing food: run, and dig in if that fails
     }
 
     @Override

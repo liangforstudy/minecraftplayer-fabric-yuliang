@@ -6,7 +6,8 @@ import io.github.liangforstudy.zymbot.core.api.Vec3;
 import io.github.liangforstudy.zymbot.core.api.WorldView;
 import io.github.liangforstudy.zymbot.core.brain.Interrupt;
 import io.github.liangforstudy.zymbot.core.config.ZymbotConfig;
-import io.github.liangforstudy.zymbot.core.task.CoverOrBackOff;
+import io.github.liangforstudy.zymbot.core.task.Fallback;
+import io.github.liangforstudy.zymbot.core.task.HideTask;
 import io.github.liangforstudy.zymbot.core.task.CoverTask;
 import io.github.liangforstudy.zymbot.core.task.FightTask;
 import io.github.liangforstudy.zymbot.core.task.RetreatTask;
@@ -77,13 +78,19 @@ public final class FightOrFleeInterrupt implements Interrupt {
             return switch (decision(world, mob.get()).action()) {
                 case FIGHT -> new FightTask(hands, mob.get(), body::reportSwim,
                         w -> creeper(w).isEmpty() && attacker(w).map(m -> decision(w, m).fight()).orElse(true));
-                case COVER -> new CoverOrBackOff(new CoverTask(hands, Combat::shooters, body::reportSwim),
-                        retreat(hands, mob.get().pos()));
-                case BACK_OFF -> retreat(hands, mob.get().pos());
+                case COVER -> new Fallback(new CoverTask(hands, Combat::shooters, body::reportSwim),
+                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs), retreat(hands, mob.get().pos()));
+                case BACK_OFF -> new Fallback(retreat(hands, mob.get().pos()),
+                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs));
             };
         }
         return unseenAttacker(world).map(a -> retreat(hands, a.from()))
                 .orElseGet(() -> Task.failed("fight or flee", "nothing in sight"));
+    }
+
+    /** Something is still after us: a shooter in range, or a hostile close. */
+    public static boolean stillAfterUs(WorldView world) {
+        return !Combat.shooters(world).isEmpty() || Combat.crowd(world) > 0;
     }
 
     private Task retreat(Hands hands, Vec3 first) {
