@@ -757,6 +757,15 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   - `/zbot wp add <name> <x> <y> <z>` (or `here`), `/zbot wp remove <name>`, `/zbot wp list`
   - `/zbot route add <name> <wp> <wp> ...`, `/zbot route remove <name>`, `/zbot route list`
   - `/zbot route go <name>`, `/zbot route stop`
+  - `/zbot route back <name>`: the same route in reverse, E → A (proposed 2026-10-29: the owner walks
+    each route both ways, so one route instead of two).
+- **Too far from the start (decided, owner, 2026-10-29):** `route go` is refused when the bot is more
+  than a set distance from the route's first point (`route back`: from its last), with the distance
+  and the reason in chat; **the same command again confirms** and it goes anyway. The legs themselves
+  can be any length (highway legs run to thousands of blocks). The distance: to decide (a setting).
+- **Each waypoint keeps its dimension** (proposed 2026-10-29): most routes are in the Nether, where the
+  same x y z is a different place from the overworld. A leg that changes dimension needs a portal, so
+  it's refused until portals are handled.
 - Each leg is a `RouteTask`, so it keeps the existing water handling (Baritone walks, Zymbot takes over
   for water crossings), stranded checks and lag back-off.
 - **Resumes at the current leg** after a death, a disconnect or an interrupt (eating, retreating),
