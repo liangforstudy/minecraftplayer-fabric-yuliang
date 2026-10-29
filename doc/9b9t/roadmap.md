@@ -381,6 +381,37 @@ a route instead:
 Still to settle: the "weak" list per gear, the log-out thresholds, and how this sits with Meteor's modules
 (KillAura stays off: it turns the camera).
 
+**Built, first cut for overworld mobs (2026-10-29): `fight-or-flee`, anarchy only.** A reflex after
+critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, `core/task/FightTask`):
+- Kinds: **melee** (zombie, husk, drowned, zombie villager, spiders, silverfish, endermite, slimes,
+  magma cubes, hoglin), **ranged** (skeleton, stray, bogged, pillager, witch, blaze), **explodes**
+  (creeper), **strong** (vindicator, evoker, ravager, warden, wither skeleton, brute, zoglin, ghast,
+  breeze, shulker, phantom, and anything unlisted), **leave alone** (zombified piglin, enderman,
+  piglin, iron golem).
+- Gear by armor points: bare < 7, basic < 15, good ≥ 15 (full iron). Melee is fought up to 1 / 2 / 4
+  at once (hostiles within 8 blocks, in 3D); below critical + 4 health only good armor keeps
+  fighting. Ranged only in good armor, alone, above critical + 4. Everything else, and anything that
+  hit us unseen, is backed away from (`RetreatTask`); a creeper within 5 blocks is backed away from
+  before it hits. Leave-alone mobs are never hit back.
+- The fight: the best sword or axe in the hotbar, close in when out of reach (2.8), swing only when
+  the weapon has recharged. Done when the mob is gone or 16 away; the interrupted job (a walk) carries
+  on after. `fight-or-flee` is a survival reflex: it runs while holding still, and the fidget
+  watchdog doesn't judge it.
+- In the 26.2 singleplayer world (normal difficulty, noon; MCP Fabric): bare + iron sword vs a husk:
+  sword out, killed in ~4 s, −3 health. Bare vs 2 husks: backed off ("2 mobs, bare armor fights 1"),
+  then the critical retreat at 11. Full iron vs 2 husks: fought both, ~6 s, −4. A creeper summoned 3
+  blocks away: backed off 30 blocks, no blast. A lone skeleton in full iron at health 14: backed off
+  (needs 16). At full health, at night, on level ground: closed in and killed it in ~3 s, −4 ("a lone
+  skeleton, good armor"). (Earlier skeletons "ran away": summoned onto a ledge, they fell into a cave
+  20 below; and the game sat paused whenever its window lost focus — singleplayer pauses.)
+- Found and fixed on the way: hostiles in caves 20–40 blocks below counted as a crowd (now 3D
+  distance), and the fidget watchdog froze the bot one second into a fight (turning and stepping in
+  looked like spinning in place).
+- Not yet: cover from ranged mobs, the Nether's mobs, totems and golden apples in the gear score,
+  logging out, and the route waypoints themselves. The first try was a `goto` whose route swam: a
+  skeleton shot from the shore and the retreat went on through the water, which costs health and
+  air. Retreats should prefer land when the walk is wet.
+
 - **Waypoint**: a name plus absolute `x y z`, saved per server.
 - **Route**: a name plus an ordered list of waypoints. Many routes can share waypoints, and each takes
   its own path.

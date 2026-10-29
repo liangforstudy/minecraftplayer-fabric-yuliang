@@ -95,6 +95,11 @@ public interface WorldView {
 
     // ------------------------------------------------------------------ hands (phase 3)
 
+    /** Armor points worn, 0–20 (the bar above the hearts): full iron is 15, full diamond 20. */
+    default int armorPoints() { return 0; }
+    /** The weapon has recharged: a hit now does full damage (the attack cooldown). */
+    default boolean attackReady() { return true; }
+
     /** Within reach (~4.5 blocks from the eyes) with a clear line of sight to the block. */
     default boolean canReach(BlockPos b) { return false; }
     /**

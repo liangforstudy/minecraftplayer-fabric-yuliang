@@ -27,8 +27,13 @@ public final class Brain {
     /** A reflex that couldn't help looks again this often — the situation may have changed. */
     public static final int RECHECK_TICKS = 20;
 
-    /** Reflexes that still act while holding still: being knocked out, drowning, dying. */
-    public static final java.util.Set<String> SURVIVAL = java.util.Set.of("downed", "drowning", "critical-health");
+    /**
+     * Reflexes that still act while holding still: being knocked out, drowning, dying, being attacked.
+     * Their turning and stepping isn't fidgeting either: a fight turns toward the mob and steps in,
+     * and the watchdog froze the bot one second into its first real fight (2026-10-29).
+     */
+    public static final java.util.Set<String> SURVIVAL = java.util.Set.of("downed", "drowning", "critical-health",
+            "fight-or-flee");
 
     public enum Source { INTERRUPT, ORDER, PLANNER }
 

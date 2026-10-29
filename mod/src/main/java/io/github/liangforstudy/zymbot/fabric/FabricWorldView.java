@@ -121,6 +121,8 @@ final class FabricWorldView implements WorldView {
     @Override public int lives() { return lives; }
     @Override public int downedSecondsLeft() { return downedSecs; }
     @Override public boolean beingRevived() { return beingRevived; }
+    @Override public int armorPoints() { return player.getArmorValue(); }
+    @Override public boolean attackReady() { return player.getAttackStrengthScale(0.5f) >= 0.95f; }
 
     @Override
     public Optional<BlockPos> worldSpawn() {
