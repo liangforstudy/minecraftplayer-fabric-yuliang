@@ -455,6 +455,10 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public void selectSlot(int hotbarSlot) { selected = hotbarSlot; }
     @Override public void lookAt(Vec3 point) { lookedAt = point; }
     public final List<Integer> attacked = new ArrayList<>();
+    public String offhand = "";
+    public String loggedOut;
+    @Override public String offhandItem() { return offhand; }
+    @Override public void logOut(String reason) { loggedOut = reason; }
     public int armor;
     public boolean attackReady = true;
     @Override public void attack(int entityId) { attacked.add(entityId); }

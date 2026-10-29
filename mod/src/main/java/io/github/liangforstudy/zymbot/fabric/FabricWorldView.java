@@ -119,6 +119,10 @@ final class FabricWorldView implements WorldView {
     @Override public boolean sprinting() { return sprinting; }
     @Override public boolean usingItem() { return using; }
     @Override public int selectedSlot() { return selected; }
+    @Override public String offhandItem() {
+        ItemStack st = player.getOffhandItem();
+        return st.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(st.getItem()).toString();
+    }
     @Override public int air() { return air; }
     @Override public double serverTps() { return tps; }
     @Override public int maxAir() { return maxAir; }

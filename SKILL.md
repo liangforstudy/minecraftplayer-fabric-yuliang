@@ -15,7 +15,8 @@ the `anarchy` profile (doc/9b9t/roadmap.md §0): it stands by on join, has no te
 knocked-out, regroup, leash, ladder, graves or hunger reflex, and the ZymCiv commands below answer "a
 ZymCiv feature" there. It has its own `fight-or-flee` reflex instead: hit back weak melee mobs, rush
 one or two skeletons, take cover from the rest and ghasts, back off or dig in (roadmap §2), and an
-`incoming` reflex that hits ghast fireballs back at the ghast.
+`incoming` reflex that hits ghast fireballs back at the ghast. Last of all, `log-out`: still being hurt at
+health 8 (6 with golden apples, 4 with a totem in the offhand), it turns off Meteor's Auto Reconnect and leaves.
 Everything else in this file is about the 1.21.1 ZymCiv build.
 
 > **Keep this file true.** The command table below must match

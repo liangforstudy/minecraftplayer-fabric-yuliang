@@ -11,6 +11,7 @@ import io.github.liangforstudy.zymbot.core.body.CriticalHealthInterrupt;
 import io.github.liangforstudy.zymbot.core.body.DownedInterrupt;
 import io.github.liangforstudy.zymbot.core.body.FightOrFleeInterrupt;
 import io.github.liangforstudy.zymbot.core.body.IncomingInterrupt;
+import io.github.liangforstudy.zymbot.core.body.LogOutInterrupt;
 import io.github.liangforstudy.zymbot.core.body.StrandedInterrupt;
 import io.github.liangforstudy.zymbot.core.body.WadingInterrupt;
 import io.github.liangforstudy.zymbot.core.task.DownedTask;
@@ -252,6 +253,8 @@ public final class Bot {
             };
             reflexes.add(made(Profile.DOWNED, new DownedInterrupt(config, body, help, log::record)));
         }
+        // anarchy: still being hurt at the log-out line, leave the server (doc/9b9t/roadmap.md, "Before routes")
+        if (profile == Profile.ANARCHY) reflexes.add(new LogOutInterrupt(config, body));
         reflexes.add(new DrowningInterrupt());
         // anarchy: a ghast's fireball coming at us is hit back (doc/9b9t/roadmap.md, "Incoming projectiles")
         if (profile == Profile.ANARCHY) reflexes.add(new IncomingInterrupt(body));

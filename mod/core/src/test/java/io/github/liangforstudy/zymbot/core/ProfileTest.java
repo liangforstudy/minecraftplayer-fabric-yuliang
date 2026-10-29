@@ -26,7 +26,7 @@ class ProfileTest {
         Set<String> made = new HashSet<>(b.modules());
         made.retainAll(Profile.ZYMCIV_ONLY);
         assertEquals(Set.of(), made);
-        assertEquals(List.of("drowning", "incoming", "hazard", "critical-health", "fight-or-flee", "stranded", "wading"), b.reflexes(),
+        assertEquals(List.of("log-out", "drowning", "incoming", "hazard", "critical-health", "fight-or-flee", "stranded", "wading"), b.reflexes(),
                 "no knocked-out, leash or hunger reflex");
     }
 

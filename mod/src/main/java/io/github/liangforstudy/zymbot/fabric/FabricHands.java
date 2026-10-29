@@ -41,6 +41,28 @@ final class FabricHands implements Hands {
 
     @Override public PathProvider paths() { return paths; }
 
+    private String logOutFor;
+
+    /**
+     * Asked mid-tick: leaving then pulled the player out from under the rest of the tick and crashed
+     * the game (2026-10-29). So it's only noted here, and done by {@link #logOutIfAsked} once the tick is over.
+     */
+    @Override
+    public void logOut(String reason) {
+        logOutFor = reason;
+    }
+
+    /** End of the client tick: leave, if the bot asked to. True if it did. */
+    boolean logOutIfAsked() {
+        if (logOutFor == null) return false;
+        String reason = logOutFor;
+        logOutFor = null;
+        boolean stopped = ZymbotProbes.turnOffMeteor("auto-reconnect");   // or it puts us straight back
+        LOG.info("[zymbot] logging out: {}{}", reason, stopped ? " (turned off Meteor's Auto Reconnect)" : "");
+        McCompat.leaveWorld(mc, Component.literal(reason + (stopped ? "\n\nMeteor's Auto Reconnect was turned off." : "")));
+        return true;
+    }
+
     @Override
     public void lookAt(Vec3 p) {
         if (mc.player != null) mc.player.lookAt(EntityAnchorArgument.Anchor.EYES, new net.minecraft.world.phys.Vec3(p.x(), p.y(), p.z()));

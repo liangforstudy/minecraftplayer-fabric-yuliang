@@ -209,6 +209,26 @@ public final class McCompat {
         //?}
     }
 
+    /**
+     * Leave the world as the pause menu's Disconnect (Save and Quit) does, then show {@code reason} on
+     * the disconnected screen.
+     */
+    public static void leaveWorld(net.minecraft.client.Minecraft mc, net.minecraft.network.chat.Component reason) {
+        boolean local = mc.isLocalServer();
+        //? if >=1.21.11 {
+        /*mc.disconnectFromWorld(reason);
+        *///?} else {
+        if (mc.level != null) mc.level.disconnect();
+        if (local) mc.disconnect(new net.minecraft.client.gui.screens.GenericMessageScreen(
+                net.minecraft.network.chat.Component.translatable("menu.savingLevel")));
+        else mc.disconnect();
+        //?}
+        net.minecraft.client.gui.screens.Screen back = local ? new net.minecraft.client.gui.screens.TitleScreen()
+                : new net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen(new net.minecraft.client.gui.screens.TitleScreen());
+        mc.setScreen(new net.minecraft.client.gui.screens.DisconnectedScreen(back,
+                net.minecraft.network.chat.Component.literal("Zymbot logged out"), reason));
+    }
+
     /** Press a button as if clicked. */
     public static void press(net.minecraft.client.gui.components.Button b) {
         //? if >=1.21.11 {

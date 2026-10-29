@@ -75,6 +75,8 @@ public interface WorldView {
     default boolean beingRevived() { return false; }
     /** The hotbar slot in hand, 0–8. */
     default int selectedSlot() { return 0; }
+    /** The offhand's item id ("minecraft:totem_of_undying"), "" when empty. */
+    default String offhandItem() { return ""; }
     /** Every non-empty stack in slots 0–35. */
     default List<ItemView> inventory() { return List.of(); }
     /** Hurt within the last couple of seconds. */

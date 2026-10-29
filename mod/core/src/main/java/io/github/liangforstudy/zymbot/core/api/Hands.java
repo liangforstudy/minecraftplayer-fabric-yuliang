@@ -93,6 +93,12 @@ public interface Hands {
      */
     default boolean interact(BlockPos block) { return false; }
 
+    /**
+     * Leave the server (singleplayer: save and quit), showing {@code reason} on the disconnected screen.
+     * Meteor's Auto Reconnect is turned off first, so it doesn't put us straight back.
+     */
+    default void logOut(String reason) {}
+
     /** Public chat. Callers go through ChatOut, which rate-limits. */
     default void chat(String message) {}
 

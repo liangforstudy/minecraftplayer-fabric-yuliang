@@ -375,6 +375,7 @@ public final class ZymbotClient implements ClientModInitializer {
         bot.tick(new FabricWorldView(mc.player, mc.level, mc.getConnection(), mc.gui.getBossOverlay(), lives,
                 mc.screen instanceof net.minecraft.client.gui.screens.inventory.InventoryScreen), hands);
         hands.endTick();                                         // never leave attack held past a tick without a mine()
+        if (hands.logOutIfAsked()) return;                       // the log-out reflex: leave, now the tick is done
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
     }

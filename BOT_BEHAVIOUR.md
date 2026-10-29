@@ -55,7 +55,7 @@ Evaluated in order, every tick. First match wins.
   Anarchy build: `fight-or-flee` (after critical health) hits back weak melee mobs, rushes one or two
   skeletons, takes cover from the rest and from ghasts, backs off or digs in; it also starts before
   the first hit, on a walker within 6 blocks or a skeleton within 16 that can see us
-  (doc/9b9t/roadmap.md §2). A ghast's fireball coming at it is hit back at the ghast (`incoming`).
+  (doc/9b9t/roadmap.md §2). A ghast's fireball coming at it is hit back at the ghast (`incoming`). Still being hurt at health 8 (6 with golden apples, 4 with a totem), it logs out (`log-out`).
 - **Hazards (0.1.43):** hurt by a block it's touching (fire, cactus, magma, berry bush, lava, …) → step
   to the nearest safe spot within 5 blocks. Those hits have no attacker, so the retreat never fired.
 - **Fidget watchdog:** spinning or bobbing in place for 10 s → hold still, log why.

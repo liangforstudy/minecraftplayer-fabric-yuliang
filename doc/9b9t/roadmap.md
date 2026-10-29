@@ -349,6 +349,22 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
 
 **Before routes (decided, owner, 2026-10-29), in this order:**
 1. **Log out** when health keeps falling (thresholds lower with a totem and golden apples carried).
+   **Built and passed (2026-10-29): `log-out`, anarchy only, the first reflex**
+   (`core/body/LogOutInterrupt`). Hurt in the last ~2 s at or below the line: **4** with a totem in the
+   offhand (it pops once more; leaving keeps it), **6** with healing food but no totem, **8** with
+   neither (critical health is 12: fight, cover, run and dig in come first). It turns off Meteor's
+   Auto Reconnect (owner, 2026-10-29), then leaves as the pause menu's Disconnect does, and the
+   disconnected screen and the decision log say why and where: "logging out — because health 8.0 ≤ 8,
+   hurt by magic, no totem, no healing food, at 26 151 −51". Live in the 26.2 world: the first try
+   crashed the game (it left mid-tick, and the rest of the tick used the player that was gone; the
+   world saved); now the leaving waits for the tick's end, and the second try left cleanly. Auto
+   Reconnect stays off afterwards: the owner turns it back on.
+   **Where things are, from where we face** (owner, 2026-10-29: absolute coordinates don't say which
+   way to turn on logging back in; the facing is kept over a log-out). The attacker and up to 3 other
+   hostiles within 24 blocks, as "ahead/behind, left/right, above/below", then the facing and the
+   coordinates (`core/body/Relative`). Live: "hurt by Husk (3 ahead, 6 left, 3 above); also Skeleton
+   (5 right, 3 above); no totem, no healing food; facing east at 25 148 −51", matching where they
+   were put; on rejoining the player faced east (yaw −90).
 2. **Eating on a route**: check that Meteor's AutoEat and a Zymbot walk get along (a pause, not a
    failed path); our own eating if not.
 3. **Healing and gear in the decisions**: golden apples and a totem count in the gear score; the

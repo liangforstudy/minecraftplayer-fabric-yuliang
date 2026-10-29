@@ -106,6 +106,22 @@ final class ZymbotProbes {
         out.add(name + ": " + onOff(on) + (warning != null && on != warnWhenOff ? " — " + warning : ""));
     }
 
+    /**
+     * The one write here: turn a Meteor module off ("auto-reconnect", before logging out). True if it
+     * was on and is now off; false if it was off, or Meteor isn't loaded.
+     */
+    static boolean turnOffMeteor(String name) {
+        Object modules = meteorModules();
+        Object m = modules == null ? null : module(modules, name);
+        if (m == null || !active(m)) return false;
+        try {
+            m.getClass().getMethod("toggle").invoke(m);
+            return !active(m);
+        } catch (ReflectiveOperationException | LinkageError e) {
+            return false;
+        }
+    }
+
     private static Object meteorModules() {
         try {
             return Class.forName("meteordevelopment.meteorclient.systems.modules.Modules").getMethod("get").invoke(null);
