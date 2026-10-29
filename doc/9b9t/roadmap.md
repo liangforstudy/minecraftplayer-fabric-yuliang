@@ -464,6 +464,12 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
     the same setup) and came out 30 blocks off, past their range. A ghast after that never fired in
     30 s (no line of sight where it stood), so cover from fireballs is still untested live.
     285 core tests pass.
+  - Ghast summoned 8 blocks off, in the open: hit once (−2), "3 shooters … — cover" (the ghast and two
+    skeletons); the ghast was dead within 15 s (skeleton arrows or its own fireball), so still no clean
+    fireball test. Natural skeletons kept coming (five, likely a soul sand valley): at 12 it looked
+    for cover again, found none within 10 blocks on that open ground, backed off, and gave up after
+    20 s no further away, at 5.9 when stopped. **Open ground with no cover is the case left**: it's
+    where hiding (tower up, wall in, dig in, below) is needed.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
