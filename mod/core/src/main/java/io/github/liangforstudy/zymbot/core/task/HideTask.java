@@ -56,6 +56,12 @@ public final class HideTask implements Task {
     private int clearFor;
     private boolean toolPicked;
     private int landing;
+    /**
+     * Below the surface: only from here is the hole "hiding" (fire no longer steps us off, critical
+     * health leaves us be). Told at once, it stood in the fire through the whole dig and then burned
+     * 8 s in the hole, 20 → 2.9 (2026-10-29); now the hazard reflex steps it off the fire first.
+     */
+    private boolean down;
     private BlockPos placingOn;               // the climb: the block under us when the jump started
     private String failure = "";
 
@@ -68,7 +74,7 @@ public final class HideTask implements Task {
     }
 
     /**
-     * @param hiding told true while dug in (digging and waiting) and false once out or given up, so
+     * @param hiding told true once below the surface (digging and waiting) and false once out or given up, so
      *               the critical-health reflex leaves the hole alone: it took over from a dig-in, ran its
      *               own cover, ended when the ghast drifted off, and the climb out never came (2026-10-29)
      */
@@ -109,6 +115,8 @@ public final class HideTask implements Task {
         if (top != null && stage == Stage.DIG && offTheHole(world.position())) {   // knocked off it mid-dig
             note.accept("digging in again", "knocked off the hole at " + top.x() + " " + top.y() + " " + top.z());
             hands.stopMining();
+            if (down) hiding.accept(false);
+            down = false;
             top = null;
             dugIds.clear();
             ticks = 0;
@@ -121,7 +129,6 @@ public final class HideTask implements Task {
             Optional<String> unsafe = canDigIn(world);
             if (unsafe.isPresent()) return fail(unsafe.get());
             top = floor(world.position());
-            hiding.accept(true);
             note.accept("digging in", "at " + top.x() + " " + top.y() + " " + top.z());
         }
         ticks++;
@@ -134,6 +141,10 @@ public final class HideTask implements Task {
 
     private Status dig(WorldView world) {
         if (ticks > DIG_TICKS) return fail("still digging after " + DIG_TICKS / 20 + " s");
+        if (!down && world.position().y() < top.y() + 0.5) {     // below the surface now
+            down = true;
+            hiding.accept(true);
+        }
         for (int d = 0; d < DEPTH; d++) {
             BlockPos b = new BlockPos(top.x(), top.y() - d, top.z());
             String id = world.blockAt(b);

@@ -521,6 +521,15 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
     off. Next: a health trace through a hide, and maybe don't hide at all below some health but run.
   - A second flaky handshake test seen (`aLateFirstAnswer_stillCounts`); core tests aren't run in
     parallel, so not the parked-team static after all. To look at.
+- **Health trace of that hide** (MCP Fabric's `player_damage` events, with causes): 20 → 2.9 was two
+  fireballs (~6), standing in fire while digging (~3), and **burning on in the hole, 1 a second for
+  8 s (~8)** — the burn lasts ~8 s after the last touch of fire, and there's no water up there. (32
+  `inWall` hits before the run were the test setup: refilling the platform round the player.) Fix,
+  built and tested, **not yet run live**: the hide counts as "hiding" (fire ignored, critical health
+  holds off) only once below the surface, so the hazard reflex steps it off the fire before it digs.
+  The ~8 s burn after any touch of fire stays without water or fire resistance: worth a reflex later
+  (drink fire resistance when burning, or a water bucket). Next session: rerun the traced hide (move
+  the player before refilling the platform).
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
