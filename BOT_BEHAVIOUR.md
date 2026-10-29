@@ -52,6 +52,10 @@ Evaluated in order, every tick. First match wins.
   and diving (a task, for graves under water).
 - **Being hit:** the `danger` setting decides — `modpack` (default) runs at the first hit, dry ground
   first; `easy`/`normal`/`hard` only at critical health. No combat machine yet (PHASE3 decision C).
+  Anarchy build: `fight-or-flee` (after critical health) hits back weak melee mobs, rushes one or two
+  skeletons, takes cover from the rest and from ghasts, backs off or digs in; it also starts before
+  the first hit, on a walker within 6 blocks or a skeleton within 16 that can see us
+  (doc/9b9t/roadmap.md §2).
 - **Hazards (0.1.43):** hurt by a block it's touching (fire, cactus, magma, berry bush, lava, …) → step
   to the nearest safe spot within 5 blocks. Those hits have no attacker, so the retreat never fired.
 - **Fidget watchdog:** spinning or bobbing in place for 10 s → hold still, log why.

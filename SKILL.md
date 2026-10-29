@@ -10,9 +10,11 @@ on the ZymCiv modpack. Bots run **headless** through HeadlessMC; the owner plays
 the world (Open to LAN). Read `PHASE1.md` (what's built, the test commands) and `headless/README.md`
 (the rig) for depth — this file is the operating manual.
 
-Since 0.2.0 there is also a **1.21.11 build for 9b9t**, which plays the `anarchy` profile
-(doc/9b9t/roadmap.md §0): it stands by on join, has no team, bus, chat check, knocked-out, regroup,
-leash, ladder, graves or hunger reflex, and the ZymCiv commands below answer "a ZymCiv feature" there.
+Since 0.2.0 there are also **1.21.11 and 26.2 builds for 9b9t** (9b9t itself runs 26.2), which play
+the `anarchy` profile (doc/9b9t/roadmap.md §0): it stands by on join, has no team, bus, chat check,
+knocked-out, regroup, leash, ladder, graves or hunger reflex, and the ZymCiv commands below answer "a
+ZymCiv feature" there. It has its own `fight-or-flee` reflex instead: hit back weak melee mobs, rush
+one or two skeletons, take cover from the rest and ghasts, back off or dig in (roadmap §2).
 Everything else in this file is about the 1.21.1 ZymCiv build.
 
 > **Keep this file true.** The command table below must match
@@ -186,6 +188,8 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 you set it. It does `/zbot stop` and cancels Baritone (path, goal, `#` commands), lets go of held keys
 and mining, and works with a screen open (the bot's inventory, where chat can't be reached). A screen
 the bot opened stays open: Esc closes it. Ignored while typing (chat, text boxes, the Controls screen).
+**Start key** (0.2.1, beside it, also unbound): does `/zbot start`. Bound to the **same key** as the
+emergency stop, that key toggles: stop while the bot runs (or holds a borrowed order), start otherwise.
 The Servers tab's **On / Off** keeps a server listed but silent; "singleplayer" off also stops your
 worlds opening to LAN by themselves (`autostart_off` in the config).
 

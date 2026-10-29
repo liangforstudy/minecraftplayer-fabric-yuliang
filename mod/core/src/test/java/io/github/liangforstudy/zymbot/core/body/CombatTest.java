@@ -211,6 +211,51 @@ class CombatTest {
     }
 
     @Test
+    void aZombieWalkingUp_isFoughtBeforeItHits() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        Bot b = walking(w);
+        EntityView z = mob(w, "minecraft:zombie", -2, 0);
+        ticks(b, w, 2);
+        assertEquals(List.of(z.id()), w.attacked.subList(0, 1), log(b));
+        assertTrue(log(b).contains("2 blocks off: zombie, bare armor"), log(b));
+    }
+
+    @Test
+    void twoZombiesWalkingUp_bare_backsOffBeforeTheyHit() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        Bot b = walking(w);
+        mob(w, "minecraft:zombie", -5, 0);
+        mob(w, "minecraft:zombie", -5, 1);
+        ticks(b, w, 2);
+        assertTrue(w.attacked.isEmpty());
+        assertTrue(w.paths.goal.x() > 10, "runs east, away: " + w.paths.goal + "\n" + log(b));
+    }
+
+    @Test
+    void aZombieFurtherOff_orAnEndermanClose_isLeftBe() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        Bot b = walking(w);
+        mob(w, "minecraft:zombie", -10, 0);
+        mob(w, "minecraft:enderman", -2, 0);
+        ticks(b, w, 3);
+        assertTrue(w.attacked.isEmpty());
+        assertEquals(200, w.paths.goal.x(), "still walking: " + log(b));
+    }
+
+    @Test
+    void aSkeletonInSight_isRushed_butNotOneBehindAWall() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        wall(w);                                                    // at x 3, between us and it
+        Bot b = walking(w);
+        mob(w, "minecraft:skeleton", 12, 0);
+        ticks(b, w, 3);
+        assertEquals(200, w.paths.goal.x(), "out of its sight: " + log(b));
+        w.blocks.clear();
+        ticks(b, w, 3);
+        assertEquals(12, w.paths.goal.x(), "rushes it: " + log(b));
+    }
+
+    @Test
     void aCreeperClose_isBackedAwayFrom_beforeItHits() {
         FakeWorld w = new FakeWorld("Bluetails");
         w.armor = 20;

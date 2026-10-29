@@ -59,6 +59,11 @@ fights with withers and wardens.
     `goto`, the walk stopped at once ("the controls are yours again — emergency stop key", then
     "Zymbot stopped, Baritone cancelled"). Also with the inventory open mid-walk (swimming):
     stopped at once, same lines, position held after.
+  - Start key (owner, 2026-10-29): Options → Controls → Zymbot → "Start", unbound until set. It does
+    `/zbot start`. Bound to the same key as the emergency stop, that key toggles: stop while the bot
+    runs (or holds a borrowed order), start while it doesn't. Passed 2026-10-29: both on `]`, presses
+    went stop, start, stop, start. Fixes after: the long label ran into the key button (now "Start
+    (/zbot start)"), and on a shared key the stop line says "press ] again" instead of `/zbot start`.
 - **9b9t's version, checked 2026-10-26:** **26.2, with 1.21.4 and newer accepted.**
   - `tools/mcping.py` (server-list ping, no login; follows the `_minecraft._tcp` SRV record, since
     2b2t.com's plain address is a web IP): the version name is "9b9t 26.2" whatever we send; protocols
@@ -381,6 +386,19 @@ a route instead:
 Still to settle: the "weak" list per gear, the log-out thresholds, and how this sits with Meteor's modules
 (KillAura stays off: it turns the camera).
 
+**Before the first hit (owner, 2026-10-29: "bot don't flee or fight when a zombie is within range").**
+Until then `fight-or-flee` waited to be hit, so a zombie walked right up to an idle or walking bot.
+Now it also starts on a hostile closing in: a walker (melee or strong) within 6 blocks in 3D, or a
+ground shooter within 16 with a clear shot at us (`FightOrFleeInterrupt.closing`). The same rules
+then fight or back off from it ("2 blocks off: zombie, bare armor" in the log). Flyers (a ghast
+across the Nether) and leave-alone mobs (an enderman, zombified piglins) still wait for a hit. A
+creeper within 5 is backed away from, as before. Passed in the 26.2 test world (2026-10-29, noon,
+cobblestone platform, bare + iron sword, started): a husk 5 blocks off was fought at once and killed,
+health stayed 20; two husks were backed away from before either hit (on a 25-block platform it kept
+re-backing off as they followed, no damage); a skeleton behind a 3-high wall 11 blocks off was left
+alone, and rushed and killed as soon as the wall was gone (health 20). Test tip: the platform is solid
+to y 150, so stand players and mobs at y 151 (a tp to y 149 suffocated the player once more).
+
 **Built, first cut for overworld mobs (2026-10-29): `fight-or-flee`, anarchy only.** A reflex after
 critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, `core/task/FightTask`):
 - Kinds: **melee** (zombie, husk, drowned, zombie villager, spiders, silverfish, endermite, slimes,
@@ -528,8 +546,37 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   built and tested, **not yet run live**: the hide counts as "hiding" (fire ignored, critical health
   holds off) only once below the surface, so the hazard reflex steps it off the fire before it digs.
   The ~8 s burn after any touch of fire stays without water or fire resistance: worth a reflex later
-  (drink fire resistance when burning, or a water bucket). Next session: rerun the traced hide (move
-  the player before refilling the platform).
+  (drink fire resistance when burning, or a water bucket).
+- **Traced hide rerun, passed (2026-10-29, platform refilled flat, clear weather, noon, full iron,
+  ghast summoned ~21 north and 12 up):** three fireballs 3.5 s apart on open ground, 20 → 16.9 → 13.8
+  → 10.6, each ~3.1 with ~1 of fire after; **no `onFire` burn ticks at all** (yesterday ~8), so the
+  "hiding only below the surface" fix holds. The first dig was knocked off its spot by the second
+  fireball; at health 11 the critical reflex took over the second dig (it wasn't below the surface
+  yet) and took cover at the platform's corner, where it was hit no more for 60 s; then it had to move,
+  found no cover, dug in at 30 150 −39, waited ("nothing after us for 5 s": the ghast had drifted 80
+  blocks off), climbed 3 up and refilled the hole. Out at 10.6, all lost before it got under. A run
+  before it (craters from an earlier fireball left in the platform) took cover in a 2-deep crater
+  instead and never needed to hide. Left over: the first seconds on open ground are the costly ones
+  (three fireballs before it's under); digging faster or digging in at the first fireball rather than
+  looking for cover first would save most of it.
+- **Incoming projectiles (idea, owner, 2026-10-29; not decided in detail).** Arrows, ghast and blaze
+  fireballs, wither skulls and dragon fireballs are entities the client sees, with position and
+  velocity, so a hit can be predicted (fireballs fly straight, arrows arc under gravity). A reflex
+  `incoming`, ahead of fight-or-flee, in this order of worth:
+  1. **Hit ghast fireballs back**: face the ghast and swing at the fireball when it's in reach; one
+     return kills a ghast (10 health). Fireballs are slow, so there's time. Sidestepping doesn't
+     help with them (the blast reaches). Three fireballs cost 9.4 health in the traced hide above.
+  2. **Shield**, when one is carried (offhand): raise it toward an incoming arrow or fireball; blocks
+     explosions from the front too. Robust under lag; the answer to skeletons.
+  3. **Sidestep** with no shield: strafe across the predicted path; works for blaze fireballs and
+     far arrows, not close arrows (~5 ticks at 200+ ms ping).
+  4. Wither skulls and the dragon belong to §5 fights and the End.
+  On 9b9t projectile updates come in jumps (low TPS, ping 200+): judge by the last known velocity,
+  act a few ticks early, favour 1 and 2. Test in the 26.2 world with summoned projectiles first.
+- **Pick up ghast tears (owner, 2026-10-29: "tears are rare on 9b9t").** A ghast killed by a returned
+  fireball is our kill: it drops 0–1 tear and 0–2 gunpowder. Watch where it falls; if the tear lands
+  on solid ground with a safe path (no lava, no drop) within ~32 blocks, fetch it before 9b9t's
+  2-minute despawn, then resume the route. Tears aren't fireproof: over a lava lake, it's lost.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
@@ -900,4 +947,5 @@ lets Claude drive the game):
 3. §3: Ice miner
 4. §4: Mapart
 5. §5: Fights, whenever the owner chooses (possibly before mapart)
-6. Later: the 26.2 client build
+
+The 26.2 client build (once "later") is done: 9b9t runs 26.2, and Zymbot builds for it (§0).

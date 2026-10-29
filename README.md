@@ -24,8 +24,9 @@ The mod is called **Zymbot** (`mod/`). It's rule-based: a stack of interrupts (d
 danger, knocked out, …) over a milestone planner, with every choice logged as
 `[decision] … — because …`. Walking is done by **Baritone**; Zymbot decides where.
 
-> **Status (2026-10-01): Zymbot 0.1.42 runs headless and is live-tested** — survival reflexes, regroup and
-> follow, survey, break and collect, graves (diving too). Next: crafting (PHASE3.md).
+> **ZymCiv status (2026-10-16): Zymbot 0.1.48 runs headless and is live-tested** — survival reflexes,
+> regroup and follow, survey, break and collect, graves (diving too), the chat check between bots
+> (roadmap3.md). Next there: saved verdicts (roadmap3.md step 2), crafting (PHASE3.md).
 >
 > **A different project is further along (2026-10-23).** ZymBot (`lol.zym.zymbot`) is a separate mod
 > for the same server, with no code shared with this repo. It has met M0–M2 and M4 of this repo's
@@ -33,11 +34,14 @@ danger, knocked out, …) over a milestone planner, with every choice logged as
 > [BOT_BEHAVIOUR.md → The milestone ladder](BOT_BEHAVIOUR.md#the-milestone-ladder) marks which rungs
 > it has done.
 >
-> **Zymbot 0.2.0 (2026-10-26) builds for two Minecraft versions:** 1.21.1 for ZymCiv, and 1.21.11 for
-> the anarchy server 9b9t (routes, ice mining, mapart, fights). The 1.21.11 build plays the
-> `anarchy` profile: no team, no ZymCiv rules, and it stands by until given a job. It has joined
-> 9b9t and stood by there (2026-10-26); it has no 9b9t jobs yet, and `/zbot probe` measures the
-> server. [doc/9b9t/roadmap.md](doc/9b9t/roadmap.md) has the plan.
+> **Zymbot 0.2.1 (2026-10-29) builds for three Minecraft versions:** 1.21.1 for ZymCiv, and 1.21.11
+> and 26.2 for the anarchy server 9b9t, which runs 26.2 (routes, ice mining, mapart, fights). The
+> 9b9t builds play the `anarchy` profile: no team, no ZymCiv rules, and they stand by until given a
+> job. Built and tried there or in a 26.2 test world so far: `/zbot goto` on Baritone, `/zbot probe`
+> and `/zbot daybreak` to measure the server, lag back-off, the emergency stop and start keys, and a
+> `fight-or-flee` reflex (hit back weak mobs, rush a lone skeleton, take cover from ghasts, back off
+> or dig in). The ZymCiv team features (bus, chat check, regroup) are parked for now. Next: routes.
+> [doc/9b9t/roadmap.md](doc/9b9t/roadmap.md) has the plan and the test results.
 
 The server changes enough of Minecraft's survival rules that a normal bot would starve, fail
 every harvest, and die on the first blood moon. Much of this repo is the work of finding out
@@ -52,7 +56,8 @@ In `headless/` (details in [headless/README.md](headless/README.md) and [SKILL.m
 - `standby-bot1-singleplayer.bat` — Bot1 only: waits for your world to open to LAN, then joins.
 - The **console** (Windows Terminal, a tab per bot): the log on top, decisions and a command prompt
   below (Tab completes, Up/Down recalls). Close the tab, or `stop-bot1.bat`, to stop the bot.
-- In game: `/zbot help`. `/zbot start` hands the account to the bot.
+- In game: `/zbot help`. `/zbot start` hands the account to the bot. Options → Controls → Zymbot has
+  an emergency stop key and a start key (unbound until set; on the same key they toggle).
 
 macOS / Linux: the same commands as `.sh` (`bots.py`).
 
@@ -71,6 +76,8 @@ macOS / Linux: the same commands as `.sh` (`bots.py`).
 | **[PHASE3.md](PHASE3.md)** | **Phase 3 — gather, craft, feed itself (building now; open decisions at the top)** |
 | [PHASE3_FIXLIST.md](PHASE3_FIXLIST.md) | Bugs from live tests and what still needs testing |
 | [roadmap2.md](roadmap2.md) | Later: look like a villager (morph mods), build from schematics, safe parkour |
+| [roadmap3.md](roadmap3.md) | Finding the world: bus off by default, the chat check, landmarks, breadth-first search |
+| **[doc/9b9t/roadmap.md](doc/9b9t/roadmap.md)** | **The 9b9t (anarchy) builds: versions, profiles, routes, fights, ice miner, mapart, test results** |
 | [mod/](mod/) | The Zymbot mod: `core/` pure Java (all logic, unit-tested), `src/` the Fabric adapter |
 | [SKILL.md](SKILL.md) | Operating manual for agents: the rig, `/zbot` commands, Baritone, safety rules |
 | [SURVIVAL_EARLY_GAME.md](SURVIVAL_EARLY_GAME.md) | The survival guide: forage, easy kills, loot, where to farm |
@@ -142,6 +149,8 @@ bot. Details in [headless/](headless/).
 
 ## Target
 
-Fabric, Minecraft **1.21.1** (the modded pack); built with Stonecutter so other versions can be
-added (only 1.21.1 exists today). Testing runs in the owner's singleplayer world opened to LAN with
-online mode off (`/zbot lan`), so the headless bots can join it.
+Fabric, built with Stonecutter for Minecraft **1.21.1** (the ZymCiv pack, Java 21), **1.21.11** and
+**26.2** (9b9t). Gradle itself runs on JDK 25, which it fetches (`mod/gradle/gradle-daemon-jvm.properties`). Build with `JAVA_HOME` set to a JDK 21:
+`cd mod && ./gradlew build` puts one jar per version in `mod/versions/<version>/build/libs/`. ZymCiv
+testing runs in the owner's singleplayer world opened to LAN with online mode off (`/zbot lan`), so
+the headless bots can join it; 9b9t testing runs in a 26.2 singleplayer world, then on 9b9t.

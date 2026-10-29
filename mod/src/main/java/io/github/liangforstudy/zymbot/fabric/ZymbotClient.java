@@ -107,20 +107,25 @@ public final class ZymbotClient implements ClientModInitializer {
 
         // Emergency stop (owner, 2026-10-16): /zbot stop and Baritone's own cancel, on a key — unbound until
         // set in Options -> Controls. Chat can't be reached while the bot has a screen open, so it works there too.
+        // A start key beside it (owner, 2026-10-29): /zbot start; bound to the same key, that key toggles.
         //? if >=1.21.11 {
-        /*stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
-                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(),
-                KeyMapping.Category.register(net.minecraft.resources.Identifier.fromNamespaceAndPath("zymbot", "zymbot"))));
+        /*KeyMapping.Category category = KeyMapping.Category.register(net.minecraft.resources.Identifier.fromNamespaceAndPath("zymbot", "zymbot"));
+        stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
+        startKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.start",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key) -> {
-                    if (stopKey.matches(key) && !typingIn(s)) emergencyStop(mc);
+                    if (!typingIn(s)) pressed(mc, stopKey.matches(key), startKey.matches(key));
                 }));
         *///?} else {
         stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
+        startKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.start",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key, scancode, modifiers) -> {
-                    if (stopKey.matches(key, scancode) && !typingIn(s)) emergencyStop(mc);
+                    if (!typingIn(s)) pressed(mc, stopKey.matches(key, scancode), startKey.matches(key, scancode));
                 }));
         //?}
 
@@ -240,6 +245,37 @@ public final class ZymbotClient implements ClientModInitializer {
     }
 
     private KeyMapping stopKey;
+    private KeyMapping startKey;
+
+    /**
+     * The stop and start keys, pressed. On one key between them, a press toggles: stop while the bot
+     * runs (or holds a borrowed order), start while it doesn't. Older versions click only one of two
+     * keys bound alike, newer ones both, so a press of either counts once.
+     */
+    private void pressed(Minecraft mc, boolean stop, boolean start) {
+        if (!stop && !start) return;
+        if (sharedKey()) {
+            if (bot != null && (bot.isRunning() || bot.isBorrowing())) emergencyStop(mc);
+            else startByKey();
+        } else if (stop) emergencyStop(mc);
+        else startByKey();
+    }
+
+    /** The start key is bound to the stop key: that key toggles. */
+    private boolean sharedKey() {
+        return stopKey != null && startKey != null && !stopKey.isUnbound() && stopKey.saveString().equals(startKey.saveString());
+    }
+
+    private void startByKey() {
+        if (bot == null) return;
+        if (bot.isRunning()) {
+            if (hands != null) hands.notifyLocal("Zymbot is already running");
+            return;
+        }
+        bot.start("start key");
+        if (hands != null) hands.notifyLocal("Zymbot started — phase " + bot.phase());
+        LOG.info("[zymbot] start key");
+    }
 
     /**
      * The emergency stop key: Zymbot stops as /zbot stop does, and Baritone drops whatever it was doing
@@ -253,7 +289,8 @@ public final class ZymbotClient implements ClientModInitializer {
             hands.holdKeys(false, false);
             hands.stopMining();
             hands.notifyLocal("emergency stop: Zymbot stopped" + (hands.paths() == io.github.liangforstudy.zymbot.core.api.PathProvider.NONE
-                    ? "" : ", Baritone cancelled") + " — /" + config.commandRoot + " start to hand control back");
+                    ? "" : ", Baritone cancelled") + " — " + (sharedKey() ? "press " + stopKey.getTranslatedKeyMessage().getString()
+                    + " again" : "/" + config.commandRoot + " start") + " to hand control back");
         }
         LOG.info("[zymbot] emergency stop key");
     }
@@ -266,7 +303,13 @@ public final class ZymbotClient implements ClientModInitializer {
     }
 
     private void onTick(Minecraft mc) {
-        while (stopKey != null && stopKey.consumeClick()) emergencyStop(mc);   // no screen open: the usual way
+        if (stopKey != null) {                                  // no screen open: the usual way
+            while (true) {
+                boolean stop = stopKey.consumeClick(), start = startKey.consumeClick();
+                if (!stop && !start) break;
+                pressed(mc, stop, start);
+            }
+        }
         if (config.skipExperimentalWorldWarning && mc.screen instanceof BackupConfirmScreen s) skipExperimentalWarning(s);
         if (mc.level != null) {                               // the clock's pace and the weather, for /zbot daybreak
             long clock = McCompat.dayTime(mc.level);
