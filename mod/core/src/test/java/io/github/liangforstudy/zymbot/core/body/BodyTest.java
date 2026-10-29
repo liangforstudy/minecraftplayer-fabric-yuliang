@@ -1117,6 +1117,23 @@ class BodyTest {
     }
 
     @Test
+    void strandedOnTheOwnersBaritonePath_leavesItToBaritone() {
+        FakeWorld w = afloat();
+        w.dryLand = new BlockPos(10, 62, 3);
+        Bot b = running(w, new ZymbotConfig(), true);
+        int stops = w.paths.stops;
+        w.paths.goTo(new BlockPos(300, 64, 0), true, 0, true);     // the owner's #goto, across the lake
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS + 3);
+        assertFalse(log(b).contains("nothing to do"), log(b));
+        assertEquals(new BlockPos(300, 64, 0), w.paths.goal, "Baritone's own path left alone");
+        assertEquals(stops, w.paths.stops, "never stopped");
+
+        w.paths.stop();                                         // the owner cancels it, still out of depth
+        ticks(b, w, StrandedInterrupt.AFLOAT_TICKS + 3);
+        assertTrue(log(b).contains("nothing to do"), "idle again: swim for it\n" + log(b));
+    }
+
+    @Test
     void strandedButOrdered_theOrderDecides() {
         FakeWorld w = afloat();
         w.dryLand = new BlockPos(10, 62, 3);

@@ -1157,6 +1157,26 @@ lets Claude drive the game):
 | Meteor's AutoEat | owner judges whether it's good enough | shared eating (§0) |
 | Meteor's Jesus (walking on water / lava) | **doesn't work: confirmed** on 9b9t (owner, 2026-10-26); not worth trying again | so Baritone's `assumeWalkOnWater` / `assumeWalkOnLava` must stay off (Zymbot already sets `assumeWalkOnWater = false`; `assumeWalkOnLava` is off by default), and water and lava crossings stay Zymbot's own moves (§1) |
 
+### Next MCP Fabric test: Meteor's Freecam (owner, 2026-10-29)
+
+**Bug:** with Meteor's Freecam on and `/zbot start` running, a mob hit the player and Zymbot didn't
+react; "it only reacts to the camera". Not reproduced or understood yet. What Meteor's source says
+(read 2026-10-29), to check against in the test:
+- Freecam takes the movement keys for the camera and releases them for the game (`unpress()`, and it
+  cancels the key events), so Zymbot doesn't see the owner's WASD as "a human took the controls".
+- Zymbot moves by pressing the same key bindings (`holdKeys` → `keyUp.setDown`); those aren't key
+  events, so they should still move the player, not the camera.
+- Mouse turns go to the camera (`EntityMixin` → `changeLookDirection`); Zymbot turns the player
+  directly (`setYRot`, `lookAt`), so that shouldn't matter.
+- Freecam settings that could explain it: `rotate` (turns the player to whatever the camera looks
+  at: fights Zymbot's aim), and `toggle-on-damage` (would end Freecam at the first hit instead).
+
+**The test, singleplayer over MCP Fabric:** `/zbot start`, Freecam on (default settings, then
+`rotate` on), a zombie spawned next to the player. Watch the decision log (`/zbot status`) and the
+player: does `fight-or-flee` trigger at all, does the player turn and hit, does it walk, or does
+something turn back to where the camera looks. Then the same with `rotate` off and the camera far
+away.
+
 ## Order
 
 1. §0: 1.21.11 build, `anarchy` profile (Phase 0 plan above)

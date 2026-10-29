@@ -1726,7 +1726,18 @@ public final class Bot {
     private boolean noOrder() { return !brain.hasOrder(); }
 
     /** No order, and no objective crossing on purpose (a regroup may swim) — the stranded reflex may act. */
-    private boolean nothingToDo() { return noOrder() && !regrouping() && !"leash".equals(brain.runningReflex()); }
+    private boolean nothingToDo() {
+        return noOrder() && !regrouping() && !"leash".equals(brain.runningReflex()) && !pathingForSomeoneElse();
+    }
+
+    /**
+     * Baritone is walking with nothing of ours running: someone else gave it the goal (the owner's
+     * {@code #goto} across a lake). Not idle, then: stranded swam to the nearest shore and Baritone's
+     * own path was cancelled (owner, 2026-10-29).
+     */
+    private boolean pathingForSomeoneElse() {
+        return hands != null && brain.idle() && hands.paths().busy();
+    }
 
     /**
      * Idle, for the leash's idle follow (PHASE2.md check 6): no order, no regroup armed or under way

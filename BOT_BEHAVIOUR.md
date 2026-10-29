@@ -48,7 +48,8 @@ Evaluated in order, every tick. First match wins.
 **As built (2026-09-30), differences from the table above:**
 - **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it). Anarchy build: only while a key is held, back 0.25 s after it is let go (`/zbot set resume <ms>`), fights included (doc/9b9t/roadmap.md). In creative or spectator no reflex runs.
 - **Water:** besides drowning (#1a) there are *stranded* (out of its depth with nothing to do: swim to
-  land with water straight beside it and dry on top), *wading* (idle in shallows: step onto dry land)
+  land with water straight beside it and dry on top; Baritone walking a goal you gave it yourself, a
+  `#goto` across a lake, counts as something to do), *wading* (idle in shallows: step onto dry land)
   and diving (a task, for graves under water).
 - **Being hit:** the `danger` setting decides — `modpack` (default) runs at the first hit, dry ground
   first; `easy`/`normal`/`hard` only at critical health. No combat machine yet (PHASE3 decision C).
