@@ -35,7 +35,9 @@ public enum Profile {
     public static boolean teamParked() { return teamParked; }
 
     /** Tunables (/zbot set, the settings screen's Body tab) that mean something here. */
-    private static final List<String> ANARCHY_TUNABLES = List.of("critical", "plantime", "lagtps");
+    private static final List<String> ANARCHY_TUNABLES = List.of("critical", "plantime", "lagtps", "fireres", "resume");
+    /** Only anarchy has the reflex they tune. */
+    private static final List<String> ANARCHY_ONLY_TUNABLES = List.of("fireres", "resume");
 
     public String id() { return name().toLowerCase(Locale.ROOT); }
 
@@ -58,5 +60,7 @@ public enum Profile {
 
     public String defaultDanger() { return this == ZYMCIV ? "modpack" : "hard"; }
 
-    public boolean hasTunable(String name) { return this == ZYMCIV || ANARCHY_TUNABLES.contains(name); }
+    public boolean hasTunable(String name) {
+        return this == ZYMCIV ? !ANARCHY_ONLY_TUNABLES.contains(name) : ANARCHY_TUNABLES.contains(name);
+    }
 }

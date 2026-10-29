@@ -314,7 +314,7 @@ class CombatTest {
             assertEquals(before, w.attacked.size(), "no swings while the owner moves");
         }
         int before = w.attacked.size();
-        ticks(b, w, (int) (Bot.ANARCHY_RESUME_MILLIS / 50) + 3);
+        ticks(b, w, new ZymbotConfig().anarchyResumeMillis / 50 + 3);
         assertTrue(w.attacked.size() > before, "fighting again just after letting go: " + log(b));
         assertEquals(1, w.notices.stream().filter(n -> n.contains("takes over again")).count(), w.notices.toString());
         b.humanInput(w);                                           // a second press: no second notice

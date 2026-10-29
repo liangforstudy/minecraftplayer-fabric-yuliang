@@ -26,10 +26,10 @@ class HazardTest {
     void fireAtItsFeet_stepsOff() {
         FakeWorld w = at("minecraft:in_fire");
         w.blocks.put(new BlockPos(10, 63, 10), "minecraft:fire");
-        w.dryLand = new BlockPos(13, 62, 10);
+        w.dryLand = new BlockPos(14, 62, 10);                       // 4 off: no fire within 3 of a safe spot
         HazardInterrupt h = new HazardInterrupt(body);
         assertTrue(h.triggered(w));
-        assertTrue(h.respond(w, w).describe().contains("13 62 10"));
+        assertTrue(h.respond(w, w).describe().contains("14 62 10"));
     }
 
     @Test

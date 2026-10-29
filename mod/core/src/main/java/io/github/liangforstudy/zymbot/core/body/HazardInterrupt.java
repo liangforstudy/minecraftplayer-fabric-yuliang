@@ -46,14 +46,21 @@ public final class HazardInterrupt implements Interrupt {
         // digging in from a ghast: its fireballs light the ground all round, and stepping off the fire
         // kept restarting the dig (2026-10-29); two more seconds of digging and we're under it. Lava still counts.
         if (body.hiding() && (d.get().type().endsWith("in_fire") || d.get().type().endsWith("on_fire"))) return false;
-        return touchesHazard(world, standingOn(world));
+        boolean fire = d.get().type().endsWith("in_fire") || d.get().type().endsWith("on_fire");
+        // in water a fire hit is old news unless a fire block is still in the body: the burning reflex had
+        // just poured its bucket and this stepped it off, so the water was never scooped back (2026-10-29)
+        if (world.inWater() && fire) return bodyInHazard(world, world.position());
+        // burned with fire close round or overhead: a burning canopy keeps relighting us, so move on — the
+        // pour-and-scoop looped ~50 times in 18 s under one, 20 → 10, never stepping away (2026-10-29)
+        return touchesHazard(world, standingOn(world)) || bodyInHazard(world, world.position())
+                || (fire && nearFire(world, standingOn(world)));
     }
 
     @Override
     public Task respond(WorldView world, Hands hands) {
         BlockPos here = standingOn(world);
         var safe = StrandedInterrupt.safeLand(body, world)
-                .and(p -> !(p.x() == here.x() && p.z() == here.z()) && !touchesHazard(world, p));
+                .and(p -> !(p.x() == here.x() && p.z() == here.z()) && !touchesHazard(world, p) && !nearFire(world, p));
         var spot = world.nearestDryLand(RADIUS, safe);
         if (spot.isEmpty()) spot = world.nearestDryLand(FAR_RADIUS, safe);
         if (spot.isEmpty()) return Task.failed("stepping off the hazard", "no safe spot within " + FAR_RADIUS + " blocks");
@@ -83,11 +90,47 @@ public final class HazardInterrupt implements Interrupt {
         if (hazard(world.blockAt(floor))) return true;
         for (int dy = 1; dy <= 2; dy++) {
             if (hazard(world.blockAt(new BlockPos(floor.x(), floor.y() + dy, floor.z())))) return true;
-            for (int[] f : new int[][] { {1, 0}, {-1, 0}, {0, 1}, {0, -1} }) {
+            for (int[] f : AROUND) {
                 String b = world.blockAt(new BlockPos(floor.x() + f[0], floor.y() + dy, floor.z() + f[1]));
                 if (b.contains("cactus") || b.endsWith(":fire") || b.endsWith("soul_fire")) return true;
             }
         }
+        return false;
+    }
+
+    /**
+     * All 8 round it: the body is 0.6 wide, so standing near a corner it overlaps the block diagonally
+     * across — it stepped off a fire, stopped at 24.8 −52.2, and burned there with the fire at 25 −52
+     * (2026-10-29).
+     */
+    private static final int[][] AROUND = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    /**
+     * Fire this close to the side, or this far overhead, is too close to stand by: it spreads. Overhead
+     * as high as a tree's leaves: at 5 it stopped under a canopy burning 5–7 up and was lit again
+     * (2026-10-29).
+     */
+    static final int FIRE_SIDE = 3, FIRE_ABOVE = 8;
+
+    /** Fire within {@link #FIRE_SIDE} of standing on {@code floor}, from the feet to {@link #FIRE_ABOVE} up. */
+    static boolean nearFire(WorldView world, BlockPos floor) {
+        for (int dx = -FIRE_SIDE; dx <= FIRE_SIDE; dx++)
+            for (int dz = -FIRE_SIDE; dz <= FIRE_SIDE; dz++)
+                for (int dy = 1; dy <= FIRE_ABOVE; dy++) {
+                    String b = world.blockAt(new BlockPos(floor.x() + dx, floor.y() + dy, floor.z() + dz));
+                    if (b.endsWith(":fire") || b.endsWith("soul_fire")) return true;
+                }
+        return false;
+    }
+
+    /** Half the body's width, and its height. */
+    static final double HALF_WIDTH = 0.3, HEIGHT = 1.8;
+
+    /** A hazard in any block the body itself is in (from where it really stands, not the block's middle). */
+    static boolean bodyInHazard(WorldView world, Vec3 p) {
+        for (int x = (int) Math.floor(p.x() - HALF_WIDTH); x <= (int) Math.floor(p.x() + HALF_WIDTH); x++)
+            for (int z = (int) Math.floor(p.z() - HALF_WIDTH); z <= (int) Math.floor(p.z() + HALF_WIDTH); z++)
+                for (int y = (int) Math.floor(p.y()); y <= (int) Math.floor(p.y() + HEIGHT); y++)
+                    if (hazard(world.blockAt(new BlockPos(x, y, z)))) return true;
         return false;
     }
 

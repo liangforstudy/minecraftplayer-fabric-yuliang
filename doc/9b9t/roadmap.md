@@ -385,6 +385,33 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
    kept), back to 20, so 26.2's food effects read as healing.
 4. **Burning**: put out the ~8 s burn after touching fire (fire resistance; a water bucket in the
    overworld).
+   **Built and passed (2026-10-29): `burning`, anarchy only, ahead of `hazard`**
+   (`core/body/BurningInterrupt`, `core/task/PourWaterTask`). On fire, not fire resistant, not in
+   water or lava: a water bucket (hotbar, or swapped in from the main inventory) poured at our feet
+   looking straight down, then scooped back once out, and the old slot taken back; not where water
+   boils away (the Nether). Else a fire resistance potion at or below `fireres` health (14; `/zbot set
+   fireres 0` never drinks one, owner, 2026-10-29). Ahead of the hazard reflex because the water puts
+   the fire block out too: in a burning forest the hazard reflex kept the turn and the burn took it
+   to 11. Found and fixed on the way: the hazard reflex stepped off fire to a block whose corner still
+   overlapped the fire (the body is 0.6 wide) and burned there 10 s; it now checks the body's own
+   blocks and all 8 around a safe spot; and in water a fire hit no longer counts as a hazard (it had
+   cut off the pour before the scoop, leaving the water out). Live, 26.2 world: a blaze fireball set
+   it alight, and standing in a fire on netherrack: poured and scooped back each time, no step off.
+   An enchanted golden apple gives fire resistance: then nothing is done, rightly.
+   Test tips: don't light fires in a forest (a forest fire started; put out with `fill … air replace
+   fire`); fire on cobblestone dies at once, on netherrack it stays.
+   **Never clear fire with MCP's `world.fill` / `fill_blocks`**: they have no replace filter and filled
+   four boxes round a test fire with air, a 76×72 ring of terrain from y 85 to 110 (26.2 test world,
+   x 85–160, z −70 to 1, 2026-10-29; left as is). Only the game's `/fill … air replace fire`.
+   **Forest fire (owner's test idea, 2026-10-29):** fire hung under the leaves at head height: the pour
+   landed in that fire block and put it out, health 20. A canopy fire overhead (7×7, 4–5 up): the
+   burning reflex **looped**, pour, scoop, alight again, ~50 times in 18 s, standing still, 20 → 10,
+   never stepping away. **Fixed:** the hazard reflex goes first again (out of the fire, then the
+   water); burned with fire within 3 blocks to the side or 8 overhead counts as a hazard, and no safe
+   spot has fire that near; in water a fire hit only counts with a fire block in the body. Retest in a
+   forest at 560 63 168 (9×9 canopy fire 5 up, `fill … fire replace air`): no pour loop, it stepped
+   away each time it was burned, health 18–20; with overhead at 5 it stopped under the burning leaves
+   (5–7 up), so overhead is now 8. The owner tried it too: "looks great enough" (2026-10-29).
 5. **Dig in at the first fireball** when there's no cover, rather than looking for cover first.
 6. **One gold armor piece** on against piglins, when carried.
 
@@ -635,6 +662,15 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   - Still to do: a kill (closer ghasts, or a better lead); shields (2), sidestepping (3).
   - Test tip: `execute as @e[type=ghast] run tp @s ~ ~ ~` does **not** report where a ghast is: `~`
     is the world spawn there, so it moved them to 16 114 −48. Use MCP `get_entity` by uuid.
+- **The owner's keys and the game mode (owner, 2026-10-29).** The anarchy take-over after the owner
+  lets go is now 0.25 s (was 0.5), a setting: `resume` in ms, 0–2000 (`/zbot set resume`, Mod Menu →
+  Zymbot). Bug: fight-or-flee went on in spectator; now no reflex runs in creative or spectator
+  (nothing hurts us there); orders like `goto` still do.
+- **Phantoms (ideas, owner, 2026-10-29).** Avoid them: they come to players who haven't slept for 3
+  nights, dive from above and hit hard; today they read as "strong", so the bot backs off, which a
+  flyer simply follows (seen in the burning test: retreats round the platform). Better: sleep when a
+  bed is to hand (it resets the count), keep under cover at night, and with shields and arrows (the
+  projectile item above) block the dive and shoot them down.
 - **Pick up ghast tears (owner, 2026-10-29: "tears are rare on 9b9t").** A ghast killed by a returned
   fireball is our kill: it drops 0–1 tear and 0–2 gunpowder. Watch where it falls; if the tear lands
   on solid ground with a safe path (no lava, no drop) within ~32 blocks, fetch it before 9b9t's

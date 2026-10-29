@@ -10,6 +10,7 @@ import io.github.liangforstudy.zymbot.core.body.ChatOut;
 import io.github.liangforstudy.zymbot.core.body.CriticalHealthInterrupt;
 import io.github.liangforstudy.zymbot.core.body.DownedInterrupt;
 import io.github.liangforstudy.zymbot.core.body.FightOrFleeInterrupt;
+import io.github.liangforstudy.zymbot.core.body.BurningInterrupt;
 import io.github.liangforstudy.zymbot.core.body.IncomingInterrupt;
 import io.github.liangforstudy.zymbot.core.body.LogOutInterrupt;
 import io.github.liangforstudy.zymbot.core.body.StrandedInterrupt;
@@ -74,11 +75,6 @@ public final class Bot {
      */
     public static final int RESPAWN_GRACE_TICKS = 20;
     public static final long RESUME_WARNING_MILLIS = 3_000;
-    /**
-     * Anarchy: after /zbot start the owner's keys only pause it while held — it takes over again this
-     * soon after they let go, fights included (owner, 2026-10-29). ZymCiv's long pause stays as it is.
-     */
-    public static final long ANARCHY_RESUME_MILLIS = 500;
     /** A message from someone not (yet) in the tab list waits this long before it's dropped. */
     public static final long TAB_LIST_GRACE_MILLIS = 10_000;
     /** Silent this long, then heard again: logged as "back" even within one session. */
@@ -259,6 +255,9 @@ public final class Bot {
         // anarchy: a ghast's fireball coming at us is hit back (doc/9b9t/roadmap.md, "Incoming projectiles")
         if (profile == Profile.ANARCHY) reflexes.add(new IncomingInterrupt(body));
         reflexes.add(new HazardInterrupt(body));
+        // anarchy: put out the burn (doc/9b9t/roadmap.md, "Before routes" 4), once clear of the fire: ahead of
+        // stepping off it, it poured and scooped ~50 times under a burning canopy, never moving (2026-10-29)
+        if (profile == Profile.ANARCHY) reflexes.add(new BurningInterrupt(config));
         reflexes.add(new CriticalHealthInterrupt(config, body, profile == Profile.ANARCHY));
         // anarchy: hit back weak mobs, back off from the rest (doc/9b9t/roadmap.md, "Attacked mid-route")
         if (profile == Profile.ANARCHY) reflexes.add(new FightOrFleeInterrupt(config, body));
@@ -436,7 +435,7 @@ public final class Bot {
     }
 
     private long pauseMillis() {
-        return profile == Profile.ANARCHY ? ANARCHY_RESUME_MILLIS : config.humanPauseSeconds * 1000L;
+        return profile == Profile.ANARCHY ? config.anarchyResumeMillis : config.humanPauseSeconds * 1000L;
     }
 
     // ------------------------------------------------------------------ tick
@@ -521,7 +520,7 @@ public final class Bot {
         }
         if (pausedUntil != 0) {
             pausedUntil = 0;
-            log.record("resumed", "no human input for " + (profile == Profile.ANARCHY ? "0.5" : config.humanPauseSeconds) + "s");
+            log.record("resumed", "no human input for " + (profile == Profile.ANARCHY ? config.anarchyResumeMillis / 1000.0 : config.humanPauseSeconds) + "s");
         }
 
         maybeHello(world, now);
@@ -1719,7 +1718,7 @@ public final class Bot {
     public List<String> reflexes() { return brain.interruptNames(); }
     /** The tunables /zbot set and the settings screen offer in this profile, in the screen's order. */
     public List<String> tunables() {
-        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps")
+        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume")
                 .stream().filter(profile::hasTunable).toList();
     }
     public BotMemory memory() { return memory; }

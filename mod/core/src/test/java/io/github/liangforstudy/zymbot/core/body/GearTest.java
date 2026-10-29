@@ -59,4 +59,21 @@ class GearTest {
         assertEquals("minecraft:enchanted_golden_apple", FoodChooser.best(onlyEnchanted, List.of(), List.of(), true).orElseThrow().id(),
                 "still eaten when it's all there is");
     }
+
+    @Test
+    void inSpectatorOrCreative_aZombieWalkingUp_isLeftAlone_andTheWalkGoesOn() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        w.untouchable = true;
+        Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve(w.name), w.id, false, clock, Profile.ANARCHY);
+        b.onJoin("9b9t.com", w.name);
+        b.goTo(200, null, 0);
+        w.nearby.add(new EntityView(500, UUID.randomUUID(), "zombie", "minecraft:zombie", EntityView.Kind.HOSTILE, new Vec3(-2, 64, 0)));
+        for (int i = 0; i < 5; i++) { clock.now += 50; b.tick(w, w); }
+        String log = String.join("\n", b.decisions().latest(20).stream().map(Object::toString).toList());
+        assertTrue(w.attacked.isEmpty(), log);
+        assertEquals(200, w.paths.goal.x(), "still walking: " + log);
+        w.untouchable = false;                                   // back to survival: the reflexes are back
+        for (int i = 0; i < 3; i++) { clock.now += 50; b.tick(w, w); }
+        assertFalse(w.attacked.isEmpty(), "in survival it fights again");
+    }
 }

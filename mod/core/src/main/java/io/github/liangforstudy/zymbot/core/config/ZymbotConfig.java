@@ -207,11 +207,27 @@ public final class ZymbotConfig {
      */
     public int lagTps = 15;
 
+    /**
+     * Anarchy: after /zbot start the owner's keys only pause the bot while held; it takes over again
+     * this long after they let go, fights included, in ms (owner, 2026-10-29: 250, was a fixed 500).
+     * ZymCiv's long pause is {@link #humanPauseSeconds}.
+     */
+    public int anarchyResumeMillis = 250;
+
+    /**
+     * Anarchy: burning with no water bucket to pour, drink a fire resistance potion at or below this
+     * health (of 20). 0 never drinks one (owner, 2026-10-29: a toggle, potions are dear on 9b9t).
+     */
+    public int fireResistanceHealth = 14;
+
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
-    public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.of(
-            "leash", new int[]{8, 1000}, "eat", new int[]{1, 19}, "critical", new int[]{1, 19},
-            "downed", new int[]{0, 55}, "regroup", new int[]{8, 256}, "probewait", new int[]{5, 300},
-            "plantime", new int[]{50, 5000}, "lagtps", new int[]{5, 19}, "heel", new int[]{1, 256});
+    public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.ofEntries(
+            java.util.Map.entry("leash", new int[]{8, 1000}), java.util.Map.entry("eat", new int[]{1, 19}),
+            java.util.Map.entry("critical", new int[]{1, 19}), java.util.Map.entry("downed", new int[]{0, 55}),
+            java.util.Map.entry("regroup", new int[]{8, 256}), java.util.Map.entry("probewait", new int[]{5, 300}),
+            java.util.Map.entry("plantime", new int[]{50, 5000}), java.util.Map.entry("lagtps", new int[]{5, 19}),
+            java.util.Map.entry("heel", new int[]{1, 256}), java.util.Map.entry("fireres", new int[]{0, 20}),
+            java.util.Map.entry("resume", new int[]{0, 2000}));
 
     public int tunable(String name) {
         return switch (name) {
@@ -224,6 +240,8 @@ public final class ZymbotConfig {
             case "plantime" -> planTimeoutMs;
             case "lagtps" -> lagTps;
             case "heel" -> followStopBlocks;
+            case "fireres" -> fireResistanceHealth;
+            case "resume" -> anarchyResumeMillis;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -231,7 +249,7 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime or lagtps";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres or resume";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> {
@@ -248,6 +266,8 @@ public final class ZymbotConfig {
             case "probewait" -> probeWaitSeconds = value;
             case "plantime" -> planTimeoutMs = value;
             case "lagtps" -> lagTps = value;
+            case "fireres" -> fireResistanceHealth = value;
+            case "resume" -> anarchyResumeMillis = value;
             default -> criticalHealth = value;
         }
         return null;

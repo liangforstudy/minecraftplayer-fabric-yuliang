@@ -119,6 +119,27 @@ final class FabricWorldView implements WorldView {
     @Override public boolean sprinting() { return sprinting; }
     @Override public boolean usingItem() { return using; }
     @Override public int selectedSlot() { return selected; }
+    @Override public boolean untouchable() { return player.getAbilities().invulnerable || player.isSpectator(); }
+    @Override public boolean onFire() { return player.isOnFire(); }
+    @Override public boolean fireResistant() { return player.hasEffect(MobEffects.FIRE_RESISTANCE); }
+    @Override public boolean waterEvaporates() { return "minecraft:the_nether".equals(McCompat.id(level.dimension())); }
+
+    @Override
+    public Optional<ItemView> fireResistancePotion() {
+        for (int slot = 0; slot < 36; slot++) {
+            ItemStack st = player.getInventory().getItem(slot);
+            if (!st.is(net.minecraft.world.item.Items.POTION)) continue;          // drinkable, not splash or lingering
+            var contents = st.get(DataComponents.POTION_CONTENTS);
+            if (contents == null) continue;
+            for (var e : contents.getAllEffects()) {
+                if (e.is(MobEffects.FIRE_RESISTANCE)) {
+                    return Optional.of(new ItemView(slot, BuiltInRegistries.ITEM.getKey(st.getItem()).toString(), st.getCount(), null));
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     @Override public String offhandItem() {
         ItemStack st = player.getOffhandItem();
         return st.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(st.getItem()).toString();

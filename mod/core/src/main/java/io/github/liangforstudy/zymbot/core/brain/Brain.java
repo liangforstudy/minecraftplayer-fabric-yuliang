@@ -33,7 +33,7 @@ public final class Brain {
      * and the watchdog froze the bot one second into its first real fight (2026-10-29).
      */
     public static final java.util.Set<String> SURVIVAL = java.util.Set.of("downed", "drowning", "critical-health",
-            "fight-or-flee", "incoming", "log-out");
+            "fight-or-flee", "incoming", "log-out", "burning");
 
     public enum Source { INTERRUPT, ORDER, PLANNER }
 
@@ -63,7 +63,9 @@ public final class Brain {
 
     public void tick(WorldView world, Hands hands) {
         ticks++;
+        boolean reflexes = !world.untouchable();                      // creative, spectator: nothing to survive
         for (Interrupt i : interrupts) {
+            if (!reflexes) break;
             if (holdingStill() && !SURVIVAL.contains(i.name())) continue;
             if (skipUntil.getOrDefault(i.name(), 0L) > ticks || !i.triggered(world)) continue;
             boolean benched = benchedUntil.getOrDefault(i.name(), 0L) > ticks;
@@ -91,7 +93,7 @@ public final class Brain {
         activeInterrupt = null;
 
         // a reflex that's no longer needed still finishes what it started (don't spit out a bite)
-        if (current != null && source == Source.INTERRUPT && runCurrent(world) == Task.Status.RUNNING) return;
+        if (reflexes && current != null && source == Source.INTERRUPT && runCurrent(world) == Task.Status.RUNNING) return;
         if (holdingStill()) return;                                // no order, no objective until it's over
 
         if (order != null) {

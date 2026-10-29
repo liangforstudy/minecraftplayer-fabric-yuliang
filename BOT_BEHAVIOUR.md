@@ -46,7 +46,7 @@ Evaluated in order, every tick. First match wins.
 | 7 | — | work the current objective | — |
 
 **As built (2026-09-30), differences from the table above:**
-- **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it). Anarchy build: only while a key is held, back 0.5 s after it is let go, fights included (doc/9b9t/roadmap.md).
+- **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it). Anarchy build: only while a key is held, back 0.25 s after it is let go (`/zbot set resume <ms>`), fights included (doc/9b9t/roadmap.md). In creative or spectator no reflex runs.
 - **Water:** besides drowning (#1a) there are *stranded* (out of its depth with nothing to do: swim to
   land with water straight beside it and dry on top), *wading* (idle in shallows: step onto dry land)
   and diving (a task, for graves under water).
@@ -55,7 +55,7 @@ Evaluated in order, every tick. First match wins.
   Anarchy build: `fight-or-flee` (after critical health) hits back weak melee mobs, rushes one or two
   skeletons, takes cover from the rest and from ghasts, backs off or digs in; it also starts before
   the first hit, on a walker within 6 blocks or a skeleton within 16 that can see us
-  (doc/9b9t/roadmap.md §2). A ghast's fireball coming at it is hit back at the ghast (`incoming`). Still being hurt at health 8 (6 with golden apples, 4 with a totem), it logs out (`log-out`).
+  (doc/9b9t/roadmap.md §2). A ghast's fireball coming at it is hit back at the ghast (`incoming`). Still being hurt at health 8 (6 with golden apples, 4 with a totem), it logs out (`log-out`). On fire, it pours a water bucket at its feet and scoops it back (`burning`; a fire resistance potion at `fireres` health or below instead, 0 = never).
 - **Hazards (0.1.43):** hurt by a block it's touching (fire, cactus, magma, berry bush, lava, …) → step
   to the nearest safe spot within 5 blocks. Those hits have no attacker, so the retreat never fired.
 - **Fidget watchdog:** spinning or bobbing in place for 10 s → hold still, log why.

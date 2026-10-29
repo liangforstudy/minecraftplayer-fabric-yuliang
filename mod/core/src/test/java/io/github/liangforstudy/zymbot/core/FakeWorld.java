@@ -456,6 +456,13 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public void lookAt(Vec3 point) { lookedAt = point; }
     public final List<Integer> attacked = new ArrayList<>();
     public String offhand = "";
+    public boolean onFire, fireResistant, nether, untouchable;
+    @Override public boolean untouchable() { return untouchable; }
+    public java.util.Optional<ItemView> fireResPotion = java.util.Optional.empty();
+    @Override public boolean onFire() { return onFire; }
+    @Override public boolean fireResistant() { return fireResistant; }
+    @Override public boolean waterEvaporates() { return nether; }
+    @Override public java.util.Optional<ItemView> fireResistancePotion() { return fireResPotion; }
     public String loggedOut;
     @Override public String offhandItem() { return offhand; }
     @Override public void logOut(String reason) { loggedOut = reason; }
@@ -491,9 +498,29 @@ public final class FakeWorld implements WorldView, Hands {
 
     @Override
     public void holdUse(boolean down) {
+        if (down && !useHeld) bucket();
         useHeld = down;
         if (down && !usingItem && inventory.stream().anyMatch(i -> i.slot() == selected && i.edible())) usingItem = true;
         if (!down) usingItem = false;
+    }
+
+    /** A bucket used looking down at our feet: pours (puts the fire out) or scoops the water back. */
+    private void bucket() {
+        Optional<ItemView> held = inventory.stream().filter(i -> i.slot() == selected).findFirst();
+        if (held.isEmpty() || lookedAt == null || lookedAt.y() > pos.y() + 0.5) return;
+        BlockPos feet = new BlockPos((int) Math.floor(pos.x()), (int) Math.floor(pos.y() + 0.01), (int) Math.floor(pos.z()));
+        if (held.get().id().equals("minecraft:water_bucket") && !blockAt(feet).contains("water")) {
+            inventory.remove(held.get());
+            inventory.add(new ItemView(selected, "minecraft:bucket", 1, null));
+            blocks.put(feet, "minecraft:water");
+            inWater = true;
+            onFire = false;
+        } else if (held.get().id().equals("minecraft:bucket") && blockAt(feet).contains("water")) {
+            inventory.remove(held.get());
+            inventory.add(new ItemView(selected, "minecraft:water_bucket", 1, null));
+            blocks.put(feet, "minecraft:air");
+            inWater = false;
+        }
     }
 
     /** A pathfinder that walks instantly when told to {@link #arrive()}. */

@@ -75,6 +75,19 @@ public interface WorldView {
     default boolean beingRevived() { return false; }
     /** The hotbar slot in hand, 0–8. */
     default int selectedSlot() { return 0; }
+    /**
+     * Creative or spectator: nothing hurts us and mobs leave us alone, so no survival reflex has
+     * anything to do (owner, 2026-10-29: fight-or-flee went on in spectator).
+     */
+    default boolean untouchable() { return false; }
+    /** Burning: the flames on the body, which go on ~8 s after the last touch of fire or lava. */
+    default boolean onFire() { return false; }
+    /** Fire resistance is on: burning does nothing. */
+    default boolean fireResistant() { return false; }
+    /** Water boils away here (the Nether): no water bucket. */
+    default boolean waterEvaporates() { return false; }
+    /** A drinkable potion of fire resistance in slots 0–35, if any. */
+    default Optional<ItemView> fireResistancePotion() { return Optional.empty(); }
     /** The offhand's item id ("minecraft:totem_of_undying"), "" when empty. */
     default String offhandItem() { return ""; }
     /** Every non-empty stack in slots 0–35. */

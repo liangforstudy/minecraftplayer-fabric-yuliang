@@ -286,7 +286,9 @@ final class ZymbotSettingsScreen extends Screen {
             {"regroup", "Regroup when no teammate within (blocks)"},
             {"probewait", "Wait for a teammate's answer (s), then spawn"},
             {"plantime", "Route search time limit (ms)"},
-            {"lagtps", "Server lagging below (TPS) — plan less"}})
+            {"lagtps", "Server lagging below (TPS) — plan less"},
+            {"fireres", "Fire resistance at health ≤ (0 = never)"},
+            {"resume", "Take over this long after keys (ms)"}})
             .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
