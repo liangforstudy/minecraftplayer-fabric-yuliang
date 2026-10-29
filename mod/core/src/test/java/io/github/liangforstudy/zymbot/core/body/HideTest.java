@@ -171,6 +171,35 @@ class HideTest {
         assertEquals(Task.Status.FAILED, t.tick(w), "the shaft hides us but can't be walked out of");
     }
 
+    /** Live, 2026-10-29: dug 3 down from 0.22 off the middle, it stood on the rim and never dropped in. */
+    @Test
+    void dugFromOffTheMiddle_stepsIntoTheHole() {
+        FakeWorld w = onNetherrack();
+        w.pos = new Vec3(0.72, 64, 0.5);                            // on the rim once the hole is open
+        HideTask t = new HideTask(w, x -> true);
+        for (int i = 0; i < 60; i++) t.tick(w);                     // no physics: it doesn't drop in by itself
+        for (int y = 61; y <= 63; y++) assertTrue(w.blockAt(new BlockPos(0, y, 0)).endsWith(":air"), "dug at " + y);
+        assertTrue(w.forwardHeld, "walking in");
+        assertEquals(new Vec3(0.5, 64, 0.5), w.lookedAt, "toward the hole's middle");
+        w.pos = new Vec3(0.5, 61, 0.5);                             // dropped in
+        t.tick(w);
+        assertFalse(w.forwardHeld, "let go once in");
+        assertEquals("hiding in a hole", t.describe());
+    }
+
+    /** A fireball cut the dig short; digging in again where the hole already is finishes it. */
+    @Test
+    void aHalfDugHoleUnderUs_isFineToDigInAgain() {
+        FakeWorld w = onNetherrack();
+        w.blocks.put(new BlockPos(0, 63, 0), "minecraft:air");
+        w.blocks.put(new BlockPos(0, 62, 0), "minecraft:air");
+        assertTrue(HideTask.canDigIn(w).isEmpty(), HideTask.canDigIn(w).orElse(""));
+        w.blocks.put(new BlockPos(0, 61, 0), "minecraft:air");
+        w.blocks.put(new BlockPos(0, 60, 0), "minecraft:air");
+        w.groundY = 40;
+        assertTrue(HideTask.canDigIn(w).orElse("").contains("nothing solid"), "an open shaft is still a drop");
+    }
+
     @Test
     void neverDigsIntoLava_aDrop_orObsidian() {
         FakeWorld lava = onNetherrack();
@@ -207,5 +236,76 @@ class HideTest {
         String log = String.join("\n", b.decisions().latest(20).stream().map(Object::toString).toList());
         assertTrue(new BlockPos(0, 63, 0).equals(w.mining) || w.blockAt(new BlockPos(0, 63, 0)).endsWith(":air"),
                 "digging in under its feet: mining " + w.mining + "\n" + log);
+    }
+
+    Bot anarchy(FakeWorld w) {
+        w.armor = 15;
+        Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve(w.name), w.id, false, clock, Profile.ANARCHY);
+        b.onJoin("9b9t.com", w.name);
+        b.start("test");
+        return b;
+    }
+
+    void ticks(Bot b, FakeWorld w, int n) {
+        for (int i = 0; i < n; i++) {
+            clock.now += 50;
+            b.tick(w, w);
+        }
+    }
+
+    String log(Bot b) {
+        return String.join("\n", b.decisions().latest(20).stream().map(Object::toString).toList());
+    }
+
+    /** A stone wall two high at {@code x}, from z -4 to 4. */
+    static void wall(FakeWorld w, int x) {
+        for (int z = -4; z <= 4; z++) {
+            w.blocks.put(new BlockPos(x, 64, z), "minecraft:stone");
+            w.blocks.put(new BlockPos(x, 65, z), "minecraft:stone");
+        }
+    }
+
+    /** Before routes 5: the first fireball's hit, with no cover a step or two away, digs in at once. */
+    @Test
+    void theFirstFireball_noCoverNear_digsInAtOnce() {
+        FakeWorld w = onNetherrack();
+        Bot b = anarchy(w);
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-20, 70, 0));
+        w.nearby.add(g);
+        w.damage = new Damage("minecraft:fireball", "ghast", g.pos(), g.uuid());
+        ticks(b, w, 3);
+        assertTrue(new BlockPos(0, 63, 0).equals(w.mining) || w.blockAt(new BlockPos(0, 63, 0)).endsWith(":air"),
+                "digging in under its feet: mining " + w.mining + "\n" + log(b));
+        assertTrue(log(b).contains("no cover within " + FightOrFleeInterrupt.FLYER_COVER_BLOCKS + " blocks"), log(b));
+    }
+
+    @Test
+    void aGhast_coverAStepAway_isTaken() {
+        FakeWorld w = onNetherrack();
+        wall(w, 2);                                                 // the ghast is west, low: behind the wall at x 3
+        Bot b = anarchy(w);
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-30, 64.5, 0));
+        w.nearby.add(g);
+        w.damage = new Damage("minecraft:fireball", "ghast", g.pos(), g.uuid());
+        ticks(b, w, 3);
+        assertNotNull(w.paths.goal, "walking to cover\n" + log(b));
+        assertEquals(3, w.paths.goal.x(), "just behind the wall: " + w.paths.goal + "\n" + log(b));
+        assertNull(w.mining, "no digging with cover this close");
+    }
+
+    @Test
+    void aGhast_coverFurtherOff_digsInFirst() {
+        FakeWorld w = onNetherrack();
+        wall(w, 6);                                                 // cover at x 7: too far
+        Bot b = anarchy(w);
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-30, 64.5, 0));
+        w.nearby.add(g);
+        w.damage = new Damage("minecraft:fireball", "ghast", g.pos(), g.uuid());
+        ticks(b, w, 3);
+        assertTrue(new BlockPos(0, 63, 0).equals(w.mining) || w.blockAt(new BlockPos(0, 63, 0)).endsWith(":air"),
+                "digging in, not walking 7 blocks in the open: mining " + w.mining + ", goal " + w.paths.goal + "\n" + log(b));
     }
 }

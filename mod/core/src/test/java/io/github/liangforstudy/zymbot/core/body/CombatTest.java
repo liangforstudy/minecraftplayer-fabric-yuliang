@@ -349,18 +349,21 @@ class CombatTest {
     void aGhast_inGoodArmor_takesCover_andStaysWhileHidden() {
         FakeWorld w = new FakeWorld("Bluetails");
         w.armor = 20;
-        wall(w);
+        for (int z = -4; z <= 4; z++) {                             // two east: a ghast's cover must be a step or two away
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(2, 64, z), "minecraft:stone");
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(2, 65, z), "minecraft:stone");
+        }
         Bot b = walking(w);
         EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
                 new Vec3(-16, 64, 0));
         w.nearby.add(g);
         hitBy(w, g);
         ticks(b, w, 2);
-        assertEquals(4, w.paths.goal.x(), log(b));
+        assertEquals(3, w.paths.goal.x(), log(b));
         w.paths.arrive();
         w.damage = null;
         ticks(b, w, 40);
-        assertEquals(4, (int) Math.floor(w.pos.x()), "stays in cover while the ghast is about: " + log(b));
+        assertEquals(3, (int) Math.floor(w.pos.x()), "stays in cover while the ghast is about: " + log(b));
         w.nearby.clear();                                          // it drifts off
         ticks(b, w, 3 * 20 + 25);                                 // gone for 3 s: not just flickering out of range
         assertEquals(200, w.paths.goal.x(), "then back on the walk: " + log(b));

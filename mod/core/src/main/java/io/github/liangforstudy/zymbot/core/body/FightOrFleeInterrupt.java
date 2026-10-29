@@ -112,14 +112,34 @@ public final class FightOrFleeInterrupt implements Interrupt {
             return switch (decision(world, mob.get()).action()) {
                 case FIGHT -> new FightTask(hands, mob.get(), body::reportSwim,
                         w -> creeper(w).isEmpty() && threat(w).map(m -> decision(w, m).fight()).orElse(true));
-                case COVER -> new Fallback(body::note, new CoverTask(hands, Combat::shooters, body::reportSwim),
-                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note), retreat(hands, mob.get().pos()));
+                case COVER -> cover(world, hands, body, retreat(hands, mob.get().pos()));
                 case BACK_OFF -> new Fallback(body::note, retreat(hands, mob.get().pos()),
                         new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note));
             };
         }
         return unseenAttacker(world).map(a -> retreat(hands, a.from()))
                 .orElseGet(() -> Task.failed("fight or flee", "nothing in sight"));
+    }
+
+    /**
+     * Against a ghast or a blaze, cover only this close; further off, dig in first. Cover further out
+     * cost three fireballs on open ground, 20 → 10.6, before it got under (2026-10-29).
+     */
+    public static final int FLYER_COVER_BLOCKS = 3;
+
+    /**
+     * Out of the shooters' sight: cover, else dig in, else {@code last}. With a flyer among them, cover
+     * a step or two away, else dig in at once, and only then cover further out (doc/9b9t/roadmap.md,
+     * "Before routes" 5).
+     */
+    public static Task cover(WorldView world, Hands hands, Body body, Task last) {
+        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note);
+        CoverTask cover = new CoverTask(hands, Combat::shooters, body::reportSwim);
+        if (Combat.shooters(world).stream().noneMatch(e -> Combat.kind(e.type()) == Combat.Kind.FLYER)) {
+            return new Fallback(body::note, cover, hide, last);
+        }
+        return new Fallback(body::note, new CoverTask(hands, Combat::shooters, body::reportSwim).within(FLYER_COVER_BLOCKS),
+                hide, cover, last);
     }
 
     /** Something is still after us: a shooter in range, or a hostile close. */

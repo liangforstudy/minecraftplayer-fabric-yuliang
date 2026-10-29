@@ -413,6 +413,36 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
    away each time it was burned, health 18–20; with overhead at 5 it stopped under the burning leaves
    (5–7 up), so overhead is now 8. The owner tried it too: "looks great enough" (2026-10-29).
 5. **Dig in at the first fireball** when there's no cover, rather than looking for cover first.
+   **Built (2026-10-29), not yet run live.** With a ghast or a blaze among the shooters, cover is
+   looked for only within 3 blocks (`FightOrFleeInterrupt.FLYER_COVER_BLOCKS`); with none that close it
+   digs in at once, then wider cover (10) if it can't dig, then backs off. Ground shooters keep cover
+   first. The critical-health reflex uses the same order (`FightOrFleeInterrupt.cover`). The log reads
+   "digging in — because looking for cover gave up: no cover within 3 blocks". The trigger is still
+   the first fireball that **hurts**: a fireball hit back (`incoming`) doesn't count, or the walk would
+   stop and dig in each time a ghast is about, in the Nether nearly always (tried, then dropped; an
+   existing test of the walk going on after a return caught it). A missed return costs one hit (~3),
+   then it digs in. Tests: no cover near → digs in; a wall a step away → cover there, no digging; a
+   wall 6 off → digs in, doesn't walk to it. 324 core tests pass. Live test to do: open platform, full
+   iron, ghast ~20 off, `incoming` letting one through (or no sword swing in reach): the first hit
+   should start the dig, with no walk first.
+   **Live, 2026-10-29 (new 26.2 world on this PC, Hard: a fireball is 9 + an ~7 blast in full iron,
+   vs ~3.1 in the old world; 25×25 cobblestone platform at y 147–150, x −246..−222, z −83..−59).**
+   - A natural ghast 20 off: two fireballs, both hit back, **the second return killed it** (died "by
+     fireball" 46 blocks out, "1° off our aim and 3° off the ghast"): the first kill by a return. No damage.
+   - A forced hit (a fireball summoned 2 blocks off, owned by the ghast, too close to swing at): 20 →
+     ~5 in the one hit, then **"digging in at −231 150 −71" the same second, no walk to cover**: item 5
+     works. But it dug all three blocks from 0.22 off the hole's middle, and a body 0.6 wide rested on
+     the next block: it **never dropped in**. 4 s later the next fireball's `incoming` cut the dig short
+     (not yet "hiding": still at the surface), and every retry failed "can't dig air under us" (its own
+     hole), falling to wide cover (none) and backing off (done at once, the ghast past 32): 7 loops in 7 s,
+     until the ghast drifted to 63. It took no more hits (the returns held).
+   - **Fixed:** with the hole dug and still on the rim, it steps to the middle (steer + forward) and
+     lets go once in; a half-dug hole under us is fine to dig in again. Tests for both; a cover test whose
+     wall was 3.5 off now has it 2.5 off (the old one only passed because the dig failed on the fake
+     world's air). 326 core tests pass. **Not yet run live.**
+   - Test notes: after a log-out and rejoin Zymbot is only standing by: `/zbot start` again before a
+     test (the first run here had nothing reacting, 4 fireballs, dead). Fire from fireballs stays a
+     while on cobblestone here (18 fire blocks after one run): clear with `/fill … air replace fire`.
 6. **One gold armor piece** on against piglins, when carried.
 
 **Overworld routes at night: wait for day (decided, owner, 2026-10-29).** Somewhere safe, then go on.

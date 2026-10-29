@@ -40,6 +40,8 @@ public final class CoverTask implements Task {
     static final int GONE_TICKS = 3 * 20;
     private int gone;
 
+    private int radius = RADIUS;
+
     private final Hands hands;
     private final PathProvider paths;
     private final Function<WorldView, List<EntityView>> shooters;
@@ -56,6 +58,12 @@ public final class CoverTask implements Task {
         this.paths = hands.paths();
         this.shooters = shooters;
         this.report = report;
+    }
+
+    /** Look for cover only this close (a step or two, against a ghast: digging in is quicker than a walk). */
+    public CoverTask within(int blocks) {
+        radius = blocks;
+        return this;
     }
 
     @Override
@@ -97,7 +105,7 @@ public final class CoverTask implements Task {
             Optional<BlockPos> best = find(world, now);
             if (best.isEmpty()) {
                 cancel();
-                failure = "no cover within " + RADIUS + " blocks";
+                failure = "no cover within " + radius + " blocks";
                 return Status.FAILED;
             }
             if (walk == null || !best.get().equals(spot)) {
@@ -117,16 +125,16 @@ public final class CoverTask implements Task {
         return Status.RUNNING;
     }
 
-    /** The nearest standing spot no shooter can see, by walking distance as the crow flies. */
+    /** The nearest standing spot within the radius no shooter can see, by walking distance as the crow flies. */
     Optional<BlockPos> find(WorldView world, List<EntityView> now) {
         Vec3 me = world.position();
         int mx = (int) Math.floor(me.x()), my = (int) Math.floor(me.y()), mz = (int) Math.floor(me.z());
         BlockPos best = null;
         double bestD = Double.MAX_VALUE;
-        for (int dx = -RADIUS; dx <= RADIUS; dx++) {
-            for (int dz = -RADIUS; dz <= RADIUS; dz++) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
                 double flat = Math.hypot(dx, dz);
-                if (flat > RADIUS || flat >= bestD) continue;
+                if (flat > radius || flat >= bestD) continue;
                 for (int dy = -UP_DOWN; dy <= UP_DOWN; dy++) {
                     BlockPos feet = new BlockPos(mx + dx, my + dy, mz + dz);
                     if (!standable(world, feet)) continue;

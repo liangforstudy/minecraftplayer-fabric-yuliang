@@ -90,7 +90,8 @@ public final class HideTask implements Task {
         for (int d = 0; d < DEPTH; d++) {
             BlockPos b = new BlockPos(f.x(), f.y() - d, f.z());
             String id = world.blockAt(b);
-            if (!diggable(id)) return Optional.of("can't dig " + id.replace("minecraft:", "") + " under us");
+            // air: the hole half dug before a fireball cut in
+            if (!id.endsWith(":air") && !diggable(id)) return Optional.of("can't dig " + id.replace("minecraft:", "") + " under us");
             for (int[] s : SIDES) {                                  // lava beside the hole pours in
                 String side = world.blockAt(new BlockPos(b.x() + s[0], b.y(), b.z() + s[1]));
                 if (side.contains("lava") || side.contains("water")) return Optional.of(side.replace("minecraft:", "") + " beside the hole");
@@ -159,7 +160,19 @@ public final class HideTask implements Task {
             return Status.RUNNING;
         }
         hands.stopMining();
-        if (world.position().y() > top.y() - DEPTH + 1.5) return Status.RUNNING;   // still falling in
+        Vec3 me = world.position();
+        if (me.y() > top.y() - DEPTH + 1.5) {                               // still falling in
+            // On the rim: a body 0.6 wide, 0.22 off the middle, rested on the next block over the dug
+            // hole and never dropped in, and the next fireball cut the dig short (2026-10-29). Step in.
+            if (world.onGround() && me.y() > top.y() + 0.5) {
+                hands.steerToward(new Vec3(top.x() + 0.5, me.y(), top.z() + 0.5), 30);
+                hands.holdKeys(true, false);
+            } else {
+                hands.holdKeys(false, false);
+            }
+            return Status.RUNNING;
+        }
+        hands.holdKeys(false, false);
         note.accept("hiding in a hole", "dug " + DEPTH + " down at " + top.x() + " " + top.y() + " " + top.z());
         stage = Stage.WAIT;
         ticks = 0;
