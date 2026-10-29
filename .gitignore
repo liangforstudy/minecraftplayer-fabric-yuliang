@@ -38,3 +38,6 @@ docs_and_tables.zip
 
 # MCP Fabric bridge config (holds a local token)
 .mcp.json
+
+# local MCP Fabric caller, points at this PC's Prism instance
+tools/mcprpc.py
