@@ -419,6 +419,21 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   logging out, and the route waypoints themselves. The first try was a `goto` whose route swam: a
   skeleton shot from the shore and the retreat went on through the water, which costs health and
   air. Retreats should prefer land when the walk is wet.
+- **Nether test, 2026-10-29** (26.2 singleplayer, full iron + iron sword, keepInventory on, MCP Fabric):
+  - The bot walked into the owner's portal (`/zbot goto` to the portal block); a 40-block `goto`
+    across the Nether: route planner 39 land, Baritone walked it in 15 s, y 63 → 47, no damage.
+  - Magma cube (size 2): fought, it split; each small one fought as it hit (only after a hit, never
+    before). Lone hoglin: fought, killed in ~4 s, −7. Piglin, no gold: backed off, never hit back,
+    lost it after ~70 blocks (−5). Zombified piglin made angry (we hit it once): never hit back, backed
+    off — but the angry group kept pace and the retreat led into skeletons: down to 8.5 when stopped.
+  - Skeletons (a soul sand valley next to the portal): fought a lone one, backed off when a second
+    joined — and then took arrows all the way, down to 8 when stopped. **Running doesn't shake
+    shooters** (as expected): cover is needed, or fight back when cornered.
+  - The retreat picks its way by the attacker only: it ran into other mobs twice. It should steer
+    away from every hostile in sight, not just the one that hit.
+  - Ghast: inconclusive (summoned into the terrain, never shot).
+  - The fidget watchdog called 10 s of pure turning while idle "spinning in place" (739°, 0 blocks):
+    likely the owner looking around with the mouse, which isn't counted as human input. To check.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
