@@ -239,6 +239,23 @@ final class FabricWorldView implements WorldView {
     }
 
     @Override
+    public List<io.github.liangforstudy.zymbot.core.api.ProjectileView> projectiles() {
+        List<io.github.liangforstudy.zymbot.core.api.ProjectileView> out = new ArrayList<>();
+        for (Entity e : level.entitiesForRendering()) {
+            if (!(e instanceof net.minecraft.world.entity.projectile.Projectile p) || e.isRemoved()) continue;
+            if (e.distanceToSqr(player) > NEARBY_HOSTILE * NEARBY_HOSTILE) continue;
+            var v = e.getDeltaMovement();
+            if (v.lengthSqr() < 1e-6) v = e.position().subtract(e.xo, e.yo, e.zo);   // not synced yet: what it moved
+            Entity owner = p.getOwner();
+            out.add(new io.github.liangforstudy.zymbot.core.api.ProjectileView(e.getId(),
+                    BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString(),
+                    new Vec3(e.getX(), e.getY() + e.getBbHeight() / 2, e.getZ()), new Vec3(v.x, v.y, v.z),
+                    owner == null ? -1 : owner.getId()));
+        }
+        return out;
+    }
+
+    @Override
     public List<EntityView> playersInView() {
         List<EntityView> out = new ArrayList<>();
         for (Player p : level.players()) {                      // all the server tracks for us: no distance cap

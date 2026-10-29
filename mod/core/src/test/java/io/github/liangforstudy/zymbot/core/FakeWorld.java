@@ -387,6 +387,8 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public List<ItemView> inventory() { return List.copyOf(inventory); }
     @Override public Optional<Damage> recentDamage() { return Optional.ofNullable(damage); }
     @Override public List<EntityView> nearby() { return List.copyOf(nearby); }
+    public final List<io.github.liangforstudy.zymbot.core.api.ProjectileView> projectiles = new ArrayList<>();
+    @Override public List<io.github.liangforstudy.zymbot.core.api.ProjectileView> projectiles() { return List.copyOf(projectiles); }
     @Override public long timeOfDay() { return time; }
     @Override public long day() { return day; }
     @Override public Set<UUID> onlinePlayers() { return online; }

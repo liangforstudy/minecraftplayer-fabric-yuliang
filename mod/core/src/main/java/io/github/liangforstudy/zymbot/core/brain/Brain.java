@@ -33,7 +33,7 @@ public final class Brain {
      * and the watchdog froze the bot one second into its first real fight (2026-10-29).
      */
     public static final java.util.Set<String> SURVIVAL = java.util.Set.of("downed", "drowning", "critical-health",
-            "fight-or-flee");
+            "fight-or-flee", "incoming");
 
     public enum Source { INTERRUPT, ORDER, PLANNER }
 

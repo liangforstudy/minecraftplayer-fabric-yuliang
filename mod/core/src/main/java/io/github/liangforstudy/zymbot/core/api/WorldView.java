@@ -81,6 +81,8 @@ public interface WorldView {
     default Optional<Damage> recentDamage() { return Optional.empty(); }
     /** Players and mobs within ~32 blocks (hostiles and players ~64: a ghast fires from there, and on anarchy a player can), not including ourselves. */
     default List<EntityView> nearby() { return List.of(); }
+    /** Projectiles in flight within ~64 blocks (arrows, fireballs), ours included. */
+    default List<ProjectileView> projectiles() { return List.of(); }
     /**
      * Every other player the server sends us, however far: the server's own tracking limit, not
      * ours (owner, 2026-10-16). Who the chat check (roadmap3.md §4) can "meet in sight".

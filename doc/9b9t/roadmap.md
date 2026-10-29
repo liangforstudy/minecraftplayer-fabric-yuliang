@@ -573,10 +573,30 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   4. Wither skulls and the dragon belong to §5 fights and the End.
   On 9b9t projectile updates come in jumps (low TPS, ping 200+): judge by the last known velocity,
   act a few ticks early, favour 1 and 2. Test in the 26.2 world with summoned projectiles first.
+
+  **1 built (2026-10-29): `incoming`, anarchy only** (`core/body/IncomingInterrupt`,
+  `core/task/DeflectTask`; `WorldView.projectiles()` gives each projectile's position, velocity and
+  shooter). Ahead of hazard and critical health, a survival reflex; not while dug in. A ghast fireball
+  (`minecraft:fireball`) within 32 blocks whose straight path passes within 2.5 of our middle: face its
+  ghast, leading it (its drift over the wait × the return's flight at ~1.5 blocks a tick), and once
+  we've faced it 2 ticks (the server reads our facing from the movement packet a tick later) swing at
+  the fireball when it's within 3.3 + its speed of our eyes. Then watch the return a few ticks and log
+  how far its flight is off our aim and off the ghast. Arrows and blaze fireballs aren't hit.
+  - Live, 26.2 world, full iron, platform at noon, three runs (2026-10-29): **every fireball that
+    reached the bot was hit back; no damage taken** (the traced hide before it took 9.4 from three).
+    First run, aimed at where the ghast was: the returns went past it. With the lead: "flying 2° off
+    our aim and 4° off the ghast" at 27 blocks, "1° off our aim and 11° off the ghast" at 56. So the
+    swing goes where we aim; what misses is the ghast changing course on the way back, more the
+    further it is. No kill seen yet (a ghast's box is 4 wide: within ~2.5 blocks of its middle hits).
+    Two fireballs vanished 16–18 blocks out, likely the platform's edge (that ghast flew below its top).
+  - Still to do: a kill (closer ghasts, or a better lead); shields (2), sidestepping (3).
+  - Test tip: `execute as @e[type=ghast] run tp @s ~ ~ ~` does **not** report where a ghast is: `~`
+    is the world spawn there, so it moved them to 16 114 −48. Use MCP `get_entity` by uuid.
 - **Pick up ghast tears (owner, 2026-10-29: "tears are rare on 9b9t").** A ghast killed by a returned
   fireball is our kill: it drops 0–1 tear and 0–2 gunpowder. Watch where it falls; if the tear lands
   on solid ground with a safe path (no lava, no drop) within ~32 blocks, fetch it before 9b9t's
   2-minute despawn, then resume the route. Tears aren't fireproof: over a lava lake, it's lost.
+  In the decision log (owner's wording): `walking to ghast tear — because treasure`.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
