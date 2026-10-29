@@ -288,7 +288,7 @@ final class ZymbotSettingsScreen extends Screen {
             {"plantime", "Route search time limit (ms)"},
             {"lagtps", "Server lagging below (TPS) — plan less"},
             {"fireres", "Fire resistance at health ≤ (0 = never)"},
-            {"resume", "Take over this long after keys (ms)"}})
+            {"resume", "Play again after you let go (ms)"}})
             .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
