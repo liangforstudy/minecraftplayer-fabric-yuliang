@@ -492,6 +492,16 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   had dropped out of sight mid-fight, so cover ended and the critical reflex found "nothing to run
   from"; it then died again, probably knocked into lava by a fireball. On 9b9t players are as
   dangerous (owner). Live after: the ghast at the owner's spot, cover twice, −4, survived.
+- **Digging in, live on a flat test platform** (overworld, 25×25 at y 147–150 over 13..37, −63..−39,
+  made for this; netherrack first, then cobblestone since a ghast's fireballs crater netherrack and so
+  made cover; an iron pickaxe given): **it digs in** — three down (151 → 148), the 3 cobblestone picked
+  up, and the fireballs stopped landing. But: cover wandered 22–30 s first (20 → 7), so cover now
+  gives up after 8 s in sight in all; and the hide ended within a couple of seconds of digging, leaving
+  it idle in the hole with no climb. Fixed what could be found: the critical reflex leaves a dug-in
+  bot alone unless it can eat (`Body.hiding`). The cause of the early end isn't in the log (it ended
+  "done", not failed): next, log each fallback step and hide stage, and run it again. The climb out is
+  tested in the fake world only. A flaky core test seen once: `HandshakeTest.aBotWithAnotherKey…`
+  (passes alone; likely the shared parked-team static under parallel tests).
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no

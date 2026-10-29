@@ -37,6 +37,7 @@ public final class HideTask implements Task {
 
     private final Hands hands;
     private final Predicate<WorldView> danger;
+    private final java.util.function.Consumer<Boolean> hiding;
     private BlockPos top;                     // the block we stood on: the first one dug (set on the first tick)
     private final List<String> dugIds = new ArrayList<>();
     private Stage stage = Stage.DIG;
@@ -51,8 +52,18 @@ public final class HideTask implements Task {
      *               wait in the hole lasts until this has been false for {@link #CLEAR_TICKS}
      */
     public HideTask(Hands hands, Predicate<WorldView> danger) {
+        this(hands, danger, h -> {});
+    }
+
+    /**
+     * @param hiding told true while dug in (digging and waiting) and false once out or given up, so
+     *               the critical-health reflex leaves the hole alone: it took over from a dig-in, ran its
+     *               own cover, ended when the ghast drifted off, and the climb out never came (2026-10-29)
+     */
+    public HideTask(Hands hands, Predicate<WorldView> danger, java.util.function.Consumer<Boolean> hiding) {
         this.hands = hands;
         this.danger = danger;
+        this.hiding = hiding;
     }
 
     /** Why digging in here is unsafe, or empty when it's fine. */
@@ -87,6 +98,7 @@ public final class HideTask implements Task {
             Optional<String> unsafe = canDigIn(world);
             if (unsafe.isPresent()) return fail(unsafe.get());
             top = floor(world.position());
+            hiding.accept(true);
         }
         ticks++;
         return switch (stage) {
@@ -131,6 +143,7 @@ public final class HideTask implements Task {
         Vec3 me = world.position();
         if (me.y() >= top.y() + 1 - 0.01 && world.onGround()) {                   // back up where we stood
             hands.holdKeys(false, false);
+            hiding.accept(false);
             return Status.DONE;
         }
         if (ticks > CLIMB_TICKS) {
@@ -181,7 +194,7 @@ public final class HideTask implements Task {
         return new BlockPos((int) Math.floor(p.x()), (int) Math.floor(p.y() - 0.01), (int) Math.floor(p.z()));
     }
 
-    @Override public void cancel() { hands.stopMining(); hands.holdKeys(false, false); }
+    @Override public void cancel() { hands.stopMining(); hands.holdKeys(false, false); hiding.accept(false); }
     @Override public String failure() { return failure; }
     @Override public String describe() {
         return switch (stage) {

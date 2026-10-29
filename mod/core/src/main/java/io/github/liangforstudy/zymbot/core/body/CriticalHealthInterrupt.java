@@ -45,6 +45,7 @@ public final class CriticalHealthInterrupt implements Interrupt {
     @Override
     public boolean triggered(WorldView world) {
         if (world.isDead()) return false;
+        if (body.hiding() && FoodChooser.best(world, body.recentFoods(), config.neverEat, true).isEmpty()) return false;
         return critical(world) || (config.runsAtFirstHit() && attackerClose(world).isPresent());
     }
 
@@ -70,7 +71,7 @@ public final class CriticalHealthInterrupt implements Interrupt {
                     human.map(EntityView::pos), body::reportSwim);
         }
         if (!coverFromShooters) return run;
-        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs);
+        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding);
         if (!Combat.shooters(world).isEmpty()) {
             return new Fallback(new CoverTask(hands, Combat::shooters, body::reportSwim), hide, run);
         }

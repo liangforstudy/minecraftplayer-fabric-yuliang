@@ -27,6 +27,12 @@ public final class CoverTask implements Task {
     static final int RECHECK_TICKS = 20;
     static final int GIVE_UP_TICKS = 90 * 20;
     static final double EYES = 1.62;
+    /**
+     * In sight this long in all (seconds of walking from spot to spot as the shooter moves): give up
+     * on cover and dig in instead. A drifting ghast kept Bluetails walking for 30 s, 20 → 7 (2026-10-29).
+     */
+    static final int EXPOSED_TICKS = 8 * 20;
+    private int exposed;
 
     private final Hands hands;
     private final PathProvider paths;
@@ -69,9 +75,14 @@ public final class CoverTask implements Task {
             if (world.attackReady()) hands.attack(close.get().id());
             return Status.RUNNING;
         }
+        boolean seen = !hidden(world, eyes(world.position()), now);
+        if (seen && ++exposed > EXPOSED_TICKS) {
+            cancel();
+            failure = "in sight for " + EXPOSED_TICKS / 20 + " s, cover keeps failing";
+            return Status.FAILED;
+        }
         if (walk == null || ticks % RECHECK_TICKS == 0) {
-            Vec3 me = world.position();
-            if (hidden(world, eyes(me), now)) {             // already out of sight: stay put
+            if (!seen) {                                     // already out of sight: stay put
                 cancel();
                 return Status.RUNNING;
             }

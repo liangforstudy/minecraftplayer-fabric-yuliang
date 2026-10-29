@@ -71,6 +71,62 @@ class HideTest {
     }
 
     @Test
+    void coverThatNeverHolds_givesUpAfter8sInSight() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        CombatTest.wall(w);
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-16, 64, 0));
+        w.nearby.add(g);
+        var t = new io.github.liangforstudy.zymbot.core.task.CoverTask(w,
+                io.github.liangforstudy.zymbot.core.body.Combat::shooters, x -> {});
+        Task.Status s = Task.Status.RUNNING;
+        int n = 0;
+        while (s == Task.Status.RUNNING && n++ < 400) s = t.tick(w);   // never gets there: the walk never arrives
+        assertEquals(Task.Status.FAILED, s);
+        assertTrue(n <= 8 * 20 + 2, "gave up after ~8 s, not 90: " + n);
+        assertTrue(t.failure().contains("cover keeps failing"), t.failure());
+    }
+
+    @Test
+    void dugIn_theCriticalReflexLeavesTheHoleAlone_unlessItCanEat() {
+        Body body = new Body(java.util.ArrayList::new, id -> false, () -> 0L, () -> {});
+        FakeWorld w = onNetherrack();
+        w.health = 6;
+        var crit = new CriticalHealthInterrupt(new ZymbotConfig(), body, true);
+        assertTrue(crit.triggered(w));
+        body.hiding(true);
+        assertFalse(crit.triggered(w), "dug in, nothing to eat: stay put");
+        w.give(0, "minecraft:golden_apple", 1, FakeWorld.healing(4));
+        assertTrue(crit.triggered(w), "but eat when there's something that heals");
+    }
+
+    @Test
+    void criticalWithAFarGhast_digsIn_staysDown_thenClimbsOut() {
+        FakeWorld w = onNetherrack();
+        for (int y = 59; y <= 63; y++) w.blocks.put(new BlockPos(0, y, 0), "minecraft:cobblestone");
+        w.armor = 15;
+        Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve(w.name), w.id, false, clock, Profile.ANARCHY);
+        b.onJoin("9b9t.com", w.name);
+        b.start("test");
+        w.health = 8;
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-55, 90, 0));
+        w.nearby.add(g);
+        w.damage = new Damage("minecraft:fireball", "ghast", g.pos(), g.uuid());
+        String log = "";
+        for (int i = 0; i < 20 * 20; i++) {
+            clock.now += 50;
+            b.tick(w, w);
+            physics(w);
+            if (i == 5) w.damage = null;
+            if (i == 200) w.nearby.clear();                         // the ghast drifts off
+            log = String.join("\n", b.decisions().latest(30).stream().map(Object::toString).toList());
+            if (i == 150) assertEquals(61, w.pos.y(), "dug in and staying down while the ghast is about:\n" + log);
+        }
+        assertEquals(64, w.pos.y(), "climbed back out:\n" + log);
+    }
+
+    @Test
     void neverDigsIntoLava_aDrop_orObsidian() {
         FakeWorld lava = onNetherrack();
         lava.blocks.put(new BlockPos(1, 62, 0), "minecraft:lava");

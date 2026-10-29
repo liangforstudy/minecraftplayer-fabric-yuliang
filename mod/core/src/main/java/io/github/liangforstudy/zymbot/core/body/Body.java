@@ -88,6 +88,13 @@ public final class Body {
         if (lastAttack != null && lastAttack.id() != null && isTeammate.test(lastAttack.id())) lastAttack = null;
     }
 
+    private boolean hiding;
+
+    /** Dug in (HideTask): the critical-health reflex then only eats, and leaves the hole alone. */
+    public void hiding(boolean h) { hiding = h; }
+
+    public boolean hiding() { return hiding; }
+
     public Optional<Attack> recentAttack() {
         return Optional.ofNullable(lastAttack).filter(a -> clock.getAsLong() - a.at() <= ATTACK_MEMORY_MILLIS);
     }
