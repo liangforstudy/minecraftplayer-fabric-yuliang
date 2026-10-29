@@ -439,10 +439,22 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
    - **Fixed:** with the hole dug and still on the rim, it steps to the middle (steer + forward) and
      lets go once in; a half-dug hole under us is fine to dig in again. Tests for both; a cover test whose
      wall was 3.5 off now has it 2.5 off (the old one only passed because the dig failed on the fake
-     world's air). 326 core tests pass. **Not yet run live.**
+     world's air). 326 core tests pass.
+   - **Passed live (2026-10-29, game restarted on the fixed jar):** forced hit from 0.28 off the
+     middle (where the last run stuck): 20 → 14.8, "digging in" the same second, "hiding in a hole —
+     dug 3 down" 3 s later, down at y 148. That ghast despawned (a summoned overworld ghast past 32
+     blocks may), so it climbed out after 9 s. Rerun with `PersistenceRequired:1b`, blown ~2.5 blocks
+     by the blast, 0.2 off the middle in z: waited to land, dug in where it landed, down in 3 s,
+     **stayed down 60 s** with the ghast about, no more damage; ghast removed → "nothing after us for
+     5 s" → "climbed 3 up", the hole filled back with its own cobblestone.
+   - Owner's 3-ghast run on the old jar (2026-10-29): 11 returns, mostly 1–8° off the ghast; one got
+     through, it dug in at once, the next fireball cut the dig short; the critical reflex dug in again,
+     got down, and with health still falling in the hole (4.3) the log-out reflex left, as designed.
    - Test notes: after a log-out and rejoin Zymbot is only standing by: `/zbot start` again before a
      test (the first run here had nothing reacting, 4 fireballs, dead). Fire from fireballs stays a
      while on cobblestone here (18 fire blocks after one run): clear with `/fill … air replace fire`.
+     Summon test ghasts with `PersistenceRequired:1b`, or they may despawn mid-test. A jar copied
+     over while the game runs isn't loaded by leaving and rejoining the world: quit Minecraft fully.
 6. **One gold armor piece** on against piglins, when carried.
 
 **Overworld routes at night: wait for day (decided, owner, 2026-10-29).** Somewhere safe, then go on.
