@@ -470,6 +470,14 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
     for cover again, found none within 10 blocks on that open ground, backed off, and gave up after
     20 s no further away, at 5.9 when stopped. **Open ground with no cover is the case left**: it's
     where hiding (tower up, wall in, dig in, below) is needed.
+  - **Ghast alone, at the owner's open spot** (skeletons cleared first; ghast 10 blocks off): "ghast
+    shoots from the air — cover", but no cover within 10 on open netherrack, so it fell back to backing
+    off — which ended at once, since the ghast was already 32 away (backing off is "clear" at 32). Its
+    fireballs set the netherrack alight; the hazard reflex found nowhere clear within 5 and gave up
+    quietly, and it stood in the fire: 20 → 0 in ~8 s, "went up in flames". Fixed: the hazard reflex
+    looks 12 blocks out when nothing within 5 is clear (netherrack fire never goes out). Still open:
+    **a flyer with no cover in reach** — backing off can't escape a ghast; hiding (dig in, wall in) is
+    the answer, next.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no

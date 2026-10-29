@@ -33,6 +33,15 @@ class HazardTest {
     }
 
     @Test
+    void fireEverywhereNear_looksFurther() {
+        FakeWorld w = at("minecraft:in_fire");
+        w.blocks.put(new BlockPos(10, 63, 10), "minecraft:fire");
+        w.dryLand = new BlockPos(19, 62, 10);
+        w.dryLandNeedsRadius = 9;                                   // netherrack alight all round
+        assertTrue(new HazardInterrupt(body).respond(w, w).describe().contains("19 62 10"));
+    }
+
+    @Test
     void cactusBeside_counts() {
         FakeWorld w = at("minecraft:cactus");
         w.blocks.put(new BlockPos(11, 63, 10), "minecraft:cactus");

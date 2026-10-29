@@ -24,6 +24,11 @@ public final class HazardInterrupt implements Interrupt {
             "minecraft:wither", "minecraft:on_fire");
     /** How far it looks for a safe spot. */
     static final int RADIUS = 5;
+    /**
+     * Then this far: a ghast's fireballs set the netherrack around Bluetails alight, nothing within 5
+     * was clear, and it burned where it stood (Nether, 2026-10-29). Netherrack fire never goes out.
+     */
+    static final int FAR_RADIUS = 12;
 
     private final Body body;
 
@@ -44,9 +49,11 @@ public final class HazardInterrupt implements Interrupt {
     @Override
     public Task respond(WorldView world, Hands hands) {
         BlockPos here = standingOn(world);
-        var spot = world.nearestDryLand(RADIUS, StrandedInterrupt.safeLand(body, world)
-                .and(p -> !(p.x() == here.x() && p.z() == here.z()) && !touchesHazard(world, p)));
-        if (spot.isEmpty()) return Task.failed("stepping off the hazard", "no safe spot within " + RADIUS + " blocks");
+        var safe = StrandedInterrupt.safeLand(body, world)
+                .and(p -> !(p.x() == here.x() && p.z() == here.z()) && !touchesHazard(world, p));
+        var spot = world.nearestDryLand(RADIUS, safe);
+        if (spot.isEmpty()) spot = world.nearestDryLand(FAR_RADIUS, safe);
+        if (spot.isEmpty()) return Task.failed("stepping off the hazard", "no safe spot within " + FAR_RADIUS + " blocks");
         BlockPos s = spot.get();
         Task walk = new WalkTask(hands.paths(), new BlockPos(s.x(), s.y() + 1, s.z()), false, 0);
         return new Task() {

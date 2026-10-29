@@ -375,7 +375,11 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public double serverTps() { return tps; }
     @Override public int downedSecondsLeft() { return downed; }
     @Override public boolean beingRevived() { return beingRevived; }
-    @Override public Optional<BlockPos> nearestDryLand(int radius) { return Optional.ofNullable(dryLand); }
+    /** dryLand is only found by a search at least this wide (0: any search finds it). */
+    public int dryLandNeedsRadius;
+    @Override public Optional<BlockPos> nearestDryLand(int radius) {
+        return radius >= dryLandNeedsRadius ? Optional.ofNullable(dryLand) : Optional.empty();
+    }
     @Override public Optional<BlockPos> worldSpawn() { return Optional.ofNullable(spawn); }
     @Override public void holdKeys(boolean forward, boolean jump) { forwardHeld = forward; jumpHeld = jump; }
     @Override public void holdSneak(boolean down) { sneakHeld = down; }
