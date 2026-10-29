@@ -43,6 +43,9 @@ public final class HazardInterrupt implements Interrupt {
         if (world.isDead()) return false;
         var d = world.recentDamage();
         if (d.isEmpty() || d.get().attackerPos() != null || !BLOCK_DAMAGE.contains(d.get().type())) return false;
+        // digging in from a ghast: its fireballs light the ground all round, and stepping off the fire
+        // kept restarting the dig (2026-10-29); two more seconds of digging and we're under it. Lava still counts.
+        if (body.hiding() && (d.get().type().endsWith("in_fire") || d.get().type().endsWith("on_fire"))) return false;
         return touchesHazard(world, standingOn(world));
     }
 

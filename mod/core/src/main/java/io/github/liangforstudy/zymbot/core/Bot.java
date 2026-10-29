@@ -214,6 +214,7 @@ public final class Bot {
                 new io.github.liangforstudy.zymbot.core.team.Handshake(config.teamKey, chatOut, clock, (what, why) -> log.record(what, why)));
         this.body = new Body(() -> memory.recentFoods, this::isKnownBot, this::isTeammate, clock, () -> memoryDirty = true);
         body.onSwim(this::reportSwim);
+        body.onNote(log::record);
         if (profile.has(Profile.BUS)) modules.add(Profile.BUS);
         if (profile.has(Profile.GRAVES)) modules.add(Profile.GRAVES);
         if (profile.has(Profile.REGROUP)) {

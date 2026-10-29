@@ -317,7 +317,7 @@ class CombatTest {
         ticks(b, w, 40);
         assertEquals(4, (int) Math.floor(w.pos.x()), "stays in cover while the ghast is about: " + log(b));
         w.nearby.clear();                                          // it drifts off
-        ticks(b, w, 25);
+        ticks(b, w, 3 * 20 + 25);                                 // gone for 3 s: not just flickering out of range
         assertEquals(200, w.paths.goal.x(), "then back on the walk: " + log(b));
     }
 

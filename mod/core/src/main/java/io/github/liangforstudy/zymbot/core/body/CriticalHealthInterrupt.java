@@ -71,11 +71,11 @@ public final class CriticalHealthInterrupt implements Interrupt {
                     human.map(EntityView::pos), body::reportSwim);
         }
         if (!coverFromShooters) return run;
-        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding);
+        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note);
         if (!Combat.shooters(world).isEmpty()) {
-            return new Fallback(new CoverTask(hands, Combat::shooters, body::reportSwim), hide, run);
+            return new Fallback(body::note, new CoverTask(hands, Combat::shooters, body::reportSwim), hide, run);
         }
-        return attack.isPresent() ? new Fallback(run, hide) : run;   // no healing food: run, and dig in if that fails
+        return attack.isPresent() ? new Fallback(body::note, run, hide) : run;   // no healing food: run, and dig in if that fails
     }
 
     @Override

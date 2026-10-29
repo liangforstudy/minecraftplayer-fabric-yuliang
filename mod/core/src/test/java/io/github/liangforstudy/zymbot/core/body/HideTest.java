@@ -127,6 +127,51 @@ class HideTest {
     }
 
     @Test
+    void knockedUp_waitsToLand_knockedOff_digsANewHoleWhereItIs() {
+        FakeWorld w = onNetherrack();
+        for (int y = 59; y <= 63; y++) w.blocks.put(new BlockPos(4, y, 0), "minecraft:netherrack");
+        HideTask t = new HideTask(w, x -> true);
+        w.onGround = false;                                         // a fireball threw it up
+        w.pos = new Vec3(0.5, 65.5, 0.5);
+        assertEquals(Task.Status.RUNNING, t.tick(w));
+        assertNull(w.mining, "no digging in mid-air");
+        w.onGround = true;
+        w.pos = new Vec3(0.5, 64, 0.5);
+        t.tick(w);
+        assertEquals(new BlockPos(0, 63, 0), w.mining);
+        w.pos = new Vec3(4.5, 64, 0.5);                             // knocked 4 blocks east
+        t.tick(w);
+        assertEquals(new BlockPos(4, 63, 0), w.mining, "a new hole where it stands");
+    }
+
+    @Test
+    void diggingIn_fireUnderfootDoesntInterrupt_lavaStillDoes() {
+        Body body = new Body(java.util.ArrayList::new, id -> false, () -> 0L, () -> {});
+        FakeWorld w = onNetherrack();
+        w.blocks.put(new BlockPos(0, 64, 0), "minecraft:fire");
+        w.damage = new Damage("minecraft:in_fire", null, null, null);
+        HazardInterrupt h = new HazardInterrupt(body);
+        assertTrue(h.triggered(w));
+        body.hiding(true);
+        assertFalse(h.triggered(w), "two more seconds of digging and it's under the fire");
+        w.blocks.put(new BlockPos(0, 64, 0), "minecraft:lava");
+        w.damage = new Damage("minecraft:lava", null, null, null);
+        assertTrue(h.triggered(w));
+    }
+
+    @Test
+    void cover_neverPicksAOneWideShaft() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        for (int y = 61; y <= 63; y++) w.blocks.put(new BlockPos(3, y, 0), "minecraft:air");   // a half-dug hole 3 east
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-20, 75, 0));
+        w.nearby.add(g);
+        var t = new io.github.liangforstudy.zymbot.core.task.CoverTask(w,
+                io.github.liangforstudy.zymbot.core.body.Combat::shooters, x -> {});
+        assertEquals(Task.Status.FAILED, t.tick(w), "the shaft hides us but can't be walked out of");
+    }
+
+    @Test
     void neverDigsIntoLava_aDrop_orObsidian() {
         FakeWorld lava = onNetherrack();
         lava.blocks.put(new BlockPos(1, 62, 0), "minecraft:lava");

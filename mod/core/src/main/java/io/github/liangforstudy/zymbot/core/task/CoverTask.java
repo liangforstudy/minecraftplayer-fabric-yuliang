@@ -33,6 +33,12 @@ public final class CoverTask implements Task {
      */
     static final int EXPOSED_TICKS = 8 * 20;
     private int exposed;
+    /**
+     * Done only once no shooter has been in range this long: a ghast hovering at the 64-block edge
+     * dropped out of range for a tick, cover ended, and it was back and firing (2026-10-29).
+     */
+    static final int GONE_TICKS = 3 * 20;
+    private int gone;
 
     private final Hands hands;
     private final PathProvider paths;
@@ -55,10 +61,12 @@ public final class CoverTask implements Task {
     @Override
     public Status tick(WorldView world) {
         List<EntityView> now = shooters.apply(world);
-        if (now.isEmpty()) {
+        if (now.isEmpty()) {                                 // (Fallback notes it: "done: ...")
+            if (++gone < GONE_TICKS) return Status.RUNNING;
             cancel();
             return Status.DONE;
         }
+        gone = 0;
         if (++ticks > GIVE_UP_TICKS) {
             cancel();
             return Status.DONE;                              // the reflex looks again at the next hit
@@ -135,7 +143,19 @@ public final class CoverTask implements Task {
 
     private static boolean standable(WorldView world, BlockPos feet) {
         return world.sturdy(new BlockPos(feet.x(), feet.y() - 1, feet.z()))
-                && world.replaceable(feet) && world.replaceable(new BlockPos(feet.x(), feet.y() + 1, feet.z()));
+                && world.replaceable(feet) && world.replaceable(new BlockPos(feet.x(), feet.y() + 1, feet.z()))
+                && !shaft(world, feet);
+    }
+
+    /**
+     * Walled in on all four sides at the feet: a 1-wide shaft (a half-dug hole), out of sight but no
+     * way out on foot — cover chose one and the bot sat in it after the ghast left (2026-10-29).
+     */
+    private static boolean shaft(WorldView world, BlockPos feet) {
+        for (int[] s : new int[][] {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+            if (world.replaceable(new BlockPos(feet.x() + s[0], feet.y(), feet.z() + s[1]))) return false;
+        }
+        return true;
     }
 
     private static boolean hidden(WorldView world, Vec3 eyes, List<EntityView> shooters) {

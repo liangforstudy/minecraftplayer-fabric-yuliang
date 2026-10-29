@@ -78,10 +78,10 @@ public final class FightOrFleeInterrupt implements Interrupt {
             return switch (decision(world, mob.get()).action()) {
                 case FIGHT -> new FightTask(hands, mob.get(), body::reportSwim,
                         w -> creeper(w).isEmpty() && attacker(w).map(m -> decision(w, m).fight()).orElse(true));
-                case COVER -> new Fallback(new CoverTask(hands, Combat::shooters, body::reportSwim),
-                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding), retreat(hands, mob.get().pos()));
-                case BACK_OFF -> new Fallback(retreat(hands, mob.get().pos()),
-                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding));
+                case COVER -> new Fallback(body::note, new CoverTask(hands, Combat::shooters, body::reportSwim),
+                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note), retreat(hands, mob.get().pos()));
+                case BACK_OFF -> new Fallback(body::note, retreat(hands, mob.get().pos()),
+                        new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note));
             };
         }
         return unseenAttacker(world).map(a -> retreat(hands, a.from()))

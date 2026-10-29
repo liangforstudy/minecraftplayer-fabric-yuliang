@@ -89,6 +89,12 @@ public final class Body {
     }
 
     private boolean hiding;
+    private java.util.function.BiConsumer<String, String> notes = (what, why) -> {};
+
+    /** Where reflex tasks note their steps (the decision log). */
+    public void onNote(java.util.function.BiConsumer<String, String> notes) { this.notes = notes; }
+
+    public void note(String what, String why) { notes.accept(what, why); }
 
     /** Dug in (HideTask): the critical-health reflex then only eats, and leaves the hole alone. */
     public void hiding(boolean h) { hiding = h; }

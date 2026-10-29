@@ -502,6 +502,25 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   "done", not failed): next, log each fallback step and hide stage, and run it again. The climb out is
   tested in the fake world only. A flaky core test seen once: `HandshakeTest.aBotWithAnotherKey…`
   (passes alone; likely the shared parked-team static under parallel tests).
+- **Logged and run again (2026-10-29): the whole hide works live.** Each fallback hand-over and hide
+  stage now goes to the decision log (`Body.note`). What the runs showed, each fixed in turn:
+  - Cover ended "done" whenever the ghast hovered at the 64-block edge and dropped out of range for a
+    tick; cover now waits for 3 s with no shooter before it's done.
+  - The first dig started in mid-air (a fireball's knock-back): "can't dig air". It now waits up to
+    3 s to land. Knocked 4 blocks off the hole mid-dig, it kept digging the old one from the side and
+    gave up after 20 s; now it digs a new hole where it stands ("digging in again").
+  - Fire from the fireballs set off the hazard reflex, and every step off the fire restarted the dig
+    from cover. While digging in, fire no longer interrupts (lava still does).
+  - Cover picked the half-dug hole as cover and the bot sat in it when the ghast left, with no way out
+    on foot. Cover no longer picks a 1-wide shaft.
+  - Then, live: hit → no cover within 10 → digging in at 24 150 −50 → knocked off → digging in again at
+    24 150 −49 → "hiding in a hole" → 1 min 46 s → "climbing out — nothing after us for 5 s" → "out
+    of the hole — climbed 3 up", the hole filled back with its own cobblestone. **But it came out at
+    1.9 health**: where it lost the rest isn't measured (the health trace was lost to a backgrounded
+    watcher). Likely suspects: fireballs and burning during the dig, now that fire doesn't make it step
+    off. Next: a health trace through a hide, and maybe don't hide at all below some health but run.
+  - A second flaky handshake test seen (`aLateFirstAnswer_stillCounts`); core tests aren't run in
+    parallel, so not the parked-team static after all. To look at.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no

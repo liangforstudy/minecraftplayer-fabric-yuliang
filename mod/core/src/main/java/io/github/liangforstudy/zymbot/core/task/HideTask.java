@@ -30,6 +30,10 @@ public final class HideTask implements Task {
     static final int DIG_TICKS = 20 * 20;
     /** Longest the climb out may take. */
     static final int CLIMB_TICKS = 20 * 20;
+    /** A fireball's knock-back: wait this long to land before digging in. */
+    static final int LAND_TICKS = 3 * 20;
+    /** Further than this off the hole's middle, we were knocked off it: dig a new one here. */
+    static final double OFF_THE_HOLE = 0.7;
     /** The hotbar slot the blocks for the climb go to when they're in the main inventory. */
     static final int BLOCK_SLOT = 8;
 
@@ -38,12 +42,20 @@ public final class HideTask implements Task {
     private final Hands hands;
     private final Predicate<WorldView> danger;
     private final java.util.function.Consumer<Boolean> hiding;
+    private java.util.function.BiConsumer<String, String> note = (what, why) -> {};
+
+    /** Each stage change goes here (the decision log). */
+    public HideTask noting(java.util.function.BiConsumer<String, String> note) {
+        this.note = note;
+        return this;
+    }
     private BlockPos top;                     // the block we stood on: the first one dug (set on the first tick)
     private final List<String> dugIds = new ArrayList<>();
     private Stage stage = Stage.DIG;
     private int ticks;
     private int clearFor;
     private boolean toolPicked;
+    private int landing;
     private BlockPos placingOn;               // the climb: the block under us when the jump started
     private String failure = "";
 
@@ -94,11 +106,23 @@ public final class HideTask implements Task {
 
     @Override
     public Status tick(WorldView world) {
+        if (top != null && stage == Stage.DIG && offTheHole(world.position())) {   // knocked off it mid-dig
+            note.accept("digging in again", "knocked off the hole at " + top.x() + " " + top.y() + " " + top.z());
+            hands.stopMining();
+            top = null;
+            dugIds.clear();
+            ticks = 0;
+        }
         if (top == null) {                                   // here, now — it may start after a run
+            if (!world.onGround()) {                         // knocked up by a fireball: land first
+                if (++landing > LAND_TICKS) return fail("never landed to dig in");
+                return Status.RUNNING;
+            }
             Optional<String> unsafe = canDigIn(world);
             if (unsafe.isPresent()) return fail(unsafe.get());
             top = floor(world.position());
             hiding.accept(true);
+            note.accept("digging in", "at " + top.x() + " " + top.y() + " " + top.z());
         }
         ticks++;
         return switch (stage) {
@@ -125,6 +149,7 @@ public final class HideTask implements Task {
         }
         hands.stopMining();
         if (world.position().y() > top.y() - DEPTH + 1.5) return Status.RUNNING;   // still falling in
+        note.accept("hiding in a hole", "dug " + DEPTH + " down at " + top.x() + " " + top.y() + " " + top.z());
         stage = Stage.WAIT;
         ticks = 0;
         return Status.RUNNING;
@@ -133,6 +158,8 @@ public final class HideTask implements Task {
     private Status waitIt(WorldView world) {
         clearFor = danger.test(world) ? 0 : clearFor + 1;
         if (clearFor >= CLEAR_TICKS || ticks > MAX_WAIT_TICKS) {
+            note.accept("climbing out of the hole", clearFor >= CLEAR_TICKS
+                    ? "nothing after us for " + CLEAR_TICKS / 20 + " s" : "waited " + MAX_WAIT_TICKS / 20 / 60 + " min");
             stage = Stage.CLIMB;
             ticks = 0;
         }
@@ -144,6 +171,7 @@ public final class HideTask implements Task {
         if (me.y() >= top.y() + 1 - 0.01 && world.onGround()) {                   // back up where we stood
             hands.holdKeys(false, false);
             hiding.accept(false);
+            note.accept("out of the hole", "climbed " + DEPTH + " up");
             return Status.DONE;
         }
         if (ticks > CLIMB_TICKS) {
@@ -190,11 +218,20 @@ public final class HideTask implements Task {
         return Status.FAILED;
     }
 
+    private boolean offTheHole(Vec3 me) {
+        return Math.abs(me.x() - (top.x() + 0.5)) > OFF_THE_HOLE || Math.abs(me.z() - (top.z() + 0.5)) > OFF_THE_HOLE;
+    }
+
     private static BlockPos floor(Vec3 p) {
         return new BlockPos((int) Math.floor(p.x()), (int) Math.floor(p.y() - 0.01), (int) Math.floor(p.z()));
     }
 
-    @Override public void cancel() { hands.stopMining(); hands.holdKeys(false, false); hiding.accept(false); }
+    @Override public void cancel() {
+        if (top != null && failure.isEmpty()) note.accept("stopped hiding", "cancelled while " + describe());
+        hands.stopMining();
+        hands.holdKeys(false, false);
+        hiding.accept(false);
+    }
     @Override public String failure() { return failure; }
     @Override public String describe() {
         return switch (stage) {
