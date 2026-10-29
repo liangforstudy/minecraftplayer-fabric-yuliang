@@ -28,33 +28,44 @@ class CombatTest {
 
     @Test
     void aLoneZombieIsFought_twoOnlyWithArmor() {
-        assertTrue(Combat.decide("minecraft:zombie", Gear.BARE, 1, 20, 12).fight());
-        assertFalse(Combat.decide("minecraft:zombie", Gear.BARE, 2, 20, 12).fight());
-        assertTrue(Combat.decide("minecraft:zombie", Gear.BASIC, 2, 20, 12).fight());
-        assertFalse(Combat.decide("minecraft:zombie", Gear.BASIC, 3, 20, 12).fight());
-        assertTrue(Combat.decide("minecraft:spider", Gear.GOOD, 4, 20, 12).fight());
+        assertTrue(Combat.decide("minecraft:zombie", Gear.BARE, 1, 0, 20, 12).fight());
+        assertFalse(Combat.decide("minecraft:zombie", Gear.BARE, 2, 0, 20, 12).fight());
+        assertTrue(Combat.decide("minecraft:zombie", Gear.BASIC, 2, 0, 20, 12).fight());
+        assertFalse(Combat.decide("minecraft:zombie", Gear.BASIC, 3, 0, 20, 12).fight());
+        assertTrue(Combat.decide("minecraft:spider", Gear.GOOD, 4, 0, 20, 12).fight());
     }
 
     @Test
     void lowOnHealth_onlyGoodArmorKeepsFighting() {
-        assertFalse(Combat.decide("minecraft:zombie", Gear.BASIC, 1, 15, 12).fight(), "12 + 4 margin");
-        assertTrue(Combat.decide("minecraft:zombie", Gear.GOOD, 1, 15, 12).fight());
+        assertFalse(Combat.decide("minecraft:zombie", Gear.BASIC, 1, 0, 15, 12).fight(), "12 + 4 margin");
+        assertTrue(Combat.decide("minecraft:zombie", Gear.GOOD, 1, 0, 15, 12).fight());
     }
 
     @Test
-    void skeletonsOnlyWhenWellArmoredAndAlone() {
-        assertFalse(Combat.decide("minecraft:skeleton", Gear.BASIC, 1, 20, 12).fight());
-        assertTrue(Combat.decide("minecraft:skeleton", Gear.GOOD, 1, 20, 12).fight());
-        assertFalse(Combat.decide("minecraft:skeleton", Gear.GOOD, 2, 20, 12).fight());
-        assertEquals("skeleton (shoots), health 14", Combat.decide("minecraft:skeleton", Gear.GOOD, 1, 14, 12).why(),
-                "the reason is the health, not the crowd");
+    void groundShootersAreRushed_whenTheyDontOutnumberTheArmor_elseCover() {
+        assertEquals(Combat.Action.FIGHT, Combat.decide("minecraft:skeleton", Gear.BARE, 1, 1, 20, 12).action(),
+                "running only gives it more shots");
+        assertEquals(Combat.Action.COVER, Combat.decide("minecraft:skeleton", Gear.BARE, 1, 2, 20, 12).action());
+        assertEquals(Combat.Action.COVER, Combat.decide("minecraft:skeleton", Gear.BASIC, 1, 2, 20, 12).action());
+        assertEquals(Combat.Action.FIGHT, Combat.decide("minecraft:skeleton", Gear.GOOD, 1, 2, 20, 12).action());
+        assertEquals(Combat.Action.COVER, Combat.decide("minecraft:skeleton", Gear.GOOD, 1, 3, 20, 12).action(),
+                "four skeletons took full iron from 17 to 11 in 3 s");
+        assertEquals(Combat.Action.COVER, Combat.decide("minecraft:skeleton", Gear.BASIC, 1, 1, 14, 12).action());
+        assertEquals("skeleton, health 14 in basic armor — cover",
+                Combat.decide("minecraft:skeleton", Gear.BASIC, 1, 1, 14, 12).why());
+    }
+
+    @Test
+    void flyersAlwaysMeanCover_evenInGoodArmor() {
+        assertEquals(Combat.Action.COVER, Combat.decide("minecraft:ghast", Gear.GOOD, 1, 1, 20, 12).action());
+        assertEquals(Combat.Action.COVER, Combat.decide("minecraft:blaze", Gear.GOOD, 1, 1, 20, 12).action());
     }
 
     @Test
     void neverHit_creepersStrongOnesNeutralsAndUnknowns() {
         for (String t : List.of("minecraft:creeper", "minecraft:zombified_piglin", "minecraft:enderman",
                 "minecraft:vindicator", "minecraft:warden", "somemod:thing")) {
-            assertFalse(Combat.decide(t, Gear.GOOD, 1, 20, 12).fight(), t);
+            assertFalse(Combat.decide(t, Gear.GOOD, 1, 0, 20, 12).fight(), t);
         }
         assertEquals(Combat.Kind.LEAVE_ALONE, Combat.kind("minecraft:zombified_piglin"));
     }
@@ -264,6 +275,122 @@ class CombatTest {
         b.humanInput(w);                                           // a second press: no second notice
         ticks(b, w, 20);
         assertEquals(1, w.notices.stream().filter(n -> n.contains("takes over again")).count(), w.notices.toString());
+    }
+
+    /** A stone wall two high, three blocks east, from z -4 to 4. */
+    static void wall(FakeWorld w) {
+        for (int z = -4; z <= 4; z++) {
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(3, 64, z), "minecraft:stone");
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(3, 65, z), "minecraft:stone");
+        }
+    }
+
+    @Test
+    void twoSkeletonsBare_takesCoverBehindTheWall() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        wall(w);
+        Bot b = walking(w);
+        EntityView s = mob(w, "minecraft:skeleton", -14, 0);
+        mob(w, "minecraft:skeleton", -14, 3);
+        hitBy(w, s);
+        ticks(b, w, 2);
+        assertTrue(w.attacked.isEmpty());
+        assertEquals(4, w.paths.goal.x(), "just behind the wall: " + w.paths.goal + "\n" + log(b));
+        assertTrue(Math.abs(w.paths.goal.z()) <= 3, w.paths.goal.toString());
+        assertTrue(log(b).contains("2 shooters, bare armor rushes 1 — cover"), log(b));
+    }
+
+    @Test
+    void aGhast_inGoodArmor_takesCover_andStaysWhileHidden() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        w.armor = 20;
+        wall(w);
+        Bot b = walking(w);
+        EntityView g = new EntityView(700, UUID.randomUUID(), "ghast", "minecraft:ghast", EntityView.Kind.HOSTILE,
+                new Vec3(-16, 64, 0));
+        w.nearby.add(g);
+        hitBy(w, g);
+        ticks(b, w, 2);
+        assertEquals(4, w.paths.goal.x(), log(b));
+        w.paths.arrive();
+        w.damage = null;
+        ticks(b, w, 40);
+        assertEquals(4, (int) Math.floor(w.pos.x()), "stays in cover while the ghast is about: " + log(b));
+        w.nearby.clear();                                          // it drifts off
+        ticks(b, w, 25);
+        assertEquals(200, w.paths.goal.x(), "then back on the walk: " + log(b));
+    }
+
+    @Test
+    void inCover_aSkeletonThatWalksRoundIntoReach_isHit() {
+        FakeWorld w = new FakeWorld("Bluetails").give(1, "minecraft:iron_sword", 1, null);
+        wall(w);
+        Bot b = walking(w);
+        EntityView s = mob(w, "minecraft:skeleton", -14, 0);
+        mob(w, "minecraft:skeleton", -14, 3);
+        hitBy(w, s);
+        ticks(b, w, 2);
+        w.paths.arrive();                                          // behind the wall
+        w.nearby.set(0, new EntityView(s.id(), s.uuid(), s.name(), s.type(), s.kind(),
+                new Vec3(w.pos.x() + 2, 64, w.pos.z())));           // it came round
+        ticks(b, w, 2);
+        assertTrue(w.attacked.contains(s.id()), log(b));
+        assertEquals(1, w.selected, "sword out");
+    }
+
+    @Test
+    void criticalHealth_withShootersAbout_takesCoverRatherThanRunning() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        w.armor = 15;
+        wall(w);
+        Bot b = walking(w);
+        w.health = 10;                                             // ≤ 12: critical
+        EntityView s = mob(w, "minecraft:skeleton", -14, 0);
+        hitBy(w, s);
+        ticks(b, w, 2);
+        assertEquals(4, w.paths.goal.x(), "behind the wall, not 40 blocks east: " + w.paths.goal + "\n" + log(b));
+        assertTrue(log(b).contains("health 10 ≤ 12"), log(b));
+    }
+
+    @Test
+    void noCoverInReach_backsOffInstead() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        Bot b = walking(w);
+        EntityView s = mob(w, "minecraft:skeleton", -14, 0);
+        mob(w, "minecraft:skeleton", -14, 3);
+        hitBy(w, s);
+        ticks(b, w, 3);
+        assertTrue(w.paths.goal.x() > 20, "open field: runs east " + w.paths.goal + "\n" + log(b));
+    }
+
+    @Test
+    void backingOff_goesAroundAnotherMobAhead_notThroughIt() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        Bot b = walking(w);
+        EntityView p = mob(w, "minecraft:zombified_piglin", -3, 0);    // behind us, never hit back
+        mob(w, "minecraft:zombie", 8, 0);                              // and one straight ahead
+        hitBy(w, p);
+        ticks(b, w, 2);
+        var goal = w.paths.goal;
+        double angle = Math.toDegrees(Math.atan2(Math.abs(goal.z()), goal.x()));
+        assertTrue(angle >= 45, "turned well off the zombie's line: " + goal + " (" + Math.round(angle) + "°)");
+        assertTrue(angle < 135, "but still away from the piglin: " + goal);
+    }
+
+    @Test
+    void backingOff_turnsAlongACliffFace_notIntoIt_andNeverOverLava() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        for (int x = 3; x <= 6; x++) for (int z = -12; z <= 12; z++) for (int y = 64; y <= 72; y++)
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, y, z), "minecraft:netherrack");
+        for (int x = -12; x <= 12; x++) for (int z = 2; z <= 14; z++)          // a lava lake to the south
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, 63, z), "minecraft:lava");
+        Bot b = walking(w);
+        EntityView p = mob(w, "minecraft:zombified_piglin", -3, 0);
+        hitBy(w, p);
+        ticks(b, w, 2);
+        var goal = w.paths.goal;
+        assertTrue(goal.z() < -10, "along the wall, away from the lava: north " + goal + "\n" + log(b));
+        assertTrue(goal.x() < 3, "not into the wall: " + goal);
     }
 
     @Test

@@ -252,7 +252,7 @@ public final class Bot {
         }
         reflexes.add(new DrowningInterrupt());
         reflexes.add(new HazardInterrupt(body));
-        reflexes.add(new CriticalHealthInterrupt(config, body));
+        reflexes.add(new CriticalHealthInterrupt(config, body, profile == Profile.ANARCHY));
         // anarchy: hit back weak mobs, back off from the rest (doc/9b9t/roadmap.md, "Attacked mid-route")
         if (profile == Profile.ANARCHY) reflexes.add(new FightOrFleeInterrupt(config, body));
         reflexes.add(new StrandedInterrupt(body, this::nothingToDo));

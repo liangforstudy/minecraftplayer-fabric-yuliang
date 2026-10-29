@@ -454,6 +454,18 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public void attack(int entityId) { attacked.add(entityId); }
     @Override public int armorPoints() { return armor; }
     @Override public boolean attackReady() { return attackReady; }
+    /** Blocked by any sturdy block on the way (the ground included), checked every quarter block. */
+    @Override public boolean clearShot(Vec3 from, Vec3 to) {
+        double dx = to.x() - from.x(), dy = to.y() - from.y(), dz = to.z() - from.z();
+        int steps = (int) Math.ceil(Math.sqrt(dx * dx + dy * dy + dz * dz) * 4);
+        for (int i = 1; i < steps; i++) {
+            double t = (double) i / steps;
+            BlockPos p = new BlockPos((int) Math.floor(from.x() + dx * t), (int) Math.floor(from.y() + dy * t),
+                    (int) Math.floor(from.z() + dz * t));
+            if (sturdy(p)) return false;
+        }
+        return true;
+    }
     @Override public void chat(String message) { said.add(message); }
     @Override public void command(String command) { said.add("/" + command); }
 

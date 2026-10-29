@@ -6,6 +6,8 @@ import io.github.liangforstudy.zymbot.core.api.Vec3;
 import io.github.liangforstudy.zymbot.core.api.WorldView;
 import io.github.liangforstudy.zymbot.core.brain.Interrupt;
 import io.github.liangforstudy.zymbot.core.config.ZymbotConfig;
+import io.github.liangforstudy.zymbot.core.task.CoverOrBackOff;
+import io.github.liangforstudy.zymbot.core.task.CoverTask;
 import io.github.liangforstudy.zymbot.core.task.EatTask;
 import io.github.liangforstudy.zymbot.core.task.RetreatTask;
 import io.github.liangforstudy.zymbot.core.task.Task;
@@ -21,9 +23,20 @@ public final class CriticalHealthInterrupt implements Interrupt {
     private final ZymbotConfig config;
     private final Body body;
 
+    private final boolean coverFromShooters;
+
     public CriticalHealthInterrupt(ZymbotConfig config, Body body) {
+        this(config, body, false);
+    }
+
+    /**
+     * @param coverFromShooters anarchy: with shooters in range, take cover rather than run — running
+     *                          at critical health from four skeletons just took more arrows (2026-10-29)
+     */
+    public CriticalHealthInterrupt(ZymbotConfig config, Body body, boolean coverFromShooters) {
         this.config = config;
         this.body = body;
+        this.coverFromShooters = coverFromShooters;
     }
 
     @Override public String name() { return "critical-health"; }
@@ -47,14 +60,18 @@ public final class CriticalHealthInterrupt implements Interrupt {
             var heal = FoodChooser.best(world, body.recentFoods(), config.neverEat, true);
             if (heal.isPresent()) return new EatTask(hands, heal.get(), body::ate);
         }
+        Task run = Task.failed("recover", "no healing food, and nothing to run from");
         var attack = attackerClose(world);
         if (attack.isPresent()) {
             Optional<EntityView> human = body.nearestTeammate(world);   // help is a teammate, not a stranger (P2-2)
             Vec3 first = attack.get().from();
-            return new RetreatTask(hands.paths(), () -> body.recentAttack().map(Body.Attack::from).orElse(first),
+            run = new RetreatTask(hands.paths(), () -> body.recentAttack().map(Body.Attack::from).orElse(first),
                     human.map(EntityView::pos), body::reportSwim);
         }
-        return Task.failed("recover", "no healing food, and nothing to run from");
+        if (coverFromShooters && !Combat.shooters(world).isEmpty()) {
+            return new CoverOrBackOff(new CoverTask(hands, Combat::shooters, body::reportSwim), run);
+        }
+        return run;
     }
 
     @Override

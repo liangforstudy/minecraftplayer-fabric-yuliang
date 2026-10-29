@@ -6,6 +6,8 @@ import io.github.liangforstudy.zymbot.core.api.Vec3;
 import io.github.liangforstudy.zymbot.core.api.WorldView;
 import io.github.liangforstudy.zymbot.core.brain.Interrupt;
 import io.github.liangforstudy.zymbot.core.config.ZymbotConfig;
+import io.github.liangforstudy.zymbot.core.task.CoverOrBackOff;
+import io.github.liangforstudy.zymbot.core.task.CoverTask;
 import io.github.liangforstudy.zymbot.core.task.FightTask;
 import io.github.liangforstudy.zymbot.core.task.RetreatTask;
 import io.github.liangforstudy.zymbot.core.task.Task;
@@ -35,11 +37,11 @@ public final class FightOrFleeInterrupt implements Interrupt {
         return attacker(world).isPresent() || unseenAttacker(world).isPresent() || creeper(world).isPresent();
     }
 
-    /** What hit us, still in sight and close. */
+    /** What hit us, still in sight and close enough to hit again (a ghast from 64 blocks). */
     private Optional<EntityView> attacker(WorldView world) {
         return body.recentAttack().filter(a -> a.id() != null).flatMap(a -> world.nearby().stream()
                 .filter(e -> a.id().equals(e.uuid()))
-                .filter(e -> e.pos().horizontalDistance(world.position()) < RetreatTask.DISTANCE)
+                .filter(e -> Combat.distance(e.pos(), world.position()) < Combat.reach(e.type()))
                 .findFirst());
     }
 
@@ -63,7 +65,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
 
     private Combat.Decision decision(WorldView world, EntityView mob) {
         return Combat.decide(mob.type(), Combat.Gear.of(world.armorPoints()), Math.max(1, Combat.crowd(world)),
-                world.health(), config.criticalFor());
+                Combat.shooters(world).size(), world.health(), config.criticalFor());
     }
 
     @Override
@@ -72,11 +74,13 @@ public final class FightOrFleeInterrupt implements Interrupt {
         if (creeper.isPresent()) return retreat(hands, creeper.get().pos());
         Optional<EntityView> mob = attacker(world);
         if (mob.isPresent()) {
-            if (decision(world, mob.get()).fight()) {
-                return new FightTask(hands, mob.get(), body::reportSwim,
+            return switch (decision(world, mob.get()).action()) {
+                case FIGHT -> new FightTask(hands, mob.get(), body::reportSwim,
                         w -> creeper(w).isEmpty() && attacker(w).map(m -> decision(w, m).fight()).orElse(true));
-            }
-            return retreat(hands, mob.get().pos());
+                case COVER -> new CoverOrBackOff(new CoverTask(hands, Combat::shooters, body::reportSwim),
+                        retreat(hands, mob.get().pos()));
+                case BACK_OFF -> retreat(hands, mob.get().pos());
+            };
         }
         return unseenAttacker(world).map(a -> retreat(hands, a.from()))
                 .orElseGet(() -> Task.failed("fight or flee", "nothing in sight"));

@@ -434,6 +434,36 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   - Ghast: inconclusive (summoned into the terrain, never shot).
   - The fidget watchdog called 10 s of pure turning while idle "spinning in place" (739°, 0 blocks):
     likely the owner looking around with the mouse, which isn't counted as human input. To check.
+  - Ghast, retried in the open (owner's clear spot): two natural ghasts joined it; four fireball hits
+    took it from 20 to 0 in ~10 s ("walked into fire while fighting Ghast"). Then a ghast that had
+    drifted through the portal fireballed it again at the overworld bed, and the bed was blown up.
+    The reflex barely reacted: it only counted an attacker within 16 blocks, and ghasts shot from 20–40.
+- **Retreat fixes after the Nether test (2026-10-29, built and tried live, below):**
+  - **Ground shooters are rushed** (skeleton, stray, bogged, pillager, witch) when there are no more
+    of them in range than the armor fights (1 / 2 / 4) — running only gives them more shots.
+    Otherwise, and for **flyers** (ghast, blaze) always: **take cover** (`CoverTask`): the nearest spot
+    within 10 blocks (±3 up or down) where a block cuts every shooter's line of sight (`clearShot`,
+    the collision shape), wait there while they're about, look again every second; with no cover in
+    reach, back off as before.
+  - **Shooters count from their own range**: ground shooters 24 blocks, flyers 64 (was 16 for all).
+  - **Backing off picks its way out of 16 directions**: heading toward any hostile within 24 blocks
+    costs (nearer and more head-on, more; the attacker double), away from the attacker gains a
+    little, and the ground counts: nowhere to stand within 3 up or down at 3, 6, 9 or 12 blocks out (a
+    cliff face, a Nether wall, a drop) costs, the sooner the more, and lava along it costs most. Before,
+    adding "away" pushes ran straight at a mob ahead; and a straight line in the Nether runs into walls
+    and over lava lakes, which Baritone could only route round toward a goal we'd already picked.
+  - Tests: walls give cover from two skeletons and a ghast; open ground backs off; a mob ahead is gone
+    round; a cliff face and a lava lake are steered clear of. 283 core tests pass.
+  - **Tried live in the Nether (full iron):** a lone skeleton: "rush it", killed in ~3 s for barely a
+    heart. Four at once (then the rule was "good armor rushes 4"): rushed, 17 → 11 in 3 s, then the
+    critical-health reflex ran the old way and took more arrows. So: **at most 2 shooters rushed in
+    good armor, 1 otherwise**, and **critical health takes cover too** when shooters are about
+    (anarchy only; ZymCiv keeps its retreat). Then three skeletons: "3 shooters, good armor rushes 2
+    — cover"; skeletons walk round a wall (up to ~5 blocks), so cover now also **hits a shooter that
+    comes into reach**, and the walk to cover is dry only (no lava, no lake). It lost 6 (was 10 for
+    the same setup) and came out 30 blocks off, past their range. A ghast after that never fired in
+    30 s (no line of sight where it stood), so cover from fireballs is still untested live.
+    285 core tests pass.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no

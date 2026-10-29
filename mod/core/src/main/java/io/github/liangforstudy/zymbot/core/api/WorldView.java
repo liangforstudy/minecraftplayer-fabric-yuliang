@@ -99,6 +99,8 @@ public interface WorldView {
     default int armorPoints() { return 0; }
     /** The weapon has recharged: a hit now does full damage (the attack cooldown). */
     default boolean attackReady() { return true; }
+    /** Nothing solid between these two points: a shooter at {@code from} could hit {@code to}. */
+    default boolean clearShot(Vec3 from, Vec3 to) { return true; }
 
     /** Within reach (~4.5 blocks from the eyes) with a clear line of sight to the block. */
     default boolean canReach(BlockPos b) { return false; }

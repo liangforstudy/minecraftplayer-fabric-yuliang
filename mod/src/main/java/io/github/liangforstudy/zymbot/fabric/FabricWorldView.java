@@ -302,6 +302,15 @@ final class FabricWorldView implements WorldView {
         return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS || hit.getBlockPos().equals(mp);
     }
 
+    /** Arrows and fireballs stop on a block's collision shape, so that's what's checked (not its outline). */
+    @Override
+    public boolean clearShot(Vec3 from, Vec3 to) {
+        var hit = level.clip(new net.minecraft.world.level.ClipContext(
+                new net.minecraft.world.phys.Vec3(from.x(), from.y(), from.z()), new net.minecraft.world.phys.Vec3(to.x(), to.y(), to.z()),
+                net.minecraft.world.level.ClipContext.Block.COLLIDER, net.minecraft.world.level.ClipContext.Fluid.NONE, player));
+        return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS;
+    }
+
     @Override
     public Optional<BlockPos> inTheWay(BlockPos b) {
         net.minecraft.core.BlockPos mp = new net.minecraft.core.BlockPos(b.x(), b.y(), b.z());
