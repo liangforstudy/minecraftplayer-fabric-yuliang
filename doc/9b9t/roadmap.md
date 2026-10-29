@@ -419,6 +419,18 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   logging out, and the route waypoints themselves. The first try was a `goto` whose route swam: a
   skeleton shot from the shore and the retreat went on through the water, which costs health and
   air. Retreats should prefer land when the walk is wet.
+- **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
+  off at night often ends in water (seen in every siege test), which zombies follow slowly but where
+  drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
+  dry way to run:
+  - **Tower up** 3–4 blocks (jump and place under itself); zombies can't reach, skeletons still can,
+    so a block or two at the sides.
+  - **Wall in**: four sides and one overhead, 5–6 blocks, anywhere flat.
+  - **Dig in** with a shovel: two down, cap above; fewest blocks, good against arrows, but a hole is
+    easy to find on 9b9t.
+  - Needs blocks (5 or more) or a shovel in the inventory; the pieces exist already (placing and
+    breaking blocks, the best tool). Wait it out until daybreak (`/zbot daybreak`'s clock) or the
+    mobs leave, then open up and carry on.
 
 - **Waypoint**: a name plus absolute `x y z`, saved per server.
 - **Route**: a name plus an ordered list of waypoints. Many routes can share waypoints, and each takes
