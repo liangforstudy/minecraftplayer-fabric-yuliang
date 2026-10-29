@@ -718,6 +718,10 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   on solid ground with a safe path (no lava, no drop) within ~32 blocks, fetch it before 9b9t's
   2-minute despawn, then resume the route. Tears aren't fireproof: over a lava lake, it's lost.
   In the decision log (owner's wording): `walking to ghast tear — because treasure`.
+  **Decided (owner, 2026-10-29): fetch a tear only when nothing that shoots is in range and health is
+  above critical + 4**; otherwise keep hiding (or fighting) and let it go. So in a hole with other
+  ghasts about (the owner's 3-ghast run), the tear is lost to the 2-minute despawn rather than risked.
+  Going after ghasts on purpose is a fight mode the owner switches on (§5, "Ghasts"), not this.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
@@ -866,7 +870,7 @@ Mines **regular, packed and blue ice** for boat highways.
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
 art, stash layout, how progress is checked and saved).
 
-## 5. Fights: withers and wardens
+## 5. Fights: ghasts, then withers and wardens
 
 Last on the list, or before mapart if the owner wants it sooner. **The owner is researching how to
 win these fights without dying.**
@@ -914,7 +918,17 @@ than for hunger:
 - **Gear durability low** (same threshold logic as the ice pickaxes) → break off and retreat.
 - **Retreat to heal**: go to a known safe spot, **or burrow in** (dig down and seal the roof), eat, get
   health back, return.
-- **Wither clearing** and **warden** are separate fights.
+- **Ghasts**, **wither clearing** and **warden** are separate fights.
+
+### Ghasts (owner, 2026-10-29): first, before withers and wardens
+
+Going after ghasts is a fight like the wither and warden ones: a mode the owner switches on, never
+the bot's own choice. On a route it still only hits fireballs back and hides (`incoming`, "Before
+routes" 5). In the mode it seeks ghasts out and kills them with returned fireballs (the first kill:
+26.2 world, 2026-10-29, the second return, 46 blocks out), and fetches the tears (rule under §2, "Pick
+up ghast tears"). Built before the wither and warden fights: smaller, and it reuses what exists.
+Details to decide with the owner: how it finds ghasts, how close it lets them come (a closer ghast is
+an easier return), when it hides or leaves, and how many at once.
 
 ### Wither clearing (owner, 2026-10-25)
 
@@ -1087,6 +1101,6 @@ lets Claude drive the game):
 2. §2: Routes
 3. §3: Ice miner
 4. §4: Mapart
-5. §5: Fights, whenever the owner chooses (possibly before mapart)
+5. §5: Fights, whenever the owner chooses (possibly before mapart): ghasts first, then withers and wardens
 
 The 26.2 client build (once "later") is done: 9b9t runs 26.2, and Zymbot builds for it (§0).
