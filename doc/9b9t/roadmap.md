@@ -347,6 +347,19 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
   `RouteTask` starts lagging below `lagtps` and stops only at `lagtps` + 2 (at most 19.5); the
   look-ahead stretch follows that state. Swapped into the 1.21.11 instance and Bot1; the 26.2 jar waits for that game to close. Not yet seen on 9b9t.
 
+**Before routes (decided, owner, 2026-10-29), in this order:**
+1. **Log out** when health keeps falling (thresholds lower with a totem and golden apples carried).
+2. **Eating on a route**: check that Meteor's AutoEat and a Zymbot walk get along (a pause, not a
+   failed path); our own eating if not.
+3. **Healing and gear in the decisions**: golden apples and a totem count in the gear score; the
+   critical reflex eats a golden apple.
+4. **Burning**: put out the ~8 s burn after touching fire (fire resistance; a water bucket in the
+   overworld).
+5. **Dig in at the first fireball** when there's no cover, rather than looking for cover first.
+6. **One gold armor piece** on against piglins, when carried.
+
+**Overworld routes at night: wait for day (decided, owner, 2026-10-29).** Somewhere safe, then go on.
+
 **Night ambushes (owner, 2026-10-26):** on 9b9t a walk can get ambushed by hard mobs at night. Today
 the anarchy build only reacts at low health (danger `hard`: critical health + 4) and Baritone doesn't
 steer around mobs (the mob-avoidance idea from the Stage 0 skeleton chase, §0, still undecided). To
