@@ -114,6 +114,8 @@ public interface WorldView {
 
     /** Armor points worn, 0–20 (the bar above the hearts): full iron is 15, full diamond 20. */
     default int armorPoints() { return 0; }
+    /** The dimension we're in, as the game names it ("minecraft:the_nether"). */
+    default String dimension() { return "minecraft:overworld"; }
     /** The armor worn, head first (helmet, chestplate, leggings, boots): ids, "" where there's none. */
     default List<String> armor() { return List.of(); }
     /** The weapon has recharged: a hit now does full damage (the attack cooldown). */

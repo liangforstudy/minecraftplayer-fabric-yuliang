@@ -220,6 +220,12 @@ public final class ZymbotConfig {
      */
     public int fireResistanceHealth = 14;
 
+    /**
+     * A route whose first point is further than this (blocks) is refused once; the same order again
+     * goes anyway (owner, 2026-10-29: 500). 0 never asks.
+     */
+    public int routeFarBlocks = 500;
+
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.ofEntries(
             java.util.Map.entry("leash", new int[]{8, 1000}), java.util.Map.entry("eat", new int[]{1, 19}),
@@ -227,7 +233,7 @@ public final class ZymbotConfig {
             java.util.Map.entry("regroup", new int[]{8, 256}), java.util.Map.entry("probewait", new int[]{5, 300}),
             java.util.Map.entry("plantime", new int[]{50, 5000}), java.util.Map.entry("lagtps", new int[]{5, 19}),
             java.util.Map.entry("heel", new int[]{1, 256}), java.util.Map.entry("fireres", new int[]{0, 20}),
-            java.util.Map.entry("resume", new int[]{0, 2000}));
+            java.util.Map.entry("resume", new int[]{0, 2000}), java.util.Map.entry("routefar", new int[]{0, 1_000_000}));
 
     public int tunable(String name) {
         return switch (name) {
@@ -242,6 +248,7 @@ public final class ZymbotConfig {
             case "heel" -> followStopBlocks;
             case "fireres" -> fireResistanceHealth;
             case "resume" -> anarchyResumeMillis;
+            case "routefar" -> routeFarBlocks;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -249,7 +256,7 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres or resume";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume or routefar";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> {
@@ -268,6 +275,7 @@ public final class ZymbotConfig {
             case "lagtps" -> lagTps = value;
             case "fireres" -> fireResistanceHealth = value;
             case "resume" -> anarchyResumeMillis = value;
+            case "routefar" -> routeFarBlocks = value;
             default -> criticalHealth = value;
         }
         return null;

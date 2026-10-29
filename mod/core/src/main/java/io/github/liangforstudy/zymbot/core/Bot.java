@@ -119,8 +119,11 @@ public final class Bot {
     private final VersionedStore<BotMemory> memoryStore =
             new VersionedStore<>(ConfigIO.GSON, BotMemory.class, BotMemory.SCHEMA_VERSION)
                     .migration(1, doc -> doc)                    // 1 → 2: recent_foods, empty by default
-                    .migration(2, doc -> doc);                   // 2 → 3: roster role, null (read from the phase) until heard again
+                    .migration(2, doc -> doc)                    // 2 → 3: roster role, null (read from the phase) until heard again
+                    .migration(3, doc -> doc);                   // 3 → 4: waypoints and routes, none by default
     private final Body body;
+    /** Waypoints and routes, kept in this server's memory (doc/9b9t/roadmap.md §2). */
+    private final io.github.liangforstudy.zymbot.core.route.Routes routes;
     private final HungerMeter hungerMeter = new HungerMeter();
     private final io.github.liangforstudy.zymbot.core.body.FidgetWatchdog fidget = new io.github.liangforstudy.zymbot.core.body.FidgetWatchdog();
     private final ChatIn chatIn = new ChatIn();
@@ -212,6 +215,8 @@ public final class Bot {
         this.handshake = !profile.has(Profile.HANDSHAKE) ? null : made(Profile.HANDSHAKE,
                 new io.github.liangforstudy.zymbot.core.team.Handshake(config.teamKey, chatOut, clock, (what, why) -> log.record(what, why)));
         this.body = new Body(() -> memory.recentFoods, this::isKnownBot, this::isTeammate, clock, () -> memoryDirty = true);
+        this.routes = new io.github.liangforstudy.zymbot.core.route.Routes(() -> memory, () -> memoryDirty = true, clock,
+                () -> config.routeFarBlocks);
         body.onSwim(this::reportSwim);
         body.onNote(log::record);
         if (profile.has(Profile.BUS)) modules.add(Profile.BUS);
@@ -1048,6 +1053,59 @@ public final class Bot {
         return "walking to " + where + pathfinderWarning() + lent;
     }
 
+    // ------------------------------------------------------------------ waypoints and routes (roadmap §2)
+
+    /** A waypoint at {@code x y z} ({@code y} null: any height), in the dimension we're in now. */
+    public String addWaypoint(String name, int x, Integer y, int z) {
+        if (address == null || current == null) return "not in a world — waypoints are kept per server";
+        return routes.addWaypoint(name, x, y, z, current.dimension());
+    }
+
+    /** A waypoint where we stand. */
+    public String addWaypointHere(String name) {
+        if (address == null || current == null) return "not in a world — waypoints are kept per server";
+        var p = current.position();
+        return routes.addWaypoint(name, (int) Math.floor(p.x()), (int) Math.floor(p.y()), (int) Math.floor(p.z()), current.dimension());
+    }
+
+    public String removeWaypoint(String name) { return routes.removeWaypoint(name); }
+    public List<String> waypoints() { return routes.listWaypoints(); }
+    public String addRoute(String name, List<String> points) { return routes.addRoute(name, points); }
+    public String removeRoute(String name) { return routes.removeRoute(name); }
+    public List<String> routes() { return routes.listRoutes(); }
+
+    /**
+     * Walk a route A → E, or E → A with {@code back}, carrying on from the point it was heading for when
+     * last cut short unless {@code restart}. A far first point is refused once (the same order again goes).
+     */
+    public String walkRoute(String name, boolean back, boolean restart) {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        if (current == null) return "not in a world";
+        var start = routes.start(name, back, restart, current.position(), current.dimension());
+        if (start.refusal() != null) return start.refusal();
+        String why = "ordered by /" + config.commandRoot + " route " + (back ? "back" : "go");
+        String lent = oneShot(Objective.of("route " + name + (back ? " back" : ""), why,
+                (world, h) -> new io.github.liangforstudy.zymbot.core.task.RouteWalkTask(name, start.names(), start.points(),
+                        () -> {
+                            var p = memory.routeProgress;
+                            return p != null && name.equals(p.route) && p.back == back ? p.leg : start.points().size();
+                        },
+                        w -> new io.github.liangforstudy.zymbot.core.task.RouteTask(h.paths(),
+                                new BlockPos(w.x, w.y == null ? 0 : w.y, w.z), w.y == null, config.routeRadius,
+                                config.swimCostBlocks, log::record).limits(config.planTimeoutMs, config.lagTps),
+                        (leg, of) -> routes.reached(name, back, leg, of), log::record)));
+        return start.reply() + pathfinderWarning() + lent;
+    }
+
+    /** Stop a route walk; the point it was heading for is kept, so the same order carries on from there. */
+    public String stopRoute() {
+        var p = memory.routeProgress;
+        if (!brain.hasOrder() || p == null) return "no route walking";
+        brain.cancelOrder("stopped by /" + config.commandRoot + " route stop");
+        return "stopped route " + p.route + " — route " + (p.back ? "back " : "go ") + p.route + " carries on from where it was";
+    }
+
     public String follow(String name) {
         String no = needsControl();
         if (no != null) return no;
@@ -1721,7 +1779,7 @@ public final class Bot {
     public List<String> reflexes() { return brain.interruptNames(); }
     /** The tunables /zbot set and the settings screen offer in this profile, in the screen's order. */
     public List<String> tunables() {
-        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume")
+        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar")
                 .stream().filter(profile::hasTunable).toList();
     }
     public BotMemory memory() { return memory; }

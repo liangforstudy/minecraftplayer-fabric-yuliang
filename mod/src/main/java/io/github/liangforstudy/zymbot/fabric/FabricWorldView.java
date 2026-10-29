@@ -123,6 +123,7 @@ final class FabricWorldView implements WorldView {
     @Override public boolean onFire() { return player.isOnFire(); }
     @Override public boolean fireResistant() { return player.hasEffect(MobEffects.FIRE_RESISTANCE); }
     @Override public boolean waterEvaporates() { return "minecraft:the_nether".equals(McCompat.id(level.dimension())); }
+    @Override public String dimension() { return McCompat.id(level.dimension()); }
 
     @Override
     public Optional<ItemView> fireResistancePotion() {

@@ -10,7 +10,7 @@ import java.util.Map;
  * farms, graves, the explored map...) — each addition is a schema bump with a migration.
  */
 public final class BotMemory {
-    public static final int SCHEMA_VERSION = 3;   // 2: recent_foods; 3: roster role
+    public static final int SCHEMA_VERSION = 4;   // 2: recent_foods; 3: roster role; 4: waypoints, routes
 
     public int schemaVersion = SCHEMA_VERSION;
 
@@ -19,6 +19,49 @@ public final class BotMemory {
 
     /** The last 11 foods eaten, oldest first — Spice of Fabric's memory, mirrored. */
     public List<String> recentFoods = new ArrayList<>();
+
+    /** Named points on this server (doc/9b9t/roadmap.md §2), by name. */
+    public Map<String, Waypoint> waypoints = new LinkedHashMap<>();
+
+    /** Named routes: waypoint names in order, by route name. Routes can share waypoints. */
+    public Map<String, List<String>> routes = new LinkedHashMap<>();
+
+    /** The route walk under way or cut short (an interrupt, a death, a log-out), or null. */
+    public RouteProgress routeProgress;
+
+    /** {@code y} null: any height there. {@code dimension} as the game names it, e.g. "minecraft:the_nether". */
+    public static final class Waypoint {
+        public int x;
+        public Integer y;
+        public int z;
+        public String dimension;
+
+        public Waypoint() {}
+
+        public Waypoint(int x, Integer y, int z, String dimension) {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.dimension = dimension;
+        }
+
+        public String where() { return x + (y == null ? "" : " " + y) + " " + z; }
+    }
+
+    /** Walking {@code route} ({@code back}: E to A), heading for its point number {@code leg} (0 = the first). */
+    public static final class RouteProgress {
+        public String route;
+        public boolean back;
+        public int leg;
+
+        public RouteProgress() {}
+
+        public RouteProgress(String route, boolean back, int leg) {
+            this.route = route;
+            this.back = back;
+            this.leg = leg;
+        }
+    }
 
     public static final class RosterEntry {
         public String name;

@@ -762,7 +762,8 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
 - **Too far from the start (decided, owner, 2026-10-29):** `route go` is refused when the bot is more
   than a set distance from the route's first point (`route back`: from its last), with the distance
   and the reason in chat; **the same command again confirms** and it goes anyway. The legs themselves
-  can be any length (highway legs run to thousands of blocks). The distance: to decide (a setting).
+  can be any length, no limit between points (owner, 2026-10-29; highway legs run to thousands of
+  blocks). The distance: **500 blocks** by default, a setting (owner, 2026-10-29).
 - **Each waypoint keeps its dimension** (proposed 2026-10-29): most routes are in the Nether, where the
   same x y z is a different place from the overworld. A leg that changes dimension needs a portal, so
   it's refused until portals are handled.
@@ -771,6 +772,20 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
 - **Resumes at the current leg** after a death, a disconnect or an interrupt (eating, retreating),
   instead of starting again from the first waypoint.
 - Later: actions at a waypoint (pause, open a chest, wait for chunks to load).
+- **Built and passed (2026-10-29)** (`core/route/Routes`, `core/task/RouteWalkTask`; waypoints, routes
+  and the progress in the per-server memory, schema 4). Commands as drafted plus `route back <name>`
+  and `[restart]` on go/back; `wp add` takes `x y z`, `x z` (any height) or `here`, `~` works, and keeps
+  the dimension; a waypoint on a route can't be removed; a route is all one dimension. One `RouteTask`
+  a leg; the point it's heading for is saved after each one reached (the brain builds a new task after
+  every interrupt), so the same order carries on from there after a reflex, a death, a log-out or
+  `route stop`; `restart` starts over; `route list` says where one was cut short. Far start: over
+  `routefar` (500; `/zbot set routefar`, Mod Menu) refused once, the same order within 60 s goes. Not
+  automatic on rejoining: after a log-out for danger, walking straight back in is the wrong default.
+  335 core tests. Live, overworld sky platform: A → B → C (36 blocks) in 11 s, controls given back;
+  `route back`, stopped between B and A, `route list` "back cut short before A", `route back` again
+  "carrying on from A (point 3 of 3)", done at A; a waypoint 700 off: refused with the distance, the
+  same order again went (stopped at once). Not built yet: waiting for day on overworld routes at night,
+  portals between dimensions, actions at a waypoint.
 
 The ice miner and mapart both use routes (stash → work site → storage).
 

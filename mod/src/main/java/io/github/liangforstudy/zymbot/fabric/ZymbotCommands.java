@@ -63,6 +63,27 @@ final class ZymbotCommands {
                                     return sb.buildFuture();
                                 })
                                 .executes(c -> withBot(c, bot, b -> List.of(goTo(c, b, StringArgumentType.getString(c, "coords")))))))
+                // waypoints and routes, kept per server (doc/9b9t/roadmap.md §2)
+                .then(literal("wp")
+                        .executes(c -> withBot(c, bot, Bot::waypoints))
+                        .then(literal("add").then(argument("args", StringArgumentType.greedyString())
+                                .executes(c -> withBot(c, bot, b -> List.of(addWaypoint(c, b, StringArgumentType.getString(c, "args")))))))
+                        .then(literal("remove").then(argument("name", StringArgumentType.word())
+                                .suggests((c, sb) -> names(bot, true, sb))
+                                .executes(c -> withBot(c, bot, b -> List.of(b.removeWaypoint(StringArgumentType.getString(c, "name")))))))
+                        .then(literal("list").executes(c -> withBot(c, bot, Bot::waypoints))))
+                .then(literal("route")
+                        .executes(c -> withBot(c, bot, Bot::routes))
+                        .then(literal("add").then(argument("args", StringArgumentType.greedyString())
+                                .suggests((c, sb) -> names(bot, true, sb.createOffset(sb.getStart() + sb.getRemaining().lastIndexOf(' ') + 1)))
+                                .executes(c -> withBot(c, bot, b -> List.of(addRoute(b, StringArgumentType.getString(c, "args")))))))
+                        .then(literal("remove").then(argument("name", StringArgumentType.word())
+                                .suggests((c, sb) -> names(bot, false, sb))
+                                .executes(c -> withBot(c, bot, b -> List.of(b.removeRoute(StringArgumentType.getString(c, "name")))))))
+                        .then(literal("list").executes(c -> withBot(c, bot, Bot::routes)))
+                        .then(walk("go", bot, false))
+                        .then(walk("back", bot, true))
+                        .then(literal("stop").executes(c -> withBot(c, bot, b -> List.of(b.stopRoute())))))
                 .then(literal("follow").then(argument("player", StringArgumentType.word())
                         .suggests((c, sb) -> {
                             c.getSource().getOnlinePlayerNames().forEach(sb::suggest);
@@ -221,6 +242,8 @@ final class ZymbotCommands {
                 r + " autostart add | remove | list — servers where Zymbot is active",
                 r + " goto <x> <z>  or  <x> <y> <z> — walk there (~ and ~10 work; needs Baritone); goto <player> = come",
                 r + " follow <player> / come <player> / look <player> / eat — orders; " + r + " cancel drops the order",
+                r + " wp add <name> <x> <y> <z> | <x> <z> | here, wp remove <name>, wp list — waypoints, kept per server",
+                r + " route add <name> <wp> <wp> …, route remove | list — routes; route go | back <name> [restart] walks A→E | E→A, route stop",
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed | regroup | plantime | lagtps <n> — thresholds (also in Mod Menu)",
                 r + " roster — the team: Bot / Teammate, online, last heard, where, how we know",
@@ -237,6 +260,47 @@ final class ZymbotCommands {
                 r + " lan — open this world to LAN (port 25565, online mode off); " + r + " lan auto on|off — every time it loads",
                 "Settings (team key, accounts, servers): Mod Menu → Zymbot.",
                 "Pressing a movement key pauses the bot; it resumes after a few seconds.");
+    }
+
+    /** route go|back <name> [restart] */
+    private static LiteralArgumentBuilder<FabricClientCommandSource> walk(String word, Supplier<Bot> bot, boolean back) {
+        var restart = literal("restart").executes(c -> withBot(c, bot,
+                b -> List.of(b.walkRoute(StringArgumentType.getString(c, "name"), back, true))));
+        return literal(word).then(argument("name", StringArgumentType.word())
+                .suggests((c, sb) -> names(bot, false, sb))
+                .executes(c -> withBot(c, bot, b -> List.of(b.walkRoute(StringArgumentType.getString(c, "name"), back, false))))
+                .then(restart));
+    }
+
+    /** Waypoint (or route) names, for tab completion. */
+    private static java.util.concurrent.CompletableFuture<com.mojang.brigadier.suggestion.Suggestions> names(
+            Supplier<Bot> bot, boolean waypoints, com.mojang.brigadier.suggestion.SuggestionsBuilder sb) {
+        Bot b = bot.get();
+        if (b != null) (waypoints ? b.memory().waypoints.keySet() : b.memory().routes.keySet()).forEach(sb::suggest);
+        return sb.buildFuture();
+    }
+
+    /** "name x z", "name x y z" (~ and ~10 relative to you) or "name here". */
+    private static String addWaypoint(CommandContext<FabricClientCommandSource> c, Bot b, String args) {
+        String[] p = args.trim().split("\\s+");
+        String usage = "wp add <name> <x> <y> <z>  or  <name> <x> <z>  or  <name> here  (~ and ~10 work)";
+        if (p.length == 2 && p[1].equals("here")) return b.addWaypointHere(p[0]);
+        if (p.length != 3 && p.length != 4) return usage;
+        var at = c.getSource().getPosition();
+        try {
+            int x = coord(p[1], at.x);
+            if (p.length == 3) return b.addWaypoint(p[0], x, null, coord(p[2], at.z));
+            return b.addWaypoint(p[0], x, coord(p[2], at.y), coord(p[3], at.z));
+        } catch (NumberFormatException e) {
+            return "not a coordinate in: " + args + " — " + usage;
+        }
+    }
+
+    /** "name wp wp …" */
+    private static String addRoute(Bot b, String args) {
+        String[] p = args.trim().split("\\s+");
+        if (p.length < 2) return "route add <name> <waypoint> <waypoint> …";
+        return b.addRoute(p[0], List.of(p).subList(1, p.length));
     }
 
     /** "x z" or "x y z", each a number, "~" or "~n" (relative to the player). */
