@@ -470,6 +470,11 @@ public final class FakeWorld implements WorldView, Hands {
     public boolean attackReady = true;
     @Override public void attack(int entityId) { attacked.add(entityId); }
     @Override public int armorPoints() { return armor; }
+    /** Worn armor, head first; "" where there's none. */
+    public final String[] worn = {"", "", "", ""};
+    @Override public List<String> armor() { return List.of(worn); }
+    /** Uses that swapped a piece on: the server's answer can be held back to test a retry. */
+    public boolean armorSwapsTake = true;
     @Override public boolean attackReady() { return attackReady; }
     /** Blocked by any sturdy block on the way (the ground included), checked every quarter block. */
     @Override public boolean clearShot(Vec3 from, Vec3 to) {
@@ -498,10 +503,25 @@ public final class FakeWorld implements WorldView, Hands {
 
     @Override
     public void holdUse(boolean down) {
-        if (down && !useHeld) bucket();
+        if (down && !useHeld) { bucket(); wear(); }
         useHeld = down;
         if (down && !usingItem && inventory.stream().anyMatch(i -> i.slot() == selected && i.edible())) usingItem = true;
         if (!down) usingItem = false;
+    }
+
+    /** Armor used from the hand swaps with the piece worn there (vanilla 1.19.4+). */
+    private void wear() {
+        Optional<ItemView> held = inventory.stream().filter(i -> i.slot() == selected).findFirst();
+        if (held.isEmpty() || !armorSwapsTake) return;
+        String[] pieces = {"_helmet", "_chestplate", "_leggings", "_boots"};
+        for (int p = 0; p < 4; p++) {
+            if (!held.get().id().endsWith(pieces[p])) continue;
+            String old = worn[p];
+            worn[p] = held.get().id();
+            inventory.remove(held.get());
+            if (!old.isEmpty()) inventory.add(new ItemView(selected, old, 1, null));
+            return;
+        }
     }
 
     /** A bucket used looking down at our feet: pours (puts the fire out) or scoops the water back. */

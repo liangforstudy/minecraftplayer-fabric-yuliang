@@ -153,6 +153,16 @@ final class FabricWorldView implements WorldView {
     @Override public int downedSecondsLeft() { return downedSecs; }
     @Override public boolean beingRevived() { return beingRevived; }
     @Override public int armorPoints() { return player.getArmorValue(); }
+    @Override public List<String> armor() {
+        List<String> out = new ArrayList<>();
+        for (var slot : new net.minecraft.world.entity.EquipmentSlot[] {net.minecraft.world.entity.EquipmentSlot.HEAD,
+                net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.entity.EquipmentSlot.LEGS,
+                net.minecraft.world.entity.EquipmentSlot.FEET}) {
+            ItemStack st = player.getItemBySlot(slot);
+            out.add(st.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(st.getItem()).toString());
+        }
+        return out;
+    }
     @Override public boolean attackReady() { return player.getAttackStrengthScale(0.5f) >= 0.95f; }
 
     @Override

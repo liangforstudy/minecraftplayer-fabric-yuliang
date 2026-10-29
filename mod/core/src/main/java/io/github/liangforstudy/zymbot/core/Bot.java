@@ -7,6 +7,7 @@ import io.github.liangforstudy.zymbot.core.api.WorldView;
 import io.github.liangforstudy.zymbot.core.body.Body;
 import io.github.liangforstudy.zymbot.core.body.ChatIn;
 import io.github.liangforstudy.zymbot.core.body.ChatOut;
+import io.github.liangforstudy.zymbot.core.body.GoldInterrupt;
 import io.github.liangforstudy.zymbot.core.body.CriticalHealthInterrupt;
 import io.github.liangforstudy.zymbot.core.body.DownedInterrupt;
 import io.github.liangforstudy.zymbot.core.body.FightOrFleeInterrupt;
@@ -261,6 +262,8 @@ public final class Bot {
         reflexes.add(new CriticalHealthInterrupt(config, body, profile == Profile.ANARCHY));
         // anarchy: hit back weak mobs, back off from the rest (doc/9b9t/roadmap.md, "Attacked mid-route")
         if (profile == Profile.ANARCHY) reflexes.add(new FightOrFleeInterrupt(config, body));
+        // anarchy: one gold piece on in the Nether, so piglins leave us be (doc/9b9t/roadmap.md, "Before routes" 6)
+        if (profile == Profile.ANARCHY) reflexes.add(new GoldInterrupt(body, clock));
         reflexes.add(new StrandedInterrupt(body, this::nothingToDo));
         if (profile.has(Profile.LEASH)) {
             reflexes.add(made(Profile.LEASH, new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, this::nearestTeammate)));

@@ -456,6 +456,21 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
      Summon test ghasts with `PersistenceRequired:1b`, or they may despawn mid-test. A jar copied
      over while the game runs isn't loaded by leaving and rejoining the world: quit Minecraft fully.
 6. **One gold armor piece** on against piglins, when carried.
+   **Built and passed (2026-10-29): `gold`, anarchy only** (`core/body/GoldInterrupt`,
+   `core/task/EquipTask`; `WorldView.armor()` lists the worn pieces, head first). In the Nether (where
+   piglins live; outside it they turn into zombified piglins), with no gold piece on and one carried,
+   it puts on the one that costs the fewest armor points (a tie goes head first): a golden helmet
+   matches an iron one (2 each), so it's usually that. Brought to the hotbar (slot 8 from the main
+   inventory), used (the game swaps it with the worn piece, which lands in that slot), the use let go
+   the next tick (held, the game swaps them back after 4 ticks), then the old hotbar slot taken back.
+   A swap that doesn't take is retried only after 30 s. After fight-or-flee, before stranded.
+   Live, 26.2 world, Nether platform at 0 100 0, full iron with a golden helmet in the main
+   inventory: "putting golden helmet on — because in the Nether, no gold on: piglins attack — golden
+   helmet, no armor lost", "put golden helmet on — because 1 try", the iron helmet in slot 8, slot 2
+   still selected; then three piglins 6–8 blocks off for 30 s: no damage, nothing logged. 330 core tests.
+   Not done: taking the gold off again outside the Nether (the iron helmet stays in the hotbar), and
+   a control run without gold (piglins attacking is vanilla). Test tip: fill the floor before
+   teleporting in; in creative the player dropped 20 blocks into a cave below first.
 
 **Overworld routes at night: wait for day (decided, owner, 2026-10-29).** Somewhere safe, then go on.
 

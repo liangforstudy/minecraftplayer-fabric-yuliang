@@ -114,6 +114,8 @@ public interface WorldView {
 
     /** Armor points worn, 0–20 (the bar above the hearts): full iron is 15, full diamond 20. */
     default int armorPoints() { return 0; }
+    /** The armor worn, head first (helmet, chestplate, leggings, boots): ids, "" where there's none. */
+    default List<String> armor() { return List.of(); }
     /** The weapon has recharged: a hit now does full damage (the attack cooldown). */
     default boolean attackReady() { return true; }
     /** Nothing solid between these two points: a shooter at {@code from} could hit {@code to}. */
