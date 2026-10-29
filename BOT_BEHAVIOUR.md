@@ -46,7 +46,7 @@ Evaluated in order, every tick. First match wins.
 | 7 | — | work the current objective | — |
 
 **As built (2026-09-30), differences from the table above:**
-- **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it).
+- **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it). Anarchy build: only while a key is held, back 0.5 s after it is let go, fights included (doc/9b9t/roadmap.md).
 - **Water:** besides drowning (#1a) there are *stranded* (out of its depth with nothing to do: swim to
   land with water straight beside it and dry on top), *wading* (idle in shallows: step onto dry land)
   and diving (a task, for graves under water).

@@ -72,7 +72,10 @@ public final class FightOrFleeInterrupt implements Interrupt {
         if (creeper.isPresent()) return retreat(hands, creeper.get().pos());
         Optional<EntityView> mob = attacker(world);
         if (mob.isPresent()) {
-            if (decision(world, mob.get()).fight()) return new FightTask(hands, mob.get(), body::reportSwim);
+            if (decision(world, mob.get()).fight()) {
+                return new FightTask(hands, mob.get(), body::reportSwim,
+                        w -> creeper(w).isEmpty() && attacker(w).map(m -> decision(w, m).fight()).orElse(true));
+            }
             return retreat(hands, mob.get().pos());
         }
         return unseenAttacker(world).map(a -> retreat(hands, a.from()))

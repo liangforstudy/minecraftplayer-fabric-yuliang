@@ -9,6 +9,7 @@ import io.github.liangforstudy.zymbot.core.body.Combat;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Hit back one mob: the best sword or axe in the hotbar, close in when it's out of reach, and
@@ -23,10 +24,13 @@ public final class FightTask implements Task {
     /** Close in again once it has moved this far from where the walk was aimed. */
     static final double REAIM_BLOCKS = 2;
     static final int GIVE_UP_TICKS = 30 * 20;
+    /** How often the fight asks again whether it's still worth it (more mobs, less health). */
+    public static final int RECHECK_TICKS = 20;
 
     private final Hands hands;
     private final UUID target;
     private final Consumer<String> report;
+    private final Predicate<WorldView> stillWorthIt;
     private String who;
     private WalkTask walk;
     private Vec3 aimedAt;
@@ -35,11 +39,16 @@ public final class FightTask implements Task {
     private int swings;
     private String failure = "";
 
-    public FightTask(Hands hands, EntityView target, Consumer<String> report) {
+    /**
+     * @param stillWorthIt asked every {@link #RECHECK_TICKS}: false ends the fight (DONE), so the
+     *                     reflex can decide again — a siege grows while we swing at the first zombie
+     */
+    public FightTask(Hands hands, EntityView target, Consumer<String> report, Predicate<WorldView> stillWorthIt) {
         this.hands = hands;
         this.target = target.uuid();
         this.who = target.name();
         this.report = report;
+        this.stillWorthIt = stillWorthIt;
     }
 
     @Override
@@ -47,6 +56,10 @@ public final class FightTask implements Task {
         Optional<EntityView> t = world.nearby().stream().filter(e -> target.equals(e.uuid())).findFirst();
         Vec3 me = world.position();
         if (t.isEmpty() || t.get().pos().horizontalDistance(me) >= RetreatTask.DISTANCE) {
+            cancel();
+            return Status.DONE;
+        }
+        if (ticks % RECHECK_TICKS == RECHECK_TICKS - 1 && !stillWorthIt.test(world)) {
             cancel();
             return Status.DONE;
         }

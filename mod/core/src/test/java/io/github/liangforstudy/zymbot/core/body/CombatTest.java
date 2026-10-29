@@ -12,6 +12,7 @@ import io.github.liangforstudy.zymbot.core.api.ItemView;
 import io.github.liangforstudy.zymbot.core.api.Vec3;
 import io.github.liangforstudy.zymbot.core.body.Combat.Gear;
 import io.github.liangforstudy.zymbot.core.config.ZymbotConfig;
+import io.github.liangforstudy.zymbot.core.task.FightTask;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
@@ -183,6 +184,22 @@ class CombatTest {
     }
 
     @Test
+    void aSiegeGrowsMidFight_theFightGivesWayToBackingOff() {
+        FakeWorld w = new FakeWorld("Bluetails");
+        w.armor = 7;                                                // basic: 2 at once
+        Bot b = walking(w);
+        EntityView z = mob(w, "minecraft:zombie", -2, 0);
+        hitBy(w, z);
+        ticks(b, w, 2);
+        assertFalse(w.attacked.isEmpty(), "one zombie: fought");
+        mob(w, "minecraft:zombie", -3, 2);                          // two more arrive
+        mob(w, "minecraft:zombie", -3, -2);
+        ticks(b, w, FightTask.RECHECK_TICKS + io.github.liangforstudy.zymbot.core.brain.Brain.REPEAT_DELAY_TICKS + 2);
+        assertTrue(w.paths.goal.x() > 10, "backing off east: " + w.paths.goal + "\n" + log(b));
+        assertTrue(log(b).contains("3 mobs, basic armor fights 2"), log(b));
+    }
+
+    @Test
     void aCreeperClose_isBackedAwayFrom_beforeItHits() {
         FakeWorld w = new FakeWorld("Bluetails");
         w.armor = 20;
@@ -222,6 +239,31 @@ class CombatTest {
         }
         assertFalse(log(b).contains("holding still"), log(b));
         assertTrue(w.attacked.size() > 100, "still swinging: " + w.attacked.size());
+    }
+
+    @Test
+    void started_theOwnersKeysPauseTheFight_andItGoesOnHalfASecondAfterTheyLetGo() {
+        FakeWorld w = new FakeWorld("Bluetails").give(0, "minecraft:iron_sword", 1, null);
+        Bot b = new Bot(new ZymbotConfig(), dir.resolve("zymbot.json"), dir.resolve(w.name), w.id, false, clock, Profile.ANARCHY);
+        b.onJoin("9b9t.com", w.name);
+        b.start("test");
+        EntityView z = mob(w, "minecraft:zombie", 2, 0);
+        hitBy(w, z);
+        ticks(b, w, 2);
+        assertFalse(w.attacked.isEmpty(), "fighting");
+        for (int i = 0; i < 20; i++) {                             // the owner holds a key for a second
+            b.humanInput(w);
+            int before = w.attacked.size();
+            ticks(b, w, 1);
+            assertEquals(before, w.attacked.size(), "no swings while the owner moves");
+        }
+        int before = w.attacked.size();
+        ticks(b, w, (int) (Bot.ANARCHY_RESUME_MILLIS / 50) + 3);
+        assertTrue(w.attacked.size() > before, "fighting again just after letting go: " + log(b));
+        assertEquals(1, w.notices.stream().filter(n -> n.contains("takes over again")).count(), w.notices.toString());
+        b.humanInput(w);                                           // a second press: no second notice
+        ticks(b, w, 20);
+        assertEquals(1, w.notices.stream().filter(n -> n.contains("takes over again")).count(), w.notices.toString());
     }
 
     @Test

@@ -404,6 +404,14 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   (needs 16). At full health, at night, on level ground: closed in and killed it in ~3 s, −4 ("a lone
   skeleton, good armor"). (Earlier skeletons "ran away": summoned onto a ledge, they fell into a cave
   20 below; and the game sat paused whenever its window lost focus — singleplayer pauses.)
+- Night zombie sieges, full iron: 3 at once fought one after another (~10 s, −7); 6 at once backed off
+  ("5 mobs, good armor fights 4") and outran them. **A fight now asks again every second** whether
+  it's still worth it (more mobs, less health, a creeper close): a siege grows while we swing. Live:
+  fought 3, then 4, and the moment a 5th joined it backed off.
+- **After `/zbot start` the owner's keys only pause it while held** (owner, 2026-10-29): it takes
+  over again 0.5 s after they let go, fights included; ZymCiv keeps its 10 s pause and the 3 s
+  warning. Said once per start in chat. Live: held S mid-fight, "paused", then "resumed — no human
+  input for 0.5s" and back to the zombie within the second.
 - Found and fixed on the way: hostiles in caves 20–40 blocks below counted as a crowd (now 3D
   distance), and the fidget watchdog froze the bot one second into a fight (turning and stepping in
   looked like spinning in place).

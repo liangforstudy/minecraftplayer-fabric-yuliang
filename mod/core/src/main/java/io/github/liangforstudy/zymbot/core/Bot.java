@@ -72,6 +72,11 @@ public final class Bot {
      */
     public static final int RESPAWN_GRACE_TICKS = 20;
     public static final long RESUME_WARNING_MILLIS = 3_000;
+    /**
+     * Anarchy: after /zbot start the owner's keys only pause it while held — it takes over again this
+     * soon after they let go, fights included (owner, 2026-10-29). ZymCiv's long pause stays as it is.
+     */
+    public static final long ANARCHY_RESUME_MILLIS = 500;
     /** A message from someone not (yet) in the tab list waits this long before it's dropped. */
     public static final long TAB_LIST_GRACE_MILLIS = 10_000;
     /** Silent this long, then heard again: logged as "back" even within one session. */
@@ -133,6 +138,7 @@ public final class Bot {
     private BotMemory memory = new BotMemory();
     private long pausedUntil;
     private boolean resumeWarned;
+    private boolean pauseExplained;
     private long nextHello;
     /** The team and the milestone ladder: ZymCiv only, null under {@link Profile#ANARCHY}. */
     private final io.github.liangforstudy.zymbot.core.team.Regroup regroup;
@@ -367,6 +373,7 @@ public final class Bot {
         phase = Phase.DISCOVERY;
         nextHello = 0;                  // say hello on the next tick
         pausedUntil = 0;
+        pauseExplained = false;
         if (regroup != null) regroup.arm();   // first objective: find the team (PHASE2.md §1)
         surveyWanted = "started";       // and look around (PHASE3.md §2)
         log.record("started: " + phase, why);
@@ -408,11 +415,21 @@ public final class Bot {
         if (now >= pausedUntil) {
             brain.halt("a human took the controls");
             log.record("paused", "a human took the controls");
-            hands.notifyLocal("zymbot paused — you can move yourself around for now. It goes back to automation mode "
-                    + config.humanPauseSeconds + "s after you stop, or /" + config.commandRoot + " stop to stop the bot.");
+            if (profile != Profile.ANARCHY) {
+                hands.notifyLocal("zymbot paused — you can move yourself around for now. It goes back to automation mode "
+                        + config.humanPauseSeconds + "s after you stop, or /" + config.commandRoot + " stop to stop the bot.");
+            } else if (!pauseExplained) {                       // once per start: it happens at every key press
+                pauseExplained = true;
+                hands.notifyLocal("zymbot holds off while you move and takes over again as you let go — /"
+                        + config.commandRoot + " stop to stop it");
+            }
         }
-        pausedUntil = now + config.humanPauseSeconds * 1000L;
+        pausedUntil = now + pauseMillis();
         resumeWarned = false;
+    }
+
+    private long pauseMillis() {
+        return profile == Profile.ANARCHY ? ANARCHY_RESUME_MILLIS : config.humanPauseSeconds * 1000L;
     }
 
     // ------------------------------------------------------------------ tick
@@ -488,7 +505,7 @@ public final class Bot {
 
         if (pausedUntil > now) {
             fidget.reset();                                  // a human's turning isn't ours
-            if (!resumeWarned && pausedUntil - now <= RESUME_WARNING_MILLIS) {
+            if (!resumeWarned && pauseMillis() > RESUME_WARNING_MILLIS && pausedUntil - now <= RESUME_WARNING_MILLIS) {
                 resumeWarned = true;
                 hands.notifyLocal("zymbot resumes in 3s — touch a movement key to keep control, or /"
                         + config.commandRoot + " stop to stop the bot");
@@ -497,7 +514,7 @@ public final class Bot {
         }
         if (pausedUntil != 0) {
             pausedUntil = 0;
-            log.record("resumed", "no human input for " + config.humanPauseSeconds + "s");
+            log.record("resumed", "no human input for " + (profile == Profile.ANARCHY ? "0.5" : config.humanPauseSeconds) + "s");
         }
 
         maybeHello(world, now);
