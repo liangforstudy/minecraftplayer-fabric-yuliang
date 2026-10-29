@@ -67,7 +67,9 @@ public final class FoodChooser {
                 .thenComparingLong(i -> -repeats(i, recent))              // variety, when it's a tie
                 .thenComparingDouble(i -> i.food().saturation())
                 .thenComparing(ItemView::inHotbar);                       // fewer steps
-        if (healing) return edible.stream().filter(i -> i.food().heals()).max(byValue);
+        // an enchanted golden apple is rare and the better one: the plain ones go first
+        if (healing) return edible.stream().filter(i -> i.food().heals())
+                .max(Comparator.<ItemView, Boolean>comparing(i -> !i.id().contains("enchanted")).thenComparing(byValue));
         Optional<ItemView> plain = edible.stream().filter(i -> !i.food().heals()).max(byValue);
         return plain.isPresent() ? plain : edible.stream().max(byValue);
     }

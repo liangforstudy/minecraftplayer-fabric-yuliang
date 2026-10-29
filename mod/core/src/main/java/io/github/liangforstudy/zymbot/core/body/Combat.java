@@ -41,6 +41,16 @@ public final class Combat {
             return armorPoints >= 15 ? GOOD : armorPoints >= 7 ? BASIC : BARE;
         }
 
+        /**
+         * The armor's tier, one up with a totem in the offhand or {@link #HEALING_BITES} golden apples
+         * (or other healing food) carried: they buy another life, or another go (doc/9b9t/roadmap.md,
+         * "Before routes" 3). Both together still count one: the armor does the soaking.
+         */
+        public static Gear of(int armorPoints, boolean totem, int healingBites) {
+            Gear g = of(armorPoints);
+            return (totem || healingBites >= HEALING_BITES) && g != GOOD ? values()[g.ordinal() + 1] : g;
+        }
+
         /** How many melee mobs at once are still worth fighting. */
         int crowd() { return this == GOOD ? 4 : this == BASIC ? 2 : 1; }
 
@@ -49,6 +59,33 @@ public final class Combat {
          * full iron from 17 to 11 in 3 s while it closed on the first (Nether, 2026-10-29).
          */
         int shooters() { return this == GOOD ? 2 : 1; }
+    }
+
+    /** Healing food carried that raises the gear a tier (a golden apple is one). */
+    public static final int HEALING_BITES = 2;
+
+    /** Our gear, armor plus what still saves us. */
+    public static Gear gear(WorldView world) {
+        return Gear.of(world.armorPoints(), totem(world), healingBites(world));
+    }
+
+    /** What the gear tier is made of, for the log: "armor 7 + a totem + 3 golden apples". */
+    public static String gearWhy(WorldView world) {
+        String s = "armor " + world.armorPoints();
+        if (totem(world)) s += " + a totem";
+        int bites = healingBites(world);
+        if (bites > 0) s += " + " + bites + " healing food";
+        return s;
+    }
+
+    public static boolean totem(WorldView world) {
+        return LogOutInterrupt.TOTEM.equals(world.offhandItem());
+    }
+
+    /** Healing food carried (golden apples), counted by bites. */
+    public static int healingBites(WorldView world) {
+        return world.inventory().stream().filter(i -> i.edible() && i.food().heals() && !i.food().harmful())
+                .mapToInt(ItemView::count).sum();
     }
 
     /** Hostiles counted as a crowd when this close. */

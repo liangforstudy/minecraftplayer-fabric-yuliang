@@ -99,7 +99,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
     }
 
     private Combat.Decision decision(WorldView world, EntityView mob) {
-        return Combat.decide(mob.type(), Combat.Gear.of(world.armorPoints()), Math.max(1, Combat.crowd(world)),
+        return Combat.decide(mob.type(), Combat.gear(world), Math.max(1, Combat.crowd(world)),
                 Combat.shooters(world).size(), world.health(), config.criticalFor());
     }
 
@@ -132,16 +132,21 @@ public final class FightOrFleeInterrupt implements Interrupt {
                 Optional.empty(), body::reportSwim);
     }
 
+    /** When a totem or golden apples raised the gear a tier, what it's made of. */
+    private static String raised(WorldView world) {
+        return Combat.gear(world) != Combat.Gear.of(world.armorPoints()) ? " (" + Combat.gearWhy(world) + ")" : "";
+    }
+
     @Override
     public String why(WorldView world) {
         Optional<EntityView> creeper = creeper(world);
         if (creeper.isPresent()) return "a creeper " + Math.round(Combat.distance(creeper.get().pos(), world.position()))
                 + " blocks away";
         Optional<EntityView> mob = attacker(world);
-        if (mob.isPresent()) return "hit by " + decision(world, mob.get()).why();
+        if (mob.isPresent()) return "hit by " + decision(world, mob.get()).why() + raised(world);
         Optional<EntityView> near = closing(world);
         if (near.isPresent()) return Math.round(Combat.distance(near.get().pos(), world.position())) + " blocks off: "
-                + decision(world, near.get()).why();
+                + decision(world, near.get()).why() + raised(world);
         return "hit by something out of sight";
     }
 }

@@ -367,8 +367,22 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
    were put; on rejoining the player faced east (yaw −90).
 2. **Eating on a route**: check that Meteor's AutoEat and a Zymbot walk get along (a pause, not a
    failed path); our own eating if not.
+   **Passed (2026-10-29, 26.2 world, 20 TPS):** Auto Eat on (turned on with Meteor's `.toggle
+   auto-eat`, sent as chat), steak in hotbar slot 5, a 150-block `/zbot goto` with a hunger effect
+   started just after. Sampled each second (MCP `player.getState`): at food 14 it switched to the
+   steak, ate in about a second while still walking slowly, and switched back to slot 0; food 20.
+   The walk went on and finished (150 blocks in 48 s), with no failed path, no extra replan and no
+   "touched a movement key". So no eating of our own for now. Not yet seen under 9b9t's lag (a bite
+   ~3 s at 10 TPS). Auto Eat's blacklist has rotten flesh on it (the ice miner, §3, will need it off).
 3. **Healing and gear in the decisions**: golden apples and a totem count in the gear score; the
    critical reflex eats a golden apple.
+   **Built (2026-10-29):** the gear tier (bare / basic / good by armor points) goes up one with a
+   totem in the offhand or 2+ golden apples (or other healing food) carried; both together still one
+   (`Combat.gear`). When that raised it, fight-or-flee's reason says so: "zombie and 1 more, basic
+   armor (armor 0 + a totem)". The critical reflex already ate healing food at any hunger; now it eats
+   plain golden apples before an enchanted one (the rarer, better one), which is still eaten when it's
+   all there is. Live in the 26.2 world: at health 11 it ate a golden apple (3 → 2; the enchanted one
+   kept), back to 20, so 26.2's food effects read as healing.
 4. **Burning**: put out the ~8 s burn after touching fire (fire resistance; a water bucket in the
    overworld).
 5. **Dig in at the first fireball** when there's no cover, rather than looking for cover first.
