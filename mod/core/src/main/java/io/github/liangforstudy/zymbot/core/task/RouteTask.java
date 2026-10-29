@@ -93,9 +93,19 @@ public final class RouteTask implements Task {
         return this;
     }
 
+    /**
+     * Lagging starts below {@code lagTps} and ends only at this, so a server hovering on the line
+     * (9b9t: 14–15 and 19–20 by turns) doesn't flip it every few seconds.
+     */
+    static double recoverTps(int lagTps) {
+        return Math.min(lagTps + RECOVER_MARGIN, 19.5);
+    }
+
+    static final int RECOVER_MARGIN = 2;
+
     /** How far to walk between look-aheads: {@link #LOOK_AHEAD_EVERY}, stretched while the server lags. */
-    static int lookAheadEvery(double tps, int lagTps) {
-        if (tps >= lagTps) return LOOK_AHEAD_EVERY;
+    static int lookAheadEvery(double tps, boolean lagging) {
+        if (!lagging) return LOOK_AHEAD_EVERY;
         double stretch = Math.min(MAX_BACK_OFF, 20 / Math.max(tps, 1));
         return (int) Math.round(LOOK_AHEAD_EVERY * Math.max(1, stretch));
     }
@@ -114,16 +124,16 @@ public final class RouteTask implements Task {
             onPlan(p);
         }
         double tps = world.serverTps();
-        boolean lagNow = tps < lagTps;
+        boolean lagNow = lagging ? tps < recoverTps(lagTps) : tps < lagTps;
         if (lagNow != lagging) {
             lagging = lagNow;
             if (lagNow) log.accept("planning less", String.format(Locale.ROOT,
                     "the server is at %.0f TPS (below %d) — looking ahead every %d blocks, gently", tps, lagTps,
-                    lookAheadEvery(tps, lagTps)));
+                    lookAheadEvery(tps, true)));
             else log.accept("planning normally", String.format(Locale.ROOT, "the server is back to %.0f TPS", tps));
         }
         if (leg == null && planning == null && horizontal(world, target) > FINISH_RANGE
-                && (lookedFrom == null || horizontal(world, lookedFrom) >= lookAheadEvery(tps, lagTps))) {
+                && (lookedFrom == null || horizontal(world, lookedFrom) >= lookAheadEvery(tps, lagging))) {
             lookAhead(world);                                          // in the background; keep walking
         }
         if (leg != null) {

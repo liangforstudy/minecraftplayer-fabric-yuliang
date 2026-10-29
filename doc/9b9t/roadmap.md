@@ -21,7 +21,8 @@ fights with withers and wardens.
   `mod/stonecutter.properties.toml`).
 - `core` stays plain Java, **built once and shared** by both versions. General reflexes (interrupt
   stack, drowning, stranded, fidget watchdog, `BreakTask`, `PlaceTask`, decision log) serve both.
-- **26.2 client build: built 2026-10-28, not yet tried in a world.** Third Stonecutter version
+- **26.2 client build: built 2026-10-28, live on 9b9t (goto, daybreak), offline checks passed
+  2026-10-29.** Third Stonecutter version
   beside 1.21.1 and 1.21.11 (profile `anarchy`, like 1.21.11). Done:
   - Build: loom-back-compat 0.4.3 with both Loom plugins (1.19.3) declared in
     `stonecutter.gradle.kts`, Gradle 9.8.1 run on JDK 25 (`gradle/gradle-daemon-jvm.properties`),
@@ -38,9 +39,26 @@ fights with withers and wardens.
     launch failed on the old name, which compiling doesn't catch).
   - All three jars build, 250 core tests pass. In the owner's `26.2` instance (Meteor 26.2-35,
     Baritone 1.19.0) it loads: "profile anarchy", no mixin errors at startup.
-  - **Next (owner, in a 26.2 world; no MCP there):** `/zbot status`, `probe tps` (does the game time
-    still jump without translation?), break blocks then `probe ack`, a short `goto`, Mod Menu →
-    Zymbot. The world-time, block-ack and boss-bar hooks only attach in a world.
+  - **Offline checks, 2026-10-29** (9b9t down; over MCP Fabric on port 25602, singleplayer "New
+    World"), all pass:
+    - Mod Menu → Zymbot: the three anarchy settings (critical, plan time, lag TPS). Typing "x2" keeps
+      only the "2"; dragging the range scrubs and stops at the cap (19); ↺ resets; tooltips show.
+    - `probe tps`: Zymbot 19.6 from the game time, +20 ticks per update with no jumps (so 9b9t's jumps
+      are the server's, not 26.2's); Meteor's TickRate read 15.8 right after the world loaded, 19.9
+      a minute later. `probe ack`: a break confirmed in 56 ms. `probe meteor` lists the modules.
+    - `daybreak`: "day: hostile mobs start spawning in the open at 10:01:30 (in 13 min 9 s)" from
+      time 2052, with the pace from the TPS meter until the clock has 30 s.
+    - `/zbot lan`: opened on 25565; `tools/mcping.py 127.0.0.1:25565 776` answers "26.2, players 1/8".
+    - Death (`/kill`) and respawn: status shows "respawned — because died at … -48, 64, -197".
+      Status read right at respawn says health 0 for one line; the next one is right.
+    - Status prints "critical ≤12" with the setting at 8: danger "hard" adds 4 (`criticalFor`). The
+      settings screen shows only the base value; worth a hint there.
+    - MCP Fabric's `get_recent_chat` returns nothing on 26.2 (our lines go through
+      `sendSystemMessage`); read chat by screenshot. That's MCP Fabric's, for its owner.
+  - Emergency stop key (bound to `]` in the owner's instance), 2026-10-29: pressed in the middle of a
+    `goto`, the walk stopped at once ("the controls are yours again — emergency stop key", then
+    "Zymbot stopped, Baritone cancelled"). Also with the inventory open mid-walk (swimming):
+    stopped at once, same lines, position held after.
 - **9b9t's version, checked 2026-10-26:** **26.2, with 1.21.4 and newer accepted.**
   - `tools/mcping.py` (server-list ping, no login; follows the `_minecraft._tcp` SRV record, since
     2b2t.com's plain address is a web IP): the version name is "9b9t 26.2" whatever we send; protocols
@@ -315,11 +333,14 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
 - **A false "you touched a movement key"** on the first try: borrowed and given back in the same
   second, no key pressed. The second try ran clean. The check is "a movement key is down while
   Zymbot holds none" (`ZymbotClient.humanIsMoving`); a key still down from the window taking focus is
-  the likely cause. Not fixed; watch for it.
+  the likely cause. Not fixed: the owner thinks it was a real press (2026-10-29); left as is unless
+  it's seen again.
 - **The lag back-off flaps**: TPS read 14–15 and 19–20 by turns (each a few seconds), so "planning
   less" / "planning normally" logged every 3–10 s, right at the `lagtps` 15 line. Wants some
   hysteresis (e.g. back to normal only above 17) so the log isn't flooded on 9b9t. It also read 1 TPS
-  in the first second of the first try (just after a stall), which was fair.
+  in the first second of the first try (just after a stall), which was fair. **Fixed 2026-10-29:**
+  `RouteTask` starts lagging below `lagtps` and stops only at `lagtps` + 2 (at most 19.5); the
+  look-ahead stretch follows that state. Swapped into the 1.21.11 instance and Bot1; the 26.2 jar waits for that game to close. Not yet seen on 9b9t.
 
 **Night ambushes (owner, 2026-10-26):** on 9b9t a walk can get ambushed by hard mobs at night. Today
 the anarchy build only reacts at low health (danger `hard`: critical health + 4) and Baritone doesn't

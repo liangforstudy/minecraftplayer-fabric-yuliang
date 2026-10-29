@@ -321,9 +321,17 @@ class BodyTest {
             ticks(b, w, 2);
             assertEquals(1, queued.size());
             queued.remove(0).run();
-            w.tps = 20;
+            w.tps = 16;
+            ticks(b, w, 2);
+            assertFalse(log(b).contains("planning normally"), "16 is above 15 but not yet 17: " + log(b));
+            w.tps = 17;
             ticks(b, w, 2);
             assertTrue(log(b).contains("planning normally"), log(b));
+            for (double tps : new double[]{15, 19.5, 15, 20, 16}) {            // 9b9t hovering on the line
+                w.tps = tps;
+                ticks(b, w, 2);
+            }
+            assertEquals(1, log(b).split("planning less", -1).length - 1, "no flapping: " + log(b));
         } finally {
             io.github.liangforstudy.zymbot.core.task.RouteTask.PLANNER = inline;
         }
