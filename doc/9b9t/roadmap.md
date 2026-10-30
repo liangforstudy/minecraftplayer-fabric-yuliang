@@ -927,6 +927,9 @@ Mines **regular, packed and blue ice** for boat highways.
 - **Ghost blocks and lag:** a place the server rejects can still show on the client, and 9b9t takes
   0.3–9.5 s to confirm a place depending on its lag spikes (§Probes). So a layer is checked by
   rereading it once the recent ack has passed, not trusted per place (§Probes, "Not needed now").
+- **Where to build (owner, 2026-10-30): on an ocean.** It's flat, and the water catches the bot when
+  it falls while building a staircase map. On flat land (plains) instead, lay a water base under the
+  map first, for the same reason. Seed finding (Later ideas) looks for oceans, and flat land nearby.
 - **Roadmap, later:** gather materials itself **only if the stash has been griefed**.
 
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
@@ -1094,7 +1097,9 @@ the old chunks end). An upgrade never regenerates existing chunks, and 1.18 chan
 generation completely, so for the same seed and place, 1.12.2 and 1.18+ give different worlds.
 
 **What to find:** ice biomes first (ice spikes for packed ice, frozen oceans for icebergs with blue ice:
-the ice miner, §3), other biomes, structures, and flat land for mapart (§4).
+the ice miner, §3), other biomes, structures, and flat land for mapart (§4). **Oceans count as flat
+ground** (owner, 2026-10-30), so for mapart, flat land is mostly a biome search, which Cubiomes
+answers for 1.12.2 without its terrain heights.
 
 **Every result for both versions, clearly labelled** (owner): e.g.
 `ice spikes — 1.12.2 generator: 2,340 1,100 (1,200 blocks) · 26.2 generator (1.18+ terrain): 4,810 -3,020
@@ -1106,9 +1111,20 @@ so the bot shows both and says which one the loaded blocks agree with, once it's
   client jar: biome and structure placement asked for directly, without loading the chunks. Always
   right for that version. Biomes added since 1.18 (mangrove and deep dark in 1.19, cherry grove in
   1.20, pale garden in 1.21.4) only exist in chunks generated that late; the label says so.
-- **1.12.2:** the client can't do it. Options: **Cubiomes** (C, MIT licence; supports 1.12 and the
-  modern versions; as a separate small tool or a native bridge), or a Java port of 1.12's biome
-  generation (the archived KaptainWutax SeedFinding libraries had one). To decide.
+- **1.12.2: Cubiomes, as a helper program Zymbot talks to by itself (decided, owner, 2026-10-30:
+  "an automated way of sending and receiving requests to Cubiomes on Windows").** Cubiomes is C, MIT
+  licence (checked 2026-10-30), with years of checks against the real game, and covers 1.12.2's
+  biomes and structures. Not a Java port.
+  - A small program built from Cubiomes (`zymbot-seed.exe` on Windows first; Linux and macOS builds
+    later for the bots), kept next to the mod, e.g. `<game dir>/zymbot/tools/`.
+  - Zymbot starts it on the first seed question and keeps it running. Requests and answers are one
+    line of JSON each over its standard input and output, e.g.
+    `{"id":1,"mc":"1.12.2","seed":-8076723744225505211,"find":"biome","what":"ice_spikes","x":0,"z":0,"radius":20000}`
+    → `{"id":1,"results":[{"x":2340,"z":1100,"distance":2563}]}`. It runs off the game thread, so a
+    big search never freezes the game. Missing program: Zymbot says so and still gives the 1.18+ half.
+  - Built from a pinned Cubiomes commit; the Windows build either cross-compiled here or by a GitHub
+    Actions Windows runner, to decide when it's built.
+  - Cubiomes also covers modern versions, so it can double-check the game's own 1.18+ answers.
 
 **Which version is a place? (nobody knows where the old chunks end):**
 - **Live:** once the bot is there, compare the loaded blocks with both generators' answer (where land
