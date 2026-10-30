@@ -1086,6 +1086,41 @@ tunnel, like above), never on the highway.
 
 ## Later ideas
 
+### Seed finding: biomes, structures, flat land, for two world versions (owner, 2026-10-30)
+
+9b9t's seed is **-8076723744225505211** (public). The world has **1.12.2 chunks** and chunks from
+whatever versions came between it and today (1.16, 1.18, 1.19 or 1.20: nobody knows which, or where
+the old chunks end). An upgrade never regenerates existing chunks, and 1.18 changed terrain and biome
+generation completely, so for the same seed and place, 1.12.2 and 1.18+ give different worlds.
+
+**What to find:** ice biomes first (ice spikes for packed ice, frozen oceans for icebergs with blue ice:
+the ice miner, §3), other biomes, structures, and flat land for mapart (§4).
+
+**Every result for both versions, clearly labelled** (owner): e.g.
+`ice spikes — 1.12.2 generator: 2,340 1,100 (1,200 blocks) · 26.2 generator (1.18+ terrain): 4,810 -3,020
+(3,400 blocks)`. Which one is right depends on when that land was first generated, which nobody knows,
+so the bot shows both and says which one the loaded blocks agree with, once it's there.
+
+**Two generators:**
+- **1.18+ (labelled with the version we build, e.g. "26.2"):** the game's own generator, already in the
+  client jar: biome and structure placement asked for directly, without loading the chunks. Always
+  right for that version. Biomes added since 1.18 (mangrove and deep dark in 1.19, cherry grove in
+  1.20, pale garden in 1.21.4) only exist in chunks generated that late; the label says so.
+- **1.12.2:** the client can't do it. Options: **Cubiomes** (C, MIT licence; supports 1.12 and the
+  modern versions; as a separate small tool or a native bridge), or a Java port of 1.12's biome
+  generation (the archived KaptainWutax SeedFinding libraries had one). To decide.
+
+**Which version is a place? (nobody knows where the old chunks end):**
+- **Live:** once the bot is there, compare the loaded blocks with both generators' answer (where land
+  and water are, the biome, the height) and label the chunk "matches 1.12.2" or "matches 1.18+".
+  Remembered per chunk, so the bot learns the border as it goes.
+- **From the owner's JourneyMap cache:** JourneyMap keeps a PNG per 512×512-block region of what was
+  explored. Compare its land and water shapes with both generators' land and water for that region
+  to label explored regions in bulk, before walking there. Worth trying: coastlines differ strongly
+  between 1.12.2 and 1.18+.
+
+Not built; a module of its own, after the ice miner's basics.
+
 ### Snapshot, build offline, ghost blocks back on 9b9t (owner, 2026-10-26)
 
 Download the area around the owner on 9b9t, switch to singleplayer, build there with **Axiom**,
