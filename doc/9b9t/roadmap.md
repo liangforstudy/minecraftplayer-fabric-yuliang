@@ -928,7 +928,8 @@ water (river, lake and ocean floors).
   safety net, `BreakTask` for the mining (a shovel; Silk Touch keeps the clay block, otherwise 4 clay
   balls make one back), and the 2-minute despawn: drops float, so it collects as it goes, like the
   ice miner over water.
-- What to gather comes from the map's material list (§4), less what the stash already holds.
+- What to gather comes from the map's material list (§4), less what the stash already holds. The
+  build (§4) only starts once the list is complete.
 - Stored the same way as the ice (a chest, stop and tell the owner when it's full).
 - This makes gathering a regular job, not only the fallback after a griefed stash (§4).
 - Open: which materials besides clay (the owner's list), and where to look for them (seed finding,
@@ -937,6 +938,10 @@ water (river, lake and ocean floors).
 ## 4. Mapart
 
 **Staircase** mapart (more colours than flat), **including slabs**.
+
+**Building starts only once every ingredient is gathered** (owner, 2026-10-30): the map's whole
+material list is in the stash first (gathered, §3 "Gathering mapart materials too", or brought by the
+owner); then the build. No starting a map and stopping half-way for clay.
 
 - Materials come from the owner's **shulker stash**. The loop: go to the stash, take the right
   shulkers, empty them at the build site, go back (a route, §2).
@@ -953,7 +958,7 @@ water (river, lake and ocean floors).
 - **Where to build (owner, 2026-10-30): on an ocean.** It's flat, and the water catches the bot when
   it falls while building a staircase map. On flat land (plains) instead, lay a water base under the
   map first, for the same reason. Seed finding (Later ideas) looks for oceans, and flat land nearby.
-- **Gathering:** a regular job alongside the ice (§3, "Gathering mapart materials too"; owner, 2026-10-30), and still the way back when the stash has been griefed.
+- **Gathering** is its own job before the build (§3, "Gathering mapart materials too"; owner, 2026-10-30), alongside the ice; it's also the way back when the stash has been griefed.
 
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
 art, stash layout, how progress is checked and saved).
