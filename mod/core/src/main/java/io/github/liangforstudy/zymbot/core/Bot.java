@@ -269,6 +269,8 @@ public final class Bot {
         if (profile == Profile.ANARCHY) reflexes.add(new FightOrFleeInterrupt(config, body));
         // anarchy: one gold piece on in the Nether, so piglins leave us be (doc/9b9t/roadmap.md, "Before routes" 6)
         if (profile == Profile.ANARCHY) reflexes.add(new GoldInterrupt(body, clock));
+        // anarchy: a ghast tear on safe ground, nothing shooting, health to spare: fetch it (roadmap, "Pick up ghast tears")
+        if (profile == Profile.ANARCHY) reflexes.add(new io.github.liangforstudy.zymbot.core.body.GhastTearInterrupt(config, body, clock));
         reflexes.add(new StrandedInterrupt(body, this::nothingToDo));
         if (profile.has(Profile.LEASH)) {
             reflexes.add(made(Profile.LEASH, new LeashInterrupt(config, body, this::workingOnItsOwn, this::idleForTheLeash, this::nearestTeammate)));
@@ -1078,6 +1080,11 @@ public final class Bot {
      * Walk a route A → E, or E → A with {@code back}, carrying on from the point it was heading for when
      * last cut short unless {@code restart}. A far first point is refused once (the same order again goes).
      */
+    /** Anarchy: too dark for an overworld route (doc/9b9t/roadmap.md, night wait). */
+    private boolean night(WorldView w) {
+        return io.github.liangforstudy.zymbot.core.body.Night.unsafe(w, config.nightStopAt, config.nightResumeAt);
+    }
+
     public String walkRoute(String name, boolean back, boolean restart) {
         String no = oneShotRefusal();
         if (no != null) return no;
@@ -1094,7 +1101,12 @@ public final class Bot {
                         w -> new io.github.liangforstudy.zymbot.core.task.RouteTask(h.paths(),
                                 new BlockPos(w.x, w.y == null ? 0 : w.y, w.z), w.y == null, config.routeRadius,
                                 config.swimCostBlocks, log::record).limits(config.planTimeoutMs, config.lagTps),
-                        (leg, of) -> routes.reached(name, back, leg, of), log::record)));
+                        (leg, of) -> routes.reached(name, back, leg, of), log::record)
+                        .stopFor(w -> profile == Profile.ANARCHY && night(w),
+                                () -> new io.github.liangforstudy.zymbot.core.task.NightWaitTask(h, this::night,
+                                        io.github.liangforstudy.zymbot.core.body.FightOrFleeInterrupt::stillAfterUs,
+                                        w -> io.github.liangforstudy.zymbot.core.body.Night.why(w, config.nightStopAt, config.nightResumeAt),
+                                        body::hiding, body::note))));
         return start.reply() + pathfinderWarning() + lent;
     }
 
@@ -1714,7 +1726,18 @@ public final class Bot {
     private boolean noOrder() { return !brain.hasOrder(); }
 
     /** No order, and no objective crossing on purpose (a regroup may swim) — the stranded reflex may act. */
-    private boolean nothingToDo() { return noOrder() && !regrouping() && !"leash".equals(brain.runningReflex()); }
+    private boolean nothingToDo() {
+        return noOrder() && !regrouping() && !"leash".equals(brain.runningReflex()) && !pathingForSomeoneElse();
+    }
+
+    /**
+     * Baritone is walking with nothing of ours running: someone else gave it the goal (the owner's
+     * {@code #goto} across a lake). Not idle, then: stranded swam to the nearest shore and Baritone's
+     * own path was cancelled (owner, 2026-10-29).
+     */
+    private boolean pathingForSomeoneElse() {
+        return hands != null && brain.idle() && hands.paths().busy();
+    }
 
     /**
      * Idle, for the leash's idle follow (PHASE2.md check 6): no order, no regroup armed or under way
@@ -1779,7 +1802,7 @@ public final class Bot {
     public List<String> reflexes() { return brain.interruptNames(); }
     /** The tunables /zbot set and the settings screen offer in this profile, in the screen's order. */
     public List<String> tunables() {
-        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar")
+        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend")
                 .stream().filter(profile::hasTunable).toList();
     }
     public BotMemory memory() { return memory; }

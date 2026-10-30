@@ -226,6 +226,18 @@ public final class ZymbotConfig {
      */
     public int routeFarBlocks = 500;
 
+    /**
+     * Anarchy, overworld routes at night (doc/9b9t/roadmap.md): from this day time the bot stops and digs
+     * in, a little before mobs can spawn (13179 in clear weather), so the hole is dug before they come.
+     */
+    public int nightStopAt = 12500;
+
+    /**
+     * ...and from this day time it carries on, once mobs can't spawn any more. 22822 = first light: they
+     * can up to 22821 (1.21.11 and 26.2, core/body/Daylight; owner, 2026-10-29: the default); 23000 = sunrise.
+     */
+    public int nightResumeAt = 22822;
+
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.ofEntries(
             java.util.Map.entry("leash", new int[]{8, 1000}), java.util.Map.entry("eat", new int[]{1, 19}),
@@ -233,7 +245,8 @@ public final class ZymbotConfig {
             java.util.Map.entry("regroup", new int[]{8, 256}), java.util.Map.entry("probewait", new int[]{5, 300}),
             java.util.Map.entry("plantime", new int[]{50, 5000}), java.util.Map.entry("lagtps", new int[]{5, 19}),
             java.util.Map.entry("heel", new int[]{1, 256}), java.util.Map.entry("fireres", new int[]{0, 20}),
-            java.util.Map.entry("resume", new int[]{0, 2000}), java.util.Map.entry("routefar", new int[]{0, 1_000_000}));
+            java.util.Map.entry("resume", new int[]{0, 2000}), java.util.Map.entry("routefar", new int[]{0, 1_000_000}),
+            java.util.Map.entry("nightstop", new int[]{12000, 13179}), java.util.Map.entry("nightend", new int[]{22822, 24000}));
 
     public int tunable(String name) {
         return switch (name) {
@@ -249,6 +262,8 @@ public final class ZymbotConfig {
             case "fireres" -> fireResistanceHealth;
             case "resume" -> anarchyResumeMillis;
             case "routefar" -> routeFarBlocks;
+            case "nightstop" -> nightStopAt;
+            case "nightend" -> nightResumeAt;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -256,7 +271,7 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume or routefar";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop or nightend";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> {
@@ -276,6 +291,8 @@ public final class ZymbotConfig {
             case "fireres" -> fireResistanceHealth = value;
             case "resume" -> anarchyResumeMillis = value;
             case "routefar" -> routeFarBlocks = value;
+            case "nightstop" -> nightStopAt = value;
+            case "nightend" -> nightResumeAt = value;
             default -> criticalHealth = value;
         }
         return null;

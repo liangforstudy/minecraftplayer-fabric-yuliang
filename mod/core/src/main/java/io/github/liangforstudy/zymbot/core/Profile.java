@@ -35,9 +35,9 @@ public enum Profile {
     public static boolean teamParked() { return teamParked; }
 
     /** Tunables (/zbot set, the settings screen's Body tab) that mean something here. */
-    private static final List<String> ANARCHY_TUNABLES = List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar");
+    private static final List<String> ANARCHY_TUNABLES = List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend");
     /** Only anarchy has the reflex they tune. */
-    private static final List<String> ANARCHY_ONLY_TUNABLES = List.of("fireres", "resume");
+    private static final List<String> ANARCHY_ONLY_TUNABLES = List.of("fireres", "resume", "nightstop", "nightend");
 
     public String id() { return name().toLowerCase(Locale.ROOT); }
 

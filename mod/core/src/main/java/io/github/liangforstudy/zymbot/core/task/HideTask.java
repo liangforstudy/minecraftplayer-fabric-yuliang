@@ -44,6 +44,14 @@ public final class HideTask implements Task {
     private final java.util.function.Consumer<Boolean> hiding;
     private java.util.function.BiConsumer<String, String> note = (what, why) -> {};
 
+    private int maxWaitTicks = MAX_WAIT_TICKS;
+
+    /** Wait in the hole at most this long (a night on a route is longer than a ghast passing over). */
+    public HideTask maxWait(int ticks) {
+        this.maxWaitTicks = ticks;
+        return this;
+    }
+
     /** Each stage change goes here (the decision log). */
     public HideTask noting(java.util.function.BiConsumer<String, String> note) {
         this.note = note;
@@ -127,6 +135,8 @@ public final class HideTask implements Task {
                 if (++landing > LAND_TICKS) return fail("never landed to dig in");
                 return Status.RUNNING;
             }
+            int deep = shaftDepth(world);
+            if (deep >= 2) return alreadyDown(world, deep);
             Optional<String> unsafe = canDigIn(world);
             if (unsafe.isPresent()) return fail(unsafe.get());
             top = floor(world.position());
@@ -138,6 +148,43 @@ public final class HideTask implements Task {
             case WAIT -> waitIt(world);
             case CLIMB -> climb(world);
         };
+    }
+
+    /**
+     * How deep the 1-wide hole we're standing in is: the levels above our feet walled in on all four
+     * sides with the middle open, 0 when we aren't in one. A task built again after an interrupt (the
+     * route's night wait, after a fight at the rim) found itself at the bottom and would have dug 3 more.
+     */
+    public static int shaftDepth(WorldView world) {
+        BlockPos f = floor(world.position());
+        int k = 0;
+        for (int y = f.y() + 1; y <= f.y() + DEPTH + 2; y++) {
+            BlockPos mid = new BlockPos(f.x(), y, f.z());
+            if (!world.blockAt(mid).endsWith(":air")) return 0;                 // a roof: not a hole we dug
+            boolean walled = true;
+            for (int[] d : SIDES) walled &= world.sturdy(new BlockPos(f.x() + d[0], y, f.z() + d[1]));
+            if (!walled) break;
+            k++;
+        }
+        return k;
+    }
+
+    /** Already at the bottom of a hole: wait there, and climb out with blocks like its walls. */
+    private Status alreadyDown(WorldView world, int deep) {
+        BlockPos f = floor(world.position());
+        top = new BlockPos(f.x(), f.y() + deep, f.z());
+        for (int y = f.y() + 1; y <= top.y(); y++) {
+            for (int[] d : SIDES) {
+                String id = world.blockAt(new BlockPos(f.x() + d[0], y, f.z() + d[1]));
+                if (diggable(id) && !dugIds.contains(id)) dugIds.add(id);
+            }
+        }
+        down = true;
+        hiding.accept(true);
+        stage = Stage.WAIT;
+        ticks = 0;
+        note.accept("hiding in a hole", "already " + deep + " down in one at " + f.x() + " " + f.y() + " " + f.z());
+        return Status.RUNNING;
     }
 
     private Status dig(WorldView world) {
@@ -181,9 +228,9 @@ public final class HideTask implements Task {
 
     private Status waitIt(WorldView world) {
         clearFor = danger.test(world) ? 0 : clearFor + 1;
-        if (clearFor >= CLEAR_TICKS || ticks > MAX_WAIT_TICKS) {
+        if (clearFor >= CLEAR_TICKS || ticks > maxWaitTicks) {
             note.accept("climbing out of the hole", clearFor >= CLEAR_TICKS
-                    ? "nothing after us for " + CLEAR_TICKS / 20 + " s" : "waited " + MAX_WAIT_TICKS / 20 / 60 + " min");
+                    ? "nothing after us for " + CLEAR_TICKS / 20 + " s" : "waited " + maxWaitTicks / 20 / 60 + " min");
             stage = Stage.CLIMB;
             ticks = 0;
         }

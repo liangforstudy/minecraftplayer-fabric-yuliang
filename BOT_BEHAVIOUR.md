@@ -48,14 +48,16 @@ Evaluated in order, every tick. First match wins.
 **As built (2026-09-30), differences from the table above:**
 - **Human input (#0)** pauses the bot; it takes control back 10 s after the last key (`/zbot stop` to keep it). Anarchy build: only while a key is held, back 0.25 s after it is let go (`/zbot set resume <ms>`), fights included (doc/9b9t/roadmap.md). In creative or spectator no reflex runs.
 - **Water:** besides drowning (#1a) there are *stranded* (out of its depth with nothing to do: swim to
-  land with water straight beside it and dry on top), *wading* (idle in shallows: step onto dry land)
+  land with water straight beside it and dry on top; Baritone walking a goal you gave it yourself, a
+  `#goto` across a lake, counts as something to do), *wading* (idle in shallows: step onto dry land)
   and diving (a task, for graves under water).
 - **Being hit:** the `danger` setting decides — `modpack` (default) runs at the first hit, dry ground
   first; `easy`/`normal`/`hard` only at critical health. No combat machine yet (PHASE3 decision C).
   Anarchy build: `fight-or-flee` (after critical health) hits back weak melee mobs, rushes one or two
   skeletons, takes cover from the rest and from ghasts, backs off or digs in; it also starts before
   the first hit, on a walker within 6 blocks or a skeleton within 16 that can see us
-  (doc/9b9t/roadmap.md §2). A ghast's fireball coming at it is hit back at the ghast (`incoming`). Still being hurt at health 8 (6 with golden apples, 4 with a totem), it logs out (`log-out`). On fire, it pours a water bucket at its feet and scoops it back (`burning`; a fire resistance potion at `fireres` health or below instead, 0 = never). In the Nether with no gold armor on, it puts on the gold piece it carries that costs the fewest armor points, so piglins leave it be (`gold`).
+  (doc/9b9t/roadmap.md §2). A ghast's fireball coming at it is hit back at the ghast (`incoming`). Still being hurt at health 8 (6 with golden apples, 4 with a totem), it logs out (`log-out`). On fire, it pours a water bucket at its feet and scoops it back (`burning`; a fire resistance potion at `fireres` health or below instead, 0 = never). In the Nether with no gold armor on, it puts on the gold piece it carries that costs the fewest armor points, so piglins leave it be (`gold`). A ghast tear on safe ground within 32 blocks, with nothing that shoots in range and health above critical + 4: it goes and picks it up, with the gunpowder around it, before 9b9t's 2-minute despawn (`ghast tear`, "walking to ghast tear — because treasure").
+- **Routes at night (anarchy, overworld):** from day time 12500 (`nightstop`, a little before mobs can spawn) until first light, 22822 (`nightend`), or while a thunderstorm or heavy rain keeps it dark, a route stops on dry ground, digs in 3 down and waits; at day it climbs out and carries on with the same leg. Where it can't dig in, or still dark after 30 min, it logs out instead and the route goes on from that point next time. Never in the Nether or the End.
 - **Hazards (0.1.43):** hurt by a block it's touching (fire, cactus, magma, berry bush, lava, …) → step
   to the nearest safe spot within 5 blocks. Those hits have no attacker, so the retreat never fired.
 - **Fidget watchdog:** spinning or bobbing in place for 10 s → hold still, log why.

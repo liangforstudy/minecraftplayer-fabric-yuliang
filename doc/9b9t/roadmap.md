@@ -55,6 +55,12 @@ fights with withers and wardens.
       settings screen shows only the base value; worth a hint there.
     - MCP Fabric's `get_recent_chat` returns nothing on 26.2 (our lines go through
       `sendSystemMessage`); read chat by screenshot. That's MCP Fabric's, for its owner.
+    - **"Game is ready" before an MCP Fabric test (owner, 2026-10-30):** wait for the log line
+      `Sound engine started`: written once per launch, as the first load finishes, so the game is on
+      the main menu (title screen) and ready for MCP Fabric. Development
+      only, on the owner's PC. A PC with no or a failed audio device may never write it; the owner
+      will say which line to wait for there, when it comes up. Not Zymbot's own `[zymbot] loaded`
+      line: that comes when the mods load, before the game is ready.
   - Emergency stop key (bound to `]` in the owner's instance), 2026-10-29: pressed in the middle of a
     `goto`, the walk stopped at once ("the controls are yours again — emergency stop key", then
     "Zymbot stopped, Baritone cancelled"). Also with the inventory open mid-walk (swimming):
@@ -473,6 +479,23 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
    teleporting in; in creative the player dropped 20 blocks into a cave below first.
 
 **Overworld routes at night: wait for day (decided, owner, 2026-10-29).** Somewhere safe, then go on.
+**Built 0.2.2 (2026-10-29), from the plan in `doc/9b9t/deepseek suggestions.txt`, with changes:**
+- *When:* from day time **12500** (`nightstop`, 12000–13179: a little before mobs can spawn at 13179,
+  so the hole is dug before they come) until **22822**, first light (`nightend`, 22822–24000; 23000 =
+  sunrise; earlier would mean nothing, the wait lasts while mobs spawn anyway). The suggestions file
+  said 22821, but that is the last tick mobs can spawn (`Daylight`, "13179 to 22821"), so first light
+  is one tick later, and whenever mobs can
+  spawn in the open by day: a thunderstorm, or rain keeping a dawn dark (`core/body/Night`, from
+  `Daylight`). Overworld only; never in creative or spectator. Both in `/zbot set` and Mod Menu.
+- *Where:* the route stops at once if it's on its feet on dry ground; in water or mid-air the leg goes
+  on until it is. The wait is in `RouteWalkTask`, so only routes stop, not `goto` or `come`; at day the
+  same leg starts again from where the bot is.
+- *How:* `NightWaitTask` digs in 3 down (`HideTask`) and stays until it's day and nothing is after us,
+  at most 30 min. Can't dig in here, or still dark after 30 min (a long storm): it **logs out** with the
+  reason, and the route carries on from the same point next time.
+- *An interrupt mid-wait* (a fight at the rim) builds the route again: `HideTask` now sees it's already
+  at the bottom of a 1-wide hole and waits there, instead of digging 3 more.
+- Not yet tried in game.
 
 **Night ambushes (owner, 2026-10-26):** on 9b9t a walk can get ambushed by hard mobs at night. Today
 the anarchy build only reacts at low health (danger `hard`: critical health + 4) and Baritone doesn't
@@ -737,6 +760,12 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   above critical + 4**; otherwise keep hiding (or fighting) and let it go. So in a hole with other
   ghasts about (the owner's 3-ghast run), the tear is lost to the 2-minute despawn rather than risked.
   Going after ghasts on purpose is a fight mode the owner switches on (§5, "Ghasts"), not this.
+  **Built 0.2.2 (2026-10-29)** as the `ghast tear` reflex (after `gold`): a tear within 32 blocks on
+  ground it can stand next to (nothing of lava, water or fire in or under it, something solid under
+  it), with no shooter in range and health above critical + 4. It sweeps 6 blocks round the tear, so
+  the gunpowder comes too; up to 45 s to reach it, 75 s in all. Zymbot's Baritone never paths through
+  lava, so the walk there is as safe as the spot. A tear it went for and didn't get is tried again
+  after 60 s and forgotten after 150 s (despawned). Not yet tried in game.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
@@ -784,8 +813,8 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   335 core tests. Live, overworld sky platform: A → B → C (36 blocks) in 11 s, controls given back;
   `route back`, stopped between B and A, `route list` "back cut short before A", `route back` again
   "carrying on from A (point 3 of 3)", done at A; a waypoint 700 off: refused with the distance, the
-  same order again went (stopped at once). Not built yet: waiting for day on overworld routes at night,
-  portals between dimensions, actions at a waypoint.
+  same order again went (stopped at once). Not built yet: portals between dimensions, actions at a
+  waypoint. Waiting for day at night: built 0.2.2, below.
 
 The ice miner and mapart both use routes (stash → work site → storage).
 
@@ -888,9 +917,31 @@ Mines **regular, packed and blue ice** for boat highways.
 - When the fidget or stranded watchdog fires on ice, it handles that case specifically (climb out,
   fill or step around the water) rather than just asking Baritone for a new path.
 
+### Gathering mapart materials too (owner, 2026-10-30)
+
+Alongside the ice, the bot gathers what the map art needs, starting with **clay**, which lies under
+water (river, lake and ocean floors).
+- **Breathing under water: place a door.** A door can't hold water, so the block it stands in becomes
+  air: the bot places one where it works, stands with its head in it to breathe, and mines the clay
+  around it. Doors carried (or crafted from planks); picked up again when it moves on.
+- Builds on what exists: `DiveTask` (down to a block under water; graves), the drowning reflex as the
+  safety net, `BreakTask` for the mining (a shovel; Silk Touch keeps the clay block, otherwise 4 clay
+  balls make one back), and the 2-minute despawn: drops float, so it collects as it goes, like the
+  ice miner over water.
+- What to gather comes from the map's material list (§4), less what the stash already holds. The
+  build (§4) only starts once the list is complete.
+- Stored the same way as the ice (a chest, stop and tell the owner when it's full).
+- This makes gathering a regular job, not only the fallback after a griefed stash (§4).
+- Open: which materials besides clay (the owner's list), and where to look for them (seed finding,
+  Later ideas, can find rivers and oceans).
+
 ## 4. Mapart
 
 **Staircase** mapart (more colours than flat), **including slabs**.
+
+**Building starts only once every ingredient is gathered** (owner, 2026-10-30): the map's whole
+material list is in the stash first (gathered, §3 "Gathering mapart materials too", or brought by the
+owner); then the build. No starting a map and stopping half-way for clay.
 
 - Materials come from the owner's **shulker stash**. The loop: go to the stash, take the right
   shulkers, empty them at the build site, go back (a route, §2).
@@ -904,7 +955,10 @@ Mines **regular, packed and blue ice** for boat highways.
 - **Ghost blocks and lag:** a place the server rejects can still show on the client, and 9b9t takes
   0.3–9.5 s to confirm a place depending on its lag spikes (§Probes). So a layer is checked by
   rereading it once the recent ack has passed, not trusted per place (§Probes, "Not needed now").
-- **Roadmap, later:** gather materials itself **only if the stash has been griefed**.
+- **Where to build (owner, 2026-10-30): on an ocean.** It's flat, and the water catches the bot when
+  it falls while building a staircase map. On flat land (plains) instead, lay a water base under the
+  map first, for the same reason. Seed finding (Later ideas) looks for oceans, and flat land nearby.
+- **Gathering** is its own job before the build (§3, "Gathering mapart materials too"; owner, 2026-10-30), alongside the ice; it's also the way back when the stash has been griefed.
 
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
 art, stash layout, how progress is checked and saved).
@@ -1063,6 +1117,90 @@ tunnel, like above), never on the highway.
 
 ## Later ideas
 
+### Seed finding: biomes, structures, flat land, for two world versions (owner, 2026-10-30)
+
+9b9t's seed is **-8076723744225505211** (public). The world has **1.12.2 chunks** and chunks from
+whatever versions came between it and today (1.16, 1.18, 1.19 or 1.20: nobody knows which, or where
+the old chunks end). An upgrade never regenerates existing chunks, and 1.18 changed terrain and biome
+generation completely, so for the same seed and place, 1.12.2 and 1.18+ give different worlds.
+
+**What to find:** ice biomes first (ice spikes for packed ice, frozen oceans for icebergs with blue ice:
+the ice miner, §3), other biomes, structures, and flat land for mapart (§4). **Oceans count as flat
+ground** (owner, 2026-10-30), so for mapart, flat land is mostly a biome search, which Cubiomes
+answers for 1.12.2 without its terrain heights.
+
+**Every result for both versions, clearly labelled** (owner): e.g.
+`ice spikes — 1.12.2 generator: 2,340 1,100 (1,200 blocks) · 26.2 generator (1.18+ terrain): 4,810 -3,020
+(3,400 blocks)`. Which one is right depends on when that land was first generated, which nobody knows,
+so the bot shows both and says which one the loaded blocks agree with, once it's there.
+
+**Two generators:**
+- **1.18+ (labelled with the version we build, e.g. "26.2"):** the game's own generator, already in the
+  client jar: biome and structure placement asked for directly, without loading the chunks. Always
+  right for that version. Biomes added since 1.18 (mangrove and deep dark in 1.19, cherry grove in
+  1.20, pale garden in 1.21.4) only exist in chunks generated that late; the label says so.
+- **1.12.2: Cubiomes, as a helper program Zymbot talks to by itself (decided, owner, 2026-10-30:
+  "an automated way of sending and receiving requests to Cubiomes on Windows").** Cubiomes is C, MIT
+  licence (checked 2026-10-30), with years of checks against the real game, and covers 1.12.2's
+  biomes and structures. Not a Java port.
+  - A small program built from Cubiomes (`zymbot-seed.exe` on Windows first; Linux and macOS builds
+    later for the bots), kept next to the mod, e.g. `<game dir>/zymbot/tools/`.
+  - Zymbot starts it on the first seed question and keeps it running. Requests and answers are one
+    line of JSON each over its standard input and output, e.g.
+    `{"id":1,"mc":"1.12.2","seed":-8076723744225505211,"find":"biome","what":"ice_spikes","x":0,"z":0,"radius":20000}`
+    → `{"id":1,"results":[{"x":2340,"z":1100,"distance":2563}]}`. It runs off the game thread, so a
+    big search never freezes the game. Missing program: Zymbot says so and still gives the 1.18+ half.
+  - Built from a pinned Cubiomes commit. **The Windows `.exe`: a GitHub Actions Windows runner**
+    builds it and runs it against known answers before release (the repo is public, so the minutes are
+    free). The Linux build is made here too: it produces the test answers for Zymbot's own tests, and
+    the bots would use it.
+  - Cubiomes also covers modern versions, so it can double-check the game's own 1.18+ answers.
+
+**Mapart squares (from the game's map formula; owner to check one real map in game):** a scale-0
+map covers 128 × 128 blocks from x = 128k − 64 to 128k + 63, and the same for z (e.g. a map holding
+x 1000, z −3000 covers x 960–1087, z −3008 to −2881). So candidates are those fixed 8 × 8-chunk
+squares, never any flat 128 × 128. A staircase map also needs the row just north of the square (its
+north row's shade depends on the block north of it).
+**"Flat enough"** (owner, 2026-10-30): mostly ocean, with small islands the bot clears first. Each
+square scores its land share and the islands' height above sea level; it passes under adjustable
+limits (defaults for the owner to pick).
+
+**1.12.2 heights:** Cubiomes' `mapApproxHeight` (checked in its source, 2026-10-30) approximates the
+surface for 1.8 to 1.17 with that era's own recipe: biome depth and scale blended, plus the seed's
+terrain noise, on a 4 × 4-block grid (32 × 32 samples a map square). Good for ranking squares and
+islands; an island under ~4 blocks across can slip between samples. So three checks, coarsest first:
+Cubiomes (or the game's own generator for 1.18+, which has exact heights), then the owner's JourneyMap
+cache where explored, then the loaded blocks on site, which decide. Optional: measure Cubiomes' error
+against a real 1.12.2 world generated from the seed (a 1.12.2 server on Java 8).
+
+**Two stages for 1.12.2 (owner, 2026-10-30: "the bot also runs a 1.12.2 Paper server"):**
+1. **Cubiomes searches wide and fast** (seconds for a 20,000-block radius) and shortlists the best map
+   squares, ice biomes and structures.
+2. **A local 1.12.2 Paper server checks the shortlist exactly.** Started in the background only when
+   needed (Java 8, separate from the game's Java), with 9b9t's seed; it generates just the shortlisted
+   squares (64 chunks each, a few seconds), and the bot reads the saved region files directly: a 1.12.2
+   chunk stores its biomes and a height per column, so islands and heights come out exact. Nobody
+   joins it. Not for the wide search: generating runs at ~100–300 chunks/s, and a 20,000-block radius
+   is over 6 million chunks (hours, many GB).
+   - Paper's last 1.12.2 build (it has the Log4Shell fix), listening on this PC only; stopped after use;
+     old squares deleted (a few MB each).
+   - Paper's defaults generate the same terrain and structures as vanilla. If 9b9t changed generation
+     settings in its 1.12.2 days, nobody can know; the on-site check still decides.
+   - Comparing it with Cubiomes over the same squares measures Cubiomes' height error, to set the
+     island limits by.
+The 1.18+ side needs neither: the game's own generator is already exact.
+
+**Which version is a place? (nobody knows where the old chunks end):**
+- **Live:** once the bot is there, compare the loaded blocks with both generators' answer (where land
+  and water are, the biome, the height) and label the chunk "matches 1.12.2" or "matches 1.18+".
+  Remembered per chunk, so the bot learns the border as it goes.
+- **From the owner's JourneyMap cache:** JourneyMap keeps a PNG per 512×512-block region of what was
+  explored. Compare its land and water shapes with both generators' land and water for that region
+  to label explored regions in bulk, before walking there. Worth trying: coastlines differ strongly
+  between 1.12.2 and 1.18+.
+
+Not built; a module of its own, after the ice miner's basics.
+
 ### Snapshot, build offline, ghost blocks back on 9b9t (owner, 2026-10-26)
 
 Download the area around the owner on 9b9t, switch to singleplayer, build there with **Axiom**,
@@ -1133,6 +1271,26 @@ lets Claude drive the game):
 | Meteor's Velocity and Criticals | worked on 1.12.2 | §5 knockback and crits |
 | Meteor's AutoEat | owner judges whether it's good enough | shared eating (§0) |
 | Meteor's Jesus (walking on water / lava) | **doesn't work: confirmed** on 9b9t (owner, 2026-10-26); not worth trying again | so Baritone's `assumeWalkOnWater` / `assumeWalkOnLava` must stay off (Zymbot already sets `assumeWalkOnWater = false`; `assumeWalkOnLava` is off by default), and water and lava crossings stay Zymbot's own moves (§1) |
+
+### Next MCP Fabric test: Meteor's Freecam (owner, 2026-10-29)
+
+**Bug:** with Meteor's Freecam on and `/zbot start` running, a mob hit the player and Zymbot didn't
+react; "it only reacts to the camera". Not reproduced or understood yet. What Meteor's source says
+(read 2026-10-29), to check against in the test:
+- Freecam takes the movement keys for the camera and releases them for the game (`unpress()`, and it
+  cancels the key events), so Zymbot doesn't see the owner's WASD as "a human took the controls".
+- Zymbot moves by pressing the same key bindings (`holdKeys` → `keyUp.setDown`); those aren't key
+  events, so they should still move the player, not the camera.
+- Mouse turns go to the camera (`EntityMixin` → `changeLookDirection`); Zymbot turns the player
+  directly (`setYRot`, `lookAt`), so that shouldn't matter.
+- Freecam settings that could explain it: `rotate` (turns the player to whatever the camera looks
+  at: fights Zymbot's aim), and `toggle-on-damage` (would end Freecam at the first hit instead).
+
+**The test, singleplayer over MCP Fabric:** `/zbot start`, Freecam on (default settings, then
+`rotate` on), a zombie spawned next to the player. Watch the decision log (`/zbot status`) and the
+player: does `fight-or-flee` trigger at all, does the player turn and hit, does it walk, or does
+something turn back to where the camera looks. Then the same with `rotate` off and the camera far
+away.
 
 ## Order
 

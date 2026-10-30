@@ -289,7 +289,9 @@ final class ZymbotSettingsScreen extends Screen {
             {"lagtps", "Server lagging below (TPS) — plan less"},
             {"fireres", "Fire resistance at health ≤ (0 = never)"},
             {"resume", "Play again after you let go (ms)"},
-            {"routefar", "Route: ask first when its start is over (blocks)"}})
+            {"routefar", "Route: ask first when its start is over (blocks)"},
+            {"nightstop", "Route: dig in for the night from day time"},
+            {"nightend", "Route: go on at day time (22822 = first light)"}})
             .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
@@ -343,7 +345,7 @@ final class ZymbotSettingsScreen extends Screen {
             String cmd = "/" + cfg().commandRoot + " set " + key + " <n>";          // the same setting as a command
             box.setTooltip(net.minecraft.client.gui.components.Tooltip.create(
                     Component.literal(text + "\n§7" + cmd + "\n§7drag left/right to change (Shift fine, Ctrl coarse)")));
-            box.setMaxLength(4);
+            box.setMaxLength(String.valueOf(range[1]).length());   // routefar's 1000000, the night's 24000
             box.setValue(tunableDrafts.getOrDefault(key, String.valueOf(cfg().tunable(key))));
             addRenderableWidget(box);
             tunableBoxes.put(key, box);
