@@ -1145,6 +1145,23 @@ Cubiomes (or the game's own generator for 1.18+, which has exact heights), then 
 cache where explored, then the loaded blocks on site, which decide. Optional: measure Cubiomes' error
 against a real 1.12.2 world generated from the seed (a 1.12.2 server on Java 8).
 
+**Two stages for 1.12.2 (owner, 2026-10-30: "the bot also runs a 1.12.2 Paper server"):**
+1. **Cubiomes searches wide and fast** (seconds for a 20,000-block radius) and shortlists the best map
+   squares, ice biomes and structures.
+2. **A local 1.12.2 Paper server checks the shortlist exactly.** Started in the background only when
+   needed (Java 8, separate from the game's Java), with 9b9t's seed; it generates just the shortlisted
+   squares (64 chunks each, a few seconds), and the bot reads the saved region files directly: a 1.12.2
+   chunk stores its biomes and a height per column, so islands and heights come out exact. Nobody
+   joins it. Not for the wide search: generating runs at ~100–300 chunks/s, and a 20,000-block radius
+   is over 6 million chunks (hours, many GB).
+   - Paper's last 1.12.2 build (it has the Log4Shell fix), listening on this PC only; stopped after use;
+     old squares deleted (a few MB each).
+   - Paper's defaults generate the same terrain and structures as vanilla. If 9b9t changed generation
+     settings in its 1.12.2 days, nobody can know; the on-site check still decides.
+   - Comparing it with Cubiomes over the same squares measures Cubiomes' height error, to set the
+     island limits by.
+The 1.18+ side needs neither: the game's own generator is already exact.
+
 **Which version is a place? (nobody knows where the old chunks end):**
 - **Live:** once the bot is there, compare the loaded blocks with both generators' answer (where land
   and water are, the biome, the height) and label the chunk "matches 1.12.2" or "matches 1.18+".
