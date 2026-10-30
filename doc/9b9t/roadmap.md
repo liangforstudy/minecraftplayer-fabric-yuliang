@@ -917,6 +917,23 @@ Mines **regular, packed and blue ice** for boat highways.
 - When the fidget or stranded watchdog fires on ice, it handles that case specifically (climb out,
   fill or step around the water) rather than just asking Baritone for a new path.
 
+### Gathering mapart materials too (owner, 2026-10-30)
+
+Alongside the ice, the bot gathers what the map art needs, starting with **clay**, which lies under
+water (river, lake and ocean floors).
+- **Breathing under water: place a door.** A door can't hold water, so the block it stands in becomes
+  air: the bot places one where it works, stands with its head in it to breathe, and mines the clay
+  around it. Doors carried (or crafted from planks); picked up again when it moves on.
+- Builds on what exists: `DiveTask` (down to a block under water; graves), the drowning reflex as the
+  safety net, `BreakTask` for the mining (a shovel; Silk Touch keeps the clay block, otherwise 4 clay
+  balls make one back), and the 2-minute despawn: drops float, so it collects as it goes, like the
+  ice miner over water.
+- What to gather comes from the map's material list (§4), less what the stash already holds.
+- Stored the same way as the ice (a chest, stop and tell the owner when it's full).
+- This makes gathering a regular job, not only the fallback after a griefed stash (§4).
+- Open: which materials besides clay (the owner's list), and where to look for them (seed finding,
+  Later ideas, can find rivers and oceans).
+
 ## 4. Mapart
 
 **Staircase** mapart (more colours than flat), **including slabs**.
@@ -936,7 +953,7 @@ Mines **regular, packed and blue ice** for boat highways.
 - **Where to build (owner, 2026-10-30): on an ocean.** It's flat, and the water catches the bot when
   it falls while building a staircase map. On flat land (plains) instead, lay a water base under the
   map first, for the same reason. Seed finding (Later ideas) looks for oceans, and flat land nearby.
-- **Roadmap, later:** gather materials itself **only if the stash has been griefed**.
+- **Gathering:** a regular job alongside the ice (§3, "Gathering mapart materials too"; owner, 2026-10-30), and still the way back when the stash has been griefed.
 
 Open: the owner has much more to add here (schematic source, slab rules, map size and multi-map
 art, stash layout, how progress is checked and saved).
