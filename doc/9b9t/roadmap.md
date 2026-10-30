@@ -1122,9 +1122,28 @@ so the bot shows both and says which one the loaded blocks agree with, once it's
     `{"id":1,"mc":"1.12.2","seed":-8076723744225505211,"find":"biome","what":"ice_spikes","x":0,"z":0,"radius":20000}`
     → `{"id":1,"results":[{"x":2340,"z":1100,"distance":2563}]}`. It runs off the game thread, so a
     big search never freezes the game. Missing program: Zymbot says so and still gives the 1.18+ half.
-  - Built from a pinned Cubiomes commit; the Windows build either cross-compiled here or by a GitHub
-    Actions Windows runner, to decide when it's built.
+  - Built from a pinned Cubiomes commit. **The Windows `.exe`: a GitHub Actions Windows runner**
+    builds it and runs it against known answers before release (the repo is public, so the minutes are
+    free). The Linux build is made here too: it produces the test answers for Zymbot's own tests, and
+    the bots would use it.
   - Cubiomes also covers modern versions, so it can double-check the game's own 1.18+ answers.
+
+**Mapart squares (from the game's map formula; owner to check one real map in game):** a scale-0
+map covers 128 × 128 blocks from x = 128k − 64 to 128k + 63, and the same for z (e.g. a map holding
+x 1000, z −3000 covers x 960–1087, z −3008 to −2881). So candidates are those fixed 8 × 8-chunk
+squares, never any flat 128 × 128. A staircase map also needs the row just north of the square (its
+north row's shade depends on the block north of it).
+**"Flat enough"** (owner, 2026-10-30): mostly ocean, with small islands the bot clears first. Each
+square scores its land share and the islands' height above sea level; it passes under adjustable
+limits (defaults for the owner to pick).
+
+**1.12.2 heights:** Cubiomes' `mapApproxHeight` (checked in its source, 2026-10-30) approximates the
+surface for 1.8 to 1.17 with that era's own recipe: biome depth and scale blended, plus the seed's
+terrain noise, on a 4 × 4-block grid (32 × 32 samples a map square). Good for ranking squares and
+islands; an island under ~4 blocks across can slip between samples. So three checks, coarsest first:
+Cubiomes (or the game's own generator for 1.18+, which has exact heights), then the owner's JourneyMap
+cache where explored, then the loaded blocks on site, which decide. Optional: measure Cubiomes' error
+against a real 1.12.2 world generated from the seed (a 1.12.2 server on Java 8).
 
 **Which version is a place? (nobody knows where the old chunks end):**
 - **Live:** once the bot is there, compare the loaded blocks with both generators' answer (where land
