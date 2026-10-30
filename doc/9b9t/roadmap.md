@@ -56,7 +56,8 @@ fights with withers and wardens.
     - MCP Fabric's `get_recent_chat` returns nothing on 26.2 (our lines go through
       `sendSystemMessage`); read chat by screenshot. That's MCP Fabric's, for its owner.
     - **"Game is ready" before an MCP Fabric test (owner, 2026-10-30):** wait for the log line
-      `Sound engine started` (Minecraft writes it once its sound has loaded at startup). Development
+      `Sound engine started`: written once per launch, as the first load finishes, so the game is on
+      the main menu (title screen) and ready for MCP Fabric. Development
       only, on the owner's PC. A PC with no or a failed audio device may never write it (OpenAL
       warnings instead); there, wait for the title screen instead (an MCP Fabric screenshot). Not
       Zymbot's own `[zymbot] loaded` line: that comes when the mods load, before the game is ready.
