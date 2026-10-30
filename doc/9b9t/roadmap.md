@@ -58,9 +58,9 @@ fights with withers and wardens.
     - **"Game is ready" before an MCP Fabric test (owner, 2026-10-30):** wait for the log line
       `Sound engine started`: written once per launch, as the first load finishes, so the game is on
       the main menu (title screen) and ready for MCP Fabric. Development
-      only, on the owner's PC. A PC with no or a failed audio device may never write it (OpenAL
-      warnings instead); there, wait for the title screen instead (an MCP Fabric screenshot). Not
-      Zymbot's own `[zymbot] loaded` line: that comes when the mods load, before the game is ready.
+      only, on the owner's PC. A PC with no or a failed audio device may never write it; the owner
+      will say which line to wait for there, when it comes up. Not Zymbot's own `[zymbot] loaded`
+      line: that comes when the mods load, before the game is ready.
   - Emergency stop key (bound to `]` in the owner's instance), 2026-10-29: pressed in the middle of a
     `goto`, the walk stopped at once ("the controls are yours again — emergency stop key", then
     "Zymbot stopped, Baritone cancelled"). Also with the inventory open mid-walk (swimming):
