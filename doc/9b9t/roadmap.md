@@ -495,7 +495,14 @@ then 112 and 98 land as chunks loaded), swam the 8 blocks itself, and the lag ba
   reason, and the route carries on from the same point next time.
 - *An interrupt mid-wait* (a fight at the rim) builds the route again: `HideTask` now sees it's already
   at the bottom of a 1-wide hole and waits there, instead of digging 3 more.
-- Not yet tried in game.
+- **Passed in game (2026-11-03, 0.2.2, 26.2 singleplayer, the cobblestone test platform):** route
+  `ta → tb` (17 blocks) started at day time 13000: it stopped at once, dug 3 down and waited; at 23500
+  it climbed out ("nothing after us for 5 s"), carried on and finished at `tb`. A thunderstorm at
+  day time 1000 stopped `route back` the same way, and it went on once the weather cleared; both holes
+  were filled again on the way out. Found: the log said "stopping route … for the night — because it
+  gets dark" in the noon storm too; now "stopping route … to wait for day — because <Night.why>: digging
+  in" ("a thunderstorm (mobs spawn at any time of day)", "dusk (day time …)", "night (…)"). Not yet:
+  the log-out when it can't dig in, and rain at dawn.
 
 **Night ambushes (owner, 2026-10-26):** on 9b9t a walk can get ambushed by hard mobs at night. Today
 the anarchy build only reacts at low health (danger `hard`: critical health + 4) and Baritone doesn't
@@ -765,7 +772,11 @@ critical health (`core/body/FightOrFleeInterrupt`, rules in `core/body/Combat`, 
   it), with no shooter in range and health above critical + 4. It sweeps 6 blocks round the tear, so
   the gunpowder comes too; up to 45 s to reach it, 75 s in all. Zymbot's Baritone never paths through
   lava, so the walk there is as safe as the spot. A tear it went for and didn't get is tried again
-  after 60 s and forgotten after 150 s (despawned). Not yet tried in game.
+  after 60 s and forgotten after 150 s (despawned). **Passed in game (2026-11-03, 0.2.2, 26.2
+  singleplayer):** a tear dropped 10 blocks off: "walking to ghast tear — because treasure", "picked
+  up 1 ghast_tear" 2 s later. A tear with a skeleton 15 blocks off: "fighting Skeleton — rush it"
+  first, then the tear once it was dead (2 tears carried). Not yet: a real ghast's drop, a tear over
+  lava or water (left alone), and the 60 s retry.
 - **Next for fight-or-flee: hide when it can't win or outrun them (idea, owner, 2026-10-29).** Backing
   off at night often ends in water (seen in every siege test), which zombies follow slowly but where
   drowned spawn and air runs out. A last resort instead, when outnumbered, low on health and with no
@@ -1291,6 +1302,37 @@ react; "it only reacts to the camera". Not reproduced or understood yet. What Me
 player: does `fight-or-flee` trigger at all, does the player turn and hit, does it walk, or does
 something turn back to where the camera looks. Then the same with `rotate` off and the camera far
 away.
+
+**Result (2026-11-03, 0.2.2, 26.2 singleplayer, a husk each time): not reproduced.** Every run, the
+bot fought and killed the husk with no damage taken (sampled over MCP Fabric: player and husk position
+and health, damage events, `/zbot status`):
+
+| Run | Freecam | Husk | What the bot did |
+|---|---|---|---|
+| 1 | off (baseline) | 5 ahead | "fighting Husk — because 5 blocks off", killed it |
+| 2 | on, defaults (`rotate` off, `toggle-on-damage` off) | 5 ahead | the same |
+| 3 | on, camera ~29 blocks from the player | 5 ahead | the same |
+| 4a | on, `rotate` on | 5 ahead | the same |
+| 4b | on, `toggle-on-damage` on | 1 away | killed it before it could swing (no hit, so Freecam stayed on) |
+| 4c | on, `toggle-on-damage` on | 10 off with no AI, hit via `/damage … by` it | Freecam switched off at the hit ("Toggled off because you took damage"); the bot walked over and killed it |
+| 4d | on, `toggle-on-damage` off | 10 off with no AI, hit via `/damage` | "fighting Husk — because hit by husk", walked over, killed it, Freecam still on |
+| 5 | on, **W held 12 s** (computer use) flying the camera | 5 ahead | the camera flew; the bot still fought and killed the husk, no pause for a human at the keys |
+
+So Freecam's key handling keeps the movement keys up for the game while the camera flies
+(`humanIsMoving` never saw them), and nothing in Zymbot reads the camera (no `getCameraEntity`, no
+`hitResult`: it aims and attacks with the player). Still different from the owner's report: 9b9t
+(server lag), the 0.2.1 jar (fight-or-flee then reacted only to hits), the mouse moving the camera
+during the fight, and which mob it was. Next: ask the owner for those, or retry on 9b9t.
+
+### The owner's own Baritone `#goto` across water (fix e2a3faa, owner, 2026-10-29)
+
+**Passed in game (2026-11-03, 0.2.2, 26.2 singleplayer)** in a 17×5 pool, 3 deep, sunk into the
+cobblestone test platform (filled back afterwards). With `/zbot start` on and nothing of ours running:
+- Dropped in near the west edge, Baritone idle: *wading* stepped out to the nearest shore, as before.
+- Dropped in again and `#goto 35 151 -58` to the far (east) side: Baritone swam the whole way; no
+  stranded or wading decision.
+- `#goto` west, then `#stop` mid-pool: "swimming to dry land at 25 -61 — because out of its depth with
+  nothing to do", 1 s after Baritone's "ok canceled".
 
 ## Order
 

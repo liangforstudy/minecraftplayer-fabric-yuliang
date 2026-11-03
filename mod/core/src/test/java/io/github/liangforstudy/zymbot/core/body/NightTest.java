@@ -214,6 +214,18 @@ class NightTest {
     }
 
     @Test
+    void aThunderstormAtNoon_isLoggedAsTheStorm_notTheNight() {
+        FakeWorld w = at(6000);
+        w.thundering = true;
+        List<String> whys = new ArrayList<>();
+        RouteWalkTask r = new RouteWalkTask("home", List.of("A"), List.of(new Waypoint(10, 64, 0, "minecraft:overworld")),
+                () -> 0, p -> new Leg(), (leg, of) -> {}, (what, why) -> whys.add(what + " — " + why))
+                .stopFor(x -> Night.unsafe(x, STOP, END), x -> Night.why(x, STOP, END), Wait::new);
+        r.tick(w);
+        assertTrue(whys.get(0).contains("a thunderstorm") && !whys.get(0).contains("night"), whys.toString());   // live 2026-11-03: "it gets dark"
+    }
+
+    @Test
     void waitDoneButStillDark_theRouteStopsForTheNight() {
         FakeWorld w = at(18000);
         RouteWalkTask r = route(x -> Night.unsafe(x, STOP, END));

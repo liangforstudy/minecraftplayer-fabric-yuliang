@@ -26,6 +26,7 @@ public final class RouteWalkTask implements Task {
     private Task current;
     private java.util.function.Predicate<WorldView> stopFor = w -> false;
     private java.util.function.Supplier<Task> waitOut;
+    private Function<WorldView, String> stopWhy = w -> "it gets dark";
     private Task waiting;
     private int at = -1;
     private String failure = "";
@@ -56,6 +57,13 @@ public final class RouteWalkTask implements Task {
         return this;
     }
 
+    /** The same, with what's dark for the decision log (a thunderstorm at noon isn't "the night"). */
+    public RouteWalkTask stopFor(java.util.function.Predicate<WorldView> stop, Function<WorldView, String> why,
+                                 java.util.function.Supplier<Task> waitOut) {
+        this.stopWhy = why;
+        return stopFor(stop, waitOut);
+    }
+
     @Override
     public Status tick(WorldView world) {
         if (waiting != null) {
@@ -74,7 +82,7 @@ public final class RouteWalkTask implements Task {
             if (current != null) current.cancel();
             current = null;
             waiting = waitOut.get();
-            note.accept("stopping route " + route + " for the night", "it gets dark: digging in to wait for day");
+            note.accept("stopping route " + route + " to wait for day", stopWhy.apply(world) + ": digging in");
             return Status.RUNNING;
         }
         if (current == null) {

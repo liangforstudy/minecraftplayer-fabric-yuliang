@@ -1103,6 +1103,7 @@ public final class Bot {
                                 config.swimCostBlocks, log::record).limits(config.planTimeoutMs, config.lagTps),
                         (leg, of) -> routes.reached(name, back, leg, of), log::record)
                         .stopFor(w -> profile == Profile.ANARCHY && night(w),
+                                w -> io.github.liangforstudy.zymbot.core.body.Night.why(w, config.nightStopAt, config.nightResumeAt),
                                 () -> new io.github.liangforstudy.zymbot.core.task.NightWaitTask(h, this::night,
                                         io.github.liangforstudy.zymbot.core.body.FightOrFleeInterrupt::stillAfterUs,
                                         w -> io.github.liangforstudy.zymbot.core.body.Night.why(w, config.nightStopAt, config.nightResumeAt),
