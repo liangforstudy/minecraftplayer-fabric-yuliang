@@ -1334,6 +1334,23 @@ cobblestone test platform (filled back afterwards). With `/zbot start` on and no
 - `#goto` west, then `#stop` mid-pool: "swimming to dry land at 25 -61 — because out of its depth with
   nothing to do", 1 s after Baritone's "ok canceled".
 
+### Lag test server: 9b9t's conditions on a local 26.2 Paper (owner, 2026-11-03)
+
+For combat under lag (creepers first). The Chest_Tracker project's `RnD/paper-via` (Paper 26.2, offline
+mode, spark only), set to hard with keepInventory; `Bluetails_zym` is an op there. Started with
+`java -jar paper.jar --nogui` from that folder (JDK 25, as its `start.bat`). The owner joins
+`localhost:25566` (in the 26.2 instance's server list), which goes through:
+- `tools/lagproxy.py --delay 100 --jitter 20`: holds every packet 100–120 ms each way. Tab ping read
+  **200 ms** (`/zbot probe ping`), as 9b9t's HUD 216.
+- `/tick rate 9` (sent with `tools/rcon.py <server dir> <command>`, which reads the RCON password from
+  `server.properties` and never prints it): `/zbot probe tps` read **9.0** (+20 every 2.2 s), Meteor 11.3;
+  on 9b9t Zymbot read 8.9 and Meteor 6.1.
+- `tools/lagstalls.py <server dir> --every 20-40 --stall 2-6`: `/tick freeze` for a few seconds now and
+  then; `--catchup N` adds a `/tick sprint N` after each, like 9b9t's jumps.
+
+MCP Fabric's server-side tools (commands, summons) need the integrated server, so on Paper commands go
+through `tools/rcon.py` or chat as op; reading the player, entities and the screen still works.
+
 ## Order
 
 1. §0: 1.21.11 build, `anarchy` profile (Phase 0 plan above)
