@@ -86,7 +86,7 @@ public final class HazardInterrupt implements Interrupt {
     }
 
     /** Standing on {@code floor}: a hazard under it, at the feet or head, or a cactus beside the feet or head. */
-    static boolean touchesHazard(WorldView world, BlockPos floor) {
+    public static boolean touchesHazard(WorldView world, BlockPos floor) {
         if (hazard(world.blockAt(floor))) return true;
         for (int dy = 1; dy <= 2; dy++) {
             if (hazard(world.blockAt(new BlockPos(floor.x(), floor.y() + dy, floor.z())))) return true;

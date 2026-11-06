@@ -1351,6 +1351,46 @@ mode, spark only), set to hard with keepInventory; `Bluetails_zym` is an op ther
 MCP Fabric's server-side tools (commands, summons) need the integrated server, so on Paper commands go
 through `tools/rcon.py` or chat as op; reading the player, entities and the screen still works.
 
+### Creepers: hit and step back (owner, 2026-11-03; built and passed live 2026-11-06)
+
+**Owner's idea:** charge creepers instead of always backing off; "hit, back off, repeat". Timer was
+considered and dropped: the fuse and the attack cooldown are counted in server ticks, so a faster
+client hits no sooner (and Timer risks rubber-banding on 9b9t).
+
+**How a creeper works** (vanilla): 20 health; it lights at under 3 blocks and stops only past 7 or out
+of sight; it goes off 30 server ticks later (1.5 s at 20 TPS, 3.3 s at 9). Our reach is 3 to its hitbox.
+
+**Built** (`CreeperFightTask`, in fight-or-flee, anarchy): a creeper within 5 blocks is fought when it's
+alone (no other hostile within 8, nothing shooting), not charged, we're dry, have a sword or axe in the
+hotbar, at least basic armor and health above critical + 4; otherwise backed away from as before
+(`Combat.decide`, `FightOrFleeInterrupt.creeperDecision`). In the fight:
+- weapon charged: stand and let it walk into reach (3.2, feet to feet), then hit; step in only if it
+  hasn't come closer for 2 s. Stepping in to meet it lit it on every hit (first live run).
+- recharging: step back (`Hands.holdBack`, the back key, so it keeps facing it) if the ground behind is
+  solid and safe, else stand.
+- hissing: if only just lit, charged and in reach, hit first, then run clear (`RetreatTask`) past 7.5
+  until the fuse is out, then go back in. We see the fuse a tick or two late (it was already lit at
+  3.1), so without the hit first it was never hit at all.
+- past 10 blocks, stop running even if it still looks lit: in a server stall the client's fuse runs on.
+- log: "fighting a creeper — because 5 blocks off: creeper, good armor — hit it and step back",
+  "running clear of the creeper — because it's hissing, 3.1 blocks off", then "killed the creeper —
+  because 2 hits, ran clear 1x" or "the creeper went off — because gone while hissing, after …". The
+  tally lives in the reflex: each run clear leaves its range, so each go back in is a new task.
+- Fabric: `WorldView.fuse(id)` reads the creeper's swell and charge from the client (`Creeper.getSwelling`,
+  `getSwellDir`, `isPowered`).
+
+**Passed live (all with no damage taken):**
+
+| Where | Gear | Result |
+|---|---|---|
+| 26.2 singleplayer, 20 TPS | iron sword, iron armor | 4 hits (20 → 14 → 8 → 2 → 0), 3–4 run-clears |
+| lag server, 20 TPS, 200 ms ping | Sharpness V diamond axe, Prot IV diamond (Blast Prot IV legs) | one hit (12), then it went off 5.6 blocks away: 0 damage, 1 floor block |
+| lag server, 9 TPS, 200 ms, stalls | the same | 6 runs: 2 hits each (20 → 8 → dead), 1–2 run-clears, no blast |
+
+**Still open:** a bow first (54 Power V bows in the owner's stock: 2 arrows from range), two creepers at
+once (backs off today), in tunnels with no room to run (backs off only if the retreat fails), a real
+9b9t try. The hit tally under-counted by one in one singleplayer run (3 logged, 4 needed by health).
+
 ## Order
 
 1. §0: 1.21.11 build, `anarchy` profile (Phase 0 plan above)

@@ -127,6 +127,8 @@ public interface WorldView {
     default List<String> armor() { return List.of(); }
     /** The weapon has recharged: a hit now does full damage (the attack cooldown). */
     default boolean attackReady() { return true; }
+    /** The fuse of the creeper with this entity id; empty if it isn't one (or is gone). */
+    default java.util.Optional<Fuse> fuse(int entityId) { return java.util.Optional.empty(); }
     /** Nothing solid between these two points: a shooter at {@code from} could hit {@code to}. */
     default boolean clearShot(Vec3 from, Vec3 to) { return true; }
 

@@ -287,6 +287,7 @@ public final class ZymbotClient implements ClientModInitializer {
         if (hands != null) {
             hands.paths().stop();                                // Baritone's cancelEverything, if it's installed
             hands.holdKeys(false, false);
+            hands.holdBack(false);
             hands.stopMining();
             hands.notifyLocal("emergency stop: Zymbot stopped" + (hands.paths() == io.github.liangforstudy.zymbot.core.api.PathProvider.NONE
                     ? "" : ", Baritone cancelled") + " — " + (sharedKey() ? "press " + stopKey.getTranslatedKeyMessage().getString()

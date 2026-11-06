@@ -9,6 +9,7 @@ import io.github.liangforstudy.zymbot.core.config.ZymbotConfig;
 import io.github.liangforstudy.zymbot.core.task.Fallback;
 import io.github.liangforstudy.zymbot.core.task.HideTask;
 import io.github.liangforstudy.zymbot.core.task.CoverTask;
+import io.github.liangforstudy.zymbot.core.task.CreeperFightTask;
 import io.github.liangforstudy.zymbot.core.task.FightTask;
 import io.github.liangforstudy.zymbot.core.task.RetreatTask;
 import io.github.liangforstudy.zymbot.core.task.Task;
@@ -18,13 +19,14 @@ import java.util.Optional;
 /**
  * Anarchy only (doc/9b9t/roadmap.md, "Attacked mid-route"): a mob that hits us, or a walker or a
  * shooter close enough to ({@link #closing}), is fought or backed away from, by {@link Combat#decide};
- * a creeper is backed away from before it hits. Below critical
+ * a creeper on its own is fought, hit and step back (any other is backed away from). Below critical
  * health {@link CriticalHealthInterrupt}, ahead of this one, heals or runs instead. After it, the
  * job it interrupted (a walk) carries on.
  */
 public final class FightOrFleeInterrupt implements Interrupt {
     private final ZymbotConfig config;
     private final Body body;
+    private CreeperFightTask.Tally creeperTally;
 
     /** A walker this close (3D) is dealt with before it hits: waiting for the first hit let zombies walk right up (owner, 2026-10-29). */
     public static final double CLOSING_BLOCKS = 6;
@@ -98,6 +100,21 @@ public final class FightOrFleeInterrupt implements Interrupt {
                 .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
     }
 
+    /**
+     * A creeper on its own is fought, hit and step back ({@link CreeperFightTask}), with armor, a
+     * weapon in the hotbar and dry ground; a charged one (twice the blast), one with company, or one
+     * met in water is kept away from.
+     */
+    Combat.Decision creeperDecision(WorldView world, EntityView creeper) {
+        String name = creeper.type() == null ? "creeper" : creeper.type().replaceFirst("^minecraft:", "");
+        if (world.fuse(creeper.id()).map(io.github.liangforstudy.zymbot.core.api.Fuse::charged).orElse(false)) {
+            return new Combat.Decision(Combat.Action.BACK_OFF, "charged " + name + " — keep away");
+        }
+        if (Combat.bestWeapon(world.inventory()).isEmpty()) return new Combat.Decision(Combat.Action.BACK_OFF, name + ", no weapon — keep away");
+        if (world.inWater()) return new Combat.Decision(Combat.Action.BACK_OFF, name + ", in the water — keep away");
+        return decision(world, creeper);
+    }
+
     private Combat.Decision decision(WorldView world, EntityView mob) {
         return Combat.decide(mob.type(), Combat.gear(world), Math.max(1, Combat.crowd(world)),
                 Combat.shooters(world).size(), world.health(), config.criticalFor());
@@ -106,7 +123,12 @@ public final class FightOrFleeInterrupt implements Interrupt {
     @Override
     public Task respond(WorldView world, Hands hands) {
         Optional<EntityView> creeper = creeper(world);
-        if (creeper.isPresent()) return retreat(hands, creeper.get().pos());
+        if (creeper.isPresent()) {
+            if (!creeperDecision(world, creeper.get()).fight()) return retreat(hands, creeper.get().pos());
+            if (creeperTally == null || !creeperTally.of(creeper.get().uuid())) creeperTally = new CreeperFightTask.Tally(creeper.get().uuid());
+            return new CreeperFightTask(hands, creeper.get(), creeperTally, body::reportSwim, body::note,
+                    w -> creeper(w).map(c -> creeperDecision(w, c).fight()).orElse(true));
+        }
         Optional<EntityView> mob = threat(world);
         if (mob.isPresent()) {
             return switch (decision(world, mob.get()).action()) {
@@ -160,8 +182,8 @@ public final class FightOrFleeInterrupt implements Interrupt {
     @Override
     public String why(WorldView world) {
         Optional<EntityView> creeper = creeper(world);
-        if (creeper.isPresent()) return "a creeper " + Math.round(Combat.distance(creeper.get().pos(), world.position()))
-                + " blocks away";
+        if (creeper.isPresent()) return Math.round(Combat.distance(creeper.get().pos(), world.position()))
+                + " blocks off: " + creeperDecision(world, creeper.get()).why() + raised(world);
         Optional<EntityView> mob = attacker(world);
         if (mob.isPresent()) return "hit by " + decision(world, mob.get()).why() + raised(world);
         Optional<EntityView> near = closing(world);

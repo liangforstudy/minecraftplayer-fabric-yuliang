@@ -173,6 +173,13 @@ final class FabricWorldView implements WorldView {
     @Override public boolean attackReady() { return player.getAttackStrengthScale(0.5f) >= 0.95f; }
 
     @Override
+    public Optional<io.github.liangforstudy.zymbot.core.api.Fuse> fuse(int entityId) {
+        return level.getEntity(entityId) instanceof net.minecraft.world.entity.monster.Creeper c
+                ? Optional.of(new io.github.liangforstudy.zymbot.core.api.Fuse(c.getSwelling(1f), c.getSwellDir() > 0, c.isPowered()))
+                : Optional.empty();
+    }
+
+    @Override
     public Optional<BlockPos> worldSpawn() {
         var s = McCompat.worldSpawn(level);
         return Optional.of(new BlockPos(s.getX(), s.getY(), s.getZ()));

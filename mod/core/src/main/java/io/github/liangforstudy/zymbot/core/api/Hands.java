@@ -37,6 +37,9 @@ public interface Hands {
      */
     default void holdKeys(boolean forward, boolean jump) {}
 
+    /** Hold (true) or let go of the back key: step back while still facing something (a creeper). */
+    default void holdBack(boolean down) {}
+
     /** Hold (true) or let go of sneak — under water it sinks faster (diving to a grave). */
     default void holdSneak(boolean down) {}
 

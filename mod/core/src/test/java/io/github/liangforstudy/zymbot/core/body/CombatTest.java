@@ -62,8 +62,8 @@ class CombatTest {
     }
 
     @Test
-    void neverHit_creepersStrongOnesNeutralsAndUnknowns() {
-        for (String t : List.of("minecraft:creeper", "minecraft:zombified_piglin", "minecraft:enderman",
+    void neverHit_strongOnesNeutralsAndUnknowns() {
+        for (String t : List.of("minecraft:zombified_piglin", "minecraft:enderman",
                 "minecraft:vindicator", "minecraft:warden", "somemod:thing")) {
             assertFalse(Combat.decide(t, Gear.GOOD, 1, 0, 20, 12).fight(), t);
         }
@@ -256,7 +256,7 @@ class CombatTest {
     }
 
     @Test
-    void aCreeperClose_isBackedAwayFrom_beforeItHits() {
+    void aCreeperClose_withNoWeapon_isBackedAwayFrom_beforeItHits() {
         FakeWorld w = new FakeWorld("Bluetails");
         w.armor = 20;
         Bot b = walking(w);
@@ -264,7 +264,7 @@ class CombatTest {
         ticks(b, w, 2);
         assertTrue(w.attacked.isEmpty());
         assertTrue(w.paths.goal.x() > 10, "away from it: " + w.paths.goal);
-        assertTrue(log(b).contains("a creeper 3 blocks away"), log(b));
+        assertTrue(log(b).contains("3 blocks off: creeper, no weapon — keep away"), log(b));
     }
 
     @Test

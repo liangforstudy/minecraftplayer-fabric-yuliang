@@ -383,6 +383,15 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public Optional<BlockPos> worldSpawn() { return Optional.ofNullable(spawn); }
     @Override public void holdKeys(boolean forward, boolean jump) { forwardHeld = forward; jumpHeld = jump; }
     @Override public void holdSneak(boolean down) { sneakHeld = down; }
+    public boolean backHeld;
+    @Override public void holdBack(boolean down) { backHeld = down; }
+    /** Creepers' fuses, by entity id; a creeper not in here is calm. */
+    public final java.util.Map<Integer, io.github.liangforstudy.zymbot.core.api.Fuse> fuses = new java.util.HashMap<>();
+    @Override public Optional<io.github.liangforstudy.zymbot.core.api.Fuse> fuse(int entityId) {
+        return nearby.stream().anyMatch(e -> e.id() == entityId && "minecraft:creeper".equals(e.type()))
+                ? Optional.of(fuses.getOrDefault(entityId, io.github.liangforstudy.zymbot.core.api.Fuse.CALM))
+                : Optional.empty();
+    }
     @Override public int selectedSlot() { return selected; }
     @Override public List<ItemView> inventory() { return List.copyOf(inventory); }
     @Override public Optional<Damage> recentDamage() { return Optional.ofNullable(damage); }

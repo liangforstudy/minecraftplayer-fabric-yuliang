@@ -146,7 +146,13 @@ public final class Combat {
         boolean low = health <= critical + FIGHT_MARGIN && gear != Gear.GOOD;
         return switch (kind(type)) {
             case LEAVE_ALONE -> new Decision(Action.BACK_OFF, name + " — never hit back (its friends join in)");
-            case EXPLODES -> new Decision(Action.BACK_OFF, name + " — keep away");
+            case EXPLODES -> {                                       // hit and step back, one at a time (owner, 2026-11-03)
+                if (gear == Gear.BARE) yield new Decision(Action.BACK_OFF, name + ", " + armor + " — keep away");
+                if (crowd > 1) yield new Decision(Action.BACK_OFF, name + " and " + (crowd - 1) + " more — keep away");
+                if (shooters > 0) yield new Decision(Action.BACK_OFF, name + " with " + shooters + " shooting — keep away");
+                if (low) yield new Decision(Action.BACK_OFF, name + ", health " + Math.round(health) + " in " + armor + " — keep away");
+                yield new Decision(Action.FIGHT, name + ", " + armor + " — hit it and step back");
+            }
             case STRONG -> new Decision(Action.BACK_OFF, name + " hits too hard");
             case FLYER -> new Decision(Action.COVER, name + " shoots from the air — cover");
             case SHOOTER -> {
