@@ -1342,11 +1342,18 @@ mode, spark only), set to hard with keepInventory; `Bluetails_zym` is an op ther
 `localhost:25566` (in the 26.2 instance's server list), which goes through:
 - `tools/lagproxy.py --delay 100 --jitter 20`: holds every packet 100–120 ms each way. Tab ping read
   **200 ms** (`/zbot probe ping`), as 9b9t's HUD 216.
-- `/tick rate 9` (sent with `tools/rcon.py <server dir> <command>`, which reads the RCON password from
-  `server.properties` and never prints it): `/zbot probe tps` read **9.0** (+20 every 2.2 s), Meteor 11.3;
-  on 9b9t Zymbot read 8.9 and Meteor 6.1.
-- `tools/lagstalls.py <server dir> --every 20-40 --stall 2-6`: `/tick freeze` for a few seconds now and
-  then; `--catchup N` adds a `/tick sprint N` after each, like 9b9t's jumps.
+- **Server lag: load, not `/tick rate`.** `/tick rate 9` and `/tick freeze` (`tools/lagstalls.py`) are
+  sent to the client too, and since 1.20.3 the client runs at the server's rate: the owner's own walking
+  slowed (owner, 2026-11-06). On 9b9t the client stays at 20 while the server falls behind, and that
+  mismatch is what matters (weapon recharge, bow draws). So the lag is real load instead: ~1200 pigs
+  crammed in a sealed 3x4x3 stone box 40 blocks under the test arena (`gamerule max_entity_cramming 0`;
+  under the player, because Paper barely ticks entities outside its activation range: 1800 pigs 2000
+  blocks away cost 1.3 ms). That gave ~125 ms a tick, P99 ~400 ms; `/zbot probe tps` **6.6–6.9**,
+  Meteor 9–12, with the target rate still 20. The pigs are summoned with `tools/rcon.py` in batches of
+  150 (one call with 1150 overran the command line). `tools/lagstalls.py` is kept but only fits tests
+  where the client should know about the freeze.
+- `tools/rcon.py <server dir> <command> …` reads the RCON password from `server.properties` and never
+  prints it.
 
 MCP Fabric's server-side tools (commands, summons) need the integrated server, so on Paper commands go
 through `tools/rcon.py` or chat as op; reading the player, entities and the screen still works.
@@ -1385,11 +1392,28 @@ hotbar, at least basic armor and health above critical + 4; otherwise backed awa
 |---|---|---|
 | 26.2 singleplayer, 20 TPS | iron sword, iron armor | 4 hits (20 → 14 → 8 → 2 → 0), 3–4 run-clears |
 | lag server, 20 TPS, 200 ms ping | Sharpness V diamond axe, Prot IV diamond (Blast Prot IV legs) | one hit (12), then it went off 5.6 blocks away: 0 damage, 1 floor block |
-| lag server, 9 TPS, 200 ms, stalls | the same | 6 runs: 2 hits each (20 → 8 → dead), 1–2 run-clears, no blast |
+| lag server, `/tick rate 9`, 200 ms, stalls | the same | 6 runs: 2 hits each (20 → 8 → dead), 1–2 run-clears, no blast. But `/tick rate` slows the client too, so not 9b9t's kind of lag (see "Lag test server") |
+| lag server, real load ~6.6 TPS, 200 ms | Sharpness V axe | 2 runs: 2 full hits (12 each), 2 run-clears, no blast |
+| the same, with an Infinity Power V Punch II Flame bow | bow + axe | 2 runs: 2–3 arrows (the first 14–18), Punch threw it to ~17 blocks, Flame finished it; never nearer than ~9 |
+| 20 TPS, 200 ms | bow + axe | 2 runs: 2–3 arrows |
+| two creepers, real load | axe | backed off ("creeper and 1 more — keep away"), no damage; the retreat stopped ~16 off and they came on again, so it loops |
+| dead-end 1x2 tunnel, before the fix | axe | the run-clear went back past it: it went off beside us, 20 → 14.2, tunnel roof gone |
+| the same, real load, after the fix | axe | 2 runs: "cornered by the creeper — hitting it instead"; one killed in 2 hits (no damage), one went off after 1 hit at ~5 blocks (−0.5, a roof block) |
 
-**Still open:** a bow first (54 Power V bows in the owner's stock: 2 arrows from range), two creepers at
-once (backs off today), in tunnels with no room to run (backs off only if the retreat fails), a real
-9b9t try. The hit tally under-counted by one in one singleplayer run (3 logged, 4 needed by health).
+**Added after the first round (2026-11-06):**
+- **Bow first:** a bow in the hotbar and an arrow (an Infinity bow needs one) make a creeper within 16
+  blocks with a clear shot a trigger. It shoots from 6.5 blocks out (a draw under way goes on to 5.5),
+  aims over its body for the drop, and holds each draw for 20 of the server's ticks (our ticks: 20 x
+  20 / TPS, +2), then puts the bow away for the sword or axe. The log says "shoot it, then hit it and
+  step back" and counts "N arrows, M hits".
+- **Cornered:** no open ground to run to away from it (straight away, 45 and 90 degrees either side, 2–4
+  blocks: floor, feet, head): it doesn't run past it; it hits it whenever ready, hissing or not.
+- **Recharge on the server's clock:** after a hit, our clock's "ready" is stretched by 20 / TPS (it
+  learns how many of our ticks the weapon takes): at 7 TPS a hit on our "ready" does about a third.
+  FightTask (zombies, skeletons) still swings on our clock; the same fix would suit it.
+
+**Still open:** two creepers at once only backs off (and loops when the retreat stops short); a real
+9b9t try; FightTask's recharge under lag. The hit tally under-counted by one in one singleplayer run.
 
 ## Order
 

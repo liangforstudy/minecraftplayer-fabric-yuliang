@@ -191,6 +191,122 @@ class CreeperTest {
         assertTrue(w.paths.stops > stops, "the run-clear's path is cancelled with the fight\n" + log(b));
     }
 
+    FakeWorld archer() {
+        return armed().give(4, "minecraft:bow", 1, null).give(20, "minecraft:arrow", 1, null);
+    }
+
+    @Test
+    void withABow_itsShotFromRange_eachDrawHeldForTwentyServerTicks_thenTheSwordUpClose() {
+        FakeWorld w = archer();
+        Bot b = walking(w);
+        creeper(w, -12);
+        ticks(b, w, 2);
+        assertEquals(4, w.selected, "bow out at 12 blocks:\n" + log(b));
+        ticks(b, w, 2);
+        assertTrue(w.usingItem, "drawing");
+        assertTrue(w.lookedAt.y() > 64.9, "aimed a little over its body for the drop: " + w.lookedAt);
+        ticks(b, w, 20);
+        assertEquals(1, w.arrowsShot, "loosed after 22 ticks at 20 TPS");
+        w.tps = 9;
+        ticks(b, w, 30);
+        assertEquals(1, w.arrowsShot, "at 9 TPS a full draw is 47 of our ticks");
+        ticks(b, w, 20);
+        assertEquals(2, w.arrowsShot);
+
+        creeper(w, -5);                                              // inside 5.5: bow away, sword out
+        ticks(b, w, 2);
+        assertEquals(2, w.selected, "the sword");
+        assertFalse(w.usingItem);
+        w.nearby.removeIf(e -> e.id() == 700);
+        ticks(b, w, 2);
+        assertTrue(log(b).contains("killed the creeper — because 2 arrows, 0 hits")
+                && log(b).contains("good armor — shoot it, then hit it and step back"), log(b));
+    }
+
+    @Test
+    void withABow_aCreeperBehindAWall_isNoTrigger_andNoArrowsMeansNoBow() {
+        FakeWorld w = archer();
+        for (int y = 64; y <= 67; y++) for (int z = -2; z <= 2; z++) w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(-6, y, z), "minecraft:stone");
+        Bot b = walking(w);
+        creeper(w, -12);
+        ticks(b, w, 3);
+        assertFalse(log(b).contains("creeper"), log(b));
+
+        FakeWorld none = armed().give(4, "minecraft:bow", 1, null);
+        Bot b2 = walking(none);
+        creeper(none, -4.5);
+        ticks(b2, none, 3);
+        assertEquals(2, none.selected, "no arrows: the sword");
+    }
+
+    /** A 1-wide, 2-high tunnel along x, stone all round, dead end at x = 2 (we stand at 0.5, it comes from -x). */
+    static void tunnel(FakeWorld w) {
+        for (int x = -12; x <= 3; x++) for (int y = 63; y <= 66; y++) for (int z = -2; z <= 2; z++) {
+            boolean hole = (y == 64 || y == 65) && z == 0 && x <= 1;
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, y, z), hole ? "minecraft:air" : "minecraft:stone");
+        }
+    }
+
+    @Test
+    void cornered_inADeadEnd_hitsItWhileItHisses_ratherThanRunningPastIt() {
+        FakeWorld w = armed();
+        tunnel(w);
+        w.pos = new Vec3(0.5, 64, 0.5);
+        Bot b = walking(w);
+        EntityView c = creeper(w, -2.5);
+        w.attackReady = false;
+        ticks(b, w, 2);
+        w.fuses.put(c.id(), new Fuse(0.2f, true, false));
+        ticks(b, w, 2);
+        assertFalse(log(b).contains("running clear"), "no run past it:\n" + log(b));
+        assertTrue(log(b).contains("cornered by the creeper — because no open ground to run to but past it"), log(b));
+        w.attackReady = true;
+        ticks(b, w, 1);
+        assertEquals(1, w.attacked.size(), "hit while it hisses");
+
+        FakeWorld open = armed();                                    // the same, in the open: run
+        assertFalse(io.github.liangforstudy.zymbot.core.task.CreeperFightTask.cornered(open, new Vec3(-2.5, 64, 0)));
+        assertTrue(io.github.liangforstudy.zymbot.core.task.CreeperFightTask.cornered(w, new Vec3(-2.5, 64, 0.5)));
+
+        FakeWorld wall = armed();                                    // a wall behind, open ground to the side
+        for (int y = 64; y <= 65; y++) for (int z = -6; z <= 6; z++) for (int x = 1; x <= 4; x++)
+            wall.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, y, z), "minecraft:stone");
+        wall.pos = new Vec3(0.5, 64, 0.5);
+        assertFalse(io.github.liangforstudy.zymbot.core.task.CreeperFightTask.cornered(wall, new Vec3(-2.5, 64, 0.5)),
+                "it can run sideways, as the run-clear would");
+    }
+
+    @Test
+    void aLaggingServer_countsTheCooldownInItsTicks_soTheNextHitWaits() {
+        FakeWorld w = armed();
+        w.tps = 7;
+        Bot b = walking(w);
+        creeper(w, -3.0);
+        while (w.attacked.isEmpty()) ticks(b, w, 1);
+        w.attackReady = false;                                       // the swing empties it, as in the game
+        ticks(b, w, 12);                                             // our clock: recharged in 12
+        w.attackReady = true;
+        int waited = 12;
+        while (w.attacked.size() < 2 && waited < 100) {
+            ticks(b, w, 1);
+            waited++;
+        }
+        assertTrue(waited >= 36 && waited <= 40, "ready on our 13th tick: 13 x 20/7 = 38 of ours, not 13; waited " + waited);
+    }
+
+    @Test
+    void atFullSpeed_theNextHitGoesAsSoonAsOurClockSaysReady() {
+        FakeWorld w = armed();
+        Bot b = walking(w);
+        creeper(w, -3.0);
+        while (w.attacked.isEmpty()) ticks(b, w, 1);
+        w.attackReady = false;
+        ticks(b, w, 12);
+        w.attackReady = true;
+        ticks(b, w, 1);
+        assertEquals(2, w.attacked.size());
+    }
+
     @Test
     void aChargedOne_orOneWithCompany_isKeptAwayFrom() {
         FakeWorld w = armed();

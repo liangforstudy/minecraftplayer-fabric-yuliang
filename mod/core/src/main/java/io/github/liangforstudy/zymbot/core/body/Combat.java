@@ -197,6 +197,16 @@ public final class Combat {
         return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
+    /** The hotbar slot holding a bow, if any. */
+    public static OptionalInt bow(List<ItemView> inventory) {
+        return inventory.stream().filter(i -> i.inHotbar() && "minecraft:bow".equals(i.id())).mapToInt(ItemView::slot).findFirst();
+    }
+
+    /** Something to shoot: an Infinity bow still needs one arrow in the inventory. */
+    public static boolean arrows(List<ItemView> inventory) {
+        return inventory.stream().anyMatch(i -> i.id().endsWith("arrow") && i.count() > 0);
+    }
+
     private static final List<String> MATERIALS = List.of("netherite", "diamond", "iron", "stone", "golden", "wooden");
 
     /** The hotbar slot with the best melee weapon: by material, then a sword over an axe. Empty if none. */

@@ -51,6 +51,12 @@ public final class CreeperFightTask implements Task {
      * leaves 15 server ticks, 15 or more of ours. Three kills logged "went off" without this (2026-11-06).
      */
     static final int KILLED_WITHIN_TICKS = 10;
+    /** A creeper this far off with a clear shot is shot at, with a bow and arrows. */
+    public static final double BOW_RANGE = 16;
+    /** Start a draw only this far off; one under way goes on to {@link #BOW_UNTIL}, then the melee weapon. */
+    static final double BOW_FROM = 6.5, BOW_UNTIL = 5.5;
+    /** A fully drawn arrow's speed, blocks a tick. */
+    static final double ARROW_SPEED = 3;
     /** How often the fight asks again whether it's still worth it (another mob turned up). */
     static final int RECHECK_TICKS = 20;
 
@@ -63,8 +69,8 @@ public final class CreeperFightTask implements Task {
     private RetreatTask escape;
     private Vec3 lastSeen;
     private Fuse lastFuse = Fuse.CALM;
-    private boolean armed;
-    private int ticks, stalled, lastHitTick = -1000;
+    private boolean armed, bowOut, saidCornered;
+    private int ticks, stalled, drawTicks, readyAfter = -1, lastHitTick = -1000;
     private double closest = Double.MAX_VALUE;
     private String failure = "";
 
@@ -74,7 +80,7 @@ public final class CreeperFightTask implements Task {
      */
     public static final class Tally {
         final UUID creeper;
-        int hits, escapes;
+        int hits, escapes, arrows;
         public Tally(UUID creeper) { this.creeper = creeper; }
         public boolean of(UUID id) { return creeper.equals(id); }
     }
@@ -95,10 +101,11 @@ public final class CreeperFightTask implements Task {
         Optional<EntityView> t = world.nearby().stream().filter(e -> target.equals(e.uuid())).findFirst();
         if (t.isEmpty()) {
             cancel();                                                // and the run-clear's path: it kept running after a kill (2026-11-06)
-            String count = tally.hits + (tally.hits == 1 ? " hit" : " hits") + (tally.escapes > 0 ? ", ran clear " + tally.escapes + "x" : "");
+            String count = (tally.arrows > 0 ? tally.arrows + (tally.arrows == 1 ? " arrow, " : " arrows, ") : "")
+                    + tally.hits + (tally.hits == 1 ? " hit" : " hits") + (tally.escapes > 0 ? ", ran clear " + tally.escapes + "x" : "");
             boolean hitJustNow = ticks - lastHitTick <= KILLED_WITHIN_TICKS;   // a hit-then-run kills it while it hisses
             if (lastFuse.lit() && !hitJustNow) note.accept("the creeper went off", "gone while hissing, after " + count);
-            else if (tally.hits > 0) note.accept("killed the creeper", count);
+            else if (tally.hits + tally.arrows > 0) note.accept("killed the creeper", count);
             return Status.DONE;
         }
         if (++ticks > GIVE_UP_TICKS) {
@@ -119,13 +126,22 @@ public final class CreeperFightTask implements Task {
             release();
             return Status.RUNNING;                                   // watch it until it fizzles or comes
         }
-        if (escape != null || fuse.lit()) {
+        boolean cornered = fuse.lit() && escape == null && cornered(world, creeper.pos());
+        if (cornered && !saidCornered) {
+            saidCornered = true;
+            note.accept("cornered by the creeper", "no open ground to run to but past it: hitting it instead");
+        }
+        if (!cornered && (escape != null || fuse.lit())) {
             if (escape == null) {
                 release();
-                if (fuse.progress() < HIT_THEN_RUN && world.attackReady() && d <= HIT_REACH) {
-                    hands.attack(creeper.id());                      // aimed last tick; the knockback buys time too
-                    tally.hits++;
-                    lastHitTick = ticks;
+                if (bowOut) {                                        // a drawn bow walks at a crawl
+                    hands.holdUse(false);
+                    bowOut = false;
+                    drawTicks = 0;
+                }
+                boolean bowInHand = Combat.bow(world.inventory()).stream().anyMatch(s -> s == world.selectedSlot());
+                if (!bowInHand && fuse.progress() < HIT_THEN_RUN && ready(world) && d <= HIT_REACH) {
+                    hit(creeper);                                    // aimed last tick; the knockback buys time too
                 }
                 tally.escapes++;
                 note.accept("running clear of the creeper", "it's hissing, " + Math.round(d * 10) / 10.0 + " blocks off");
@@ -149,12 +165,13 @@ public final class CreeperFightTask implements Task {
             cancel();
             return Status.DONE;                                      // the reflex decides again: back off
         }
+        if (shoot(world, creeper, d)) return Status.RUNNING;
         if (!armed) {
             armed = true;
             Combat.bestWeapon(world.inventory()).ifPresent(hands::selectSlot);
         }
         hands.lookAt(new Vec3(creeper.pos().x(), creeper.pos().y() + 0.9, creeper.pos().z()));   // aimed every tick, so a hit lands
-        boolean ready = world.attackReady();
+        boolean ready = ready(world);
         if (d < closest - 0.1) {
             closest = d;
             stalled = 0;
@@ -163,9 +180,7 @@ public final class CreeperFightTask implements Task {
         }
         if (ready && d <= HIT_REACH) {
             release();
-            hands.attack(creeper.id());
-            tally.hits++;
-            lastHitTick = ticks;
+            hit(creeper);
             closest = Double.MAX_VALUE;                              // knocked back: watch it come again
         } else if (ready && stalled >= STALLED_TICKS) {
             hands.holdBack(false);
@@ -179,6 +194,98 @@ public final class CreeperFightTask implements Task {
             release();
         }
         return Status.RUNNING;
+    }
+
+    /**
+     * With a bow, arrows and a clear shot, shoot it while it's at least {@link #BOW_FROM} off (a draw
+     * under way goes on to {@link #BOW_UNTIL}): Power V, two full draws kill it before it's near (owner's
+     * stock, 2026-11-06). Each draw is held for 20 of the server's ticks, which is longer at 9 TPS: the
+     * arrow's power is counted there. Closer in, the bow is put away for the sword or axe.
+     * @return true while the bow has this tick
+     */
+    private boolean shoot(WorldView world, EntityView creeper, double d) {
+        java.util.OptionalInt bow = Combat.bow(world.inventory());
+        Vec3 me = world.position();
+        Vec3 body = new Vec3(creeper.pos().x(), creeper.pos().y() + 0.9, creeper.pos().z());
+        boolean drawing = world.usingItem() && bow.isPresent() && world.selectedSlot() == bow.getAsInt();
+        boolean shot = bow.isPresent() && Combat.arrows(world.inventory()) && d >= (drawing ? BOW_UNTIL : BOW_FROM)
+                && world.clearShot(new Vec3(me.x(), me.y() + 1.62, me.z()), body);
+        if (!shot) {
+            if (bowOut) {
+                hands.holdUse(false);                                // put it away (a weak arrow, if any)
+                bowOut = false;
+                drawTicks = 0;
+                armed = false;                                       // back to the sword or axe
+            }
+            return false;
+        }
+        release();
+        if (world.selectedSlot() != bow.getAsInt()) {
+            hands.selectSlot(bow.getAsInt());
+            armed = false;
+            return true;
+        }
+        double flight = d / ARROW_SPEED;                             // ticks; it drops ~0.05 a tick more each tick
+        hands.lookAt(new Vec3(body.x(), body.y() + 0.025 * flight * (flight + 1), body.z()));
+        bowOut = true;
+        if (!world.usingItem()) {
+            hands.holdUse(true);                                     // nock
+            drawTicks = 0;
+        } else if (++drawTicks >= fullDraw(world.serverTps())) {
+            hands.holdUse(false);                                    // loose: the next tick nocks again
+            drawTicks = 0;
+            tally.arrows++;
+        } else {
+            hands.holdUse(true);
+        }
+        return true;
+    }
+
+    /** Our ticks for the server to count a full draw (20 of its ticks), with 2 to spare. */
+    static int fullDraw(double tps) {
+        return (int) Math.ceil(20 * 20 / Math.max(5, Math.min(20, tps))) + 2;
+    }
+
+    private void hit(EntityView creeper) {
+        hands.attack(creeper.id());
+        tally.hits++;
+        lastHitTick = ticks;
+        readyAfter = -1;
+    }
+
+    /**
+     * The weapon is charged as the server counts it. Our clock says so after {@code readyAfter} of our
+     * ticks; the server counts its own, fewer when it lags, so wait that x 20 / its TPS. At 7 TPS a hit
+     * on our clock's "ready" does about a third of its damage.
+     */
+    private boolean ready(WorldView world) {
+        boolean ours = world.attackReady();
+        if (ours && readyAfter < 0 && lastHitTick >= 0) readyAfter = ticks - lastHitTick;
+        if (!ours) return false;
+        if (lastHitTick < 0 || readyAfter < 0) return true;
+        return ticks - lastHitTick >= readyAfter * 20 / Math.max(5, Math.min(20, world.serverTps()));
+    }
+
+    /**
+     * No open ground to run to away from it: straight away, 45 and 90 degrees either side (as the
+     * run-clear tries), each 2 to 4 blocks out, needs solid floor and room for feet and head. In a dead-end tunnel the run-clear went
+     * back past the creeper and it went off beside us, 20 -> 14.2 (2026-11-06).
+     */
+    public static boolean cornered(WorldView world, Vec3 creeper) {
+        Vec3 me = world.position();
+        double away = Math.atan2(me.z() - creeper.z(), me.x() - creeper.x());
+        int y = (int) Math.floor(me.y() + 0.01);
+        for (double turn : new double[]{0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2}) {   // RetreatTask.TURNS
+            boolean open = true;
+            for (int step = 2; step <= 4 && open; step++) {
+                int x = (int) Math.floor(me.x() + Math.cos(away + turn) * step);
+                int z = (int) Math.floor(me.z() + Math.sin(away + turn) * step);
+                open = world.sturdy(new BlockPos(x, y - 1, z)) && !world.sturdy(new BlockPos(x, y, z))
+                        && !world.sturdy(new BlockPos(x, y + 1, z));
+            }
+            if (open) return false;
+        }
+        return true;
     }
 
     /** The block a step behind us (away from the creeper) has solid, hazard-free ground. */
@@ -198,6 +305,8 @@ public final class CreeperFightTask implements Task {
 
     @Override public void cancel() {
         release();
+        if (bowOut) hands.holdUse(false);
+        bowOut = false;
         if (escape != null) escape.cancel();
         escape = null;
     }

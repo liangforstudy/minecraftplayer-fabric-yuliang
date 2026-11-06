@@ -384,6 +384,8 @@ public final class FakeWorld implements WorldView, Hands {
     @Override public void holdKeys(boolean forward, boolean jump) { forwardHeld = forward; jumpHeld = jump; }
     @Override public void holdSneak(boolean down) { sneakHeld = down; }
     public boolean backHeld;
+    /** Bow draws let go of. */
+    public int arrowsShot;
     @Override public void holdBack(boolean down) { backHeld = down; }
     /** Creepers' fuses, by entity id; a creeper not in here is calm. */
     public final java.util.Map<Integer, io.github.liangforstudy.zymbot.core.api.Fuse> fuses = new java.util.HashMap<>();
@@ -520,7 +522,9 @@ public final class FakeWorld implements WorldView, Hands {
     public void holdUse(boolean down) {
         if (down && !useHeld) { bucket(); wear(); }
         useHeld = down;
-        if (down && !usingItem && inventory.stream().anyMatch(i -> i.slot() == selected && i.edible())) usingItem = true;
+        boolean bow = inventory.stream().anyMatch(i -> i.slot() == selected && "minecraft:bow".equals(i.id()));
+        if (down && !usingItem && (bow || inventory.stream().anyMatch(i -> i.slot() == selected && i.edible()))) usingItem = true;
+        if (!down && usingItem && bow) arrowsShot++;
         if (!down) usingItem = false;
     }
 

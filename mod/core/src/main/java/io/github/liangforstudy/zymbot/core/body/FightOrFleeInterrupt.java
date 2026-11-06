@@ -92,11 +92,17 @@ public final class FightOrFleeInterrupt implements Interrupt {
                 .filter(a -> a.from().horizontalDistance(world.position()) < RetreatTask.DISTANCE);
     }
 
+    /**
+     * The nearest creeper within {@link Combat#CREEPER_BLOCKS} (3D: not one in a cave below), or, with
+     * a bow and arrows, one within {@link CreeperFightTask#BOW_RANGE} we can see to shoot.
+     */
     private Optional<EntityView> creeper(WorldView world) {
         Vec3 me = world.position();
+        boolean bow = Combat.bow(world.inventory()).isPresent() && Combat.arrows(world.inventory());
         return world.nearby().stream()
                 .filter(e -> Combat.kind(e.type()) == Combat.Kind.EXPLODES)
-                .filter(e -> Combat.distance(e.pos(), me) <= Combat.CREEPER_BLOCKS)   // not one in a cave below
+                .filter(e -> Combat.distance(e.pos(), me) <= Combat.CREEPER_BLOCKS
+                        || bow && Combat.distance(e.pos(), me) <= CreeperFightTask.BOW_RANGE && world.clearShot(eyes(me), eyes(e.pos())))
                 .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
     }
 
@@ -112,7 +118,11 @@ public final class FightOrFleeInterrupt implements Interrupt {
         }
         if (Combat.bestWeapon(world.inventory()).isEmpty()) return new Combat.Decision(Combat.Action.BACK_OFF, name + ", no weapon — keep away");
         if (world.inWater()) return new Combat.Decision(Combat.Action.BACK_OFF, name + ", in the water — keep away");
-        return decision(world, creeper);
+        Combat.Decision d = decision(world, creeper);
+        if (d.fight() && Combat.bow(world.inventory()).isPresent() && Combat.arrows(world.inventory())) {
+            return new Combat.Decision(d.action(), d.why().replace("hit it and step back", "shoot it, then hit it and step back"));
+        }
+        return d;
     }
 
     private Combat.Decision decision(WorldView world, EntityView mob) {
