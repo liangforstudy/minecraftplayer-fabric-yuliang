@@ -187,8 +187,8 @@ public final class CreeperFightTask implements Task {
             hands.holdKeys(true, false);                             // it isn't coming: step in
         } else if (ready) {
             release();                                               // charged: let it walk into reach
-        } else if (d < KEEP_OFF && safeBehind(world, creeper.pos())) {
-            hands.holdKeys(false, false);
+        } else if (d < KEEP_OFF && stepBehind(world, creeper.pos()) != NO_STEP) {
+            hands.holdKeys(false, stepBehind(world, creeper.pos()) == 1);   // a ledge behind: jump up it backwards
             hands.holdBack(true);                                    // recharging: back off a step
         } else {
             release();
@@ -268,34 +268,61 @@ public final class CreeperFightTask implements Task {
 
     /**
      * No open ground to run to away from it: straight away, 45 and 90 degrees either side (as the
-     * run-clear tries), each 2 to 4 blocks out, needs solid floor and room for feet and head. In a dead-end tunnel the run-clear went
-     * back past the creeper and it went off beside us, 20 -> 14.2 (2026-11-06).
+     * run-clear tries), each 1 to 4 blocks out, needs ground we can walk on, a one-block step up or down
+     * included. In a dead-end tunnel the run-clear went back past the creeper and it went off beside us,
+     * 20 -> 14.2 (2026-11-06); a one-block ledge behind read as a wall, so it stood and fought (owner, 2026-11-17).
      */
     public static boolean cornered(WorldView world, Vec3 creeper) {
         Vec3 me = world.position();
         double away = Math.atan2(me.z() - creeper.z(), me.x() - creeper.x());
-        int y = (int) Math.floor(me.y() + 0.01);
         for (double turn : new double[]{0, Math.PI / 4, -Math.PI / 4, Math.PI / 2, -Math.PI / 2}) {   // RetreatTask.TURNS
+            int level = (int) Math.floor(me.y() + 0.01);
             boolean open = true;
-            for (int step = 2; step <= 4 && open; step++) {
+            for (int step = 1; step <= 4 && open; step++) {
                 int x = (int) Math.floor(me.x() + Math.cos(away + turn) * step);
                 int z = (int) Math.floor(me.z() + Math.sin(away + turn) * step);
-                open = world.sturdy(new BlockPos(x, y - 1, z)) && !world.sturdy(new BlockPos(x, y, z))
-                        && !world.sturdy(new BlockPos(x, y + 1, z));
+                int next = stepTo(world, x, level, z);
+                open = next != NO_STEP;
+                level += open ? next : 0;
             }
             if (open) return false;
         }
         return true;
     }
 
-    /** The block a step behind us (away from the creeper) has solid, hazard-free ground. */
-    static boolean safeBehind(WorldView world, Vec3 creeper) {
+    static final int NO_STEP = Integer.MIN_VALUE;
+
+    /**
+     * Walking from feet level {@code level} onto column x, z: 0 on the level, +1 a step up (jump), -1 a
+     * step down, or {@link #NO_STEP} (a wall, a drop of more than one, no room for feet and head).
+     */
+    static int stepTo(WorldView world, int x, int level, int z) {
+        if (stands(world, x, level, z)) return 0;
+        if (stands(world, x, level + 1, z)) return 1;
+        if (stands(world, x, level - 1, z) && !world.sturdy(new BlockPos(x, level + 1, z))) return -1;
+        return NO_STEP;
+    }
+
+    /** Solid, hazard-free floor under feet at {@code level}, room for feet and head. */
+    private static boolean stands(WorldView world, int x, int level, int z) {
+        BlockPos floor = new BlockPos(x, level - 1, z);
+        return world.sturdy(floor) && !HazardInterrupt.touchesHazard(world, floor)
+                && !world.sturdy(new BlockPos(x, level, z)) && !world.sturdy(new BlockPos(x, level + 1, z));
+    }
+
+    /**
+     * The step behind us, away from the creeper: 0 level ground, +1 a block to jump up onto (room over
+     * our head for the jump), -1 a step down, or {@link #NO_STEP}: stand.
+     */
+    static int stepBehind(WorldView world, Vec3 creeper) {
         Vec3 me = world.position();
         double dx = me.x() - creeper.x(), dz = me.z() - creeper.z();
         double len = Math.max(1e-6, Math.sqrt(dx * dx + dz * dz));
-        BlockPos floor = new BlockPos((int) Math.floor(me.x() + dx / len), (int) Math.floor(me.y() - 0.01),
-                (int) Math.floor(me.z() + dz / len));
-        return world.sturdy(floor) && !HazardInterrupt.touchesHazard(world, floor);
+        int x = (int) Math.floor(me.x() + dx / len), z = (int) Math.floor(me.z() + dz / len);
+        int level = (int) Math.floor(me.y() + 0.01);
+        int step = stepTo(world, x, level, z);
+        if (step == 1 && world.sturdy(new BlockPos((int) Math.floor(me.x()), level + 2, (int) Math.floor(me.z())))) return NO_STEP;
+        return step;
     }
 
     private void release() {

@@ -238,6 +238,112 @@ public final class ZymbotConfig {
      */
     public int nightResumeAt = 22822;
 
+    /**
+     * Rules for one server (owner, 2026-11-17), keyed by {@link AutostartPolicy#normalize}: an address, or
+     * "singleplayer" for every world. Anything not set here keeps the defaults.
+     */
+    public java.util.Map<String, ServerRules> servers = new java.util.LinkedHashMap<>();
+
+    public static final class ServerRules {
+        /** Mob type ("zombie_villager", no "minecraft:") → "alert" or "ignore"; unlisted mobs are "normal". */
+        public java.util.Map<String, String> mobs = new java.util.LinkedHashMap<>();
+        /** Null: on for servers, off in singleplayer. */
+        public Boolean autoLogout;
+    }
+
+    /** What the fight reflex does about one kind of mob on this server. */
+    public enum MobRule {
+        /** Fight or back off as {@code Combat} decides. */
+        NORMAL,
+        /** Ping, keep away, and fight it only once the owner says so ({@code /zbot approve}). */
+        ALERT,
+        /** Never react to it: not fought, not backed away from, not counted in a crowd. */
+        IGNORE;
+
+        public String id() { return name().toLowerCase(Locale.ROOT); }
+
+        public static MobRule parse(String s) {
+            for (MobRule r : values()) if (r.id().equals(s == null ? "" : s.trim().toLowerCase(Locale.ROOT))) return r;
+            return null;
+        }
+    }
+
+    /** "Minecraft:Zombie Villager" → "zombie_villager". */
+    public static String mobKey(String type) {
+        if (type == null) return "";
+        return type.trim().toLowerCase(Locale.ROOT).replaceFirst("^minecraft:", "").replace(' ', '_');
+    }
+
+    /**
+     * Addresses of one server, kept under one set of rules: 9b9t answers on all three (2b2t.com is a 9b9t
+     * address; the real 2b2t is 2b2t.org, not listed).
+     */
+    private static final java.util.Map<String, String> SAME_SERVER = java.util.Map.of(
+            "9b9t.com:25565", "9b9t.org:25565", "2b2t.com:25565", "9b9t.org:25565",
+            "minecraft.2b2t.com:25565", "9b9t.org:25565");
+
+    /** Where a server's rules are kept: its normalized address, or the one its other addresses share. */
+    public static String rulesKey(String address) {
+        String key = AutostartPolicy.normalize(address);
+        return SAME_SERVER.getOrDefault(key, key);
+    }
+
+    /** The other addresses that share {@code key}'s rules, for the settings screen. */
+    public static List<String> alsoKnownAs(String key) {
+        return SAME_SERVER.entrySet().stream().filter(e -> e.getValue().equals(key) && !e.getKey().startsWith("minecraft."))
+                .map(java.util.Map.Entry::getKey).sorted().toList();
+    }
+
+    private ServerRules rulesFor(String address, boolean create) {
+        String key = rulesKey(address);
+        ServerRules r = servers.get(key);
+        if (r == null && create) servers.put(key, r = new ServerRules());
+        return r;
+    }
+
+    public MobRule mobRule(String address, String type) {
+        ServerRules r = address == null ? null : rulesFor(address, false);
+        MobRule rule = r == null ? null : MobRule.parse(r.mobs.get(mobKey(type)));
+        return rule == null ? MobRule.NORMAL : rule;
+    }
+
+    /** The mob rules set for this server, type → rule. */
+    public java.util.Map<String, MobRule> mobRules(String address) {
+        java.util.Map<String, MobRule> out = new java.util.TreeMap<>();
+        ServerRules r = address == null ? null : rulesFor(address, false);
+        if (r != null) r.mobs.forEach((k, v) -> { MobRule m = MobRule.parse(v); if (m != null) out.put(k, m); });
+        return out;
+    }
+
+    public void setMobRule(String address, String type, MobRule rule) {
+        ServerRules r = rulesFor(address, true);
+        if (rule == MobRule.NORMAL) r.mobs.remove(mobKey(type));
+        else r.mobs.put(mobKey(type), rule.id());
+        prune(address);
+    }
+
+    public boolean autoLogout(String address) {
+        if (address == null) return false;
+        ServerRules r = rulesFor(address, false);
+        if (r != null && r.autoLogout != null) return r.autoLogout;
+        return !AutostartPolicy.SINGLEPLAYER.equals(AutostartPolicy.normalize(address));
+    }
+
+    /** True if this server's auto-logout was set rather than left at the default. */
+    public boolean autoLogoutSet(String address) {
+        ServerRules r = address == null ? null : rulesFor(address, false);
+        return r != null && r.autoLogout != null;
+    }
+
+    public void setAutoLogout(String address, boolean on) {
+        rulesFor(address, true).autoLogout = on;
+    }
+
+    private void prune(String address) {
+        ServerRules r = rulesFor(address, false);
+        if (r != null && r.mobs.isEmpty() && r.autoLogout == null) servers.remove(rulesKey(address));
+    }
+
     /** The thresholds that /zbot set and the settings screen can change: name → [min, max]. */
     public static final java.util.Map<String, int[]> TUNABLES = java.util.Map.ofEntries(
             java.util.Map.entry("leash", new int[]{8, 1000}), java.util.Map.entry("eat", new int[]{1, 19}),
@@ -357,6 +463,26 @@ public final class ZymbotConfig {
         if (autostartServers == null) autostartServers = new ArrayList<>();
         if (autostartOff == null) autostartOff = new ArrayList<>();
         autostartOff.removeIf(s -> !AutostartPolicy.shouldAutostart(autostartServers, s));   // off only means something for a listed server
+        if (servers == null) servers = new java.util.LinkedHashMap<>();
+        java.util.Map<String, ServerRules> keyed = new java.util.LinkedHashMap<>();
+        servers.forEach((k, r) -> {
+            if (k == null || r == null) return;
+            if (r.mobs == null) r.mobs = new java.util.LinkedHashMap<>();
+            java.util.Map<String, String> mobs = new java.util.LinkedHashMap<>();
+            r.mobs.forEach((type, rule) -> {
+                MobRule m = MobRule.parse(rule);
+                if (m == null || type == null) warnings.add("servers." + k + ": ignoring mob rule " + type + " = " + rule + " (normal, alert or ignore)");
+                else if (m != MobRule.NORMAL) mobs.put(mobKey(type), m.id());
+            });
+            r.mobs = mobs;
+            ServerRules into = keyed.get(rulesKey(k));                // two addresses of one server: merge
+            if (into == null) keyed.put(rulesKey(k), r);
+            else {
+                r.mobs.forEach(into.mobs::putIfAbsent);
+                if (into.autoLogout == null) into.autoLogout = r.autoLogout;
+            }
+        });
+        servers = keyed;
         if (accounts == null) accounts = new ArrayList<>();
         accounts.removeIf(a -> {
             if (a != null && a.role != null) a.role = a.role.trim().toLowerCase(Locale.ROOT);

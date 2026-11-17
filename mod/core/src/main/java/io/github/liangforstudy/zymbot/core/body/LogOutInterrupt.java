@@ -30,10 +30,13 @@ public final class LogOutInterrupt implements Interrupt {
 
     private final ZymbotConfig config;
     private final Body body;
+    /** The server we're on, or "singleplayer": auto-logout is set per server (owner, 2026-11-17). */
+    private final java.util.function.Supplier<String> server;
 
-    public LogOutInterrupt(ZymbotConfig config, Body body) {
+    public LogOutInterrupt(ZymbotConfig config, Body body, java.util.function.Supplier<String> server) {
         this.config = config;
         this.body = body;
+        this.server = server;
     }
 
     @Override public String name() { return "log-out"; }
@@ -47,7 +50,8 @@ public final class LogOutInterrupt implements Interrupt {
 
     @Override
     public boolean triggered(WorldView world) {
-        return !world.isDead() && world.recentDamage().isPresent() && world.health() <= line(world);
+        return !world.isDead() && world.recentDamage().isPresent() && world.health() <= line(world)
+                && config.autoLogout(server.get());
     }
 
     @Override

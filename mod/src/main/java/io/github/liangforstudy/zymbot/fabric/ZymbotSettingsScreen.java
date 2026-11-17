@@ -30,7 +30,7 @@ import org.lwjgl.glfw.GLFW;
  * mean something there: no team key, no account list, no server list — it works out of the box.
  */
 final class ZymbotSettingsScreen extends Screen {
-    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY }
+    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY, HERE }
     private static final io.github.liangforstudy.zymbot.core.Profile PROFILE = McCompat.PROFILE;
     private static final boolean TEAM_TABS = PROFILE == io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
 
@@ -83,13 +83,17 @@ final class ZymbotSettingsScreen extends Screen {
             tabButton("Accounts", Tab.ACCOUNTS, cx - 76, 36);
             tabButton("Servers", Tab.SERVERS, cx + 1, 36);
             tabButton("Body", Tab.BODY, cx + 78, 36);
+        } else {                                           // anarchy: the body, and this server's rules
+            tabButton("Body", Tab.BODY, cx - 76, 36);
+            tabButton("Server rules", Tab.HERE, cx + 1, 36);
         }
-        int top = TEAM_TABS ? 68 : 40;
+        int top = 68;
         switch (tab) {
             case KEY -> initKey(cx, top);
             case ACCOUNTS -> initAccounts(cx, top);
             case SERVERS -> initServers(cx, top);
             case BODY -> initBody(cx, top);
+            case HERE -> initHere(cx, top);
         }
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
                 .bounds(cx - 50, height - 28, 100, 20).build());
@@ -273,6 +277,129 @@ final class ZymbotSettingsScreen extends Screen {
         cfg().autostartServers.add(key);
         ZymbotClient.get().settingsEdited();
         say("added " + key, GREEN);
+    }
+
+    // ------------------------------------------------------------------ server rules (anarchy)
+
+    /** The server whose rules the tab shows; null until the tab first opens (then: where we are). */
+    private String rulesServer;
+    private int mobPage;
+
+    /**
+     * Every server with rules to edit: singleplayer, the game's server list, ones already given rules,
+     * and the one we're on. Edited from the main menu too (owner, 2026-11-17).
+     */
+    private List<String> ruleServers() {
+        java.util.LinkedHashSet<String> out = new java.util.LinkedHashSet<>();
+        Bot liveBot = ZymbotClient.get().bot();
+        String here = liveBot == null ? null : liveBot.currentServer();
+        if (here != null) out.add(ZymbotConfig.rulesKey(here));
+        out.add(AutostartPolicy.SINGLEPLAYER);
+        McCompat.savedServers(minecraft).forEach(a -> out.add(ZymbotConfig.rulesKey(a)));
+        out.addAll(cfg().servers.keySet());
+        return new ArrayList<>(out);
+    }
+
+    private static String shown(String server) {
+        return server.replace(":25565", "");
+    }
+
+    /** "9b9t.org (also 2b2t.com, 9b9t.com)": the addresses that share these rules. */
+    private static String shownWithAliases(String server) {
+        List<String> also = ZymbotConfig.alsoKnownAs(server);
+        return shown(server) + (also.isEmpty() ? "" : " (also " + String.join(", ", also.stream().map(ZymbotSettingsScreen::shown).toList()) + ")");
+    }
+
+    /**
+     * One server's rules: auto-logout, and a rule for each mob, picked from the mobs Zymbot knows (no
+     * typing; the box is for modded ones). The same as /zbot logout and /zbot mob on that server.
+     */
+    private void initHere(int cx, int top) {
+        List<String> servers = ruleServers();
+        if (rulesServer == null || !servers.contains(rulesServer)) rulesServer = servers.get(0);
+        String server = rulesServer;
+        int at = servers.indexOf(server);
+        int y = top;
+
+        addRenderableWidget(Button.builder(Component.literal("◀"), b -> {
+            rulesServer = servers.get((at - 1 + servers.size()) % servers.size());
+            mobPage = 0;
+            message = "";                                  // the last server's "zombie villager: alert" isn't this one's
+            rebuildWidgets();
+        }).bounds(cx - 150, y, 20, 20).build()).active = servers.size() > 1;
+        addRenderableWidget(Button.builder(Component.literal("▶"), b -> {
+            rulesServer = servers.get((at + 1) % servers.size());
+            mobPage = 0;
+            message = "";
+            rebuildWidgets();
+        }).bounds(cx + 130, y, 20, 20).build()).active = servers.size() > 1;
+        Bot liveBot = ZymbotClient.get().bot();
+        boolean isHere = liveBot != null && liveBot.currentServer() != null
+                && ZymbotConfig.rulesKey(liveBot.currentServer()).equals(server);
+        String title = shownWithAliases(server) + (isHere ? " (here)" : "");
+        title = font.width(title) > 250 ? font.plainSubstrByWidth(title, 244) + "…" : title;
+        labels.add(new RowLabel(title, cx - font.width(title) / 2, y + 6, WHITE));
+        y += ROW_H + 2;
+
+        boolean logout = cfg().autoLogout(server);
+        label("Auto-logout at low health" + (cfg().autoLogoutSet(server) ? "" : " (default)"), cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal(logout ? "On" : "Off"), b -> {
+            cfg().setAutoLogout(server, !logout);
+            ZymbotClient.get().settingsEdited();
+            say("auto-logout " + (logout ? "off" : "on") + " on " + shown(server), logout ? GREY : GREEN);
+            rebuildWidgets();
+        }).bounds(cx + 94, y, 56, 20)
+                .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+                        "Leave the server when still being hurt at the log-out line\n§7/" + cfg().commandRoot + " logout on|off")))
+                .build());
+        y += ROW_H + 4;
+
+        // every mob Zymbot knows, A to Z, then modded ones given a rule by /zbot mob: a fixed order, so a
+        // click changes only its own button (owner, 2026-11-17: re-sorting on each click disorients)
+        var rules = cfg().mobRules(server);
+        List<String> mobs = new ArrayList<>(io.github.liangforstudy.zymbot.core.body.Combat.knownTypes());
+        rules.keySet().stream().filter(t -> !mobs.contains(t)).sorted().forEach(mobs::add);
+        int perPage = Math.max(2, (height - 46 - y) / ROW_H * 2);         // two columns, down to the status line over Done
+        int pages = (mobs.size() + perPage - 1) / perPage;
+        mobPage = Math.min(mobPage, pages - 1);
+        int rowsUsed = 0;
+        for (int i = mobPage * perPage, k = 0; i < Math.min(mobs.size(), (mobPage + 1) * perPage); i++, k++) {
+            String type = mobs.get(i);
+            ZymbotConfig.MobRule rule = rules.getOrDefault(type, ZymbotConfig.MobRule.NORMAL);
+            int col = k % 2, row = k / 2;
+            int x = col == 0 ? cx - 150 : cx + 4, ry = y + row * ROW_H;
+            rowsUsed = Math.max(rowsUsed, row + 1);
+            String name = type.replace('_', ' ');
+            name = font.width(name) > 84 ? font.plainSubstrByWidth(name, 78) + "…" : name;
+            label(name, x, ry + 6, rule == ZymbotConfig.MobRule.NORMAL ? GREY : WHITE);
+            ZymbotConfig.MobRule next = ZymbotConfig.MobRule.values()[(rule.ordinal() + 1) % ZymbotConfig.MobRule.values().length];
+            String face = switch (rule) {
+                case NORMAL -> "Normal";
+                case ALERT -> "§eAlert";
+                case IGNORE -> "§bIgnore";
+            };
+            addRenderableWidget(Button.builder(Component.literal(face), b -> {
+                cfg().setMobRule(server, type, next);
+                ZymbotClient.get().settingsEdited();
+                say(type.replace('_', ' ') + ": " + next.id() + " on " + shown(server), next == ZymbotConfig.MobRule.NORMAL ? GREY : GREEN);
+                rebuildWidgets();
+            }).bounds(x + 88, ry, 58, 20)
+                    .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(
+                            "Normal: fought or kept away from as usual\nAlert: a bell, keep away, fight only after /"
+                                    + cfg().commandRoot + " approve\nIgnore: never fought, never dodged\n§7click: " + next.id())))
+                    .build());
+        }
+        y += rowsUsed * ROW_H;
+        contentBottom = y;
+
+        if (pages > 1) {
+            int p = mobPage;
+            addRenderableWidget(Button.builder(Component.literal("◀"), b -> { keepDrafts(); mobPage = p - 1; rebuildWidgets(); })
+                    .bounds(cx - 150, height - 28, 20, 20).build()).active = p > 0;
+            label((p + 1) + "/" + pages, cx - 126, height - 22, GREY);
+            addRenderableWidget(Button.builder(Component.literal("▶"), b -> { keepDrafts(); mobPage = p + 1; rebuildWidgets(); })
+                    .bounds(cx - 106, height - 28, 20, 20).build()).active = p < pages - 1;
+        }
     }
 
     // ------------------------------------------------------------------ body
@@ -667,6 +794,10 @@ final class ZymbotSettingsScreen extends Screen {
                     "Eating is left to Meteor's AutoEat. Danger: /" + cfg().commandRoot + " danger (default hard).",
                     "Drag a value, name or range sideways to scrub (Shift fine, Ctrl coarse).",
                     "↺ resets to default. Then Save. Also: /" + cfg().commandRoot + " set <setting> <n>"};
+            case HERE -> new String[] {
+                    "◀ ▶ picks the server. Click a mob to cycle Normal → Alert → Ignore; saved at once.",
+                    "Alert: a bell and a chat line, it keeps away; /" + cfg().commandRoot + " approve to fight it.",
+                    "Modded mobs: /" + cfg().commandRoot + " mob <type> alert|ignore, then they're listed here."};
         };
         // help and the status message go between the controls and Done — only as much as fits
         int floor = height - 32;

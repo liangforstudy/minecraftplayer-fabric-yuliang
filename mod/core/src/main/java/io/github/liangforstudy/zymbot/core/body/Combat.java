@@ -29,8 +29,15 @@ public final class Combat {
         EXPLODES,
         /** Hits too hard for a sword and some armor: back off. */
         STRONG,
-        /** Neutral, or a group that all turns on us (zombified piglins): never hit, just leave. */
-        LEAVE_ALONE
+        /** Neutral (piglins, iron golems): never hit, just leave. */
+        LEAVE_ALONE,
+        /**
+         * Neutral until provoked (endermen, zombified piglins): left alone while it minds its own
+         * business, fought as a walker once it hits us (owner, 2026-11-17: it provoked it; ender pearls
+         * later). Not counted in a crowd, and not met head-on before it hits. A provoked zombified
+         * piglin brings its group: {@link #provokedCrowd} counts them all.
+         */
+        PROVOKED
     }
 
     /** How much the armor worn soaks up, by armor points (full iron = 15, full diamond = 20). */
@@ -109,8 +116,13 @@ public final class Combat {
             Map.entry("warden", Kind.STRONG), Map.entry("wither_skeleton", Kind.STRONG),
             Map.entry("piglin_brute", Kind.STRONG), Map.entry("zoglin", Kind.STRONG),
             Map.entry("breeze", Kind.STRONG), Map.entry("shulker", Kind.STRONG), Map.entry("phantom", Kind.STRONG),
-            Map.entry("zombified_piglin", Kind.LEAVE_ALONE), Map.entry("enderman", Kind.LEAVE_ALONE),
+            Map.entry("zombified_piglin", Kind.PROVOKED), Map.entry("enderman", Kind.PROVOKED),
             Map.entry("piglin", Kind.LEAVE_ALONE), Map.entry("iron_golem", Kind.LEAVE_ALONE));
+
+    /** The mob types Combat knows, sorted: suggestions for /zbot mob. */
+    public static List<String> knownTypes() {
+        return KINDS.keySet().stream().sorted().toList();
+    }
 
     /** Anything not listed (a modded mob, a new one) is backed away from. */
     public static Kind kind(String type) {
@@ -120,9 +132,48 @@ public final class Combat {
 
     public enum Action { FIGHT, BACK_OFF, COVER }
 
-    /** The answer, with the reason for the decision log. */
-    public record Decision(Action action, String why) {
+    /**
+     * The answer, with the reason for the decision log, and the plain cause for the owner's chat:
+     * "taking cover because of 3 shooters" (owner, 2026-11-17).
+     */
+    public record Decision(Action action, String why, String cause) {
+        public Decision(Action action, String why) { this(action, why, why); }
         public boolean fight() { return action == Action.FIGHT; }
+    }
+
+    /** "zombie_villager" → "a zombie villager"; "evoker" → "an evoker". */
+    public static String a(String name) {
+        String n = name.replace('_', ' ');
+        return ("aeiou".indexOf(n.isEmpty() ? 'x' : n.charAt(0)) >= 0 ? "an " : "a ") + n;
+    }
+
+    /** "skeleton" → "skeletons", "witch" → "witches", "silverfish" stays. */
+    static String plural(String name) {
+        String n = name.replace('_', ' ');
+        if (n.endsWith("fish")) return n;
+        if (n.endsWith("ch") || n.endsWith("sh") || n.endsWith("s") || n.endsWith("x")) return n + "es";
+        return n + "s";
+    }
+
+    /**
+     * Mobs by name, for the owner's chat: "3 skeletons", "2 skeletons and a stray", "a zombie, a husk
+     * and 2 spiders" (owner, 2026-11-17: "3 shooters" says less than what they are). Most first.
+     */
+    public static String names(List<EntityView> mobs) {
+        Map<String, Long> byType = new java.util.LinkedHashMap<>();
+        mobs.stream().map(e -> e.type() == null ? "mob" : e.type().replaceFirst("^[a-z0-9_.-]+:", ""))
+                .forEach(t -> byType.merge(t, 1L, Long::sum));
+        List<String> parts = byType.entrySet().stream()
+                .sorted((x, y) -> Long.compare(y.getValue(), x.getValue()))
+                .map(e -> e.getValue() == 1 ? a(e.getKey()) : e.getValue() + " " + plural(e.getKey()))
+                .toList();
+        if (parts.isEmpty()) return "nothing";
+        if (parts.size() == 1) return parts.get(0);
+        return String.join(", ", parts.subList(0, parts.size() - 1)) + " and " + parts.get(parts.size() - 1);
+    }
+
+    private static String plural(int n, String one, String many) {
+        return n + " " + (n == 1 ? one : many);
     }
 
     /** How far a mob's shots reach us: skeletons ~24, a ghast's fireball 64; walkers only up close. */
@@ -145,26 +196,41 @@ public final class Combat {
         String armor = gear.name().toLowerCase(java.util.Locale.ROOT) + " armor";
         boolean low = health <= critical + FIGHT_MARGIN && gear != Gear.GOOD;
         return switch (kind(type)) {
-            case LEAVE_ALONE -> new Decision(Action.BACK_OFF, name + " — never hit back (its friends join in)");
+            case LEAVE_ALONE -> {                                    // each for its own reason: an enderman has no friends (owner, 2026-11-17)
+                String reason = switch (name) {
+                    case "iron_golem" -> "hits too hard";      // a village's: the whole village turns on us
+                    default -> "hitting it brings its friends";      // piglins
+                };
+                yield new Decision(Action.BACK_OFF, name + " — never hit back (" + reason + ")", a(name) + " (" + reason + ")");
+            }
             case EXPLODES -> {                                       // hit and step back, one at a time (owner, 2026-11-03)
-                if (gear == Gear.BARE) yield new Decision(Action.BACK_OFF, name + ", " + armor + " — keep away");
-                if (crowd > 1) yield new Decision(Action.BACK_OFF, name + " and " + (crowd - 1) + " more — keep away");
-                if (shooters > 0) yield new Decision(Action.BACK_OFF, name + " with " + shooters + " shooting — keep away");
-                if (low) yield new Decision(Action.BACK_OFF, name + ", health " + Math.round(health) + " in " + armor + " — keep away");
+                if (gear == Gear.BARE) yield new Decision(Action.BACK_OFF, name + ", " + armor + " — keep away",
+                        a(name) + " and too little armor to fight it");
+                if (crowd > 1) yield new Decision(Action.BACK_OFF, name + " and " + (crowd - 1) + " more — keep away",
+                        a(name) + " and " + plural(crowd - 1, "more mob", "more mobs"));
+                if (shooters > 0) yield new Decision(Action.BACK_OFF, name + " with " + shooters + " shooting — keep away",
+                        a(name) + " and " + plural(shooters, "shooter", "shooters"));
+                if (low) yield new Decision(Action.BACK_OFF, name + ", health " + Math.round(health) + " in " + armor + " — keep away",
+                        a(name) + " at low health (" + Math.round(health) + ")");
                 yield new Decision(Action.FIGHT, name + ", " + armor + " — hit it and step back");
             }
-            case STRONG -> new Decision(Action.BACK_OFF, name + " hits too hard");
-            case FLYER -> new Decision(Action.COVER, name + " shoots from the air — cover");
+            case STRONG -> new Decision(Action.BACK_OFF, name + " hits too hard", a(name) + " (hits too hard)");
+            case FLYER -> new Decision(Action.COVER, name + " shoots from the air — cover", a(name) + " shooting from the air");
             case SHOOTER -> {
                 int n = Math.max(1, shooters);
-                if (n > gear.shooters()) yield new Decision(Action.COVER, n + " shooters, " + armor + " rushes " + gear.shooters() + " — cover");
-                if (crowd > gear.crowd()) yield new Decision(Action.COVER, crowd + " mobs, " + armor + " fights " + gear.crowd() + " — cover");
-                if (low) yield new Decision(Action.COVER, name + ", health " + Math.round(health) + " in " + armor + " — cover");
+                if (n > gear.shooters()) yield new Decision(Action.COVER, n + " shooters, " + armor + " rushes " + gear.shooters() + " — cover",
+                        n + " shooters");
+                if (crowd > gear.crowd()) yield new Decision(Action.COVER, crowd + " mobs, " + armor + " fights " + gear.crowd() + " — cover",
+                        crowd + " mobs");
+                if (low) yield new Decision(Action.COVER, name + ", health " + Math.round(health) + " in " + armor + " — cover",
+                        a(name) + " at low health (" + Math.round(health) + ")");
                 yield new Decision(Action.FIGHT, name + (n > 1 ? " and " + (n - 1) + " more shooting" : "") + ", " + armor + " — rush it");
             }
-            case MELEE -> {
-                if (crowd > gear.crowd()) yield new Decision(Action.BACK_OFF, crowd + " mobs, " + armor + " fights " + gear.crowd());
-                if (low) yield new Decision(Action.BACK_OFF, name + ", health " + Math.round(health) + " in " + armor);
+            case MELEE, PROVOKED -> {
+                if (crowd > gear.crowd()) yield new Decision(Action.BACK_OFF, crowd + " mobs, " + armor + " fights " + gear.crowd(),
+                        crowd + " mobs");
+                if (low) yield new Decision(Action.BACK_OFF, name + ", health " + Math.round(health) + " in " + armor,
+                        a(name) + " at low health (" + Math.round(health) + ")");
                 yield new Decision(Action.FIGHT, name + (crowd > 1 ? " and " + (crowd - 1) + " more" : "") + ", " + armor);
             }
         };
@@ -185,11 +251,32 @@ public final class Combat {
      * full of skeletons 30 blocks under our feet isn't a crowd (2026-10-29, a lone husk read as "2 mobs").
      */
     public static int crowd(WorldView world) {
+        return crowd(world, e -> true);
+    }
+
+    /** {@link #crowd(WorldView)}, counting only the mobs {@code counted} lets through (not the ones set to ignore). */
+    public static int crowd(WorldView world, java.util.function.Predicate<EntityView> counted) {
         Vec3 me = world.position();
         return (int) world.nearby().stream()
-                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && kind(e.type()) != Kind.LEAVE_ALONE)
+                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && kind(e.type()) != Kind.LEAVE_ALONE && kind(e.type()) != Kind.PROVOKED)
+                .filter(counted)
                 .filter(e -> distance(e.pos(), me) <= CROWD_BLOCKS)
                 .count();
+    }
+
+    /**
+     * The crowd when a {@link Kind#PROVOKED} mob hit us: the usual crowd plus every one of its kind
+     * within {@link #CROWD_BLOCKS}, it included. One zombified piglin hit turns all of them near.
+     */
+    public static int provokedCrowd(WorldView world, EntityView attacker, java.util.function.Predicate<EntityView> counted) {
+        Vec3 me = world.position();
+        String kind = attacker.type() == null ? "" : attacker.type().replaceFirst("^minecraft:", "");
+        long same = world.nearby().stream()
+                .filter(e -> e.type() != null && e.type().replaceFirst("^minecraft:", "").equals(kind))
+                .filter(counted)
+                .filter(e -> distance(e.pos(), me) <= CROWD_BLOCKS || e.uuid() != null && e.uuid().equals(attacker.uuid()))
+                .count();
+        return crowd(world, counted) + (int) Math.max(1, same);
     }
 
     public static double distance(Vec3 a, Vec3 b) {

@@ -134,6 +134,7 @@ public final class Bot {
     private java.util.Map<String, Integer> lastInView = new java.util.HashMap<>();
 
     private Phase phase = Phase.STOPPED;
+    private io.github.liangforstudy.zymbot.core.body.FightOrFleeInterrupt fightOrFlee;   // anarchy only
     private String address;            // as joined, or "singleplayer"; null when not in a world
     private String serverId = "none";
     private String selfName = "?";
@@ -256,7 +257,7 @@ public final class Bot {
             reflexes.add(made(Profile.DOWNED, new DownedInterrupt(config, body, help, log::record)));
         }
         // anarchy: still being hurt at the log-out line, leave the server (doc/9b9t/roadmap.md, "Before routes")
-        if (profile == Profile.ANARCHY) reflexes.add(new LogOutInterrupt(config, body));
+        if (profile == Profile.ANARCHY) reflexes.add(new LogOutInterrupt(config, body, () -> address));
         reflexes.add(new DrowningInterrupt());
         // anarchy: a ghast's fireball coming at us is hit back (doc/9b9t/roadmap.md, "Incoming projectiles")
         if (profile == Profile.ANARCHY) reflexes.add(new IncomingInterrupt(body));
@@ -266,7 +267,7 @@ public final class Bot {
         if (profile == Profile.ANARCHY) reflexes.add(new BurningInterrupt(config));
         reflexes.add(new CriticalHealthInterrupt(config, body, profile == Profile.ANARCHY));
         // anarchy: hit back weak mobs, back off from the rest (doc/9b9t/roadmap.md, "Attacked mid-route")
-        if (profile == Profile.ANARCHY) reflexes.add(new FightOrFleeInterrupt(config, body));
+        if (profile == Profile.ANARCHY) reflexes.add(fightOrFlee = new FightOrFleeInterrupt(config, body, () -> address, clock));
         // anarchy: one gold piece on in the Nether, so piglins leave us be (doc/9b9t/roadmap.md, "Before routes" 6)
         if (profile == Profile.ANARCHY) reflexes.add(new GoldInterrupt(body, clock));
         // anarchy: a ghast tear on safe ground, nothing shooting, health to spare: fetch it (roadmap, "Pick up ghast tears")
@@ -1501,6 +1502,58 @@ public final class Bot {
         ConfigIO.save(configFile, config);
         log.record("danger = " + m, "changed by a player");
         return describeDanger();
+    }
+
+    /** /zbot approve: fight the alert mobs pinged about. */
+    public List<String> approve() {
+        if (fightOrFlee == null) return List.of("only the anarchy build has mob rules");
+        List<String> out = fightOrFlee.approve();
+        out.forEach(l -> log.record(l, "approved by a player"));
+        return out;
+    }
+
+    private String here() {
+        return ZymbotConfig.rulesKey(address).replace(":25565", "");
+    }
+
+    /** /zbot mob: this server's mob rules. */
+    public List<String> mobRules() {
+        if (address == null) return List.of("not in a world");
+        List<String> out = new ArrayList<>();
+        var rules = config.mobRules(address);
+        out.add("mob rules on " + here() + (rules.isEmpty() ? ": none — every mob is normal" : ":"));
+        rules.forEach((k, v) -> out.add("  " + k + " = " + v.id()));
+        if (fightOrFlee != null) fightOrFlee.waiting().forEach(w -> out.add("  waiting for /" + config.commandRoot + " approve: " + w));
+        return out;
+    }
+
+    /** /zbot mob &lt;type&gt; normal|alert|ignore, for the server we're on. */
+    public String setMobRule(String type, String rule) {
+        if (address == null) return "not in a world";
+        ZymbotConfig.MobRule r = ZymbotConfig.MobRule.parse(rule);
+        if (r == null) return "rule must be normal, alert or ignore";
+        String key = ZymbotConfig.mobKey(type);
+        if (key.isEmpty()) return "which mob? e.g. zombie_villager";
+        config.setMobRule(address, key, r);
+        ConfigIO.save(configFile, config);
+        log.record("mob rule " + key + " = " + r.id(), "on " + here() + ", changed by a player");
+        return key + " on " + here() + ": " + switch (r) {
+            case NORMAL -> "normal — fought or kept away from as usual";
+            case ALERT -> "alert — ping you, keep away, fight only after /" + config.commandRoot + " approve";
+            case IGNORE -> "ignore — never fought, never dodged";
+        };
+    }
+
+    /** /zbot logout [on|off]: auto-logout on the server we're on. */
+    public String autoLogout(Boolean on) {
+        if (address == null) return "not in a world";
+        if (on != null) {
+            config.setAutoLogout(address, on);
+            ConfigIO.save(configFile, config);
+            log.record("auto-logout " + (on ? "on" : "off"), "on " + here() + ", changed by a player");
+        }
+        return "auto-logout on " + here() + ": " + (config.autoLogout(address) ? "on" : "off")
+                + (config.autoLogoutSet(address) ? "" : " (the default: on for servers, off in singleplayer)");
     }
 
     public String describeDanger() {

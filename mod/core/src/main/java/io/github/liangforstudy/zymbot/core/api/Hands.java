@@ -12,6 +12,9 @@ public interface Hands {
     /** A line shown only to the local player (never sent to the server). */
     void notifyLocal(String message);
 
+    /** A sound only the local player hears, to get the owner's attention (an alert mob). */
+    default void ping() {}
+
     // ------------------------------------------------------------------ body (phase 1)
 
     /** Walking. {@link PathProvider#NONE} when Baritone isn't installed. */

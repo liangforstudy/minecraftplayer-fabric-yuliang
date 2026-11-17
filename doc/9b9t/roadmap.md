@@ -537,6 +537,10 @@ a route instead:
 - **Back off** from the rest; from ranged ones (ghasts, blazes, skeletons) take **cover** (break line of
   sight) rather than run, since running 32 blocks doesn't escape a ghast's range.
 - **Never hit a zombified piglin** (the whole group turns on us); wear a gold piece for piglins.
+  *Changed 2026-11-17 (owner):* zombified piglins and endermen are **provoked** mobs: left alone until
+  one hits us, then fought by the usual walker rules (gear, health, crowd); for a pigman the crowd counts
+  every pigman within 8 blocks, since they all turn. Piglins and iron golems are still never hit. Per
+  server, `/zbot mob <type> alert|ignore` overrides any of this (0.2.3).
 - Then **resume the leg** where it was.
 - **Log out** if health keeps falling below a threshold, as with withers and wardens; lower with a
   totem in the offhand and golden apples on hand, higher without.

@@ -63,11 +63,14 @@ class CombatTest {
 
     @Test
     void neverHit_strongOnesNeutralsAndUnknowns() {
-        for (String t : List.of("minecraft:zombified_piglin", "minecraft:enderman",
+        for (String t : List.of("minecraft:piglin", "minecraft:iron_golem",
                 "minecraft:vindicator", "minecraft:warden", "somemod:thing")) {
             assertFalse(Combat.decide(t, Gear.GOOD, 1, 0, 20, 12).fight(), t);
         }
-        assertEquals(Combat.Kind.LEAVE_ALONE, Combat.kind("minecraft:zombified_piglin"));
+        assertEquals(Combat.Kind.LEAVE_ALONE, Combat.kind("minecraft:piglin"));
+        // provoked ones are fought by the usual rules once they hit us (owner, 2026-11-17)
+        assertEquals(Combat.Kind.PROVOKED, Combat.kind("minecraft:zombified_piglin"));
+        assertEquals(Combat.Kind.PROVOKED, Combat.kind("minecraft:enderman"));
     }
 
     @Test
@@ -268,11 +271,11 @@ class CombatTest {
     }
 
     @Test
-    void aZombifiedPiglin_isNeverHitBack() {
+    void aPiglin_isNeverHitBack() {
         FakeWorld w = new FakeWorld("Bluetails");
         w.armor = 20;
         Bot b = walking(w);
-        EntityView p = mob(w, "minecraft:zombified_piglin", -2, 0);
+        EntityView p = mob(w, "minecraft:piglin", -2, 0);
         hitBy(w, p);
         ticks(b, w, 5);
         assertTrue(w.attacked.isEmpty());
@@ -415,7 +418,7 @@ class CombatTest {
     void backingOff_goesAroundAnotherMobAhead_notThroughIt() {
         FakeWorld w = new FakeWorld("Bluetails");
         Bot b = walking(w);
-        EntityView p = mob(w, "minecraft:zombified_piglin", -3, 0);    // behind us, never hit back
+        EntityView p = mob(w, "minecraft:piglin", -3, 0);    // behind us, never hit back
         mob(w, "minecraft:zombie", 8, 0);                              // and one straight ahead
         hitBy(w, p);
         ticks(b, w, 2);
@@ -433,7 +436,7 @@ class CombatTest {
         for (int x = -12; x <= 12; x++) for (int z = 2; z <= 14; z++)          // a lava lake to the south
             w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, 63, z), "minecraft:lava");
         Bot b = walking(w);
-        EntityView p = mob(w, "minecraft:zombified_piglin", -3, 0);
+        EntityView p = mob(w, "minecraft:piglin", -3, 0);
         hitBy(w, p);
         ticks(b, w, 2);
         var goal = w.paths.goal;

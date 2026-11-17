@@ -39,6 +39,11 @@ final class FabricHands implements Hands {
         if (mc.player != null) McCompat.say(mc.player, Component.literal("§7[zymbot]§r " + message));
     }
 
+    @Override
+    public void ping() {
+        McCompat.ping(mc);
+    }
+
     @Override public PathProvider paths() { return paths; }
 
     private String logOutFor;

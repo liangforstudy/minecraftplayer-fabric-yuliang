@@ -181,6 +181,25 @@ public final class McCompat {
         //?}
     }
 
+    /** The addresses on the game's multiplayer server list (servers.dat). */
+    public static java.util.List<String> savedServers(net.minecraft.client.Minecraft mc) {
+        java.util.List<String> out = new java.util.ArrayList<>();
+        try {
+            net.minecraft.client.multiplayer.ServerList list = new net.minecraft.client.multiplayer.ServerList(mc);
+            list.load();
+            for (int i = 0; i < list.size(); i++) out.add(list.get(i).ip);
+        } catch (RuntimeException e) {
+            // unreadable servers.dat: just the ones Zymbot knows
+        }
+        return out;
+    }
+
+    /** A bell only we hear (an alert mob, owner 2026-11-17). */
+    public static void ping(net.minecraft.client.Minecraft mc) {
+        mc.getSoundManager().play(net.minecraft.client.resources.sounds.SimpleSoundInstance.forUI(
+                net.minecraft.sounds.SoundEvents.NOTE_BLOCK_BELL, 1.0f));
+    }
+
     /** A line in our own chat, not sent to the server. */
     public static void say(net.minecraft.client.player.LocalPlayer player, net.minecraft.network.chat.Component line) {
         //? if >=26.2 {

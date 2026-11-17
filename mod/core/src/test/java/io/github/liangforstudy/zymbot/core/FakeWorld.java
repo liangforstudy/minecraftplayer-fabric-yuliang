@@ -462,6 +462,8 @@ public final class FakeWorld implements WorldView, Hands {
 
     @Override public void respawn() { respawns++; dead = false; health = 20; }
     @Override public void notifyLocal(String message) { notices.add(message); }
+    public int pings;
+    @Override public void ping() { pings++; }
     @Override public PathProvider paths() { return paths; }
     @Override public void selectSlot(int hotbarSlot) { selected = hotbarSlot; }
     @Override public void lookAt(Vec3 point) { lookedAt = point; }

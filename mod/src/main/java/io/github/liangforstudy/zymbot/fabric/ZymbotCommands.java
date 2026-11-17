@@ -186,6 +186,26 @@ final class ZymbotCommands {
                                 })
                                 .then(argument("value", IntegerArgumentType.integer())
                                         .executes(c -> withBot(c, bot, b -> List.of(b.set(StringArgumentType.getString(c, "setting"), i(c, "value"))))))))
+                // per-server mob rules and auto-logout (owner, 2026-11-17)
+                .then(literal("approve").executes(c -> withBot(c, bot, Bot::approve)))
+                .then(literal("mob")
+                        .executes(c -> withBot(c, bot, Bot::mobRules))
+                        .then(argument("type", StringArgumentType.word())
+                                .suggests((c, sb) -> {
+                                    io.github.liangforstudy.zymbot.core.body.Combat.knownTypes().forEach(sb::suggest);
+                                    return sb.buildFuture();
+                                })
+                                .then(argument("rule", StringArgumentType.word())
+                                        .suggests((c, sb) -> {
+                                            for (ZymbotConfig.MobRule r : ZymbotConfig.MobRule.values()) sb.suggest(r.id());
+                                            return sb.buildFuture();
+                                        })
+                                        .executes(c -> withBot(c, bot, b -> List.of(b.setMobRule(
+                                                StringArgumentType.getString(c, "type"), StringArgumentType.getString(c, "rule"))))))))
+                .then(literal("logout")
+                        .executes(c -> withBot(c, bot, b -> List.of(b.autoLogout(null))))
+                        .then(literal("on").executes(c -> withBot(c, bot, b -> List.of(b.autoLogout(true)))))
+                        .then(literal("off").executes(c -> withBot(c, bot, b -> List.of(b.autoLogout(false))))))
                 .then(literal("roster").executes(c -> withBot(c, bot, Bot::roster)))
                 .then(literal("regroup").executes(c -> withBot(c, bot, b -> List.of(b.regroupNow()))))
                 .then(literal("danger")
@@ -246,6 +266,9 @@ final class ZymbotCommands {
                 r + " route add <name> <wp> <wp> …, route remove | list — routes; route go | back <name> [restart] walks A→E | E→A, route stop",
                 r + " watch <bot> [off] — that bot /msg's you its decisions (30 min)",
                 r + " set leash | eat | critical | downed | regroup | plantime | lagtps <n> — thresholds (also in Mod Menu)",
+                r + " mob [<type> normal | alert | ignore] — this server's mob rules: alert pings you and keeps away until " + r + " approve; ignore never reacts",
+                r + " approve — fight the alert mobs it pinged you about",
+                r + " logout [on | off] — auto-logout at low health on this server (default: on for servers, off in singleplayer)",
                 r + " roster — the team: Bot / Teammate, online, last heard, where, how we know",
                 r + " regroup — walk back to the nearest teammate now (automatic on start and after a respawn)",
                 r + " danger [modpack | easy | normal | hard] — when it runs: first hit (modpack) or critical health",

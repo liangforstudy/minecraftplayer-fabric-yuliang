@@ -329,11 +329,56 @@ class CreeperTest {
     @Test
     void noStepBack_overAnEdge() {
         FakeWorld w = armed();
-        w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 63, 0), "minecraft:air");   // a drop behind us
+        w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 63, 0), "minecraft:air");   // a drop behind us,
+        w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 62, 0), "minecraft:air");   // two deep
         Bot b = walking(w);
         creeper(w, -3.0);
         w.attackReady = false;
         ticks(b, w, 2);
         assertFalse(w.backHeld, "no ground behind: stand");
+    }
+
+    @Test
+    void aOneBlockLedgeBehind_isJumpedUpBackwards_notTakenForAWall() {
+        FakeWorld w = armed();
+        w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 64, 0), "minecraft:stone");         // a step up behind us
+        Bot b = walking(w);
+        creeper(w, -3.0);
+        w.attackReady = false;
+        ticks(b, w, 2);
+        assertTrue(w.backHeld && w.jumpHeld, "back up onto it, jumping:\n" + log(b));
+
+        FakeWorld low = armed();                                    // a block over our head: no room to jump
+        low.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 64, 0), "minecraft:stone");
+        low.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(0, 66, 0), "minecraft:stone");
+        Bot b2 = walking(low);
+        creeper(low, -3.0);
+        low.attackReady = false;
+        ticks(b2, low, 2);
+        assertFalse(low.backHeld, "can't jump: stand");
+
+        FakeWorld two = armed();                                    // two high is a wall
+        two.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 64, 0), "minecraft:stone");
+        two.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(1, 65, 0), "minecraft:stone");
+        Bot b3 = walking(two);
+        creeper(two, -3.0);
+        two.attackReady = false;
+        ticks(b3, two, 2);
+        assertFalse(two.backHeld, "a wall: stand");
+    }
+
+    @Test
+    void aDeadEndWithAStepUp_isNotCornered() {
+        FakeWorld w = armed();
+        tunnel(w);
+        for (int x = 2; x <= 3; x++) {                             // the tunnel goes on, a block higher
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, 64, 0), "minecraft:stone");
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, 65, 0), "minecraft:air");
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, 66, 0), "minecraft:air");
+            w.blocks.put(new io.github.liangforstudy.zymbot.core.api.BlockPos(x, 67, 0), "minecraft:stone");
+        }
+        w.pos = new Vec3(0.5, 64, 0.5);
+        assertFalse(io.github.liangforstudy.zymbot.core.task.CreeperFightTask.cornered(w, new Vec3(-2.5, 64, 0.5)),
+                "one block up is a way out");
     }
 }
