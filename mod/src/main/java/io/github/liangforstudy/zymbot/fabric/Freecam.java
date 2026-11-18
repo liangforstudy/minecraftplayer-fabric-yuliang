@@ -57,7 +57,7 @@ final class Freecam {
         syncOld();
         levelFor = mc.level;
         mc.setCameraEntity(camera);
-        return "freecam on — left-click: walk there (or open a container), shift + left-click: Chest Tracker's record, right-click: cancel";
+        return "Freecam mode: click on a block to tell baritone to go there, right click to cancel";
     }
 
     static void stop(Minecraft mc) {
