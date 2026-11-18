@@ -34,6 +34,9 @@ public interface Hands {
     /** Swap a main-inventory stack (slot 9–35) into a hotbar slot. */
     default void swapToHotbar(int inventorySlot, int hotbarSlot) {}
 
+    /** Swap an inventory stack (slot 0–35) with the offhand, as F over that slot does (auto totem, #8). */
+    default void swapToOffhand(int inventorySlot) {}
+
     /**
      * Hold forward and/or jump directly, without the pathfinder — for swimming to shore, where a
      * player who presses nothing sinks. Both false lets go.

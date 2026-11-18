@@ -102,6 +102,19 @@ final class FabricHands implements Hands {
         }
     }
 
+    /** Auto totem (#8): F over that inventory slot, in the inventory menu (button 40 = the offhand). */
+    @Override
+    public void swapToOffhand(int inventorySlot) {
+        if (mc.player == null || mc.gameMode == null) return;
+        var menu = mc.player.inventoryMenu;
+        for (var slot : menu.slots) {
+            if (slot.container == mc.player.getInventory() && slot.getContainerSlot() == inventorySlot) {
+                mc.gameMode.handleInventoryMouseClick(menu.containerId, slot.index, 40, ClickType.SWAP, mc.player);
+                return;
+            }
+        }
+    }
+
     /**
      * Start using the held item directly (not via a click, so it never opens a chest or door it
      * happens to be facing), and hold the key so the client doesn't cancel the bite.

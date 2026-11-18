@@ -245,6 +245,31 @@ public final class ZymbotConfig {
      */
     public boolean hangGuard = true;
     public int hangGuardSeconds = 15;
+    /**
+     * Issue #8, under {@code /zbot start} (anarchy): Zymbot's own eating, from {@link #eatFoods} at hunger
+     * {@link #eatBelowHunger} or below (healing food such as golden apples is kept for low health), and
+     * auto totem: a totem from the inventory into an empty or non-totem offhand.
+     */
+    public boolean autoEat = true;
+    public boolean autoTotem = true;
+    /** Start (as /zbot start does) on joining 9b9t, by any of its addresses. */
+    public boolean autoStart9b9t = false;
+    /** The foods auto eat may pick, ticked in the settings screen. */
+    public List<String> eatFoods = new ArrayList<>(DEFAULT_EAT_FOODS);
+
+    /** The foods the settings screen offers, in its order. */
+    public static final List<String> FOOD_CHOICES = List.of(
+            "minecraft:cooked_beef", "minecraft:cooked_porkchop", "minecraft:cooked_mutton", "minecraft:cooked_chicken",
+            "minecraft:cooked_salmon", "minecraft:cooked_cod", "minecraft:cooked_rabbit", "minecraft:golden_carrot",
+            "minecraft:bread", "minecraft:baked_potato", "minecraft:pumpkin_pie", "minecraft:mushroom_stew",
+            "minecraft:rabbit_stew", "minecraft:beetroot_soup", "minecraft:apple", "minecraft:carrot",
+            "minecraft:melon_slice", "minecraft:sweet_berries", "minecraft:glow_berries", "minecraft:cookie",
+            "minecraft:potato", "minecraft:beetroot", "minecraft:honey_bottle", "minecraft:beef",
+            "minecraft:porkchop", "minecraft:mutton", "minecraft:rabbit", "minecraft:cod", "minecraft:salmon",
+            "minecraft:chicken", "minecraft:rotten_flesh", "minecraft:dried_kelp");
+    /** Ticked to begin with: cooked and ready-made foods; raw meat, rotten flesh and kelp unticked. */
+    public static final List<String> DEFAULT_EAT_FOODS = FOOD_CHOICES.subList(0, 22);
+
     /** Log out after two hits within 10 s from a mob the client doesn't show (issue #10, ghost mobs). */
     public boolean ghostGuard = true;
 
@@ -293,6 +318,11 @@ public final class ZymbotConfig {
             "minecraft.2b2t.com:25565", "9b9t.org:25565", "eu.9b9t.com:25565", "9b9t.org:25565");
 
     /** Where a server's rules are kept: its normalized address, or the one its other addresses share. */
+    /** 9b9t, by any of its addresses (auto-start on 9b9t, #8). */
+    public static boolean is9b9t(String address) {
+        return address != null && "9b9t.org:25565".equals(rulesKey(address));
+    }
+
     public static String rulesKey(String address) {
         String key = AutostartPolicy.normalize(address);
         return SAME_SERVER.getOrDefault(key, key);
@@ -540,6 +570,7 @@ public final class ZymbotConfig {
             followStopBlocks = leashBlocks - 1;
         }
         if (neverEat == null) neverEat = new ArrayList<>();
+        if (eatFoods == null) eatFoods = new ArrayList<>(DEFAULT_EAT_FOODS);
         if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();
         if (swimCostBlocks < 1) swimCostBlocks = 3;
         if (routeRadius < 16 || routeRadius > 256) routeRadius = 96;

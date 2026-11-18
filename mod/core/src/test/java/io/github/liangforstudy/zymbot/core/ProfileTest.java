@@ -26,7 +26,7 @@ class ProfileTest {
         Set<String> made = new HashSet<>(b.modules());
         made.retainAll(Profile.ZYMCIV_ONLY);
         assertEquals(Set.of(), made);
-        assertEquals(List.of("log-out", "drowning", "incoming", "hazard", "burning", "critical-health", "fight-or-flee", "gold", "ghast tear", "stranded", "wading"), b.reflexes(),
+        assertEquals(List.of("log-out", "drowning", "incoming", "hazard", "burning", "critical-health", "fight-or-flee", "gold", "ghast tear", "stranded", "auto-eat", "wading"), b.reflexes(),
                 "no knocked-out, leash or hunger reflex");
     }
 
@@ -87,17 +87,19 @@ class ProfileTest {
     }
 
     @Test
-    void anarchyDoesntEatByItself() {
+    void anarchyDoesntEatByItself_withAutoEatOff() {
         FakeWorld w = new FakeWorld("Bluetails").give(0, "minecraft:bread", 5, FakeWorld.food(5));
         w.hunger = 4;
-        Bot b = bot(w, new ZymbotConfig(), Profile.ANARCHY);
+        ZymbotConfig off = new ZymbotConfig();
+        off.autoEat = false;
+        Bot b = bot(w, off, Profile.ANARCHY);
         b.onJoin("9b9t.com", "Bluetails");
         b.start("test");
         for (int i = 0; i < 40; i++) {
             clock.advance(50);
             b.tick(w, w);
         }
-        assertFalse(w.useHeld, "Meteor's AutoEat feeds the player; two eaters fight over the hotbar");
+        assertFalse(w.useHeld, "auto eat off (issue #8): Meteor's AutoEat may feed the player instead");
         assertTrue(b.decisions().latest(20).stream().noneMatch(d -> d.toString().contains("eating")),
                 b.decisions().latest(20).toString());
     }
@@ -121,7 +123,7 @@ class ProfileTest {
     void anarchyOffersOnlyItsOwnTunables() {
         ZymbotConfig cfg = new ZymbotConfig();
         Bot b = bot(new FakeWorld("Bluetails"), cfg, Profile.ANARCHY);
-        assertEquals(List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend", "hangwait"), b.tunables());
+        assertEquals(List.of("eat", "critical", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend", "hangwait"), b.tunables());
         assertTrue(b.set("leash", 30).contains("ZymCiv feature"), b.set("leash", 30));
         assertEquals(21, cfg.leashBlocks);
         assertEquals("critical = 10", b.set("critical", 10));

@@ -332,17 +332,99 @@ final class ZymbotSettingsScreen extends Screen {
         return y + ROW_H;
     }
 
+    /** Which page of the Features tab: the switches, or one of the lists they open. */
+    private enum FeaturePage { MAIN, FOODS }
+    private FeaturePage featurePage = FeaturePage.MAIN;
+    private int listPage;
+
     /** Switches that work with or without /zbot start, and the jobs /zbot start runs (issues #7-#10). */
     private void initFeatures(int cx, int top) {
+        if (featurePage != FeaturePage.MAIN) {
+            initFeatureList(cx, top);
+            return;
+        }
+        String root = "/" + cfg().commandRoot;
         int y = top;
         y = toggleRow(cx, y, "Hang guard (leave if the game freezes)", cfg().hangGuard,
                 "If the game stops responding on a server for " + cfg().hangGuardSeconds + " s, close the connection so\n"
-                        + "you leave at once. Works without /" + cfg().commandRoot + " start.\n§7The time: Body tab, or /" + cfg().commandRoot + " set hangwait <s>",
+                        + "you leave at once. Works without " + root + " start.\n§7The time: Body tab, or " + root + " set hangwait <s>",
                 v -> cfg().hangGuard = v);
         y = toggleRow(cx, y, "Ghost-mob guard", cfg().ghostGuard,
-                "Log out after two hits within 10 s from a mob your client doesn't show.\nWorks without /" + cfg().commandRoot + " start.",
+                "Log out after two hits within 10 s from a mob your client doesn't show.\nWorks without " + root + " start.",
                 v -> cfg().ghostGuard = v);
+        y = toggleRow(cx, y, "Auto-start on 9b9t", cfg().autoStart9b9t,
+                "Start (as " + root + " start does) on joining 9b9t, by any of its addresses.",
+                v -> cfg().autoStart9b9t = v);
+        y = toggleRow(cx, y, "Auto totem", cfg().autoTotem,
+                "Under " + root + " start: keep a totem in the offhand, from the inventory.",
+                v -> cfg().autoTotem = v);
+        y = toggleRow(cx, y, "Auto eat", cfg().autoEat,
+                "Under " + root + " start: eat a ticked food at hunger " + cfg().eatBelowHunger + " or below\n"
+                        + "(the level: Body tab). Turn Meteor's AutoEat off: two eaters fight over the hotbar.",
+                v -> cfg().autoEat = v);
+        label("Foods auto eat may pick (" + cfg().eatFoods.size() + " ticked)", cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal("Foods…"), b -> openList(FeaturePage.FOODS))
+                .bounds(cx + 94, y, 56, 20).build());
+        y += ROW_H;
         contentBottom = y;
+    }
+
+    private void openList(FeaturePage p) {
+        featurePage = p;
+        listPage = 0;
+        message = "";
+        rebuildWidgets();
+    }
+
+    /** What a list page shows: its title, its choices, and the set they tick in. */
+    private record TickList(String title, List<String> choices, List<String> ticked) {}
+
+    private TickList tickList(FeaturePage p) {
+        return switch (p) {
+            case FOODS -> new TickList("Foods auto eat may pick", ZymbotConfig.FOOD_CHOICES, cfg().eatFoods);
+            case MAIN -> throw new IllegalStateException();
+        };
+    }
+
+    /** A list of ids to tick, two columns, paged; "◀ Back" returns to the switches. */
+    private void initFeatureList(int cx, int top) {
+        TickList list = tickList(featurePage);
+        addRenderableWidget(Button.builder(Component.literal("◀ Back"), b -> openList(FeaturePage.MAIN))
+                .bounds(cx - 150, top, 56, 20).build());
+        String title = list.title() + " (" + list.ticked().size() + " ticked)";
+        label(title, cx - 88, top + 6, WHITE);
+        int y = top + ROW_H + 2;
+        int perPage = Math.max(2, (height - 46 - y) / ROW_H * 2);
+        int pages = Math.max(1, (list.choices().size() + perPage - 1) / perPage);
+        listPage = Math.min(listPage, pages - 1);
+        for (int i = listPage * perPage, k = 0; i < Math.min(list.choices().size(), (listPage + 1) * perPage); i++, k++) {
+            String id = list.choices().get(i);
+            boolean on = list.ticked().contains(id);
+            int col = k % 2, row = k / 2;
+            int x = col == 0 ? cx - 150 : cx + 4, ry = y + row * ROW_H;
+            String name = shortName(id);
+            name = font.width(name) > 110 ? font.plainSubstrByWidth(name, 104) + "…" : name;
+            label(name, x, ry + 6, on ? WHITE : GREY);
+            addRenderableWidget(Button.builder(Component.literal(on ? "✔" : "–"), b -> {
+                if (on) list.ticked().remove(id);
+                else list.ticked().add(id);
+                ZymbotClient.get().settingsEdited();
+                rebuildWidgets();
+            }).bounds(x + 124, ry, 22, 20).build());
+        }
+        if (pages > 1) {
+            int p = listPage;
+            addRenderableWidget(Button.builder(Component.literal("◀"), b -> { listPage = p - 1; rebuildWidgets(); })
+                    .bounds(cx - 150, height - 28, 20, 20).build()).active = p > 0;
+            label((p + 1) + "/" + pages, cx - 126, height - 22, GREY);
+            addRenderableWidget(Button.builder(Component.literal("▶"), b -> { listPage = p + 1; rebuildWidgets(); })
+                    .bounds(cx - 106, height - 28, 20, 20).build()).active = p < pages - 1;
+        }
+        contentBottom = height - 46;
+    }
+
+    private static String shortName(String id) {
+        return id.replaceFirst("^minecraft:", "").replace('_', ' ');
     }
 
     private void initHere(int cx, int top) {
@@ -830,6 +912,9 @@ final class ZymbotSettingsScreen extends Screen {
                     "◀ ▶ picks the server. Click a mob to cycle Normal → Alert → Ignore; saved at once.",
                     "Alert: a bell and a chat line, it keeps away; /" + cfg().commandRoot + " approve to fight it.",
                     "Modded mobs: /" + cfg().commandRoot + " mob <type> alert|ignore, then they're listed here."};
+            case FEATURES -> new String[] {
+                    "The guards work without /" + cfg().commandRoot + " start; the rest run under it.",
+                    "Foods: which ones auto eat may pick (golden apples are kept for low health)."};
         };
         // help and the status message go between the controls and Done — only as much as fits
         int floor = height - 32;

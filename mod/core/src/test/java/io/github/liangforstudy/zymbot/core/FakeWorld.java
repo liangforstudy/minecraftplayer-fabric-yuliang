@@ -520,6 +520,17 @@ public final class FakeWorld implements WorldView, Hands {
         to.ifPresent(t -> inventory.add(new ItemView(inventorySlot, t.id(), t.count(), t.food())));
     }
 
+    public int offhandSwaps;
+
+    @Override
+    public void swapToOffhand(int inventorySlot) {
+        offhandSwaps++;
+        ItemView from = inventory.stream().filter(i -> i.slot() == inventorySlot).findFirst().orElseThrow();
+        inventory.remove(from);
+        if (!offhand.isEmpty()) inventory.add(new ItemView(inventorySlot, offhand, 1, null));
+        offhand = from.id();
+    }
+
     @Override
     public void holdUse(boolean down) {
         if (down && !useHeld) { bucket(); wear(); }
