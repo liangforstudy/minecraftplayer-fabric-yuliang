@@ -1419,6 +1419,58 @@ hotbar, at least basic armor and health above critical + 4; otherwise backed awa
 **Still open:** two creepers at once only backs off (and loops when the retreat stops short); a real
 9b9t try; FightTask's recharge under lag. The hit tally under-counted by one in one singleplayer run.
 
+## Issues #7-#11 (agreed with the owner, 2026-11-18; no code yet)
+
+**26.2 only for now.** 1.21.1 and 1.21.11 are deprecated: CI builds and publishes only 26.2
+(`ACTIVE_VERSIONS` in `.github/workflows/build.yml`). They stay in Stonecutter untouched, so turning them
+back on is one line. Everything below is for the 26.2 build.
+
+### #7 Tracers
+- Lines drawn on screen to tracked targets, like Meteor's Tracers; players are tracked the way Meteor
+  does it today (allowed by 9b9t's rules). Drawing only: the bot doesn't walk after anything.
+- Targets are set in the mod menu, like the existing settings, with **blocks**, **items** and
+  **entities** each on a page of their own.
+- A limit on targets traced at once, **20 by default**; players fill the slots first.
+- Chest_Tracker (owner's repo) already has a tracer system, entities included: the reference for how
+  to draw them.
+
+### #8 Auto totem, auto eat
+- Zymbot's own eating now (replaces Meteor's AutoEat, §Shared: eating), with auto totem.
+- Both run under `/zbot start`, not always on. New setting: **auto-start on 9b9t** (on/off).
+- Food: a list of foods to tick, plus a hunger threshold; golden apples are kept for low health.
+- Auto totem refills the offhand from the inventory after a pop.
+
+### #9 Freecam
+- Zymbot's own freecam (not Meteor's).
+- Left-click a block: Baritone walks the player there. Right-click: cancel. Breaking and placing on the
+  way follow the current allow-break/place settings.
+- Clicking a container or an entity with a container walks there and opens it (the Chest opener idea).
+- **Chest Tracker API (read-only):** clicking a container out of reach asks Chest Tracker what it has
+  recorded at that position and shows it. Zymbot never writes to Chest Tracker; Chest Tracker records
+  as it does now when a container is really opened. An API in Chest Tracker (soft dependency, like
+  Baritone's or JourneyMap's), not a mixin: to ask Chest Tracker's agent for it.
+
+### #10 Hang guard, and mobs the client doesn't show
+- A watchdog **thread** in the game process: the main thread checks in each tick; after **15 s**
+  (adjustable) with no check-in, the guard closes the connection itself. The socket closes cleanly, so
+  the server removes the player at once. Pulling the internet instead leaves the player standing there
+  until the server's timeout, still open to attack.
+- **On by default, without `/zbot start`**, toggled in the mod menu. (If that turns out impossible
+  inside Zymbot, a separate small mod instead.)
+- It watches the client, so server lag can't trigger it (the owner's hangs are client side).
+- Can't catch the whole Java process freezing (long GC pause, OS stall); an outside watchdog only if
+  such a hang is ever seen.
+- **Ghost mobs:** mobs the client doesn't show (e.g. hoglins) that still hurt the player: log out on
+  damage from something not visible or not fightable.
+- Open: Litematica. A hang caused by Litematica's rendering should not disconnect (detect it from the
+  frozen thread's stack and wait longer?). Owner to come back to it.
+
+### #11 Litematica / NBT importer for mapart (§4)
+- Import a schematic into the mapart system and cut it into **2x2-chunk segments** (32x32 blocks; 16
+  for a 128x128 map) for easier handling.
+- Open, owner to come back to: which formats (`.litematic`, vanilla `.nbt`, `.schem`), and whether
+  segments are built one at a time with progress saved per segment, or also exported as files.
+
 ## Order
 
 1. §0: 1.21.11 build, `anarchy` profile (Phase 0 plan above)

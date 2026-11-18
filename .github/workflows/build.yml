@@ -1,4 +1,5 @@
-# Builds Zymbot for every Minecraft version and runs the core anti-regression tests on each push,
+# Builds Zymbot for the active Minecraft versions (26.2 only for now: 1.21.1 and 1.21.11 are paused,
+# owner 2026-11-18; they stay in Stonecutter, add them back to ACTIVE_VERSIONS below) and runs the core anti-regression tests on each push,
 # so a change can be checked without a local build. On a push, the jars and the test results go to
 # the ci-builds branch (overwritten each time), for agents that can read git but not run artifacts:
 #   jars/zymbot-<version>+<mc>.jar
@@ -56,8 +57,11 @@ jobs:
         continue-on-error: true
         run: ./gradlew :core:test --stacktrace
 
-      - name: Build all versions
-        run: ./gradlew build -x test --stacktrace
+      # Paused versions are skipped here only. To build them again: ACTIVE_VERSIONS: "1.21.1 1.21.11 26.2"
+      - name: Build active versions
+        env:
+          ACTIVE_VERSIONS: "26.2"
+        run: ./gradlew $(for v in $ACTIVE_VERSIONS; do printf ':%s:build ' "$v"; done) -x test --stacktrace
 
       - name: Test summary
         if: always()
