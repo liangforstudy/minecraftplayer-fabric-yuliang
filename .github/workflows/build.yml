@@ -1,0 +1,108 @@
+# Builds Zymbot for every Minecraft version and runs the core anti-regression tests on each push,
+# so a change can be checked without a local build. On a push, the jars and the test results go to
+# the ci-builds branch (overwritten each time), for agents that can read git but not run artifacts:
+#   jars/zymbot-<version>+<mc>.jar
+#   tests/summary.txt      pass/fail counts and every failure's message
+#   tests/xml/*.xml        JUnit results, one file per test class
+# The in-game tests still need a real game.
+name: Build
+
+on:
+  push:
+    branches-ignore: [ci-builds]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mod
+    steps:
+      - uses: actions/checkout@v5
+
+      # core and 1.21.x compile with Java 21; 26.2 and Gradle itself with Java 25.
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: |
+            21
+            25
+
+      - uses: gradle/actions/setup-gradle@v5
+
+      # The Baritone API jars are gitignored (headless/): fetch them from Baritone's releases,
+      # checked against the ones the local builds use.
+      - name: Fetch Baritone API jars
+        working-directory: headless
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for v in 1.11.3 1.17.0 1.19.0; do
+            gh release download "v$v" --repo cabaletta/baritone -p "baritone-api-fabric-$v.jar" --clobber
+          done
+          sha256sum -c - <<'EOF'
+          f9a9b17a41d7d7ad22c759058b14fd01e3319663282e66f99e18153237fa6767  baritone-api-fabric-1.11.3.jar
+          a1646893c2a6338ea6bf1a3bdecf2cd743ede61e31a4324bd79a82f3d03360f9  baritone-api-fabric-1.17.0.jar
+          eca6e2fdf43c6657fe9fea10a8f9a7572d78dc91ad389b998b808bd28fa5b5d1  baritone-api-fabric-1.19.0.jar
+          EOF
+
+      - name: Anti-regression tests (core)
+        id: tests
+        continue-on-error: true
+        run: ./gradlew :core:test --stacktrace
+
+      - name: Build all versions
+        run: ./gradlew build -x test --stacktrace
+
+      - name: Test summary
+        if: always()
+        run: |
+          mkdir -p /tmp/out/tests/xml /tmp/out/jars
+          cp core/build/test-results/test/*.xml /tmp/out/tests/xml/ 2>/dev/null || true
+          python3 - <<'EOF' | tee /tmp/out/tests/summary.txt
+          import glob, xml.etree.ElementTree as ET
+          total = failed = skipped = 0
+          fails = []
+          for f in sorted(glob.glob('/tmp/out/tests/xml/*.xml')):
+              s = ET.parse(f).getroot()
+              total += int(s.get('tests', 0)); skipped += int(s.get('skipped', 0))
+              for c in s.iter('testcase'):
+                  for bad in list(c.findall('failure')) + list(c.findall('error')):
+                      failed += 1
+                      fails.append(f"FAIL {c.get('classname')}.{c.get('name')}\n  {(bad.get('message') or '').strip()[:2000]}")
+          print(f"{total} tests, {failed} failed, {skipped} skipped")
+          print("\n".join(fails))
+          EOF
+          cat /tmp/out/tests/summary.txt >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: zymbot-jars-and-tests
+          path: |
+            mod/versions/*/build/libs/*.jar
+            mod/core/build/test-results/test/*.xml
+          if-no-files-found: warn
+
+      - name: Publish to ci-builds branch
+        if: always() && github.event_name == 'push'
+        run: |
+          cp versions/*/build/libs/*.jar /tmp/out/jars/ 2>/dev/null || true
+          printf 'From %s (%s), run %s\n%s\n' "$GITHUB_SHA" "$GITHUB_REF_NAME" \
+            "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" "$(head -1 /tmp/out/tests/summary.txt)" > /tmp/out/README.txt
+          cd /tmp/out && git init -q -b ci-builds
+          git config user.name github-actions && git config user.email github-actions@users.noreply.github.com
+          git add -A && git commit -q -m "Jars and tests from ${GITHUB_SHA::7} (${GITHUB_REF_NAME})"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-builds
+
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        working-directory: .
+        run: |
+          echo "core tests failed: see tests/summary.txt on the ci-builds branch"
+          exit 1
