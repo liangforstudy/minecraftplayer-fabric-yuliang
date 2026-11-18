@@ -311,6 +311,7 @@ public final class ZymbotClient implements ClientModInitializer {
 
     private void onTick(Minecraft mc) {
         hangGuard.tick(mc);
+        Tracers.tick(mc);
         if (ghostHitsSayLeave(mc)) return;
         if (stopKey != null) {                                  // no screen open: the usual way
             while (true) {

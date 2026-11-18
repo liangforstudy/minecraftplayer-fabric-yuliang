@@ -270,6 +270,17 @@ public final class ZymbotConfig {
     /** Ticked to begin with: cooked and ready-made foods; raw meat, rotten flesh and kelp unticked. */
     public static final List<String> DEFAULT_EAT_FOODS = FOOD_CHOICES.subList(0, 22);
 
+    /**
+     * Tracers (issue #7): lines on screen to the ticked blocks, dropped items and entities, and to
+     * players, at most {@link #traceLimit} at once with players first. Drawing only.
+     */
+    public boolean tracers = false;
+    public boolean tracePlayers = true;
+    public int traceLimit = 20;
+    public List<String> traceBlocks = new ArrayList<>();
+    public List<String> traceItems = new ArrayList<>();
+    public List<String> traceEntities = new ArrayList<>();
+
     /** Log out after two hits within 10 s from a mob the client doesn't show (issue #10, ghost mobs). */
     public boolean ghostGuard = true;
 
@@ -393,7 +404,7 @@ public final class ZymbotConfig {
             java.util.Map.entry("heel", new int[]{1, 256}), java.util.Map.entry("fireres", new int[]{0, 20}),
             java.util.Map.entry("resume", new int[]{0, 2000}), java.util.Map.entry("routefar", new int[]{0, 1_000_000}),
             java.util.Map.entry("nightstop", new int[]{12000, 13179}), java.util.Map.entry("nightend", new int[]{22822, 24000}),
-            java.util.Map.entry("hangwait", new int[]{5, 300}));
+            java.util.Map.entry("hangwait", new int[]{5, 300}), java.util.Map.entry("tracelimit", new int[]{1, 200}));
 
     public int tunable(String name) {
         return switch (name) {
@@ -412,6 +423,7 @@ public final class ZymbotConfig {
             case "nightstop" -> nightStopAt;
             case "nightend" -> nightResumeAt;
             case "hangwait" -> hangGuardSeconds;
+            case "tracelimit" -> traceLimit;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -419,7 +431,7 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop, nightend or hangwait";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop, nightend, hangwait or tracelimit";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> {
@@ -442,6 +454,7 @@ public final class ZymbotConfig {
             case "nightstop" -> nightStopAt = value;
             case "nightend" -> nightResumeAt = value;
             case "hangwait" -> hangGuardSeconds = value;
+            case "tracelimit" -> traceLimit = value;
             default -> criticalHealth = value;
         }
         return null;
@@ -571,6 +584,9 @@ public final class ZymbotConfig {
         }
         if (neverEat == null) neverEat = new ArrayList<>();
         if (eatFoods == null) eatFoods = new ArrayList<>(DEFAULT_EAT_FOODS);
+        if (traceBlocks == null) traceBlocks = new ArrayList<>();
+        if (traceItems == null) traceItems = new ArrayList<>();
+        if (traceEntities == null) traceEntities = new ArrayList<>();
         if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();
         if (swimCostBlocks < 1) swimCostBlocks = 3;
         if (routeRadius < 16 || routeRadius > 256) routeRadius = 96;

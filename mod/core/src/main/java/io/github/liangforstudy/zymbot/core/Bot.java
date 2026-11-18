@@ -1868,7 +1868,7 @@ public final class Bot {
     public List<String> reflexes() { return brain.interruptNames(); }
     /** The tunables /zbot set and the settings screen offer in this profile, in the screen's order. */
     public List<String> tunables() {
-        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend", "hangwait")
+        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend", "hangwait", "tracelimit")
                 .stream().filter(profile::hasTunable).toList();
     }
     public BotMemory memory() { return memory; }

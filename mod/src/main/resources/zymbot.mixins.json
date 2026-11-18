@@ -7,8 +7,10 @@
     "BlockAckMixin",
     "BossHealthOverlayAccessor",
     "ContinueAttackMixin",
+    "GameRendererTracerMixin",
     "MinecraftAccessor",
-    "ServerTimeMixin"
+    "ServerTimeMixin",
+    "TracerRendererAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

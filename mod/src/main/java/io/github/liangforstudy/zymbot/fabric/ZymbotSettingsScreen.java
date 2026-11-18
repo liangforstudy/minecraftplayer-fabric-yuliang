@@ -73,6 +73,7 @@ final class ZymbotSettingsScreen extends Screen {
         keepDrafts();                                      // survives resizes and tab switches
         keyBox = null;
         serverBox = null;
+        searchBox = null;
         tunableBoxes.clear();
         scrubZones.clear();
         activeZone = null;
@@ -113,6 +114,7 @@ final class ZymbotSettingsScreen extends Screen {
 
     private void keepDrafts() {
         if (keyBox != null) keyDraft = keyBox.getValue();
+        if (searchBox != null) searchDraft = searchBox.getValue();
         if (serverBox != null) serverDraft = serverBox.getValue();
         tunableBoxes.forEach((k, box) -> tunableDrafts.put(k, box.getValue()));
     }
@@ -333,9 +335,12 @@ final class ZymbotSettingsScreen extends Screen {
     }
 
     /** Which page of the Features tab: the switches, or one of the lists they open. */
-    private enum FeaturePage { MAIN, FOODS }
+    private enum FeaturePage { MAIN, FOODS, BLOCKS, ITEMS, ENTITIES }
     private FeaturePage featurePage = FeaturePage.MAIN;
     private int listPage;
+    private EditBox searchBox;
+    private String searchDraft = "";
+    private boolean searchFocused;
 
     /** Switches that work with or without /zbot start, and the jobs /zbot start runs (issues #7-#10). */
     private void initFeatures(int cx, int top) {
@@ -366,12 +371,28 @@ final class ZymbotSettingsScreen extends Screen {
         addRenderableWidget(Button.builder(Component.literal("Foods…"), b -> openList(FeaturePage.FOODS))
                 .bounds(cx + 94, y, 56, 20).build());
         y += ROW_H;
+        y = toggleRow(cx, y, "Tracers (lines on screen)", cfg().tracers,
+                "Lines to players and to the ticked blocks, items and entities, at most\n" + cfg().traceLimit
+                        + " at once, players first. §7The limit: Body tab, or " + root + " set tracelimit <n>",
+                v -> cfg().tracers = v);
+        y = toggleRow(cx, y, "Tracers: players", cfg().tracePlayers, "Trace every player in view, as Meteor's Tracers do.",
+                v -> cfg().tracePlayers = v);
+        label("Trace", cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal("Blocks (" + cfg().traceBlocks.size() + ")"), b -> openList(FeaturePage.BLOCKS))
+                .bounds(cx - 100, y, 80, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Items (" + cfg().traceItems.size() + ")"), b -> openList(FeaturePage.ITEMS))
+                .bounds(cx - 16, y, 80, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Entities (" + cfg().traceEntities.size() + ")"), b -> openList(FeaturePage.ENTITIES))
+                .bounds(cx + 68, y, 82, 20).build());
+        y += ROW_H;
         contentBottom = y;
     }
 
     private void openList(FeaturePage p) {
         featurePage = p;
         listPage = 0;
+        searchDraft = "";
+        searchFocused = false;
         message = "";
         rebuildWidgets();
     }
@@ -382,23 +403,57 @@ final class ZymbotSettingsScreen extends Screen {
     private TickList tickList(FeaturePage p) {
         return switch (p) {
             case FOODS -> new TickList("Foods auto eat may pick", ZymbotConfig.FOOD_CHOICES, cfg().eatFoods);
+            case BLOCKS -> new TickList("Blocks to trace", registry(net.minecraft.core.registries.BuiltInRegistries.BLOCK.keySet()), cfg().traceBlocks);
+            case ITEMS -> new TickList("Dropped items to trace", registry(net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet()), cfg().traceItems);
+            case ENTITIES -> new TickList("Entities to trace", registry(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.keySet()), cfg().traceEntities);
             case MAIN -> throw new IllegalStateException();
         };
     }
 
-    /** A list of ids to tick, two columns, paged; "◀ Back" returns to the switches. */
+    /** A registry's ids, A to Z (air left out). */
+    private static List<String> registry(java.util.Set<?> keys) {
+        return keys.stream().map(Object::toString).filter(id -> !id.endsWith(":air")).sorted().toList();
+    }
+
+    /** A list of ids to tick, two columns, paged, ticked ones first; a search box for the long lists; "◀ Back" returns. */
     private void initFeatureList(int cx, int top) {
         TickList list = tickList(featurePage);
         addRenderableWidget(Button.builder(Component.literal("◀ Back"), b -> openList(FeaturePage.MAIN))
                 .bounds(cx - 150, top, 56, 20).build());
         String title = list.title() + " (" + list.ticked().size() + " ticked)";
-        label(title, cx - 88, top + 6, WHITE);
+        boolean searchable = list.choices().size() > 40;
         int y = top + ROW_H + 2;
+        if (searchable) {
+            label(title, cx - 88, top + 6, WHITE);
+            searchBox = new EditBox(font, cx - 150, y, 300, 18, Component.literal("Search"));
+            searchBox.setMaxLength(64);
+            searchBox.setValue(searchDraft);
+            searchBox.setResponder(v -> {
+                if (v.equals(searchDraft)) return;
+                searchDraft = v;
+                listPage = 0;
+                searchFocused = true;
+                rebuildWidgets();
+            });
+            addRenderableWidget(searchBox);
+            if (searchFocused) {
+                setFocused(searchBox);
+                searchBox.setFocused(true);
+            }
+            y += ROW_H;
+        } else {
+            label(title, cx - 88, top + 6, WHITE);
+        }
+        String q = searchDraft.strip().toLowerCase(java.util.Locale.ROOT).replace(' ', '_');
+        List<String> shown = new ArrayList<>();
+        list.choices().stream().filter(id -> list.ticked().contains(id) && id.contains(q)).forEach(shown::add);
+        list.ticked().stream().filter(id -> !list.choices().contains(id) && id.contains(q)).forEach(shown::add);   // ticked but unknown (a mod removed)
+        list.choices().stream().filter(id -> !list.ticked().contains(id) && id.contains(q)).forEach(shown::add);
         int perPage = Math.max(2, (height - 46 - y) / ROW_H * 2);
-        int pages = Math.max(1, (list.choices().size() + perPage - 1) / perPage);
+        int pages = Math.max(1, (shown.size() + perPage - 1) / perPage);
         listPage = Math.min(listPage, pages - 1);
-        for (int i = listPage * perPage, k = 0; i < Math.min(list.choices().size(), (listPage + 1) * perPage); i++, k++) {
-            String id = list.choices().get(i);
+        for (int i = listPage * perPage, k = 0; i < Math.min(shown.size(), (listPage + 1) * perPage); i++, k++) {
+            String id = shown.get(i);
             boolean on = list.ticked().contains(id);
             int col = k % 2, row = k / 2;
             int x = col == 0 ? cx - 150 : cx + 4, ry = y + row * ROW_H;
@@ -532,7 +587,8 @@ final class ZymbotSettingsScreen extends Screen {
             {"routefar", "Route: ask first when its start is over (blocks)"},
             {"nightstop", "Route: dig in for the night from day time"},
             {"nightend", "Route: go on at day time (22822 = first light)"},
-            {"hangwait", "Hang guard: leave after frozen for (s)"}})
+            {"hangwait", "Hang guard: leave after frozen for (s)"},
+            {"tracelimit", "Tracers: lines at once (players first)"}})
             .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
