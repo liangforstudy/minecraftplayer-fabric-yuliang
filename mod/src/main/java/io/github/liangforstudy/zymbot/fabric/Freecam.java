@@ -24,8 +24,8 @@ import net.minecraft.world.phys.Vec3;
  *   <li>left-click a block: Baritone walks the player there (breaking and placing as {@code goto} allows);</li>
  *   <li>left-click a container (chest, barrel, shulker...) or an entity with one (chest minecart, donkey):
  *       walk there and open it (Chest Tracker records it as usual);</li>
- *   <li>shift + left-click a container: what Chest Tracker has recorded there, if its API is installed
- *       (read-only: Zymbot never writes to Chest Tracker);</li>
+ *   <li>shift + left-click a block or an entity: what Chest Tracker last recorded there (contents, a
+ *       villager's trades), if it's installed (read-only: Zymbot never writes to Chest Tracker);</li>
  *   <li>right-click: cancel the walk.</li>
  * </ul>
  * Toggled by the Freecam key (Options → Controls, unbound by default) or {@code /zbot freecam}.
@@ -171,6 +171,10 @@ final class Freecam {
             Entity e = hit.get().entity();
             String type = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).getPath();
             String name = e.getName().getString();
+            if (McCompat.shiftDown()) {                        // Chest Tracker's record, nothing walked or opened
+                hands.notifyLocal(ChestTrackerLookup.describeEntity(e.getUUID().toString(), name));
+                return;
+            }
             if (opensByEntity(type)) {
                 boolean sneak = rideable(type);
                 int id = e.getId();
@@ -187,11 +191,11 @@ final class Freecam {
         }
         BlockPos p = hit.get().block();
         String block = BuiltInRegistries.BLOCK.getKey(mc.level.getBlockState(p).getBlock()).getPath().replace('_', ' ');
+        if (McCompat.shiftDown()) {                            // any block Chest Tracker records: chests, lecterns, shelves...
+            hands.notifyLocal(ChestTrackerLookup.describe(mc, p, block));
+            return;
+        }
         if (isContainer(mc, p)) {
-            if (McCompat.shiftDown()) {
-                hands.notifyLocal(ChestTrackerLookup.describe(mc, p, block));
-                return;
-            }
             hands.notifyLocal(bot.openBlock(block, p.getX(), p.getY(), p.getZ()));
             return;
         }
@@ -223,36 +227,58 @@ final class Freecam {
     }
 
     /**
-     * Chest Tracker's read-only API (to be added by its agent): what it has recorded at a position.
-     * Looked up by reflection so Zymbot runs with or without Chest Tracker, or with a version that predates it.
-     * Expected: {@code io.github.liangforstudy.entitytracker.api.ChestTrackerApi.describe(String dimension, int x, int y, int z)}
-     * returning {@code List<String>} (one line per stack, first line a heading), or null when nothing is recorded there.
+     * Chest Tracker's read-only API (liangforstudy/Chest_Tracker, 2026-11-18), looked up by reflection so
+     * Zymbot runs with or without it: {@code ChestTrackerApi.describe(String dimension, int x, int y, int z)}
+     * for blocks and {@code describeEntity(String uuid)} for entities. Each returns a heading (with how long
+     * ago it was last opened) and one line per stack or trade, or null when nothing is recorded.
+     * Client thread; never writes, never throws.
      */
     static final class ChestTrackerLookup {
-        private static Method describe;
+        private static final String API = "io.github.liangforstudy.entitytracker.api.ChestTrackerApi";
+        private static final String MISSING = "Chest Tracker isn't installed (or is older than its read-only API)";
+        private static Method describe, describeEntity;
         private static boolean looked;
 
-        static String describe(Minecraft mc, BlockPos p, String block) {
-            if (!looked) {
-                looked = true;
-                try {
-                    Class<?> api = Class.forName("io.github.liangforstudy.entitytracker.api.ChestTrackerApi");
-                    describe = api.getMethod("describe", String.class, int.class, int.class, int.class);
-                } catch (ReflectiveOperationException | LinkageError e) {
-                    describe = null;
-                }
-            }
-            if (describe == null) return "Chest Tracker's API isn't installed (needs the Chest Tracker update with its read-only API)";
+        private static void look() {
+            if (looked) return;
+            looked = true;
             try {
-                String dim = McCompat.id(mc.level.dimension());
-                Object out = describe.invoke(null, dim, p.getX(), p.getY(), p.getZ());
-                if (!(out instanceof List<?> lines) || lines.isEmpty()) return "Chest Tracker has no record of the " + block + " at " + p.toShortString();
-                StringBuilder sb = new StringBuilder("Chest Tracker, " + block + " at " + p.toShortString() + ":");
-                for (Object line : lines) sb.append("\n  ").append(line);
-                return sb.toString();
+                Class<?> api = Class.forName(API);
+                describe = api.getMethod("describe", String.class, int.class, int.class, int.class);
+                describeEntity = api.getMethod("describeEntity", String.class);
+            } catch (ReflectiveOperationException | LinkageError e) {
+                describe = null;
+                describeEntity = null;
+            }
+        }
+
+        static String describe(Minecraft mc, BlockPos p, String block) {
+            look();
+            if (describe == null) return MISSING;
+            try {
+                Object out = describe.invoke(null, McCompat.id(mc.level.dimension()), p.getX(), p.getY(), p.getZ());
+                return show(out, "Chest Tracker has no record of the " + block + " at " + p.toShortString());
             } catch (ReflectiveOperationException | RuntimeException e) {
                 return "Chest Tracker's API failed: " + e;
             }
+        }
+
+        static String describeEntity(String uuid, String name) {
+            look();
+            if (describeEntity == null) return MISSING;
+            try {
+                return show(describeEntity.invoke(null, uuid), "Chest Tracker has no record of " + name);
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return "Chest Tracker's API failed: " + e;
+            }
+        }
+
+        /** Heading first (it says how old the record is), then the lines indented. */
+        private static String show(Object out, String none) {
+            if (!(out instanceof List<?> lines) || lines.isEmpty()) return none;
+            StringBuilder sb = new StringBuilder("Chest Tracker: ").append(lines.get(0));
+            for (int i = 1; i < lines.size(); i++) sb.append("\n  ").append(lines.get(i));
+            return sb.toString();
         }
     }
 }
