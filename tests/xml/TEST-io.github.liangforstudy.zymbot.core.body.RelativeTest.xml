@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.RelativeTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.212Z" hostname="runnervmccnms" time="0.001">
+  <properties/>
+  <testcase name="facingEastAndWest_andUnboundedYaw()" classname="io.github.liangforstudy.zymbot.core.body.RelativeTest" time="0.0"/>
+  <testcase name="facingSouth_westIsRight()" classname="io.github.liangforstudy.zymbot.core.body.RelativeTest" time="0.0"/>
+  <testcase name="facingNorth_eastIsRight_andHeightToo()" classname="io.github.liangforstudy.zymbot.core.body.RelativeTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

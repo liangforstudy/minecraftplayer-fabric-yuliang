@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.BreakTaskTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.242Z" hostname="runnervmccnms" time="0.039">
+  <properties/>
+  <testcase name="aVineInTheWay_isClearedFirst_butAWallIsNot()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.01"/>
+  <testcase name="fails_whenTooHungry()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.002"/>
+  <testcase name="fails_whenStandingThereButItCantBeSeen()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.001"/>
+  <testcase name="chop_punchesThreeLogs_thenSweepsOnce()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.005"/>
+  <testcase name="fails_whenItTakesTooLong_andLetsGo()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.002"/>
+  <testcase name="collect_givesUpAfterFiveSeconds()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.002"/>
+  <testcase name="punchOrder_breaks_andStoppingTheBotLetsGo()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.01"/>
+  <testcase name="walksIntoReach_thenBreaksWithTheAxe_thenPicksUpTheLog()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.002"/>
+  <testcase name="cancel_releasesAttack()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.001"/>
+  <testcase name="bareHands_whenNoTool()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.0"/>
+  <testcase name="fails_whenOutOfReachAndNoPath()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.001"/>
+  <testcase name="fails_whenTheBlockChangesOrIsGone()" classname="io.github.liangforstudy.zymbot.core.BreakTaskTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

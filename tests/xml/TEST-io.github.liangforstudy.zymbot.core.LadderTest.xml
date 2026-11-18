@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.LadderTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.378Z" hostname="runnervmccnms" time="0.059">
+  <properties/>
+  <testcase name="noTeam_worksBeforeWalkingToSpawn()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.02"/>
+  <testcase name="aTreeItCantReach_isLeftForAnother()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.008"/>
+  <testcase name="coldStart_logsPlanksTableSticksAxeHoe_inThatOrder()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.008"/>
+  <testcase name="debugOrders_craftAndPlace()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.004"/>
+  <testcase name="loneOrStrippedLogs_areAPlayersBuild_notATree()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.008"/>
+  <testcase name="halfDone_picksUpWhereItIs()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.004"/>
+  <testcase name="aTableAlreadyNear_isUsed_notDoubled()" classname="io.github.liangforstudy.zymbot.core.LadderTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

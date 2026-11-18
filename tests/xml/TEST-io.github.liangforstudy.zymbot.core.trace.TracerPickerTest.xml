@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.trace.TracerPickerTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.449Z" hostname="runnervmccnms" time="0.002">
+  <properties/>
+  <testcase name="playersFirst_thenNearest_upToTheLimit()" classname="io.github.liangforstudy.zymbot.core.trace.TracerPickerTest" time="0.001"/>
+  <testcase name="defaults()" classname="io.github.liangforstudy.zymbot.core.trace.TracerPickerTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.HazardTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.373Z" hostname="runnervmccnms" time="0.004">
+  <properties/>
+  <testcase name="clearOfIt_orHitBySomeone_doesNothing()" classname="io.github.liangforstudy.zymbot.core.HazardTest" time="0.001"/>
+  <testcase name="cactusBeside_counts()" classname="io.github.liangforstudy.zymbot.core.HazardTest" time="0.001"/>
+  <testcase name="fireAtItsFeet_stepsOff()" classname="io.github.liangforstudy.zymbot.core.HazardTest" time="0.001"/>
+  <testcase name="fireEverywhereNear_looksFurther()" classname="io.github.liangforstudy.zymbot.core.HazardTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

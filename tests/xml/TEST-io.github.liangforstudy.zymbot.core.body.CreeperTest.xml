@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.CreeperTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.975Z" hostname="runnervmccnms" time="0.044">
+  <properties/>
+  <testcase name="theHitCount_lastsAcrossRunningClear()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.006"/>
+  <testcase name="stillLitButTenBlocksOff_stopsRunning_andAKillStopsTheRunToo()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.002"/>
+  <testcase name="cornered_inADeadEnd_hitsItWhileItHisses_ratherThanRunningPastIt()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="aLaggingServer_countsTheCooldownInItsTicks_soTheNextHitWaits()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="aLoneCreeperIsFought_inArmor_butNotInACrowd_underFire_orLow()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.001"/>
+  <testcase name="noStepBack_overAnEdge()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="withABow_aCreeperBehindAWall_isNoTrigger_andNoArrowsMeansNoBow()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="seenAlreadyLit_atReachWithTheWeaponCharged_hitsFirst_thenRuns()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="waitsCharged_hitAtReach_steppedBackWhileItRecharges_untilItsDead()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="aOneBlockLedgeBehind_isJumpedUpBackwards_notTakenForAWall()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.002"/>
+  <testcase name="aChargedOne_orOneWithCompany_isKeptAwayFrom()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.001"/>
+  <testcase name="itHissesAnyway_runsClearOfSeven_thenGoesBackIn()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.003"/>
+  <testcase name="aDeadEndWithAStepUp_isNotCornered()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.0"/>
+  <testcase name="withABow_itsShotFromRange_eachDrawHeldForTwentyServerTicks_thenTheSwordUpClose()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.006"/>
+  <testcase name="atFullSpeed_theNextHitGoesAsSoonAsOurClockSaysReady()" classname="io.github.liangforstudy.zymbot.core.body.CreeperTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

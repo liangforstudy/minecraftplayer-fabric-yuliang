@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.GoldTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.075Z" hostname="runnervmccnms" time="0.014">
+  <properties/>
+  <testcase name="theCheapestPieceToLoseGoesOn_bootsOverAChestplate()" classname="io.github.liangforstudy.zymbot.core.body.GoldTest" time="0.001"/>
+  <testcase name="aGoldHelmetInTheMainInventory_goesOnForTheIronOne_andTheSlotComesBack()" classname="io.github.liangforstudy.zymbot.core.body.GoldTest" time="0.004"/>
+  <testcase name="aSwapThatDoesntTake_givesUp_andWaits30sBeforeTryingAgain()" classname="io.github.liangforstudy.zymbot.core.body.GoldTest" time="0.008"/>
+  <testcase name="noTrigger_outsideTheNether_withGoldOn_orWithNoneCarried()" classname="io.github.liangforstudy.zymbot.core.body.GoldTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

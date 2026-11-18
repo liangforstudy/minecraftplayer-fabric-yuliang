@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.BurningTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.885Z" hostname="runnervmccnms" time="0.021">
+  <properties/>
+  <testcase name="standingInFire_noSafeSpotToStepTo_poursTheBucket_butNotInLava()" classname="io.github.liangforstudy.zymbot.core.body.BurningTest" time="0.006"/>
+  <testcase name="inTheNether_noBucket_andAPotionOnlyWhenLow()" classname="io.github.liangforstudy.zymbot.core.body.BurningTest" time="0.003"/>
+  <testcase name="steppedOffToACorner_fireDiagonallyAcross_stillCountsAsTouching()" classname="io.github.liangforstudy.zymbot.core.body.BurningTest" time="0.001"/>
+  <testcase name="onFire_withAWaterBucketInTheMainInventory_poursItOut_scoopsItBack_takesBackTheSlot()" classname="io.github.liangforstudy.zymbot.core.body.BurningTest" time="0.005"/>
+  <testcase name="notBurning_orNothingToPutItOutWith_isNoTrigger()" classname="io.github.liangforstudy.zymbot.core.body.BurningTest" time="0.001"/>
+  <testcase name="burnedUnderABurningCanopy_movesOn_toASpotWithNoFireNearOrOverhead()" classname="io.github.liangforstudy.zymbot.core.body.BurningTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

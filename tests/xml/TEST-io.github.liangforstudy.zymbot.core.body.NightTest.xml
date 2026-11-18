@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.NightTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.189Z" hostname="runnervmccnms" time="0.023">
+  <properties/>
+  <testcase name="noStopWhereThePredicateSaysNo()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.002"/>
+  <testcase name="cantDigIn_logsOutWithTheReason()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.001"/>
+  <testcase name="unsafeFromTheStopTimeUntilFirstLight()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.0"/>
+  <testcase name="routeStopsTheLegForTheNight_thenStartsItAgainAtDay()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.001"/>
+  <testcase name="builtAgainAtTheBottomOfItsHole_waitsThere_insteadOfDiggingDeeper()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.002"/>
+  <testcase name="aThunderstormAtNoon_isLoggedAsTheStorm_notTheNight()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.0"/>
+  <testcase name="neverStopsInWaterOrMidAir_andCancelStopsTheWait()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.0"/>
+  <testcase name="stormsAndRainCountTheNetherAndCreativeDont()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.0"/>
+  <testcase name="stillDarkAfterTheLongestWait_logsOut()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.01"/>
+  <testcase name="notAHole_onOpenGround_orInATunnel()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.001"/>
+  <testcase name="theNightSettingsHaveSensibleRanges()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.0"/>
+  <testcase name="waitDoneButStillDark_theRouteStopsForTheNight()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.001"/>
+  <testcase name="digsIn_staysDownAllNight_climbsOutAtFirstLight()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.001"/>
+  <testcase name="aRouteAlreadyWalkedDoesntDigInFirst()" classname="io.github.liangforstudy.zymbot.core.body.NightTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

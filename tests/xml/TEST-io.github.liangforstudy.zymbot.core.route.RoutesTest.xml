@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.route.RoutesTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.381Z" hostname="runnervmccnms" time="0.024">
+  <properties/>
+  <testcase name="goWalksAtoC_inOrder_thenBackWalksCtoA()" classname="io.github.liangforstudy.zymbot.core.route.RoutesTest" time="0.008"/>
+  <testcase name="routesAreKept_acrossALogOut()" classname="io.github.liangforstudy.zymbot.core.route.RoutesTest" time="0.005"/>
+  <testcase name="aFarFirstPoint_isRefusedOnce_theSameOrderAgainGoes()" classname="io.github.liangforstudy.zymbot.core.route.RoutesTest" time="0.004"/>
+  <testcase name="cutShort_theSameOrderCarriesOnFromThePointItWasHeadingFor_restartStartsAtA()" classname="io.github.liangforstudy.zymbot.core.route.RoutesTest" time="0.004"/>
+  <testcase name="waypointsAndRoutes_areChecked()" classname="io.github.liangforstudy.zymbot.core.route.RoutesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

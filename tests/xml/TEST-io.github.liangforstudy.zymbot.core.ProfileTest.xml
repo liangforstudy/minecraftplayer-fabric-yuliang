@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.ProfileTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.438Z" hostname="runnervmccnms" time="0.017">
+  <properties/>
+  <testcase name="anarchyRunsAtCriticalHealth_notAtTheFirstHit()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.001"/>
+  <testcase name="anarchyRefusesTheTeamAndCivfabricCommands()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.0"/>
+  <testcase name="anarchySendsNothingOnTheBus_evenWithItSwitchedOn()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.003"/>
+  <testcase name="anarchyCreatesNothingOnTheOffList()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.001"/>
+  <testcase name="anarchyOneShotJobsBorrowTheControls_andGiveThemBack()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.0"/>
+  <testcase name="zymcivStillHasEveryModule()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.0"/>
+  <testcase name="anarchyOffersOnlyItsOwnTunables()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.002"/>
+  <testcase name="anarchyDoesntEatByItself_withAutoEatOff()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.003"/>
+  <testcase name="anarchyStandsByOnJoin_evenWhereZymcivWouldTakeOver()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.001"/>
+  <testcase name="zymcivWithTheTeamParked_hasNoBusChatCheckOrRegroup()" classname="io.github.liangforstudy.zymbot.core.ProfileTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

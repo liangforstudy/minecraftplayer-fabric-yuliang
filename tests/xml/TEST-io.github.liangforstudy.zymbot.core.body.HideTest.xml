@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.HideTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.092Z" hostname="runnervmccnms" time="0.038">
+  <properties/>
+  <testcase name="dugFromOffTheMiddle_stepsIntoTheHole()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.002"/>
+  <testcase name="neverDigsIntoLava_aDrop_orObsidian()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.001"/>
+  <testcase name="theFirstFireball_noCoverNear_digsInAtOnce()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.002"/>
+  <testcase name="aGhastOnOpenNetherrack_noCover_digsIn()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.002"/>
+  <testcase name="digsThreeDown_waits_thenTowersBackOut_withTheDugBlocks()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.001"/>
+  <testcase name="knockedUp_waitsToLand_knockedOff_digsANewHoleWhereItIs()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.001"/>
+  <testcase name="diggingIn_fireUnderfootDoesntInterrupt_lavaStillDoes()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.0"/>
+  <testcase name="cover_neverPicksAOneWideShaft()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.003"/>
+  <testcase name="criticalWithAFarGhast_digsIn_staysDown_thenClimbsOut()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.012"/>
+  <testcase name="aGhast_coverAStepAway_isTaken()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.002"/>
+  <testcase name="dugIn_theCriticalReflexLeavesTheHoleAlone_unlessItCanEat()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.001"/>
+  <testcase name="aHalfDugHoleUnderUs_isFineToDigInAgain()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.0"/>
+  <testcase name="aGhast_coverFurtherOff_digsInFirst()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.002"/>
+  <testcase name="coverThatNeverHolds_givesUpAfter8sInSight()" classname="io.github.liangforstudy.zymbot.core.body.HideTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

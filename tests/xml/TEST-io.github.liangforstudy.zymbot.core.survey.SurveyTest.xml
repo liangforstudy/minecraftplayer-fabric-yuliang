@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.survey.SurveyTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.411Z" hostname="runnervmccnms" time="0.026">
+  <properties/>
+  <testcase name="summaryAndLines_sayWhatWasFound()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.011"/>
+  <testcase name="wildFoodPlantsAFewBlocksApartAreOnePatch_andBedHalvesOneBed()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.001"/>
+  <testcase name="theCatalogKnowsWhatItIsLookingFor()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.001"/>
+  <testcase name="aBackgroundSurvey_isPrintedWhenDone_andAnOldOneSaysWhereItWasTaken()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.002"/>
+  <testcase name="theBotSurveysOnStart_logsIt_andAnswersTheCommand()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.003"/>
+  <testcase name="logsGroupIntoTrees_nearestFirst_hugeSpotted()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.001"/>
+  <testcase name="nothingAround_saysSo()" classname="io.github.liangforstudy.zymbot.core.survey.SurveyTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

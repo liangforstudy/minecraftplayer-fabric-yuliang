@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.SurfaceTaskTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.483Z" hostname="runnervmccnms" time="0.003">
+  <properties/>
+  <testcase name="waterStraightBeside_isWhereItClimbsOutFrom()" classname="io.github.liangforstudy.zymbot.core.SurfaceTaskTest" time="0.001"/>
+  <testcase name="aShelfUnderWater_isNotDryLand()" classname="io.github.liangforstudy.zymbot.core.SurfaceTaskTest" time="0.0"/>
+  <testcase name="waterOneUp_countsToo_theNearestSideWins()" classname="io.github.liangforstudy.zymbot.core.SurfaceTaskTest" time="0.0"/>
+  <testcase name="cornerOnlyShore_isNotAPlaceToClimbOut()" classname="io.github.liangforstudy.zymbot.core.SurfaceTaskTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

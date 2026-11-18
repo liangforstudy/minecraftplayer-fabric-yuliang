@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.SummonTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.455Z" hostname="runnervmccnms" time="0.027">
+  <properties/>
+  <testcase name="anotherTeamsSummonIsIgnored()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.001"/>
+  <testcase name="aRepeatDoesNotRestartAJoinInProgress()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.004"/>
+  <testcase name="aFailedSummonedJoinIsRetried_withBackoff_aFewTimes()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.004"/>
+  <testcase name="autoSummonRepeats_soBotsStillBootingCatchIt()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.002"/>
+  <testcase name="autoOpenLanIsPerWorld()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.002"/>
+  <testcase name="switchingAutoSummonOff_stopsTheRepeats_andAPlayingBotSaysSoOnce()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.003"/>
+  <testcase name="autoSummonOnlyWhenTurnedOn()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.002"/>
+  <testcase name="aWaitingBotIsSummonedToTheHostsLanWorld()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.002"/>
+  <testcase name="humansAndBotsAlreadyPlayingAreNeverPulled()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.001"/>
+  <testcase name="summonToAServer_andTargetsAreValidated()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.001"/>
+  <testcase name="singleplayerSwitchedOff_keepsWorldsClosed()" classname="io.github.liangforstudy.zymbot.core.SummonTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

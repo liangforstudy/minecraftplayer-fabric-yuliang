@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.AutoEatTotemTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:30.784Z" hostname="runnervmccnms" time="0.166">
+  <properties/>
+  <testcase name="eatsATickedFood_whenHungry_underStart()" classname="io.github.liangforstudy.zymbot.core.AutoEatTotemTest" time="0.134"/>
+  <testcase name="refillsTheOffhandTotem_evenWhileAHumanHoldsTheKeys()" classname="io.github.liangforstudy.zymbot.core.AutoEatTotemTest" time="0.015"/>
+  <testcase name="autoTotemOff_leavesTheOffhandAlone()" classname="io.github.liangforstudy.zymbot.core.AutoEatTotemTest" time="0.002"/>
+  <testcase name="autoStartOn9b9t_byAnyAddress_onlyWhenOn()" classname="io.github.liangforstudy.zymbot.core.AutoEatTotemTest" time="0.002"/>
+  <testcase name="onlyTickedFoods_andGoldenApplesKeptForLowHealth()" classname="io.github.liangforstudy.zymbot.core.AutoEatTotemTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

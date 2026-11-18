@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.store.StoreAndPackTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.405Z" hostname="runnervmccnms" time="0.006">
+  <properties/>
+  <testcase name="laterPacksOverrideEarlierOnes()" classname="io.github.liangforstudy.zymbot.core.store.StoreAndPackTest" time="0.002"/>
+  <testcase name="newerFileIsLeftAlone()" classname="io.github.liangforstudy.zymbot.core.store.StoreAndPackTest" time="0.001"/>
+  <testcase name="oldFilesMigrateForward()" classname="io.github.liangforstudy.zymbot.core.store.StoreAndPackTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

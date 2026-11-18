@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.MobRulesTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.148Z" hostname="runnervmccnms" time="0.04">
+  <properties/>
+  <testcase name="anEnderman_isLeftAloneNearby_butFoughtOnceItHitsUs()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.002"/>
+  <testcase name="mobsAreNamed_notCounted()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.001"/>
+  <testcase name="theChatCause_isPlain_andEachLeftAloneMobHasItsOwnReason()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.0"/>
+  <testcase name="lowHealth_holdsUntilWellOverTheLine()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.001"/>
+  <testcase name="aSpearRider_itsHorseIsHitFirst_andItDigsInWhenLow()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.003"/>
+  <testcase name="anAlertMob_isPingedOnce_keptAwayFrom_andFoughtOnlyOnceApproved()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.003"/>
+  <testcase name="aProvokedPigman_isFoughtByTheUsualRules_countingItsWholeGroup()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.003"/>
+  <testcase name="skeletonsWeHideFrom_outrankAZombieNearby()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.006"/>
+  <testcase name="the9b9tAddresses_shareOneSetOfRules_butNotTheReal2b2t()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.002"/>
+  <testcase name="backingOff_saysWhyInOurChatOnly_once()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.003"/>
+  <testcase name="anIgnoredMob_isNeitherFoughtNorDodged()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.002"/>
+  <testcase name="rulesAreKeptPerServer_normalizedAndPruned()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.001"/>
+  <testcase name="afterBackingOff_itTurnsBackForTheEndermanThatFollowed()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.003"/>
+  <testcase name="aZombieWithACreeper_theZombieIsFoughtFirst_butNotWhileTheCreeperHisses()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.005"/>
+  <testcase name="autoLogout_offInSingleplayer_byDefault_andSwitchedPerServer()" classname="io.github.liangforstudy.zymbot.core.body.MobRulesTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

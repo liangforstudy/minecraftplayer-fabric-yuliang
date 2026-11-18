@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.BotTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:30.952Z" hostname="runnervmccnms" time="0.289">
+  <properties/>
+  <testcase name="twoBotsHearEachOthersHello()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.17"/>
+  <testcase name="rosterSurvivesARestart()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.007"/>
+  <testcase name="listingThisAccountBeforeAnyWorldSavesItsName()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.006"/>
+  <testcase name="teammateCanStillHandOverByHand_andStopReturnsToAnnouncing()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.002"/>
+  <testcase name="pausesForHumanInput_warnsThenResumes()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.009"/>
+  <testcase name="idlesHonestlyWithNoObjectives()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.003"/>
+  <testcase name="aHelloThatBeatsTheTabListIsKeptBriefly()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.005"/>
+  <testcase name="hostAndGuestMeet_eventhoughTheirAddressesDiffer()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.007"/>
+  <testcase name="autostartsOnlyOnWhitelistedServers()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.001"/>
+  <testcase name="botsNotInOurTabListAreIgnored()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.004"/>
+  <testcase name="autostartAddPersistsToConfig()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.004"/>
+  <testcase name="menuChangesApplyLive_butNeverGrabTheControls()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.004"/>
+  <testcase name="pastingTheSameKeyLetsTwoBotsHearEachOther_withoutRestart()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.012"/>
+  <testcase name="botAccountTakesControlOnlyOnListedServers()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.002"/>
+  <testcase name="busOff_botsLearnNothingFromEachOther()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.003"/>
+  <testcase name="headlessIgnoresHumanInput()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.001"/>
+  <testcase name="teammateAnnouncesButNeverTakesControl()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.01"/>
+  <testcase name="rosterListsTheTeam_andNoticesLeaversFromTheTabList()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.005"/>
+  <testcase name="botsWithDifferentTeamKeysIgnoreEachOther()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.003"/>
+  <testcase name="singleplayerAutostartsWhenListed()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.001"/>
+  <testcase name="stopStops()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.001"/>
+  <testcase name="unlistedHumanAccountStaysSilent_evenOnAListedServer()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.002"/>
+  <testcase name="respawnRetriesAreSpacedOut()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.001"/>
+  <testcase name="rolesSurviveInTheConfigFile()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.005"/>
+  <testcase name="respawnsWhenRunning_andAlwaysWhenHeadless_butNotForAnIdleHuman()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.001"/>
+  <testcase name="returningTeammatesAreLogged()" classname="io.github.liangforstudy.zymbot.core.BotTest" time="0.012"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

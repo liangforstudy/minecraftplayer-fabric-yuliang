@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.IncomingTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.131Z" hostname="runnervmccnms" time="0.011">
+  <properties/>
+  <testcase name="anUnseenShooter_isHitBackTheWayItCame()" classname="io.github.liangforstudy.zymbot.core.body.IncomingTest" time="0.004"/>
+  <testcase name="aFireballComingAtUs_facesTheGhast_hitsItInReach_thenTheWalkGoesOn()" classname="io.github.liangforstudy.zymbot.core.body.IncomingTest" time="0.003"/>
+  <testcase name="dugIn_orAnArrow_isNoTrigger()" classname="io.github.liangforstudy.zymbot.core.body.IncomingTest" time="0.001"/>
+  <testcase name="aDriftingGhast_isLedByWhereItWillBeWhenTheFireballGetsBack()" classname="io.github.liangforstudy.zymbot.core.body.IncomingTest" time="0.002"/>
+  <testcase name="aFireballPassingWide_isLeftAlone()" classname="io.github.liangforstudy.zymbot.core.body.IncomingTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

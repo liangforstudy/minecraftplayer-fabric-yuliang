@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.docs.SkillDocTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.230Z" hostname="runnervmccnms" time="0.011">
+  <properties/>
+  <testcase name="theCopyNextToTheOtherDocs_isTheSame()" classname="io.github.liangforstudy.zymbot.core.docs.SkillDocTest" time="0.002"/>
+  <testcase name="theSkillsCommandTable_matchesTheRegisteredCommands()" classname="io.github.liangforstudy.zymbot.core.docs.SkillDocTest" time="0.008"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

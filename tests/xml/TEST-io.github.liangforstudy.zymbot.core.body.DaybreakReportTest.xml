@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.DaybreakReportTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.019Z" hostname="runnervmccnms" time="0.011">
+  <properties/>
+  <testcase name="night_givesTheClockTime_atTheMeasuredPace()" classname="io.github.liangforstudy.zymbot.core.body.DaybreakReportTest" time="0.004"/>
+  <testcase name="day_saysWhenTheyStart()" classname="io.github.liangforstudy.zymbot.core.body.DaybreakReportTest" time="0.001"/>
+  <testcase name="storm_onWhenWeJoined_givesOnlyTheLatest_andACalmAfter()" classname="io.github.liangforstudy.zymbot.core.body.DaybreakReportTest" time="0.0"/>
+  <testcase name="clockRate_ridesOverStallsAndJumps_butStartsOverOnBigOnes()" classname="io.github.liangforstudy.zymbot.core.body.DaybreakReportTest" time="0.0"/>
+  <testcase name="storm_seenStarting_givesARange_thenTheClearSchedule()" classname="io.github.liangforstudy.zymbot.core.body.DaybreakReportTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

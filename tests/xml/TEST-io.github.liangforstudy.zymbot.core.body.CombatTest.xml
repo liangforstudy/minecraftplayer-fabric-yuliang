@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.CombatTest" tests="29" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.906Z" hostname="runnervmccnms" time="0.069">
+  <properties/>
+  <testcase name="criticalHealth_withShootersAbout_takesCoverRatherThanRunning()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.007"/>
+  <testcase name="mobsInACaveBelow_areNoCrowd_andACreeperThereIsNoThreat()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.004"/>
+  <testcase name="aCreeperClose_withNoWeapon_isBackedAwayFrom_beforeItHits()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.004"/>
+  <testcase name="twoSkeletonsBare_takesCoverBehindTheWall()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.004"/>
+  <testcase name="zymcivKeepsItsOwnRules()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="lowOnHealth_onlyGoodArmorKeepsFighting()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="aSkeletonInSight_isRushed_butNotOneBehindAWall()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="flyersAlwaysMeanCover_evenInGoodArmor()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.0"/>
+  <testcase name="aPiglin_isNeverHitBack()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.002"/>
+  <testcase name="twoZombies_inFullIron_areFought()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="aGhast_inGoodArmor_takesCover_andStaysWhileHidden()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.007"/>
+  <testcase name="aZombieFurtherOff_orAnEndermanClose_isLeftBe()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="aSiegeGrowsMidFight_theFightGivesWayToBackingOff()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.003"/>
+  <testcase name="started_theOwnersKeysPauseTheFight_andItGoesOnHalfASecondAfterTheyLetGo()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.002"/>
+  <testcase name="aZombieHitsMidWalk_swordOut_hitOnTheRecharge_thenTheWalkGoesOn()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="aZombieWalkingUp_isFoughtBeforeItHits()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="backingOff_turnsAlongACliffFace_notIntoIt_andNeverOverLava()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="aZombieOutOfReach_isClosedOnFirst()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="gearByArmorPoints()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="aLongFight_turningAndBobbing_isNotFidgeting()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.006"/>
+  <testcase name="noCoverInReach_backsOffInstead()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.003"/>
+  <testcase name="backingOff_goesAroundAnotherMobAhead_notThroughIt()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="bestWeapon_inTheHotbar_byMaterialThenSwordOverAxe()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="inCover_aSkeletonThatWalksRoundIntoReach_isHit()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.003"/>
+  <testcase name="aLoneZombieIsFought_twoOnlyWithArmor()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.0"/>
+  <testcase name="groundShootersAreRushed_whenTheyDontOutnumberTheArmor_elseCover()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="twoZombies_bare_backsOff()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="twoZombiesWalkingUp_bare_backsOffBeforeTheyHit()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <testcase name="neverHit_strongOnesNeutralsAndUnknowns()" classname="io.github.liangforstudy.zymbot.core.body.CombatTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

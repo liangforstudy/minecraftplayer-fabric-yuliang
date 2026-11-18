@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.CraftTaskTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.343Z" hostname="runnervmccnms" time="0.023">
+  <properties/>
+  <testcase name="wholeStack_goesInWithOneClick()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.003"/>
+  <testcase name="planks_fromLogsInTheHandGrid_takesOnlyWhatItsTold_andClosesTheScreen()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.0"/>
+  <testcase name="place_neverInsideUs()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.0"/>
+  <testcase name="theServerTakingItBack_isAFailure_withWhatItSaid()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="sticksAndTable_inTheHandGrid()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="theHoe_layoutIsNotTheAxe()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="cancel_closesTheScreen()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="place_fails_withNothingToPlace_orNowhereToPutIt()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="notEnough_failsBeforeAnyClick()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.002"/>
+  <testcase name="place_thatLandsNextToTheSpot_isFound_notLost()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="recipesByName()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="mixedPlanks_stillMakeATable()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.002"/>
+  <testcase name="place_fromTheMainInventory_intoTheHotbar_thenNextToUs()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.002"/>
+  <testcase name="anAxe_needsTheTable_walksThere_opensIt_andCrafts()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <testcase name="leftoversInTheGrid_areClearedFirst()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.0"/>
+  <testcase name="tooHungry_doesntStart()" classname="io.github.liangforstudy.zymbot.core.CraftTaskTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

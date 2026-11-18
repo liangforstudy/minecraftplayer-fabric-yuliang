@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.294Z" hostname="runnervmccnms" time="0.086">
+  <properties/>
+  <testcase name="cliffsAreWalkedRound()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.002"/>
+  <testcase name="aLakeIsWalkedRound()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.001"/>
+  <testcase name="aDryRoute_isOneLeg_forBaritoneToWalkWhole()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.001"/>
+  <testcase name="outOfTime_givesTheBestSoFar_andSaysSo()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.068"/>
+  <testcase name="aBridgeWithinReach_beatsSwimming()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.001"/>
+  <testcase name="aFlatDetour_beatsGoingOverAHill()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.001"/>
+  <testcase name="atTheMeasuredSwimCost_aFarBridgeLoses_aNearOneWins()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.001"/>
+  <testcase name="longDryStretchesAreCutIntoLegs()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.002"/>
+  <testcase name="aGoalBeyondTheLoadedArea_endsAsCloseAsItCan()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.002"/>
+  <testcase name="anIsland_swimsOnlyTheShortestGap_andTheLegsSaySo()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.002"/>
+  <testcase name="noBridge_crossesAtTheNarrowestPoint()" classname="io.github.liangforstudy.zymbot.core.route.RoutePlannerTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

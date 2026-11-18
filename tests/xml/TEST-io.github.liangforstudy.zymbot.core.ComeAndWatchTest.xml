@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" tests="14" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:31.282Z" hostname="runnervmccnms" time="0.061">
+  <properties/>
+  <testcase name="graveLootMe_isMyGrave_byTheSamePath()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.009"/>
+  <testcase name="watch_sendsMyDecisionsByMsg_untilStopped()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.011"/>
+  <testcase name="come_stopsAFewBlocksShort_notOnTopOfYou()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.005"/>
+  <testcase name="see_asksTheBotOverTheBus_andPrintsItsStatus()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.014"/>
+  <testcase name="grave_onlyStrangersGraves_walksToTheDeathSpot_neverOpensThem()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.004"/>
+  <testcase name="teammate_grave_borrowsTheControls()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.002"/>
+  <testcase name="come_usesTheLastAnnouncement_whenOutOfSight()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.001"/>
+  <testcase name="busOff_seeAndWatchSendNothing()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.001"/>
+  <testcase name="graveLoot_takesFromTheNamedPlayersGrave_untilEmpty()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.002"/>
+  <testcase name="grave_unknownOwnerOpensAsAChest_closedAtOnce_noLooting()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.002"/>
+  <testcase name="grave_walkOver_rightClickWithAnEmptyHand_untilItsGone()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.002"/>
+  <testcase name="grave_skipsSomeoneElsesNearerGrave_forMine()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.002"/>
+  <testcase name="see_saysNoAnswer_afterTheTimeout()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.001"/>
+  <testcase name="aBotCantSeeOrWatchOtherBots_onlyItself()" classname="io.github.liangforstudy.zymbot.core.ComeAndWatchTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

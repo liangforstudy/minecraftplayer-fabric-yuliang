@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.team.HandshakeTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.438Z" hostname="runnervmccnms" time="0.011">
+  <properties/>
+  <testcase name="aBotAsksPlayersAsFarAsTheServerShowsThem_notJust32Blocks()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.002"/>
+  <testcase name="aCopiedAnswer_isNeverOurTeam()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.002"/>
+  <testcase name="ordinaryWhispersAreLeftAlone()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.0"/>
+  <testcase name="theOwnersClientStaysSilent_andABotAnswers()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.001"/>
+  <testcase name="aWhisperWithNoSenderAttached_isReadFromItsLine()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.001"/>
+  <testcase name="aBotWithAnotherKey_isAnotherTeamsBot()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.001"/>
+  <testcase name="aBotOnOurTeam_answersWithOurKey()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.001"/>
+  <testcase name="aSilentClient_answersNothing()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.0"/>
+  <testcase name="aLateFirstAnswer_stillCounts()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.0"/>
+  <testcase name="noAnswer_isAskedOnceMore_thenAHuman()" classname="io.github.liangforstudy.zymbot.core.team.HandshakeTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

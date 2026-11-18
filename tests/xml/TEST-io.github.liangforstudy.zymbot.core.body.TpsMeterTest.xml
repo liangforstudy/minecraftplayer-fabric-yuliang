@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.TpsMeterTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.213Z" hostname="runnervmccnms" time="0.003">
+  <properties/>
+  <testcase name="onlyTheLast10Seconds_count_andTimeGoingBack_startsOver()" classname="io.github.liangforstudy.zymbot.core.body.TpsMeterTest" time="0.0"/>
+  <testcase name="aServerThatStopsSending_isStalled_notStillHealthy()" classname="io.github.liangforstudy.zymbot.core.body.TpsMeterTest" time="0.0"/>
+  <testcase name="aHealthyServer_is20_aSlowOne_isWhatItGains()" classname="io.github.liangforstudy.zymbot.core.body.TpsMeterTest" time="0.0"/>
+  <testcase name="aGameTimeThatStaysPutThenJumps_countsUpdatesInstead()" classname="io.github.liangforstudy.zymbot.core.body.TpsMeterTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

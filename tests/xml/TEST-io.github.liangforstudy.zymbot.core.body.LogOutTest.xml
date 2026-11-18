@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.LogOutTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.143Z" hostname="runnervmccnms" time="0.005">
+  <properties/>
+  <testcase name="bare_hurtAt8_logsOut_sayingWhyAndWhere()" classname="io.github.liangforstudy.zymbot.core.body.LogOutTest" time="0.001"/>
+  <testcase name="withGoldenApples_theLineIs6()" classname="io.github.liangforstudy.zymbot.core.body.LogOutTest" time="0.001"/>
+  <testcase name="withATotemInTheOffhand_theLineIs4()" classname="io.github.liangforstudy.zymbot.core.body.LogOutTest" time="0.001"/>
+  <testcase name="lowButNotBeingHurt_staysOn()" classname="io.github.liangforstudy.zymbot.core.body.LogOutTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

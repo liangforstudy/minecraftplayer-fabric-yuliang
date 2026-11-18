@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.body.HangGuardTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.090Z" hostname="runnervmccnms" time="0.001">
+  <properties/>
+  <testcase name="defaults_onAnd15Seconds_adjustable()" classname="io.github.liangforstudy.zymbot.core.body.HangGuardTest" time="0.0"/>
+  <testcase name="twoHitsFromAnUnseenMob_within10s_logOut()" classname="io.github.liangforstudy.zymbot.core.body.HangGuardTest" time="0.001"/>
+  <testcase name="firesOnce_afterTheTimeout_andOnlyWhileArmedAndOn()" classname="io.github.liangforstudy.zymbot.core.body.HangGuardTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

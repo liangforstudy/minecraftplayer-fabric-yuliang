@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.github.liangforstudy.zymbot.core.protocol.LocalBusTransportTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-11-18T13:10:32.241Z" hostname="runnervmccnms" time="0.034">
+  <properties/>
+  <testcase name="twoEndpointsOnOneMachineHearEachOther()" classname="io.github.liangforstudy.zymbot.core.protocol.LocalBusTransportTest" time="0.034"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
