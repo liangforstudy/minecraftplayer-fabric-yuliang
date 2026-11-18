@@ -1068,6 +1068,29 @@ public final class Bot {
         return "walking to " + where + pathfinderWarning() + lent;
     }
 
+    /** Freecam (issue #9): walk to a container block and open it. */
+    public String openBlock(String what, int x, int y, int z) {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        BlockPos at = new BlockPos(x, y, z);
+        String lent = oneShot(Objective.of("open " + what, "clicked in freecam",
+                (world, h) -> io.github.liangforstudy.zymbot.core.task.OpenTask.block(h, what + " at " + x + " " + y + " " + z, at)));
+        return "walking to open " + what + " at " + x + " " + y + " " + z + pathfinderWarning() + lent;
+    }
+
+    /**
+     * Freecam (issue #9): walk to an entity with a container (a chest minecart, a donkey) and open it.
+     * {@code pos}: where it is now, null once it's gone (the adapter's lookup: minecarts aren't in nearby()).
+     */
+    public String openEntity(String what, int entityId, boolean sneak,
+                             java.util.function.Supplier<io.github.liangforstudy.zymbot.core.api.Vec3> pos) {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        String lent = oneShot(Objective.of("open " + what, "clicked in freecam",
+                (world, h) -> io.github.liangforstudy.zymbot.core.task.OpenTask.entity(h, what, entityId, pos, sneak)));
+        return "walking to open " + what + pathfinderWarning() + lent;
+    }
+
     // ------------------------------------------------------------------ waypoints and routes (roadmap §2)
 
     /** A waypoint at {@code x y z} ({@code y} null: any height), in the dimension we're in now. */

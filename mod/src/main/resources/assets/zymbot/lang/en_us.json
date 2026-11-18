@@ -2,5 +2,6 @@
   "key.categories.zymbot": "Zymbot",
   "key.category.zymbot.zymbot": "Zymbot",
   "key.zymbot.emergency_stop": "Emergency stop (/zbot stop)",
-  "key.zymbot.start": "Start (/zbot start)"
+  "key.zymbot.start": "Start (/zbot start)",
+  "key.zymbot.freecam": "Freecam (/zbot freecam)"
 }

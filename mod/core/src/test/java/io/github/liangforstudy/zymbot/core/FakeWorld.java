@@ -162,6 +162,8 @@ public final class FakeWorld implements WorldView, Hands {
         return blocks.entrySet().stream().filter(e -> e.getValue().equals(id)).map(java.util.Map.Entry::getKey).findFirst();
     }
     @Override public void useOn(BlockPos b) { used.add(b); }
+    public final List<Integer> usedEntities = new ArrayList<>();
+    @Override public void useOnEntity(int entityId, boolean sneak) { usedEntities.add(sneak ? -entityId : entityId); }
 
     // ------------------------------------------------------------------ graves (PHASE3_FIXLIST #1)
 

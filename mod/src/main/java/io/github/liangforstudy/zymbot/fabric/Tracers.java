@@ -162,7 +162,7 @@ final class Tracers {
     static void emit(Minecraft mc, float partialTick) {
         //? if >=26.2 {
         /*if (!cfg().tracers || mc.level == null || mc.player == null) return;
-        net.minecraft.client.Camera camera = mc.gameRenderer.getMainCamera();
+        net.minecraft.client.Camera camera = mc.gameRenderer.mainCamera();
         if (!camera.isInitialized()) return;
         Vec3 eye = camera.position();
         Vec3 start = crosshair(mc, camera, eye);

@@ -81,6 +81,8 @@ public final class ZymbotClient implements ClientModInitializer {
     ZymbotConfig config() { return config; }
     /** Null until the first world is joined. */
     Bot bot() { return bot; }
+    /** Null until the first world is joined. */
+    FabricHands hands() { return hands; }
 
     /** Save settings edited in the screen. With a bot live, it re-checks roles/servers at once. */
     void settingsEdited() {
@@ -120,6 +122,8 @@ public final class ZymbotClient implements ClientModInitializer {
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
         startKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.start",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
+        freecamKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.freecam",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key) -> {
                     if (!typingIn(s)) pressed(mc, stopKey.matches(key), startKey.matches(key));
@@ -128,6 +132,8 @@ public final class ZymbotClient implements ClientModInitializer {
         stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
         startKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.start",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
+        freecamKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.freecam",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key, scancode, modifiers) -> {
@@ -141,8 +147,16 @@ public final class ZymbotClient implements ClientModInitializer {
         // the bot exists from the title screen on, so a summon can reach it before any world
         ClientLifecycleEvents.CLIENT_STARTED.register(this::createBot);
         ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); ACKS.reset(); CLOCK.reset(); STORMS.reset(); onJoin(mc); });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { Freecam.stop(mc); if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+        // freecam (#9): before the game reads the keys, so the human's movement and clicks go to the camera
+        ClientTickEvents.START_CLIENT_TICK.register(mc -> {
+            while (freecamKey != null && freecamKey.consumeClick()) {
+                if (hands != null) hands.notifyLocal(Freecam.toggle(mc));
+                else Freecam.toggle(mc);
+            }
+            Freecam.beforeTick(mc);
+        });
         // ALLOW_CHAT, not CHAT: a bot keeps the chat check (roadmap3.md §4) off its chat screen, and a
         // line held back here never reaches CHAT
         ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signed, sender, params, at) -> {
@@ -252,6 +266,7 @@ public final class ZymbotClient implements ClientModInitializer {
 
     private KeyMapping stopKey;
     private KeyMapping startKey;
+    private KeyMapping freecamKey;
 
     /**
      * The stop and start keys, pressed. On one key between them, a press toggles: stop while the bot

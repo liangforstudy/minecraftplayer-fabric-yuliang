@@ -173,6 +173,28 @@ final class FabricHands implements Hands {
         mc.player.swing(InteractionHand.MAIN_HAND);
     }
 
+    /** A donkey's inventory: sneak first, use once the server has seen the sneak, then let go (freecam, #9). */
+    private int sneakUseOn = -1, sneakUseTicks;
+
+    @Override
+    public void useOnEntity(int entityId, boolean sneak) {
+        if (mc.player == null || mc.gameMode == null || mc.level == null) return;
+        if (sneak) {
+            sneakUseOn = entityId;
+            sneakUseTicks = 0;
+            mc.options.keyShift.setDown(true);
+            return;
+        }
+        interact(entityId);
+    }
+
+    private void interact(int entityId) {
+        net.minecraft.world.entity.Entity e = mc.level.getEntity(entityId);
+        if (e == null || mc.player == null || mc.gameMode == null) return;
+        mc.gameMode.interact(mc.player, e, InteractionHand.MAIN_HAND);
+        mc.player.swing(InteractionHand.MAIN_HAND);
+    }
+
     /** Shift-click each filled slot of the open container (not our own inventory's) — what fits moves over. */
     @Override
     public void takeAllFromContainer() {
@@ -300,6 +322,14 @@ final class FabricHands implements Hands {
      * brain halted, paused, died...), let go — attack is never left held.
      */
     void endTick() {
+        if (sneakUseOn >= 0) {
+            sneakUseTicks++;
+            if (sneakUseTicks == 3) interact(sneakUseOn);
+            if (sneakUseTicks >= 5) {
+                mc.options.keyShift.setDown(false);
+                sneakUseOn = -1;
+            }
+        }
         if (!minedThisTick && (digging || BotDigging.active)) stopMining();
         minedThisTick = false;
     }
