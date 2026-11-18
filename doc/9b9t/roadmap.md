@@ -1419,7 +1419,14 @@ hotbar, at least basic armor and health above critical + 4; otherwise backed awa
 **Still open:** two creepers at once only backs off (and loops when the retreat stops short); a real
 9b9t try; FightTask's recharge under lag. The hit tally under-counted by one in one singleplayer run.
 
-## Issues #7-#11 (agreed with the owner, 2026-11-18; no code yet)
+## Issues #7-#11 (agreed with the owner, 2026-11-18)
+
+**Built 2026-11-18 (#7-#10, branch `issues-7-10`): compiles for 26.2 and passes core tests in CI; not yet
+tried in game.** Switches on a new **Features** tab; `hangwait` and `tracelimit` on the Body tab and
+`/zbot set`. Defaults: hang guard and ghost-mob guard on; auto totem and auto eat on (under
+`/zbot start`); auto-start on 9b9t off; tracers off (players ticked once on). To check in game: the
+freecam's turn and key handling, tracers' crosshair start, a donkey opening with sneak, the hang guard
+on a real freeze (its log prints the frozen thread's stack).
 
 **26.2 only for now.** 1.21.1 and 1.21.11 are deprecated: CI builds and publishes only 26.2
 (`ACTIVE_VERSIONS` in `.github/workflows/build.yml`). They stay in Stonecutter untouched, so turning them
@@ -1448,7 +1455,12 @@ back on is one line. Everything below is for the 26.2 build.
 - **Chest Tracker API (read-only):** clicking a container out of reach asks Chest Tracker what it has
   recorded at that position and shows it. Zymbot never writes to Chest Tracker; Chest Tracker records
   as it does now when a container is really opened. An API in Chest Tracker (soft dependency, like
-  Baritone's or JourneyMap's), not a mixin: to ask Chest Tracker's agent for it.
+  Baritone's or JourneyMap's), not a mixin: to ask Chest Tracker's agent for it. Zymbot looks it up by
+  reflection: `io.github.liangforstudy.entitytracker.api.ChestTrackerApi.describe(String dimension, int x,
+  int y, int z)` → `List<String>` (a heading, then one line per stack) or null when nothing is recorded.
+- Built as: left-click a block = walk there; a container or chest minecart/boat or donkey/mule/llama =
+  walk there and open it (donkeys with sneak); **shift + left-click** a container = Chest Tracker's record;
+  right-click = cancel. Freecam key (unbound) or `/zbot freecam`.
 
 ### #10 Hang guard, and mobs the client doesn't show
 - A watchdog **thread** in the game process: the main thread checks in each tick; after **15 s**
