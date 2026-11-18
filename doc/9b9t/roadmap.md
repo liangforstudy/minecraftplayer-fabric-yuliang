@@ -1459,10 +1459,10 @@ back on is one line. Everything below is for the 26.2 build.
   reflection: `io.github.liangforstudy.entitytracker.api.ChestTrackerApi.describe(String dimension, int x,
   int y, int z)` → `List<String>` (a heading, then one line per stack) or null when nothing is recorded.
 - Built as: left-click a block = walk there; a container or chest minecart/boat or donkey/mule/llama =
-  walk there and open it (donkeys with sneak); **shift + left-click** any block or entity = Chest Tracker's
+  walk there and open it (donkeys with sneak); **hold Ctrl** over any block or entity = Chest Tracker's
   record (its API landed 2026-11-18: `describe(dim, x, y, z)` and `describeEntity(uuid)`, heading with the
   record's age, then stacks or a villager's trades);
-  right-click = cancel. Freecam key (unbound) or `/zbot freecam`.
+  right-click = cancel; Space up, Shift down (owner, 2026-11-18). Freecam key (unbound) or `/zbot freecam`.
 
 ### #10 Hang guard, and mobs the client doesn't show
 - A watchdog **thread** in the game process: the main thread checks in each tick; after **15 s**

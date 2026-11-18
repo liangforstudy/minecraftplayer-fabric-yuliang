@@ -160,7 +160,7 @@ control (`start`, role Bot); pressing a movement key pauses it for a few seconds
 | `spy [<bot>]` | the same as `see` (another name, same arguments) |
 | `start` / `stop` | hand control to the bot / take it back |
 | `role bot\|teammate\|none` | what this account is (Bot: bot plays it; Teammate: human plays, it announces) |
-| `freecam` | toggle Zymbot's freecam (also the Freecam key, unbound by default): the camera flies, the player stays; left-click a block to walk there, a container (or chest minecart, donkey) to walk there and open it, shift + left-click a block or entity for Chest Tracker's record (contents, trades), right-click to cancel (issue #9) |
+| `freecam` | toggle Zymbot's freecam (also the Freecam key, unbound by default): the camera flies, the player stays; left-click a block to walk there, a container (or chest minecart, donkey) to walk there and open it, Space/Shift fly up/down, hold Ctrl over a block or entity for Chest Tracker's record (contents, trades), right-click to cancel (issue #9) |
 | `goto <x> <z>` / `goto <x> <y> <z>` / `goto <player>` | walk there via the route planner + Baritone; with a player name it is `come` |
 | `wp add <name> <x> <y> <z>` / `wp add <name> <x> <z>` / `wp add <name> here`, `wp remove <name>`, `wp list` | waypoints, kept per server with the dimension they're in (`~` works); one on a route can't be removed |
 | `route add <name> <wp> <wp> …`, `route remove <name>`, `route list` | routes: waypoints in order, no limit between them, all in one dimension; `list` says where one was cut short |

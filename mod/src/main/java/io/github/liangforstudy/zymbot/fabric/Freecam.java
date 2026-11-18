@@ -17,14 +17,14 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Zymbot's own freecam (issue #9). The camera leaves the player and flies on the movement keys (jump up,
- * sneak down, sprint faster), turned by the mouse; the player stays put, so the bot and Baritone keep
+ * Zymbot's own freecam (issue #9). The camera leaves the player and flies on the movement keys (Space
+ * up, Shift down), turned by the mouse; the player stays put, so the bot and Baritone keep
  * control of it. Clicks go to the freecam, never to the player:
  * <ul>
  *   <li>left-click a block: Baritone walks the player there (breaking and placing as {@code goto} allows);</li>
  *   <li>left-click a container (chest, barrel, shulker...) or an entity with one (chest minecart, donkey):
  *       walk there and open it (Chest Tracker records it as usual);</li>
- *   <li>shift + left-click a block or an entity: what Chest Tracker last recorded there (contents, a
+ *   <li>hold Ctrl over a block or an entity: what Chest Tracker last recorded there (contents, a
  *       villager's trades), if it's installed (read-only: Zymbot never writes to Chest Tracker);</li>
  *   <li>right-click: cancel the walk.</li>
  * </ul>
@@ -32,7 +32,9 @@ import net.minecraft.world.phys.Vec3;
  * The camera is an armor stand that is never added to the world, so nothing is sent for it.
  */
 final class Freecam {
-    private static final double SPEED = 1.0, SPRINT = 3.0, REACH = 256;
+    private static final double SPEED = 1.0, REACH = 256;
+    /** What Ctrl last showed, so holding it on one thing shows it once. */
+    private static String peeked;
 
     private static ArmorStand camera;
     private static Object levelFor;
@@ -98,9 +100,10 @@ final class Freecam {
         if (mc.screen != null) return;                      // chat, a chest: the camera holds still
         var o = mc.options;
         boolean fwd = take(mc, o.keyUp), back = take(mc, o.keyDown), left = take(mc, o.keyLeft), right = take(mc, o.keyRight);
-        boolean up = take(mc, o.keyJump), down = take(mc, o.keyShift), fast = take(mc, o.keySprint);
+        boolean up = take(mc, o.keyJump), down = take(mc, o.keyShift);
+        take(mc, o.keySprint);                              // Ctrl is for looking (below), and the player mustn't sprint
         syncOld();
-        double speed = fast ? SPRINT : SPEED;
+        double speed = SPEED;
         double f = (fwd ? 1 : 0) - (back ? 1 : 0), s = (left ? 1 : 0) - (right ? 1 : 0), v = (up ? 1 : 0) - (down ? 1 : 0);
         if (f != 0 || s != 0 || v != 0) {
             double yaw = Math.toRadians(camera.getYRot());
@@ -109,6 +112,7 @@ final class Freecam {
             double dx = (-sin * f + cos * s) / len * speed, dz = (cos * f + sin * s) / len * speed;
             camera.setPos(camera.getX() + dx, camera.getY() + v * speed, camera.getZ() + dz);
         }
+        peek(mc);
         while (o.keyAttack.consumeClick()) leftClick(mc);
         while (o.keyUse.consumeClick()) rightClick(mc);
         if (physicallyDown(mc, o.keyAttack)) o.keyAttack.setDown(false);
@@ -158,6 +162,31 @@ final class Freecam {
         return Optional.of(new Hit(b.getBlockPos(), null));
     }
 
+    /**
+     * Hold Ctrl: what Chest Tracker last recorded for the block or entity the camera looks at (contents,
+     * a villager's trades), once per thing looked at. Nothing walks or opens.
+     */
+    private static void peek(Minecraft mc) {
+        if (!McCompat.controlDown()) {
+            peeked = null;
+            return;
+        }
+        FabricHands hands = ZymbotClient.get().hands();
+        Optional<Hit> hit = look(mc);
+        if (hands == null || hit.isEmpty()) return;
+        Entity e = hit.get().entity();
+        BlockPos p = hit.get().block();
+        String key = e != null ? e.getUUID().toString() : p.toShortString();
+        if (key.equals(peeked)) return;
+        peeked = key;
+        if (e != null) {
+            hands.notifyLocal(ChestTrackerLookup.describeEntity(key, e.getName().getString()));
+        } else {
+            String block = BuiltInRegistries.BLOCK.getKey(mc.level.getBlockState(p).getBlock()).getPath().replace('_', ' ');
+            hands.notifyLocal(ChestTrackerLookup.describe(mc, p, block));
+        }
+    }
+
     private static void leftClick(Minecraft mc) {
         Bot bot = ZymbotClient.get().bot();
         FabricHands hands = ZymbotClient.get().hands();
@@ -171,10 +200,6 @@ final class Freecam {
             Entity e = hit.get().entity();
             String type = BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).getPath();
             String name = e.getName().getString();
-            if (McCompat.shiftDown()) {                        // Chest Tracker's record, nothing walked or opened
-                hands.notifyLocal(ChestTrackerLookup.describeEntity(e.getUUID().toString(), name));
-                return;
-            }
             if (opensByEntity(type)) {
                 boolean sneak = rideable(type);
                 int id = e.getId();
@@ -191,10 +216,6 @@ final class Freecam {
         }
         BlockPos p = hit.get().block();
         String block = BuiltInRegistries.BLOCK.getKey(mc.level.getBlockState(p).getBlock()).getPath().replace('_', ' ');
-        if (McCompat.shiftDown()) {                            // any block Chest Tracker records: chests, lecterns, shelves...
-            hands.notifyLocal(ChestTrackerLookup.describe(mc, p, block));
-            return;
-        }
         if (isContainer(mc, p)) {
             hands.notifyLocal(bot.openBlock(block, p.getX(), p.getY(), p.getZ()));
             return;
