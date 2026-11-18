@@ -121,7 +121,7 @@ class ProfileTest {
     void anarchyOffersOnlyItsOwnTunables() {
         ZymbotConfig cfg = new ZymbotConfig();
         Bot b = bot(new FakeWorld("Bluetails"), cfg, Profile.ANARCHY);
-        assertEquals(List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend"), b.tunables());
+        assertEquals(List.of("critical", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend", "hangwait"), b.tunables());
         assertTrue(b.set("leash", 30).contains("ZymCiv feature"), b.set("leash", 30));
         assertEquals(21, cfg.leashBlocks);
         assertEquals("critical = 10", b.set("critical", 10));

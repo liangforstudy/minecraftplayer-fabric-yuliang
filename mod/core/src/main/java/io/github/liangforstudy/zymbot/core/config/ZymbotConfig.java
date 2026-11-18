@@ -239,6 +239,16 @@ public final class ZymbotConfig {
     public int nightResumeAt = 22822;
 
     /**
+     * Hang guard (issue #10): when the game itself freezes on a server for {@link #hangGuardSeconds},
+     * a watchdog thread closes the connection, so the player leaves at once instead of standing there.
+     * On by default, with or without {@code /zbot start}.
+     */
+    public boolean hangGuard = true;
+    public int hangGuardSeconds = 15;
+    /** Log out after two hits within 10 s from a mob the client doesn't show (issue #10, ghost mobs). */
+    public boolean ghostGuard = true;
+
+    /**
      * Rules for one server (owner, 2026-11-17), keyed by {@link AutostartPolicy#normalize}: an address, or
      * "singleplayer" for every world. Anything not set here keeps the defaults.
      */
@@ -352,7 +362,8 @@ public final class ZymbotConfig {
             java.util.Map.entry("plantime", new int[]{50, 5000}), java.util.Map.entry("lagtps", new int[]{5, 19}),
             java.util.Map.entry("heel", new int[]{1, 256}), java.util.Map.entry("fireres", new int[]{0, 20}),
             java.util.Map.entry("resume", new int[]{0, 2000}), java.util.Map.entry("routefar", new int[]{0, 1_000_000}),
-            java.util.Map.entry("nightstop", new int[]{12000, 13179}), java.util.Map.entry("nightend", new int[]{22822, 24000}));
+            java.util.Map.entry("nightstop", new int[]{12000, 13179}), java.util.Map.entry("nightend", new int[]{22822, 24000}),
+            java.util.Map.entry("hangwait", new int[]{5, 300}));
 
     public int tunable(String name) {
         return switch (name) {
@@ -370,6 +381,7 @@ public final class ZymbotConfig {
             case "routefar" -> routeFarBlocks;
             case "nightstop" -> nightStopAt;
             case "nightend" -> nightResumeAt;
+            case "hangwait" -> hangGuardSeconds;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -377,7 +389,7 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop or nightend";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop, nightend or hangwait";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> {
@@ -399,6 +411,7 @@ public final class ZymbotConfig {
             case "routefar" -> routeFarBlocks = value;
             case "nightstop" -> nightStopAt = value;
             case "nightend" -> nightResumeAt = value;
+            case "hangwait" -> hangGuardSeconds = value;
             default -> criticalHealth = value;
         }
         return null;

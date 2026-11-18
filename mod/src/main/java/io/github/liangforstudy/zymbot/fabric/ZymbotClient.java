@@ -33,6 +33,7 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
 import io.github.liangforstudy.zymbot.core.protocol.SummonTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,10 @@ public final class ZymbotClient implements ClientModInitializer {
     private net.minecraft.client.multiplayer.ClientLevel lastLevel;
     private boolean lastPlayerDead;
     private int lives;
+    /** Issue #10: the hang guard's watchdog, and the ghost-mob guard (both on without /zbot start). */
+    private HangGuard hangGuard;
+    private final io.github.liangforstudy.zymbot.core.body.GhostHitWatch ghosts = new io.github.liangforstudy.zymbot.core.body.GhostHitWatch();
+    private net.minecraft.world.damagesource.DamageSource lastHit;
 
     static ZymbotClient get() { return instance; }
     ZymbotConfig config() { return config; }
@@ -98,6 +103,7 @@ public final class ZymbotClient implements ClientModInitializer {
         instance = this;
         configFile = FabricLoader.getInstance().getConfigDir().resolve("zymbot.json");
         config = ConfigIO.load(configFile);
+        hangGuard = new HangGuard(config);
         io.github.liangforstudy.zymbot.core.Profile.parkTeam(McCompat.TEAM_PARKED);   // before any Bot is made
         LOG.info("[zymbot] loaded — command /{}{}, {}, profile {}{}", config.commandRoot,
                 config.commandAliases.isEmpty() ? "" : " (aliases " + config.commandAliases + ")",
@@ -304,6 +310,8 @@ public final class ZymbotClient implements ClientModInitializer {
     }
 
     private void onTick(Minecraft mc) {
+        hangGuard.tick(mc);
+        if (ghostHitsSayLeave(mc)) return;
         if (stopKey != null) {                                  // no screen open: the usual way
             while (true) {
                 boolean stop = stopKey.consumeClick(), start = startKey.consumeClick();
@@ -379,6 +387,33 @@ public final class ZymbotClient implements ClientModInitializer {
         if (hands.logOutIfAsked()) return;                       // the log-out reflex: leave, now the tick is done
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
+    }
+
+    /**
+     * Issue #10, ghost mobs: hits from a mob the client doesn't show (its damage type is a mob's, and
+     * there's no attacker on the client). Two within 10 s on a server: leave. True if it left.
+     */
+    private boolean ghostHitsSayLeave(Minecraft mc) {
+        if (mc.player == null || mc.hasSingleplayerServer()) {
+            lastHit = null;
+            ghosts.reset();
+            return false;
+        }
+        var src = mc.player.getLastDamageSource();               // a new object per hit; the client keeps it ~2 s
+        if (src == null || src == lastHit) return false;
+        lastHit = src;
+        String type = src.typeHolder().unwrapKey().map(McCompat::id).orElse("unknown");
+        var by = src.getEntity();
+        var hit = new io.github.liangforstudy.zymbot.core.api.Damage(type, by == null ? null : by.getName().getString(), null);
+        if (!config.ghostGuard || !ghosts.onHit(hit, System.currentTimeMillis())) return false;
+        var p = mc.player;
+        String why = "Zymbot logged out: hit twice by a mob your client doesn't show (" + type.replaceFirst("^minecraft:", "")
+                + "), health " + Math.round(p.getHealth() * 10) / 10.0 + ", at " + Math.round(p.getX()) + " "
+                + Math.round(p.getY()) + " " + Math.round(p.getZ());
+        boolean stopped = ZymbotProbes.turnOffMeteor("auto-reconnect");
+        LOG.info("[zymbot] ghost guard: {}{}", why, stopped ? " (turned off Meteor's Auto Reconnect)" : "");
+        McCompat.leaveWorld(mc, Component.literal(why + (stopped ? "\n\nMeteor's Auto Reconnect was turned off." : "")));
+        return true;
     }
 
     /** Only the experimental-settings prompt: its title key, and its skip button, by key. */

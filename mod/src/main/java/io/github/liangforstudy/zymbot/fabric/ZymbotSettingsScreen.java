@@ -30,7 +30,7 @@ import org.lwjgl.glfw.GLFW;
  * mean something there: no team key, no account list, no server list — it works out of the box.
  */
 final class ZymbotSettingsScreen extends Screen {
-    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY, HERE }
+    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY, HERE, FEATURES }
     private static final io.github.liangforstudy.zymbot.core.Profile PROFILE = McCompat.PROFILE;
     private static final boolean TEAM_TABS = PROFILE == io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
 
@@ -84,8 +84,9 @@ final class ZymbotSettingsScreen extends Screen {
             tabButton("Servers", Tab.SERVERS, cx + 1, 36);
             tabButton("Body", Tab.BODY, cx + 78, 36);
         } else {                                           // anarchy: the body, and this server's rules
-            tabButton("Body", Tab.BODY, cx - 76, 36);
-            tabButton("Server rules", Tab.HERE, cx + 1, 36);
+            tabButton("Body", Tab.BODY, cx - 115, 36);
+            tabButton("Server rules", Tab.HERE, cx - 38, 36);
+            tabButton("Features", Tab.FEATURES, cx + 39, 36);
         }
         int top = 68;
         switch (tab) {
@@ -94,6 +95,7 @@ final class ZymbotSettingsScreen extends Screen {
             case SERVERS -> initServers(cx, top);
             case BODY -> initBody(cx, top);
             case HERE -> initHere(cx, top);
+            case FEATURES -> initFeatures(cx, top);
         }
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
                 .bounds(cx - 50, height - 28, 100, 20).build());
@@ -314,6 +316,35 @@ final class ZymbotSettingsScreen extends Screen {
      * One server's rules: auto-logout, and a rule for each mob, picked from the mobs Zymbot knows (no
      * typing; the box is for modded ones). The same as /zbot logout and /zbot mob on that server.
      */
+    // ------------------------------------------------------------------ features (anarchy)
+
+    /** One On/Off row; returns the next row's y. */
+    private int toggleRow(int cx, int y, String text, boolean on, String tooltip, java.util.function.Consumer<Boolean> set) {
+        label(text, cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal(on ? "On" : "Off"), b -> {
+            set.accept(!on);
+            ZymbotClient.get().settingsEdited();
+            say(text + ": " + (on ? "off" : "on"), on ? GREY : GREEN);
+            rebuildWidgets();
+        }).bounds(cx + 94, y, 56, 20)
+                .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(tooltip)))
+                .build());
+        return y + ROW_H;
+    }
+
+    /** Switches that work with or without /zbot start, and the jobs /zbot start runs (issues #7-#10). */
+    private void initFeatures(int cx, int top) {
+        int y = top;
+        y = toggleRow(cx, y, "Hang guard (leave if the game freezes)", cfg().hangGuard,
+                "If the game stops responding on a server for " + cfg().hangGuardSeconds + " s, close the connection so\n"
+                        + "you leave at once. Works without /" + cfg().commandRoot + " start.\n§7The time: Body tab, or /" + cfg().commandRoot + " set hangwait <s>",
+                v -> cfg().hangGuard = v);
+        y = toggleRow(cx, y, "Ghost-mob guard", cfg().ghostGuard,
+                "Log out after two hits within 10 s from a mob your client doesn't show.\nWorks without /" + cfg().commandRoot + " start.",
+                v -> cfg().ghostGuard = v);
+        contentBottom = y;
+    }
+
     private void initHere(int cx, int top) {
         List<String> servers = ruleServers();
         if (rulesServer == null || !servers.contains(rulesServer)) rulesServer = servers.get(0);
@@ -418,7 +449,8 @@ final class ZymbotSettingsScreen extends Screen {
             {"resume", "Play again after you let go (ms)"},
             {"routefar", "Route: ask first when its start is over (blocks)"},
             {"nightstop", "Route: dig in for the night from day time"},
-            {"nightend", "Route: go on at day time (22822 = first light)"}})
+            {"nightend", "Route: go on at day time (22822 = first light)"},
+            {"hangwait", "Hang guard: leave after frozen for (s)"}})
             .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
