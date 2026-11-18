@@ -48,7 +48,7 @@ public final class CriticalHealthInterrupt implements Interrupt {
         return critical(world) || (config.runsAtFirstHit() && attackerClose(world).isPresent());
     }
 
-    private boolean critical(WorldView world) { return world.health() <= config.criticalFor(); }
+    private boolean critical(WorldView world) { return body.lowHealth(world.health(), config.criticalFor()); }
 
     private Optional<Body.Attack> attackerClose(WorldView world) {
         return body.recentAttack()
@@ -79,6 +79,8 @@ public final class CriticalHealthInterrupt implements Interrupt {
     public String why(WorldView world) {
         String hurt = body.recentAttack().map(a -> ", hurt by " + (a.who() == null ? "something" : a.who())).orElse("");
         if (!critical(world)) return "hit" + hurt.replaceFirst("^, hurt", "") + " (danger: " + config.danger + ")";
+        if (world.health() > config.criticalFor())                 // still recovering from a spell under the line
+            return "health " + Math.round(world.health()) + ", recovering to " + (config.criticalFor() + Body.RECOVER_MARGIN + 1) + hurt;
         return "health " + Math.round(world.health()) + " ≤ " + config.criticalFor() + hurt;
     }
 }

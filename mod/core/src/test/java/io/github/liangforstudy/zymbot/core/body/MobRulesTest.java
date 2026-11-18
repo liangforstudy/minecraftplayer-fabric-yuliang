@@ -187,6 +187,94 @@ class MobRulesTest {
     }
 
     @Test
+    void aZombieWithACreeper_theZombieIsFoughtFirst_butNotWhileTheCreeperHisses() {
+        FakeWorld w = armed();
+        Bot b = walking(w, new ZymbotConfig(), "9b9t.com");
+        mob(w, 901, "zombie", w.pos.x() - 2);
+        mob(w, 902, "creeper", w.pos.x() - 5);
+        w.attackReady = true;
+        for (int i = 0; i < 30 && !w.attacked.contains(901); i++) {
+            mob(w, 901, "zombie", w.pos.x() - 2);                   // it keeps close; the creeper hangs back, out of hiss range
+            mob(w, 902, "creeper", w.pos.x() - 4.8);
+            ticks(b, w, 1);
+        }
+        assertTrue(w.attacked.contains(901), "the zombie, first\n" + log(b) + "\n" + String.join("\n", w.notices));
+        assertTrue(w.notices.stream().anyMatch(n -> n.startsWith("fighting a zombie first, then the creeper")), String.join("\n", w.notices));
+
+        FakeWorld h = armed();                                      // hissing: keep away from both
+        Bot b2 = walking(h, new ZymbotConfig(), "9b9t.com");
+        mob(h, 901, "zombie", h.pos.x() - 2);
+        mob(h, 902, "creeper", h.pos.x() - 5);
+        h.fuses.put(902, new io.github.liangforstudy.zymbot.core.api.Fuse(0.3f, true, false));
+        h.attackReady = true;
+        for (int i = 0; i < 10; i++) {
+            mob(h, 901, "zombie", h.pos.x() - 2);
+            mob(h, 902, "creeper", h.pos.x() - 4.8);
+            ticks(b2, h, 1);
+        }
+        assertFalse(h.attacked.contains(901), log(b2));
+
+        FakeWorld n = armed();                                      // calm but about to hiss: keep away too
+        Bot b3 = walking(n, new ZymbotConfig(), "9b9t.com");
+        mob(n, 901, "zombie", n.pos.x() - 2);
+        mob(n, 902, "creeper", n.pos.x() - 3.5);
+        n.attackReady = true;
+        for (int i = 0; i < 10; i++) {
+            mob(n, 901, "zombie", n.pos.x() - 2);
+            mob(n, 902, "creeper", n.pos.x() - 3.5);
+            ticks(b3, n, 1);
+        }
+        assertFalse(n.attacked.contains(901), log(b3));
+    }
+
+    @Test
+    void afterBackingOff_itTurnsBackForTheEndermanThatFollowed() {
+        FakeWorld w = armed();
+        w.armor = 10;                                               // basic armor fights 2: three zombies and it is too many
+        Bot b = walking(w, new ZymbotConfig(), "9b9t.com");
+        for (int i = 0; i < 3; i++) mob(w, 910 + i, "zombie" + i, w.pos.x() - 3 - i);
+        EntityView e = mob(w, 920, "enderman", w.pos.x() - 1.5);
+        w.damage = new Damage("minecraft:mob_attack", "Enderman", e.pos(), e.uuid());
+        w.attackReady = true;
+        ticks(b, w, 5);
+        assertTrue(w.notices.stream().anyMatch(n -> n.startsWith("backing off")), String.join("\n", w.notices) + "\n" + log(b));
+        assertFalse(w.attacked.contains(920), log(b));
+
+        w.nearby.removeIf(o -> o.id() >= 910 && o.id() < 913);       // the zombies are left behind; the enderman keeps up
+        for (int i = 0; i < 60 && !w.attacked.contains(920); i++) {
+            mob(w, 920, "enderman", w.pos.x() - 1.5);
+            ticks(b, w, 1);
+        }
+        assertTrue(w.attacked.contains(920), "turned back for it\n" + log(b));
+    }
+
+    @Test
+    void skeletonsWeHideFrom_outrankAZombieNearby() {
+        FakeWorld w = armed();                                      // good armor rushes 2 shooters; 3 is cover
+        Bot b = walking(w, new ZymbotConfig(), "9b9t.com");
+        w.attackReady = true;
+        for (int i = 0; i < 10; i++) {
+            mob(w, 930, "zombie", w.pos.x() - 5);
+            for (int k = 0; k < 3; k++) mob(w, 931 + k, "skeleton", w.pos.x() + 12 + k);
+            ticks(b, w, 1);
+        }
+        assertFalse(w.attacked.contains(930), "skeletons shooting: cover, not the zombie\n" + log(b));
+        assertFalse(log(b).contains("digging in"), "a zombie 5 blocks off would drop into the hole with us\n" + log(b));
+        assertTrue(w.notices.stream().anyMatch(n -> n.startsWith("taking cover because of 3 skeletons")), String.join("\n", w.notices));
+    }
+
+    @Test
+    void lowHealth_holdsUntilWellOverTheLine() {
+        Body body = new Body(java.util.List::of, id -> false, clock, () -> {});
+        assertFalse(body.lowHealth(14, 12));
+        assertTrue(body.lowHealth(12, 12));
+        assertTrue(body.lowHealth(12.5f, 12), "half a heart back: still low");
+        assertTrue(body.lowHealth(16, 12));
+        assertFalse(body.lowHealth(16.5f, 12), "4 over: recovered");
+        assertFalse(body.lowHealth(13, 12), "and stays recovered until it falls to the line again");
+    }
+
+    @Test
     void aProvokedPigman_isFoughtByTheUsualRules_countingItsWholeGroup() {
         FakeWorld w = armed();                                      // good armor fights 4
         Bot b = walking(w, new ZymbotConfig(), "9b9t.com");

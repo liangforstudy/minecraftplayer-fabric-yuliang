@@ -101,6 +101,20 @@ public final class Body {
 
     public boolean hiding() { return hiding; }
 
+    /** Health this far over critical ends a low-health spell: at the line itself it flipped cover/fight each second (live, 2026-11-18). */
+    public static final int RECOVER_MARGIN = 4;
+    private boolean lowHealth;
+
+    /**
+     * Low on health: at or under {@code critical}, and stays so until health is {@link #RECOVER_MARGIN}
+     * over it, so a half-heart of regeneration doesn't hand the fight back.
+     */
+    public boolean lowHealth(float health, int critical) {
+        if (health <= critical) lowHealth = true;
+        else if (health > critical + RECOVER_MARGIN) lowHealth = false;
+        return lowHealth;
+    }
+
     public Optional<Attack> recentAttack() {
         return Optional.ofNullable(lastAttack).filter(a -> clock.getAsLong() - a.at() <= ATTACK_MEMORY_MILLIS);
     }

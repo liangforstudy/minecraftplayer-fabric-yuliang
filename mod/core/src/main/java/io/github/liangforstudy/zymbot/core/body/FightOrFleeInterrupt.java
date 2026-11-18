@@ -34,6 +34,19 @@ public final class FightOrFleeInterrupt implements Interrupt {
     private final java.util.Map<java.util.UUID, String> pending = new java.util.LinkedHashMap<>();
     /** Alert mobs the owner said to fight ({@code /zbot approve}): treated as any other mob. */
     private final java.util.Set<java.util.UUID> approved = new java.util.HashSet<>();
+    /** Provoked mobs (an enderman, a pigman) that hit us: uuid -> when. They keep coming, so we go back for them. */
+    private final java.util.Map<java.util.UUID, Long> provoked = new java.util.HashMap<>();
+    /** How long a provoked mob is remembered after its last hit. */
+    static final long PROVOKED_MILLIS = 60_000;
+    /** A provoked mob this close is gone back for once it's safe (owner, 2026-11-18: it backed off too far). */
+    public static final double CHASE_BLOCKS = 16;
+    /**
+     * A creeper lights its fuse within 3 blocks: fighting its company stops this close to it, a step
+     * early, and it's backed away from (owner, 2026-11-18: stay out of the hiss).
+     */
+    public static final double HISS_BLOCKS = 4.5;
+    /** Backing off from a creeper doesn't turn back until it's this far off (or worth fighting). */
+    public static final double TURN_CLEAR_OF_CREEPER = 10;
     private String lastSaid = "";
     private long lastSaidAt = Long.MIN_VALUE / 2;
     /** The same reason isn't said again this soon; a new one always is. */
@@ -107,24 +120,56 @@ public final class FightOrFleeInterrupt implements Interrupt {
 
     @Override
     public boolean triggered(WorldView world) {
-        if (world.isDead() || world.health() <= config.criticalFor()) return false;
+        if (world.isDead() || body.lowHealth(world.health(), config.criticalFor())) return false;
         return threat(world).isPresent() || unseenAttacker(world).isPresent() || creeper(world).isPresent()
                 || alert(world).isPresent();
     }
 
     /** What hit us, still in sight and close enough to hit again (a ghast from 64 blocks). */
     private Optional<EntityView> attacker(WorldView world) {
-        return body.recentAttack().filter(a -> a.id() != null).flatMap(a -> world.nearby().stream()
+        Optional<EntityView> hit = body.recentAttack().filter(a -> a.id() != null).flatMap(a -> world.nearby().stream()
                 .filter(e -> a.id().equals(e.uuid()))
                 .filter(this::handled)
-                .filter(e -> Combat.distance(e.pos(), world.position()) < Combat.reach(e.type()))
                 .findFirst());
+        hit.filter(e -> Combat.kind(e.type()) == Combat.Kind.PROVOKED)
+                .ifPresent(e -> provoked.put(e.uuid(), clock.getAsLong()));
+        return hit.filter(e -> Combat.distance(e.pos(), world.position()) < Combat.reach(e.type()));
+    }
+
+    /** A provoked mob still after us, within {@link #CHASE_BLOCKS}: the nearest. */
+    private Optional<EntityView> provokedNear(WorldView world) {
+        long now = clock.getAsLong();
+        provoked.values().removeIf(t -> now - t > PROVOKED_MILLIS);
+        Vec3 me = world.position();
+        return world.nearby().stream()
+                .filter(e -> e.uuid() != null && provoked.containsKey(e.uuid()))
+                .filter(this::handled)
+                .filter(e -> Combat.distance(e.pos(), me) <= CHASE_BLOCKS)
+                .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
     }
 
     /** What hit us; else the nearest mob closing on us. */
     private Optional<EntityView> threat(WorldView world) {
         Optional<EntityView> a = attacker(world);
-        return a.isPresent() ? a : closing(world);
+        Optional<EntityView> t = a.isPresent() ? a : closing(world);
+        if (t.isEmpty()) t = provokedNear(world);
+        if (t.isPresent() && Combat.kind(t.get().type()) == Combat.Kind.SHOOTER) return t;
+        Optional<EntityView> shooter = coverFrom(world);                // shooters we'd hide from outrank a walker
+        return shooter.isPresent() ? shooter : t;
+    }
+
+    /**
+     * The nearest shooter within {@link #SHOOTER_BLOCKS}, with a clear shot, that we'd take cover from:
+     * a zombie near didn't stop 5 skeletons shooting (live, 2026-11-18: it fought the zombie in the open).
+     */
+    private Optional<EntityView> coverFrom(WorldView world) {
+        Vec3 me = world.position();
+        return world.nearby().stream()
+                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && Combat.kind(e.type()) == Combat.Kind.SHOOTER)
+                .filter(this::handled)
+                .filter(e -> Combat.distance(e.pos(), me) <= SHOOTER_BLOCKS && world.clearShot(eyes(e.pos()), eyes(me)))
+                .filter(e -> !decision(world, e).fight())
+                .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
     }
 
     /**
@@ -180,6 +225,11 @@ public final class FightOrFleeInterrupt implements Interrupt {
      * met in water is kept away from.
      */
     Combat.Decision creeperDecision(WorldView world, EntityView creeper) {
+        return creeperDecision(world, creeper, false);
+    }
+
+    /** {@code alone}: as if the creeper had no company (the shooters still count). */
+    private Combat.Decision creeperDecision(WorldView world, EntityView creeper, boolean alone) {
         String name = creeper.type() == null ? "creeper" : creeper.type().replaceFirst("^minecraft:", "");
         if (world.fuse(creeper.id()).map(io.github.liangforstudy.zymbot.core.api.Fuse::charged).orElse(false)) {
             return new Combat.Decision(Combat.Action.BACK_OFF, "charged " + name + " — keep away", "a charged " + name);
@@ -188,16 +238,34 @@ public final class FightOrFleeInterrupt implements Interrupt {
                 Combat.a(name) + " and no weapon in the hotbar");
         if (world.inWater()) return new Combat.Decision(Combat.Action.BACK_OFF, name + ", in the water — keep away",
                 Combat.a(name) + " while we're in water");
-        Combat.Decision d = decision(world, creeper);
+        Combat.Decision d = alone ? decision(world, creeper, e -> false) : decision(world, creeper);
         if (d.fight() && Combat.bow(world.inventory()).isPresent() && Combat.arrows(world.inventory())) {
             return new Combat.Decision(d.action(), d.why().replace("hit it and step back", "shoot it, then hit it and step back"), d.cause());
         }
         return d;
     }
 
+    /**
+     * A creeper kept away from only for its company, and that company something we'd fight: the
+     * nearest of it, fought first (owner, 2026-11-18: a zombie and a creeper sent it running). Not while
+     * the creeper hisses; then it's kept away from after all.
+     */
+    private Optional<EntityView> companyFirst(WorldView world, EntityView creeper) {
+        if (world.fuse(creeper.id()).map(io.github.liangforstudy.zymbot.core.api.Fuse::lit).orElse(false)) return Optional.empty();
+        if (Combat.distance(creeper.pos(), world.position()) <= HISS_BLOCKS) return Optional.empty();   // about to hiss
+        if (!creeperDecision(world, creeper, true).fight()) return Optional.empty();   // fought on its own? (armor, weapon, dry, no shooters)
+        java.util.function.Predicate<EntityView> notCreeper = e -> seen(e) && Combat.kind(e.type()) != Combat.Kind.EXPLODES;
+        Optional<EntityView> mob = threat(world).filter(e -> Combat.kind(e.type()) != Combat.Kind.EXPLODES);
+        return mob.filter(m -> decision(world, m, notCreeper).fight());
+    }
+
     private Combat.Decision decision(WorldView world, EntityView mob) {
-        int crowd = Combat.kind(mob.type()) == Combat.Kind.PROVOKED ? Combat.provokedCrowd(world, mob, this::seen)
-                : Combat.crowd(world, this::seen);
+        return decision(world, mob, this::seen);
+    }
+
+    private Combat.Decision decision(WorldView world, EntityView mob, java.util.function.Predicate<EntityView> counted) {
+        int crowd = Combat.kind(mob.type()) == Combat.Kind.PROVOKED ? Combat.provokedCrowd(world, mob, counted)
+                : Combat.crowd(world, counted);
         return Combat.decide(mob.type(), Combat.gear(world), Math.max(1, crowd),
                 (int) Combat.shooters(world).stream().filter(this::seen).count(), world.health(), config.criticalFor());
     }
@@ -207,8 +275,13 @@ public final class FightOrFleeInterrupt implements Interrupt {
         Optional<EntityView> creeper = creeper(world);
         if (creeper.isPresent()) {
             if (!creeperDecision(world, creeper.get()).fight()) {
+                Optional<EntityView> first = companyFirst(world, creeper.get());
+                if (first.isPresent()) {
+                    tell(hands, "fighting " + Combat.a(name(first.get())) + " first, then the creeper " + away(world, creeper.get()));
+                    return fight(hands, first.get());
+                }
                 tell(hands, "backing off because of " + creeperDecision(world, creeper.get()).cause() + " " + away(world, creeper.get()));
-                return retreat(hands, creeper.get().pos());
+                return untilSafe(retreat(hands, creeper.get().pos()));
             }
             if (creeperTally == null || !creeperTally.of(creeper.get().uuid())) creeperTally = new CreeperFightTask.Tally(creeper.get().uuid());
             java.util.function.BiConsumer<String, String> note = (what, because) -> {
@@ -241,16 +314,15 @@ public final class FightOrFleeInterrupt implements Interrupt {
         if (mob.isPresent()) {
             Combat.Decision d = decision(world, mob.get());
             return switch (d.action()) {
-                case FIGHT -> new FightTask(hands, mob.get(), body::reportSwim,
-                        w -> creeper(w).isEmpty() && alert(w).isEmpty() && threat(w).map(m -> decision(w, m).fight()).orElse(true));
+                case FIGHT -> fight(hands, mob.get());
                 case COVER -> {
                     tell(hands, "taking cover because of " + named(world, d.cause()) + " " + away(world, mob.get()));
-                    yield cover(world, hands, body, retreat(hands, mob.get().pos()));
+                    yield untilSafe(cover(world, hands, body, retreat(hands, mob.get().pos())));
                 }
                 case BACK_OFF -> {
                     tell(hands, "backing off because of " + named(world, d.cause()) + " " + away(world, mob.get()));
-                    yield new Fallback(body::note, retreat(hands, mob.get().pos()),
-                            new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note));
+                    yield untilSafe(new Fallback(body::note, retreat(hands, mob.get().pos()),
+                            new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note)));
                 }
             };
         }
@@ -271,6 +343,51 @@ public final class FightOrFleeInterrupt implements Interrupt {
         lastSaid = line;
         lastSaidAt = now;
         hands.notifyLocal(line);
+    }
+
+    private Task fight(Hands hands, EntityView mob) {
+        return new FightTask(hands, mob, body::reportSwim, w -> alert(w).isEmpty()
+                && creeper(w).map(c -> creeperDecision(w, c).fight() || companyFirst(w, c).isPresent()).orElse(true)
+                && threat(w).map(m -> decision(w, m).fight()).orElse(true));
+    }
+
+    /**
+     * Backing off ends as soon as what's left is worth fighting (the zombies left behind, the enderman
+     * that followed): the reflex then turns and fights it, instead of running on to {@link RetreatTask#CLEAR}.
+     */
+    private Task untilSafe(Task inner) {
+        return new Task() {
+            @Override public Status tick(WorldView w) {
+                if (worthTurning(w)) {
+                    inner.cancel();
+                    body.note("turning back", "what's left is worth fighting: " + threat(w).map(m -> decision(w, m).why()).orElse(""));
+                    return Status.DONE;
+                }
+                return inner.tick(w);
+            }
+            @Override public void cancel() { inner.cancel(); }
+            @Override public String failure() { return inner.failure(); }
+            @Override public String describe() { return inner.describe(); }
+        };
+    }
+
+    private boolean worthTurning(WorldView w) {
+        if (alert(w).isPresent()) return false;
+        Vec3 me = w.position();
+        // a creeper a step past fighting range still counts: turning back at 6 blocks walked straight
+        // back into it, four times over (live, 2026-11-18)
+        Optional<EntityView> c = w.nearby().stream()
+                .filter(e -> Combat.kind(e.type()) == Combat.Kind.EXPLODES && handled(e))
+                .filter(e -> Combat.distance(e.pos(), me) <= TURN_CLEAR_OF_CREEPER)
+                .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
+        if (c.isPresent() && !creeperDecision(w, c.get()).fight() && companyFirst(w, c.get()).isEmpty()) return false;
+        // shooters we'd take cover from keep us in cover, whatever the nearest walker is (live: it left
+        // cover from 3 skeletons for a zombie)
+        if (Combat.shooters(w).stream().filter(this::seen)
+                .filter(s -> Combat.distance(s.pos(), me) <= SHOOTER_BLOCKS)
+                .anyMatch(s -> !decision(w, s).fight())) return false;
+        if (c.isPresent()) return creeperDecision(w, c.get()).fight() || companyFirst(w, c.get()).isPresent();
+        return threat(w).map(m -> decision(w, m).fight()).orElse(false);
     }
 
     /** Keeping away from an alert mob ends once it's approved: the reflex then fights it as any other. */
@@ -332,11 +449,20 @@ public final class FightOrFleeInterrupt implements Interrupt {
     public static Task cover(WorldView world, Hands hands, Body body, Task last) {
         HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note);
         CoverTask cover = new CoverTask(hands, Combat::shooters, body::reportSwim);
+        if (walkerNear(world)) return new Fallback(body::note, cover, last);   // a hole is no cover from a zombie: it drops in too (live, 2026-11-18)
         if (Combat.shooters(world).stream().noneMatch(e -> Combat.kind(e.type()) == Combat.Kind.FLYER)) {
             return new Fallback(body::note, cover, hide, last);
         }
         return new Fallback(body::note, new CoverTask(hands, Combat::shooters, body::reportSwim).within(FLYER_COVER_BLOCKS),
                 hide, cover, last);
+    }
+
+    /** A walker within {@link #CLOSING_BLOCKS}: digging in would only trap us in with it. */
+    static boolean walkerNear(WorldView world) {
+        Vec3 me = world.position();
+        return world.nearby().stream().filter(e -> e.kind() == EntityView.Kind.HOSTILE)
+                .filter(e -> switch (Combat.kind(e.type())) { case MELEE, STRONG, PROVOKED -> true; default -> false; })
+                .anyMatch(e -> Combat.distance(e.pos(), me) <= CLOSING_BLOCKS);
     }
 
     /** Something is still after us: a shooter in range, or a hostile close. */
@@ -362,9 +488,9 @@ public final class FightOrFleeInterrupt implements Interrupt {
         Optional<EntityView> alerted = alert(world);
         if (alerted.isPresent()) return Math.round(Combat.distance(alerted.get().pos(), world.position())) + " blocks off: "
                 + name(alerted.get()) + " is on this server's alert list — keep away until approved";
-        Optional<EntityView> mob = attacker(world);
+        Optional<EntityView> mob = attacker(world).filter(m -> threat(world).map(t -> java.util.Objects.equals(t.uuid(), m.uuid())).orElse(false));
         if (mob.isPresent()) return "hit by " + decision(world, mob.get()).why() + raised(world);
-        Optional<EntityView> near = closing(world);
+        Optional<EntityView> near = threat(world);
         if (near.isPresent()) return Math.round(Combat.distance(near.get().pos(), world.position())) + " blocks off: "
                 + decision(world, near.get()).why() + raised(world);
         return "hit by something out of sight";
