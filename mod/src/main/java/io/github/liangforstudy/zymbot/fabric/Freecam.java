@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
@@ -48,7 +47,7 @@ final class Freecam {
             return "freecam off";
         }
         if (mc.player == null || mc.level == null) return "not in a world";
-        camera = new ArmorStand(EntityType.ARMOR_STAND, mc.level);
+        camera = new ArmorStand(mc.level, mc.player.getX(), mc.player.getY(), mc.player.getZ());
         camera.setInvisible(true);
         camera.noPhysics = true;
         Vec3 eye = mc.player.getEyePosition();

@@ -191,7 +191,11 @@ final class FabricHands implements Hands {
     private void interact(int entityId) {
         net.minecraft.world.entity.Entity e = mc.level.getEntity(entityId);
         if (e == null || mc.player == null || mc.gameMode == null) return;
+        //? if >=26.2 {
+        /*mc.gameMode.interact(mc.player, e, new net.minecraft.world.phys.EntityHitResult(e), InteractionHand.MAIN_HAND);
+        *///?} else {
         mc.gameMode.interact(mc.player, e, InteractionHand.MAIN_HAND);
+        //?}
         mc.player.swing(InteractionHand.MAIN_HAND);
     }
 
