@@ -275,12 +275,12 @@ public final class ZymbotConfig {
     }
 
     /**
-     * Addresses of one server, kept under one set of rules: 9b9t answers on all three (2b2t.com is a 9b9t
-     * address; the real 2b2t is 2b2t.org, not listed).
+     * Addresses of one server, kept under one set of rules: 9b9t answers on all of these (2b2t.com is a 9b9t
+     * address, eu.9b9t.com its EU entry point; the real 2b2t is 2b2t.org, not listed).
      */
     private static final java.util.Map<String, String> SAME_SERVER = java.util.Map.of(
             "9b9t.com:25565", "9b9t.org:25565", "2b2t.com:25565", "9b9t.org:25565",
-            "minecraft.2b2t.com:25565", "9b9t.org:25565");
+            "minecraft.2b2t.com:25565", "9b9t.org:25565", "eu.9b9t.com:25565", "9b9t.org:25565");
 
     /** Where a server's rules are kept: its normalized address, or the one its other addresses share. */
     public static String rulesKey(String address) {

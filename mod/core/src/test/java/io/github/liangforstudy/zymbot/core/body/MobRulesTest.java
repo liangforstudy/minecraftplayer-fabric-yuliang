@@ -85,7 +85,9 @@ class MobRulesTest {
         assertEquals(MobRule.ALERT, c.mobRule("9b9t.org", "zombie_villager"));
         assertEquals(MobRule.ALERT, c.mobRule("9b9t.com:25565", "zombie_villager"));
         assertEquals(MobRule.NORMAL, c.mobRule("2b2t.org", "zombie_villager"));
-        assertEquals(java.util.List.of("2b2t.com:25565", "9b9t.com:25565"), ZymbotConfig.alsoKnownAs("9b9t.org:25565"));
+        assertEquals(java.util.List.of("2b2t.com:25565", "9b9t.com:25565", "eu.9b9t.com:25565"), ZymbotConfig.alsoKnownAs("9b9t.org:25565"));
+        assertEquals(MobRule.ALERT, c.mobRule("eu.9b9t.com", "zombie_villager"), "issue #5: the EU address is 9b9t too");
+        assertEquals("9b9t.org:25565", ZymbotConfig.rulesKey("EU.9b9t.com"));
 
         ZymbotConfig old = new ZymbotConfig();                      // set apart before: merged on load
         old.servers.put("2b2t.com:25565", new ZymbotConfig.ServerRules());
