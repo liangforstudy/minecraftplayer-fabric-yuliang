@@ -34,6 +34,9 @@ public interface Hands {
     /** Swap a main-inventory stack (slot 9–35) into a hotbar slot. */
     default void swapToHotbar(int inventorySlot, int hotbarSlot) {}
 
+    /** Swap an inventory stack (slot 0–35) with the offhand, as F over that slot does (auto totem, #8). */
+    default void swapToOffhand(int inventorySlot) {}
+
     /**
      * Hold forward and/or jump directly, without the pathfinder — for swimming to shore, where a
      * player who presses nothing sinks. Both false lets go.
@@ -56,6 +59,9 @@ public interface Hands {
 
     /** Right-click a block with what's in hand (an empty hand for a grave). */
     default void useOn(BlockPos block) {}
+
+    /** Right-click an entity (a chest minecart); {@code sneak} for a donkey's inventory (freecam, #9). */
+    default void useOnEntity(int entityId, boolean sneak) {}
 
     /** Shift-click every filled slot of the open container into our inventory (what fits). */
     default void takeAllFromContainer() {}

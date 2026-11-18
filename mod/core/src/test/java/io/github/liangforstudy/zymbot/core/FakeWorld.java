@@ -162,6 +162,8 @@ public final class FakeWorld implements WorldView, Hands {
         return blocks.entrySet().stream().filter(e -> e.getValue().equals(id)).map(java.util.Map.Entry::getKey).findFirst();
     }
     @Override public void useOn(BlockPos b) { used.add(b); }
+    public final List<Integer> usedEntities = new ArrayList<>();
+    @Override public void useOnEntity(int entityId, boolean sneak) { usedEntities.add(sneak ? -entityId : entityId); }
 
     // ------------------------------------------------------------------ graves (PHASE3_FIXLIST #1)
 
@@ -518,6 +520,17 @@ public final class FakeWorld implements WorldView, Hands {
         to.ifPresent(inventory::remove);
         inventory.add(new ItemView(hotbarSlot, from.id(), from.count(), from.food()));
         to.ifPresent(t -> inventory.add(new ItemView(inventorySlot, t.id(), t.count(), t.food())));
+    }
+
+    public int offhandSwaps;
+
+    @Override
+    public void swapToOffhand(int inventorySlot) {
+        offhandSwaps++;
+        ItemView from = inventory.stream().filter(i -> i.slot() == inventorySlot).findFirst().orElseThrow();
+        inventory.remove(from);
+        if (!offhand.isEmpty()) inventory.add(new ItemView(inventorySlot, offhand, 1, null));
+        offhand = from.id();
     }
 
     @Override

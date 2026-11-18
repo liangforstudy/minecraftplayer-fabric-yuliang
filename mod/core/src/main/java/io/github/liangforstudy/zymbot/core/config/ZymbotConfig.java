@@ -239,6 +239,52 @@ public final class ZymbotConfig {
     public int nightResumeAt = 22822;
 
     /**
+     * Hang guard (issue #10): when the game itself freezes on a server for {@link #hangGuardSeconds},
+     * a watchdog thread closes the connection, so the player leaves at once instead of standing there.
+     * On by default, with or without {@code /zbot start}.
+     */
+    public boolean hangGuard = true;
+    public int hangGuardSeconds = 15;
+    /**
+     * Issue #8, under {@code /zbot start} (anarchy): Zymbot's own eating, from {@link #eatFoods} at hunger
+     * {@link #eatBelowHunger} or below (healing food such as golden apples is kept for low health), and
+     * auto totem: a totem from the inventory into an empty or non-totem offhand.
+     */
+    public boolean autoEat = true;
+    public boolean autoTotem = true;
+    /** Start (as /zbot start does) on joining 9b9t, by any of its addresses. */
+    public boolean autoStart9b9t = false;
+    /** The foods auto eat may pick, ticked in the settings screen. */
+    public List<String> eatFoods = new ArrayList<>(DEFAULT_EAT_FOODS);
+
+    /** The foods the settings screen offers, in its order. */
+    public static final List<String> FOOD_CHOICES = List.of(
+            "minecraft:cooked_beef", "minecraft:cooked_porkchop", "minecraft:cooked_mutton", "minecraft:cooked_chicken",
+            "minecraft:cooked_salmon", "minecraft:cooked_cod", "minecraft:cooked_rabbit", "minecraft:golden_carrot",
+            "minecraft:bread", "minecraft:baked_potato", "minecraft:pumpkin_pie", "minecraft:mushroom_stew",
+            "minecraft:rabbit_stew", "minecraft:beetroot_soup", "minecraft:apple", "minecraft:carrot",
+            "minecraft:melon_slice", "minecraft:sweet_berries", "minecraft:glow_berries", "minecraft:cookie",
+            "minecraft:potato", "minecraft:beetroot", "minecraft:honey_bottle", "minecraft:beef",
+            "minecraft:porkchop", "minecraft:mutton", "minecraft:rabbit", "minecraft:cod", "minecraft:salmon",
+            "minecraft:chicken", "minecraft:rotten_flesh", "minecraft:dried_kelp");
+    /** Ticked to begin with: cooked and ready-made foods; raw meat, rotten flesh and kelp unticked. */
+    public static final List<String> DEFAULT_EAT_FOODS = FOOD_CHOICES.subList(0, 22);
+
+    /**
+     * Tracers (issue #7): lines on screen to the ticked blocks, dropped items and entities, and to
+     * players, at most {@link #traceLimit} at once with players first. Drawing only.
+     */
+    public boolean tracers = false;
+    public boolean tracePlayers = true;
+    public int traceLimit = 20;
+    public List<String> traceBlocks = new ArrayList<>();
+    public List<String> traceItems = new ArrayList<>();
+    public List<String> traceEntities = new ArrayList<>();
+
+    /** Log out after two hits within 10 s from a mob the client doesn't show (issue #10, ghost mobs). */
+    public boolean ghostGuard = true;
+
+    /**
      * Rules for one server (owner, 2026-11-17), keyed by {@link AutostartPolicy#normalize}: an address, or
      * "singleplayer" for every world. Anything not set here keeps the defaults.
      */
@@ -283,6 +329,11 @@ public final class ZymbotConfig {
             "minecraft.2b2t.com:25565", "9b9t.org:25565", "eu.9b9t.com:25565", "9b9t.org:25565");
 
     /** Where a server's rules are kept: its normalized address, or the one its other addresses share. */
+    /** 9b9t, by any of its addresses (auto-start on 9b9t, #8). */
+    public static boolean is9b9t(String address) {
+        return address != null && "9b9t.org:25565".equals(rulesKey(address));
+    }
+
     public static String rulesKey(String address) {
         String key = AutostartPolicy.normalize(address);
         return SAME_SERVER.getOrDefault(key, key);
@@ -352,7 +403,8 @@ public final class ZymbotConfig {
             java.util.Map.entry("plantime", new int[]{50, 5000}), java.util.Map.entry("lagtps", new int[]{5, 19}),
             java.util.Map.entry("heel", new int[]{1, 256}), java.util.Map.entry("fireres", new int[]{0, 20}),
             java.util.Map.entry("resume", new int[]{0, 2000}), java.util.Map.entry("routefar", new int[]{0, 1_000_000}),
-            java.util.Map.entry("nightstop", new int[]{12000, 13179}), java.util.Map.entry("nightend", new int[]{22822, 24000}));
+            java.util.Map.entry("nightstop", new int[]{12000, 13179}), java.util.Map.entry("nightend", new int[]{22822, 24000}),
+            java.util.Map.entry("hangwait", new int[]{5, 300}), java.util.Map.entry("tracelimit", new int[]{1, 200}));
 
     public int tunable(String name) {
         return switch (name) {
@@ -370,6 +422,8 @@ public final class ZymbotConfig {
             case "routefar" -> routeFarBlocks;
             case "nightstop" -> nightStopAt;
             case "nightend" -> nightResumeAt;
+            case "hangwait" -> hangGuardSeconds;
+            case "tracelimit" -> traceLimit;
             default -> throw new IllegalArgumentException(name);
         };
     }
@@ -377,7 +431,7 @@ public final class ZymbotConfig {
     /** Null when set, otherwise why not. */
     public String setTunable(String name, int value) {
         int[] range = TUNABLES.get(name);
-        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop or nightend";
+        if (range == null) return "unknown setting '" + name + "' — leash, heel, eat, critical, downed, regroup, probewait, plantime, lagtps, fireres, resume, routefar, nightstop, nightend, hangwait or tracelimit";
         if (value < range[0] || value > range[1]) return name + " must be " + range[0] + "–" + range[1];
         switch (name) {
             case "leash" -> {
@@ -399,6 +453,8 @@ public final class ZymbotConfig {
             case "routefar" -> routeFarBlocks = value;
             case "nightstop" -> nightStopAt = value;
             case "nightend" -> nightResumeAt = value;
+            case "hangwait" -> hangGuardSeconds = value;
+            case "tracelimit" -> traceLimit = value;
             default -> criticalHealth = value;
         }
         return null;
@@ -527,6 +583,10 @@ public final class ZymbotConfig {
             followStopBlocks = leashBlocks - 1;
         }
         if (neverEat == null) neverEat = new ArrayList<>();
+        if (eatFoods == null) eatFoods = new ArrayList<>(DEFAULT_EAT_FOODS);
+        if (traceBlocks == null) traceBlocks = new ArrayList<>();
+        if (traceItems == null) traceItems = new ArrayList<>();
+        if (traceEntities == null) traceEntities = new ArrayList<>();
         if (autoOpenLanWorlds == null) autoOpenLanWorlds = new ArrayList<>();
         if (swimCostBlocks < 1) swimCostBlocks = 3;
         if (routeRadius < 16 || routeRadius > 256) routeRadius = 96;

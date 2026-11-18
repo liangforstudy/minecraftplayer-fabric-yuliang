@@ -30,7 +30,7 @@ import org.lwjgl.glfw.GLFW;
  * mean something there: no team key, no account list, no server list — it works out of the box.
  */
 final class ZymbotSettingsScreen extends Screen {
-    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY, HERE }
+    private enum Tab { KEY, ACCOUNTS, SERVERS, BODY, HERE, FEATURES }
     private static final io.github.liangforstudy.zymbot.core.Profile PROFILE = McCompat.PROFILE;
     private static final boolean TEAM_TABS = PROFILE == io.github.liangforstudy.zymbot.core.Profile.ZYMCIV;
 
@@ -73,6 +73,7 @@ final class ZymbotSettingsScreen extends Screen {
         keepDrafts();                                      // survives resizes and tab switches
         keyBox = null;
         serverBox = null;
+        searchBox = null;
         tunableBoxes.clear();
         scrubZones.clear();
         activeZone = null;
@@ -84,8 +85,9 @@ final class ZymbotSettingsScreen extends Screen {
             tabButton("Servers", Tab.SERVERS, cx + 1, 36);
             tabButton("Body", Tab.BODY, cx + 78, 36);
         } else {                                           // anarchy: the body, and this server's rules
-            tabButton("Body", Tab.BODY, cx - 76, 36);
-            tabButton("Server rules", Tab.HERE, cx + 1, 36);
+            tabButton("Body", Tab.BODY, cx - 115, 36);
+            tabButton("Server rules", Tab.HERE, cx - 38, 36);
+            tabButton("Features", Tab.FEATURES, cx + 39, 36);
         }
         int top = 68;
         switch (tab) {
@@ -94,6 +96,7 @@ final class ZymbotSettingsScreen extends Screen {
             case SERVERS -> initServers(cx, top);
             case BODY -> initBody(cx, top);
             case HERE -> initHere(cx, top);
+            case FEATURES -> initFeatures(cx, top);
         }
         addRenderableWidget(Button.builder(Component.literal("Done"), b -> onClose())
                 .bounds(cx - 50, height - 28, 100, 20).build());
@@ -111,6 +114,7 @@ final class ZymbotSettingsScreen extends Screen {
 
     private void keepDrafts() {
         if (keyBox != null) keyDraft = keyBox.getValue();
+        if (searchBox != null) searchDraft = searchBox.getValue();
         if (serverBox != null) serverDraft = serverBox.getValue();
         tunableBoxes.forEach((k, box) -> tunableDrafts.put(k, box.getValue()));
     }
@@ -314,6 +318,170 @@ final class ZymbotSettingsScreen extends Screen {
      * One server's rules: auto-logout, and a rule for each mob, picked from the mobs Zymbot knows (no
      * typing; the box is for modded ones). The same as /zbot logout and /zbot mob on that server.
      */
+    // ------------------------------------------------------------------ features (anarchy)
+
+    /** One On/Off row; returns the next row's y. */
+    private int toggleRow(int cx, int y, String text, boolean on, String tooltip, java.util.function.Consumer<Boolean> set) {
+        label(text, cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal(on ? "On" : "Off"), b -> {
+            set.accept(!on);
+            ZymbotClient.get().settingsEdited();
+            say(text + ": " + (on ? "off" : "on"), on ? GREY : GREEN);
+            rebuildWidgets();
+        }).bounds(cx + 94, y, 56, 20)
+                .tooltip(net.minecraft.client.gui.components.Tooltip.create(Component.literal(tooltip)))
+                .build());
+        return y + ROW_H;
+    }
+
+    /** Which page of the Features tab: the switches, or one of the lists they open. */
+    private enum FeaturePage { MAIN, FOODS, BLOCKS, ITEMS, ENTITIES }
+    private FeaturePage featurePage = FeaturePage.MAIN;
+    private int listPage;
+    private EditBox searchBox;
+    private String searchDraft = "";
+    private boolean searchFocused;
+
+    /** Switches that work with or without /zbot start, and the jobs /zbot start runs (issues #7-#10). */
+    private void initFeatures(int cx, int top) {
+        if (featurePage != FeaturePage.MAIN) {
+            initFeatureList(cx, top);
+            return;
+        }
+        String root = "/" + cfg().commandRoot;
+        int y = top;
+        y = toggleRow(cx, y, "Hang guard (leave if the game freezes)", cfg().hangGuard,
+                "If the game stops responding on a server for " + cfg().hangGuardSeconds + " s, close the connection so\n"
+                        + "you leave at once. Works without " + root + " start.\n§7The time: Body tab, or " + root + " set hangwait <s>",
+                v -> cfg().hangGuard = v);
+        y = toggleRow(cx, y, "Ghost-mob guard", cfg().ghostGuard,
+                "Log out after two hits within 10 s from a mob your client doesn't show.\nWorks without " + root + " start.",
+                v -> cfg().ghostGuard = v);
+        y = toggleRow(cx, y, "Auto-start on 9b9t", cfg().autoStart9b9t,
+                "Start (as " + root + " start does) on joining 9b9t, by any of its addresses.",
+                v -> cfg().autoStart9b9t = v);
+        y = toggleRow(cx, y, "Auto totem", cfg().autoTotem,
+                "Under " + root + " start: keep a totem in the offhand, from the inventory.",
+                v -> cfg().autoTotem = v);
+        y = toggleRow(cx, y, "Auto eat", cfg().autoEat,
+                "Under " + root + " start: eat a ticked food at hunger " + cfg().eatBelowHunger + " or below\n"
+                        + "(the level: Body tab). Turn Meteor's AutoEat off: two eaters fight over the hotbar.",
+                v -> cfg().autoEat = v);
+        label("Foods auto eat may pick (" + cfg().eatFoods.size() + " ticked)", cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal("Foods…"), b -> openList(FeaturePage.FOODS))
+                .bounds(cx + 94, y, 56, 20).build());
+        y += ROW_H;
+        y = toggleRow(cx, y, "Tracers (lines on screen)", cfg().tracers,
+                "Lines to players and to the ticked blocks, items and entities, at most\n" + cfg().traceLimit
+                        + " at once, players first. §7The limit: Body tab, or " + root + " set tracelimit <n>",
+                v -> cfg().tracers = v);
+        y = toggleRow(cx, y, "Tracers: players", cfg().tracePlayers, "Trace every player in view, as Meteor's Tracers do.",
+                v -> cfg().tracePlayers = v);
+        label("Trace", cx - 150, y + 6, WHITE);
+        addRenderableWidget(Button.builder(Component.literal("Blocks (" + cfg().traceBlocks.size() + ")"), b -> openList(FeaturePage.BLOCKS))
+                .bounds(cx - 100, y, 80, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Items (" + cfg().traceItems.size() + ")"), b -> openList(FeaturePage.ITEMS))
+                .bounds(cx - 16, y, 80, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Entities (" + cfg().traceEntities.size() + ")"), b -> openList(FeaturePage.ENTITIES))
+                .bounds(cx + 68, y, 82, 20).build());
+        y += ROW_H;
+        contentBottom = y;
+    }
+
+    private void openList(FeaturePage p) {
+        featurePage = p;
+        listPage = 0;
+        searchDraft = "";
+        searchFocused = false;
+        message = "";
+        rebuildWidgets();
+    }
+
+    /** What a list page shows: its title, its choices, and the set they tick in. */
+    private record TickList(String title, List<String> choices, List<String> ticked) {}
+
+    private TickList tickList(FeaturePage p) {
+        return switch (p) {
+            case FOODS -> new TickList("Foods auto eat may pick", ZymbotConfig.FOOD_CHOICES, cfg().eatFoods);
+            case BLOCKS -> new TickList("Blocks to trace", registry(net.minecraft.core.registries.BuiltInRegistries.BLOCK.keySet()), cfg().traceBlocks);
+            case ITEMS -> new TickList("Dropped items to trace", registry(net.minecraft.core.registries.BuiltInRegistries.ITEM.keySet()), cfg().traceItems);
+            case ENTITIES -> new TickList("Entities to trace", registry(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.keySet()), cfg().traceEntities);
+            case MAIN -> throw new IllegalStateException();
+        };
+    }
+
+    /** A registry's ids, A to Z (air left out). */
+    private static List<String> registry(java.util.Set<?> keys) {
+        return keys.stream().map(Object::toString).filter(id -> !id.endsWith(":air")).sorted().toList();
+    }
+
+    /** A list of ids to tick, two columns, paged, ticked ones first; a search box for the long lists; "◀ Back" returns. */
+    private void initFeatureList(int cx, int top) {
+        TickList list = tickList(featurePage);
+        addRenderableWidget(Button.builder(Component.literal("◀ Back"), b -> openList(FeaturePage.MAIN))
+                .bounds(cx - 150, top, 56, 20).build());
+        String title = list.title() + " (" + list.ticked().size() + " ticked)";
+        boolean searchable = list.choices().size() > 40;
+        int y = top + ROW_H + 2;
+        if (searchable) {
+            label(title, cx - 88, top + 6, WHITE);
+            searchBox = new EditBox(font, cx - 150, y, 300, 18, Component.literal("Search"));
+            searchBox.setMaxLength(64);
+            searchBox.setValue(searchDraft);
+            searchBox.setResponder(v -> {
+                if (v.equals(searchDraft)) return;
+                searchDraft = v;
+                listPage = 0;
+                searchFocused = true;
+                rebuildWidgets();
+            });
+            addRenderableWidget(searchBox);
+            if (searchFocused) {
+                setFocused(searchBox);
+                searchBox.setFocused(true);
+            }
+            y += ROW_H;
+        } else {
+            label(title, cx - 88, top + 6, WHITE);
+        }
+        String q = searchDraft.strip().toLowerCase(java.util.Locale.ROOT).replace(' ', '_');
+        List<String> shown = new ArrayList<>();
+        list.choices().stream().filter(id -> list.ticked().contains(id) && id.contains(q)).forEach(shown::add);
+        list.ticked().stream().filter(id -> !list.choices().contains(id) && id.contains(q)).forEach(shown::add);   // ticked but unknown (a mod removed)
+        list.choices().stream().filter(id -> !list.ticked().contains(id) && id.contains(q)).forEach(shown::add);
+        int perPage = Math.max(2, (height - 46 - y) / ROW_H * 2);
+        int pages = Math.max(1, (shown.size() + perPage - 1) / perPage);
+        listPage = Math.min(listPage, pages - 1);
+        for (int i = listPage * perPage, k = 0; i < Math.min(shown.size(), (listPage + 1) * perPage); i++, k++) {
+            String id = shown.get(i);
+            boolean on = list.ticked().contains(id);
+            int col = k % 2, row = k / 2;
+            int x = col == 0 ? cx - 150 : cx + 4, ry = y + row * ROW_H;
+            String name = shortName(id);
+            name = font.width(name) > 110 ? font.plainSubstrByWidth(name, 104) + "…" : name;
+            label(name, x, ry + 6, on ? WHITE : GREY);
+            addRenderableWidget(Button.builder(Component.literal(on ? "✔" : "–"), b -> {
+                if (on) list.ticked().remove(id);
+                else list.ticked().add(id);
+                ZymbotClient.get().settingsEdited();
+                rebuildWidgets();
+            }).bounds(x + 124, ry, 22, 20).build());
+        }
+        if (pages > 1) {
+            int p = listPage;
+            addRenderableWidget(Button.builder(Component.literal("◀"), b -> { listPage = p - 1; rebuildWidgets(); })
+                    .bounds(cx - 150, height - 28, 20, 20).build()).active = p > 0;
+            label((p + 1) + "/" + pages, cx - 126, height - 22, GREY);
+            addRenderableWidget(Button.builder(Component.literal("▶"), b -> { listPage = p + 1; rebuildWidgets(); })
+                    .bounds(cx - 106, height - 28, 20, 20).build()).active = p < pages - 1;
+        }
+        contentBottom = height - 46;
+    }
+
+    private static String shortName(String id) {
+        return id.replaceFirst("^minecraft:", "").replace('_', ' ');
+    }
+
     private void initHere(int cx, int top) {
         List<String> servers = ruleServers();
         if (rulesServer == null || !servers.contains(rulesServer)) rulesServer = servers.get(0);
@@ -418,7 +586,9 @@ final class ZymbotSettingsScreen extends Screen {
             {"resume", "Play again after you let go (ms)"},
             {"routefar", "Route: ask first when its start is over (blocks)"},
             {"nightstop", "Route: dig in for the night from day time"},
-            {"nightend", "Route: go on at day time (22822 = first light)"}})
+            {"nightend", "Route: go on at day time (22822 = first light)"},
+            {"hangwait", "Hang guard: leave after frozen for (s)"},
+            {"tracelimit", "Tracers: lines at once (players first)"}})
             .filter(row -> PROFILE.hasTunable(row[0])).toArray(String[][]::new);
 
     private int bodyPage;
@@ -798,6 +968,9 @@ final class ZymbotSettingsScreen extends Screen {
                     "◀ ▶ picks the server. Click a mob to cycle Normal → Alert → Ignore; saved at once.",
                     "Alert: a bell and a chat line, it keeps away; /" + cfg().commandRoot + " approve to fight it.",
                     "Modded mobs: /" + cfg().commandRoot + " mob <type> alert|ignore, then they're listed here."};
+            case FEATURES -> new String[] {
+                    "The guards work without /" + cfg().commandRoot + " start; the rest run under it.",
+                    "Foods: which ones auto eat may pick (golden apples are kept for low health)."};
         };
         // help and the status message go between the controls and Done — only as much as fits
         int floor = height - 32;

@@ -33,6 +33,7 @@ import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.network.chat.ChatType;
+import net.minecraft.network.chat.Component;
 import io.github.liangforstudy.zymbot.core.protocol.SummonTarget;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,11 +72,17 @@ public final class ZymbotClient implements ClientModInitializer {
     private net.minecraft.client.multiplayer.ClientLevel lastLevel;
     private boolean lastPlayerDead;
     private int lives;
+    /** Issue #10: the hang guard's watchdog, and the ghost-mob guard (both on without /zbot start). */
+    private HangGuard hangGuard;
+    private final io.github.liangforstudy.zymbot.core.body.GhostHitWatch ghosts = new io.github.liangforstudy.zymbot.core.body.GhostHitWatch();
+    private net.minecraft.world.damagesource.DamageSource lastHit;
 
     static ZymbotClient get() { return instance; }
     ZymbotConfig config() { return config; }
     /** Null until the first world is joined. */
     Bot bot() { return bot; }
+    /** Null until the first world is joined. */
+    FabricHands hands() { return hands; }
 
     /** Save settings edited in the screen. With a bot live, it re-checks roles/servers at once. */
     void settingsEdited() {
@@ -98,6 +105,7 @@ public final class ZymbotClient implements ClientModInitializer {
         instance = this;
         configFile = FabricLoader.getInstance().getConfigDir().resolve("zymbot.json");
         config = ConfigIO.load(configFile);
+        hangGuard = new HangGuard(config);
         io.github.liangforstudy.zymbot.core.Profile.parkTeam(McCompat.TEAM_PARKED);   // before any Bot is made
         LOG.info("[zymbot] loaded — command /{}{}, {}, profile {}{}", config.commandRoot,
                 config.commandAliases.isEmpty() ? "" : " (aliases " + config.commandAliases + ")",
@@ -114,6 +122,8 @@ public final class ZymbotClient implements ClientModInitializer {
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
         startKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.start",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
+        freecamKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.freecam",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), category));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key) -> {
                     if (!typingIn(s)) pressed(mc, stopKey.matches(key), startKey.matches(key));
@@ -122,6 +132,8 @@ public final class ZymbotClient implements ClientModInitializer {
         stopKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.emergency_stop",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
         startKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.start",
+                InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
+        freecamKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.zymbot.freecam",
                 InputConstants.Type.KEYSYM, InputConstants.UNKNOWN.getValue(), "key.categories.zymbot"));
         ScreenEvents.AFTER_INIT.register((mc, screen, w, h) -> ScreenKeyboardEvents.afterKeyPress(screen)
                 .register((s, key, scancode, modifiers) -> {
@@ -135,8 +147,16 @@ public final class ZymbotClient implements ClientModInitializer {
         // the bot exists from the title screen on, so a summon can reach it before any world
         ClientLifecycleEvents.CLIENT_STARTED.register(this::createBot);
         ClientPlayConnectionEvents.JOIN.register((handler, sender, mc) -> { TPS.reset(); ACKS.reset(); CLOCK.reset(); STORMS.reset(); onJoin(mc); });
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { if (bot != null) bot.onLeave(); });
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, mc) -> { Freecam.stop(mc); if (bot != null) bot.onLeave(); });
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
+        // freecam (#9): before the game reads the keys, so the human's movement and clicks go to the camera
+        ClientTickEvents.START_CLIENT_TICK.register(mc -> {
+            while (freecamKey != null && freecamKey.consumeClick()) {
+                if (hands != null) hands.notifyLocal(Freecam.toggle(mc));
+                else Freecam.toggle(mc);
+            }
+            Freecam.beforeTick(mc);
+        });
         // ALLOW_CHAT, not CHAT: a bot keeps the chat check (roadmap3.md §4) off its chat screen, and a
         // line held back here never reaches CHAT
         ClientReceiveMessageEvents.ALLOW_CHAT.register((message, signed, sender, params, at) -> {
@@ -246,6 +266,7 @@ public final class ZymbotClient implements ClientModInitializer {
 
     private KeyMapping stopKey;
     private KeyMapping startKey;
+    private KeyMapping freecamKey;
 
     /**
      * The stop and start keys, pressed. On one key between them, a press toggles: stop while the bot
@@ -304,6 +325,9 @@ public final class ZymbotClient implements ClientModInitializer {
     }
 
     private void onTick(Minecraft mc) {
+        hangGuard.tick(mc);
+        Tracers.tick(mc);
+        if (ghostHitsSayLeave(mc)) return;
         if (stopKey != null) {                                  // no screen open: the usual way
             while (true) {
                 boolean stop = stopKey.consumeClick(), start = startKey.consumeClick();
@@ -379,6 +403,33 @@ public final class ZymbotClient implements ClientModInitializer {
         if (hands.logOutIfAsked()) return;                       // the log-out reflex: leave, now the tick is done
         // after a respawn the death screen can linger on a client nobody is looking at
         if (!mc.player.isDeadOrDying() && mc.screen instanceof DeathScreen) mc.setScreen(null);
+    }
+
+    /**
+     * Issue #10, ghost mobs: hits from a mob the client doesn't show (its damage type is a mob's, and
+     * there's no attacker on the client). Two within 10 s on a server: leave. True if it left.
+     */
+    private boolean ghostHitsSayLeave(Minecraft mc) {
+        if (mc.player == null || mc.hasSingleplayerServer()) {
+            lastHit = null;
+            ghosts.reset();
+            return false;
+        }
+        var src = mc.player.getLastDamageSource();               // a new object per hit; the client keeps it ~2 s
+        if (src == null || src == lastHit) return false;
+        lastHit = src;
+        String type = src.typeHolder().unwrapKey().map(McCompat::id).orElse("unknown");
+        var by = src.getEntity();
+        var hit = new io.github.liangforstudy.zymbot.core.api.Damage(type, by == null ? null : by.getName().getString(), null);
+        if (!config.ghostGuard || !ghosts.onHit(hit, System.currentTimeMillis())) return false;
+        var p = mc.player;
+        String why = "Zymbot logged out: hit twice by a mob your client doesn't show (" + type.replaceFirst("^minecraft:", "")
+                + "), health " + Math.round(p.getHealth() * 10) / 10.0 + ", at " + Math.round(p.getX()) + " "
+                + Math.round(p.getY()) + " " + Math.round(p.getZ());
+        boolean stopped = ZymbotProbes.turnOffMeteor("auto-reconnect");
+        LOG.info("[zymbot] ghost guard: {}{}", why, stopped ? " (turned off Meteor's Auto Reconnect)" : "");
+        McCompat.leaveWorld(mc, Component.literal(why + (stopped ? "\n\nMeteor's Auto Reconnect was turned off." : "")));
+        return true;
     }
 
     /** Only the experimental-settings prompt: its title key, and its skip button, by key. */

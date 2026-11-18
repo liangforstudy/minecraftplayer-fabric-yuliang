@@ -102,6 +102,19 @@ final class FabricHands implements Hands {
         }
     }
 
+    /** Auto totem (#8): F over that inventory slot, in the inventory menu (button 40 = the offhand). */
+    @Override
+    public void swapToOffhand(int inventorySlot) {
+        if (mc.player == null || mc.gameMode == null) return;
+        var menu = mc.player.inventoryMenu;
+        for (var slot : menu.slots) {
+            if (slot.container == mc.player.getInventory() && slot.getContainerSlot() == inventorySlot) {
+                mc.gameMode.handleInventoryMouseClick(menu.containerId, slot.index, 40, ClickType.SWAP, mc.player);
+                return;
+            }
+        }
+    }
+
     /**
      * Start using the held item directly (not via a click, so it never opens a chest or door it
      * happens to be facing), and hold the key so the client doesn't cancel the bite.
@@ -157,6 +170,32 @@ final class FabricHands implements Hands {
         var hit = new net.minecraft.world.phys.BlockHitResult(net.minecraft.world.phys.Vec3.atCenterOf(pos),
                 net.minecraft.core.Direction.UP, pos, false);
         mc.gameMode.useItemOn(mc.player, InteractionHand.MAIN_HAND, hit);
+        mc.player.swing(InteractionHand.MAIN_HAND);
+    }
+
+    /** A donkey's inventory: sneak first, use once the server has seen the sneak, then let go (freecam, #9). */
+    private int sneakUseOn = -1, sneakUseTicks;
+
+    @Override
+    public void useOnEntity(int entityId, boolean sneak) {
+        if (mc.player == null || mc.gameMode == null || mc.level == null) return;
+        if (sneak) {
+            sneakUseOn = entityId;
+            sneakUseTicks = 0;
+            mc.options.keyShift.setDown(true);
+            return;
+        }
+        interact(entityId);
+    }
+
+    private void interact(int entityId) {
+        net.minecraft.world.entity.Entity e = mc.level.getEntity(entityId);
+        if (e == null || mc.player == null || mc.gameMode == null) return;
+        //? if >=26.2 {
+        /*mc.gameMode.interact(mc.player, e, new net.minecraft.world.phys.EntityHitResult(e), InteractionHand.MAIN_HAND);
+        *///?} else {
+        mc.gameMode.interact(mc.player, e, InteractionHand.MAIN_HAND);
+        //?}
         mc.player.swing(InteractionHand.MAIN_HAND);
     }
 
@@ -287,6 +326,14 @@ final class FabricHands implements Hands {
      * brain halted, paused, died...), let go — attack is never left held.
      */
     void endTick() {
+        if (sneakUseOn >= 0) {
+            sneakUseTicks++;
+            if (sneakUseTicks == 3) interact(sneakUseOn);
+            if (sneakUseTicks >= 5) {
+                mc.options.keyShift.setDown(false);
+                sneakUseOn = -1;
+            }
+        }
         if (!minedThisTick && (digging || BotDigging.active)) stopMining();
         minedThisTick = false;
     }

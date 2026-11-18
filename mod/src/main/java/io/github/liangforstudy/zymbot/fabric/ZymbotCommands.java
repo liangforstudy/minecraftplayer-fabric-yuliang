@@ -55,6 +55,11 @@ final class ZymbotCommands {
                         .then(literal("bot").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.BOT)))))
                         .then(literal("teammate").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.TEAMMATE)))))
                         .then(literal("none").executes(c -> withBot(c, bot, b -> List.of(b.setOwnRole(ZymbotConfig.Role.NONE))))))
+                .then(literal("freecam").executes(c -> {           // issue #9
+                    c.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(
+                            "§7[zymbot]§r " + Freecam.toggle(net.minecraft.client.Minecraft.getInstance())));
+                    return 1;
+                }))
                 .then(literal("goto")
                         // goto <x> <z> or <x> <y> <z>; "~" and "~10" are relative to you, like vanilla; goto <player> = come
                         .then(argument("coords", StringArgumentType.greedyString())

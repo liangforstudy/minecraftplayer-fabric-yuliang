@@ -278,11 +278,17 @@ public final class Bot {
         }
         // anarchy: Meteor's AutoEat feeds the player; two eaters fight over the hotbar (roadmap §0, eating)
         if (profile.has(Profile.HUNGER)) reflexes.add(made(Profile.HUNGER, new HungerInterrupt(config, body)));
+        // anarchy: Zymbot's own eating now, from the ticked foods (issue #8; Meteor's AutoEat off then)
+        if (profile == Profile.ANARCHY) reflexes.add(new io.github.liangforstudy.zymbot.core.body.AutoEatInterrupt(config, body));
+        this.totem = profile == Profile.ANARCHY ? new io.github.liangforstudy.zymbot.core.body.TotemKeeper(config) : null;
         reflexes.add(new WadingInterrupt(body, this::idleForWading));
         this.brain = new Brain(reflexes, planner, log);
         bus.subscribe(this::onEnvelope);
         log.onRecord(this::toWatchers);
     }
+
+    /** Auto totem (issue #8), anarchy only. */
+    private final io.github.liangforstudy.zymbot.core.body.TotemKeeper totem;
 
     private <T> T made(String module, T thing) {
         modules.add(module);
@@ -329,6 +335,10 @@ public final class Bot {
         lastInView = new java.util.HashMap<>();
         hungerMeter.settle();
         String where = AutostartPolicy.normalize(address);
+        if (!profile.autostarts() && config.autoStart9b9t && ZymbotConfig.is9b9t(address)) {
+            start("auto-start on 9b9t is on, and " + where + " is 9b9t");   // issue #8
+            return;
+        }
         if (!profile.autostarts()) {                             // anarchy: active everywhere, never grabs the controls
             log.record("standing by", "ready for orders on " + where + " — one-shot jobs borrow the controls, /"
                     + config.commandRoot + " start hands them over");
@@ -519,6 +529,8 @@ public final class Bot {
             if (borrowedFor != null) tickBorrowed(world, hands);   // ...who lent us the controls for one order
             return;
         }
+        // auto totem: one click, so even while a human holds the keys (the pause below) or a reflex runs
+        if (totem != null) totem.tick(world, hands, now).ifPresent(what -> log.record("auto totem", what));
 
         if (pausedUntil > now) {
             fidget.reset();                                  // a human's turning isn't ours
@@ -1054,6 +1066,29 @@ public final class Bot {
                 (world, h) -> new io.github.liangforstudy.zymbot.core.task.RouteTask(h.paths(), target, y == null,
                         config.routeRadius, config.swimCostBlocks, log::record).limits(config.planTimeoutMs, config.lagTps)));
         return "walking to " + where + pathfinderWarning() + lent;
+    }
+
+    /** Freecam (issue #9): walk to a container block and open it. */
+    public String openBlock(String what, int x, int y, int z) {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        BlockPos at = new BlockPos(x, y, z);
+        String lent = oneShot(Objective.of("open " + what, "clicked in freecam",
+                (world, h) -> io.github.liangforstudy.zymbot.core.task.OpenTask.block(h, what + " at " + x + " " + y + " " + z, at)));
+        return "walking to open " + what + " at " + x + " " + y + " " + z + pathfinderWarning() + lent;
+    }
+
+    /**
+     * Freecam (issue #9): walk to an entity with a container (a chest minecart, a donkey) and open it.
+     * {@code pos}: where it is now, null once it's gone (the adapter's lookup: minecarts aren't in nearby()).
+     */
+    public String openEntity(String what, int entityId, boolean sneak,
+                             java.util.function.Supplier<io.github.liangforstudy.zymbot.core.api.Vec3> pos) {
+        String no = oneShotRefusal();
+        if (no != null) return no;
+        String lent = oneShot(Objective.of("open " + what, "clicked in freecam",
+                (world, h) -> io.github.liangforstudy.zymbot.core.task.OpenTask.entity(h, what, entityId, pos, sneak)));
+        return "walking to open " + what + pathfinderWarning() + lent;
     }
 
     // ------------------------------------------------------------------ waypoints and routes (roadmap §2)
@@ -1856,7 +1891,7 @@ public final class Bot {
     public List<String> reflexes() { return brain.interruptNames(); }
     /** The tunables /zbot set and the settings screen offer in this profile, in the screen's order. */
     public List<String> tunables() {
-        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend")
+        return List.of("leash", "heel", "eat", "critical", "downed", "regroup", "probewait", "plantime", "lagtps", "fireres", "resume", "routefar", "nightstop", "nightend", "hangwait", "tracelimit")
                 .stream().filter(profile::hasTunable).toList();
     }
     public BotMemory memory() { return memory; }
