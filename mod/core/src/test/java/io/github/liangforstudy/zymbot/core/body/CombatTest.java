@@ -32,7 +32,8 @@ class CombatTest {
         assertFalse(Combat.decide("minecraft:zombie", Gear.BARE, 2, 0, 20, 12).fight());
         assertTrue(Combat.decide("minecraft:zombie", Gear.BASIC, 2, 0, 20, 12).fight());
         assertFalse(Combat.decide("minecraft:zombie", Gear.BASIC, 3, 0, 20, 12).fight());
-        assertTrue(Combat.decide("minecraft:spider", Gear.GOOD, 4, 0, 20, 12).fight());
+        assertTrue(Combat.decide("minecraft:spider", Gear.GOOD, 3, 0, 20, 12).fight());
+        assertFalse(Combat.decide("minecraft:spider", Gear.GOOD, 4, 0, 20, 12).fight(), "4 at once took good armor to 11 (live)");
     }
 
     @Test

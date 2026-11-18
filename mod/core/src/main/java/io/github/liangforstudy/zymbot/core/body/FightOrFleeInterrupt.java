@@ -94,7 +94,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
         return world.nearby().stream()
                 .filter(e -> e.uuid() != null && rule(e) == ZymbotConfig.MobRule.ALERT && !approved.contains(e.uuid()))
                 .filter(e -> hitBy.map(id -> id.equals(e.uuid())).orElse(false)
-                        || Combat.distance(e.pos(), me) <= Math.max(CLOSING_BLOCKS, switch (Combat.kind(e.type())) {
+                        || Combat.distance(e.pos(), me) <= Math.max(CLOSING_BLOCKS, switch (Combat.kind(e)) {
                             case SHOOTER -> SHOOTER_BLOCKS;
                             case FLYER -> Combat.reach(e.type());
                             default -> CLOSING_BLOCKS;
@@ -131,7 +131,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
                 .filter(e -> a.id().equals(e.uuid()))
                 .filter(this::handled)
                 .findFirst());
-        hit.filter(e -> Combat.kind(e.type()) == Combat.Kind.PROVOKED)
+        hit.filter(e -> Combat.kind(e) == Combat.Kind.PROVOKED)
                 .ifPresent(e -> provoked.put(e.uuid(), clock.getAsLong()));
         return hit.filter(e -> Combat.distance(e.pos(), world.position()) < Combat.reach(e.type()));
     }
@@ -153,7 +153,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
         Optional<EntityView> a = attacker(world);
         Optional<EntityView> t = a.isPresent() ? a : closing(world);
         if (t.isEmpty()) t = provokedNear(world);
-        if (t.isPresent() && Combat.kind(t.get().type()) == Combat.Kind.SHOOTER) return t;
+        if (t.isPresent() && Combat.kind(t.get()) == Combat.Kind.SHOOTER) return t;
         Optional<EntityView> shooter = coverFrom(world);                // shooters we'd hide from outrank a walker
         return shooter.isPresent() ? shooter : t;
     }
@@ -165,7 +165,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
     private Optional<EntityView> coverFrom(WorldView world) {
         Vec3 me = world.position();
         return world.nearby().stream()
-                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && Combat.kind(e.type()) == Combat.Kind.SHOOTER)
+                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && Combat.kind(e) == Combat.Kind.SHOOTER)
                 .filter(this::handled)
                 .filter(e -> Combat.distance(e.pos(), me) <= SHOOTER_BLOCKS && world.clearShot(eyes(e.pos()), eyes(me)))
                 .filter(e -> !decision(world, e).fight())
@@ -182,13 +182,20 @@ public final class FightOrFleeInterrupt implements Interrupt {
         return world.nearby().stream()
                 .filter(e -> e.kind() == EntityView.Kind.HOSTILE)
                 .filter(this::handled)
-                .filter(e -> switch (Combat.kind(e.type())) {
-                    case MELEE, STRONG -> Combat.distance(e.pos(), me) <= CLOSING_BLOCKS;
+                .filter(e -> switch (Combat.kind(e)) {
+                    case MELEE, STRONG -> Combat.distance(e.pos(), me) <= closingFor(e);
                     case SHOOTER -> Combat.distance(e.pos(), me) <= SHOOTER_BLOCKS
                             && world.clearShot(eyes(e.pos()), eyes(me));
                     default -> false;
                 })
                 .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
+    }
+
+    /** A baby runs faster, a mounted mob far faster: met sooner. */
+    public static final double BABY_CLOSING_BLOCKS = 9, MOUNTED_CLOSING_BLOCKS = 12;
+
+    static double closingFor(EntityView e) {
+        return e.has(EntityView.MOUNTED) ? MOUNTED_CLOSING_BLOCKS : e.has(EntityView.BABY) ? BABY_CLOSING_BLOCKS : CLOSING_BLOCKS;
     }
 
     private static Vec3 eyes(Vec3 feet) {
@@ -212,7 +219,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
         Vec3 me = world.position();
         boolean bow = Combat.bow(world.inventory()).isPresent() && Combat.arrows(world.inventory());
         return world.nearby().stream()
-                .filter(e -> Combat.kind(e.type()) == Combat.Kind.EXPLODES)
+                .filter(e -> Combat.kind(e) == Combat.Kind.EXPLODES)
                 .filter(this::handled)
                 .filter(e -> Combat.distance(e.pos(), me) <= Combat.CREEPER_BLOCKS
                         || bow && Combat.distance(e.pos(), me) <= CreeperFightTask.BOW_RANGE && world.clearShot(eyes(me), eyes(e.pos())))
@@ -254,8 +261,8 @@ public final class FightOrFleeInterrupt implements Interrupt {
         if (world.fuse(creeper.id()).map(io.github.liangforstudy.zymbot.core.api.Fuse::lit).orElse(false)) return Optional.empty();
         if (Combat.distance(creeper.pos(), world.position()) <= HISS_BLOCKS) return Optional.empty();   // about to hiss
         if (!creeperDecision(world, creeper, true).fight()) return Optional.empty();   // fought on its own? (armor, weapon, dry, no shooters)
-        java.util.function.Predicate<EntityView> notCreeper = e -> seen(e) && Combat.kind(e.type()) != Combat.Kind.EXPLODES;
-        Optional<EntityView> mob = threat(world).filter(e -> Combat.kind(e.type()) != Combat.Kind.EXPLODES);
+        java.util.function.Predicate<EntityView> notCreeper = e -> seen(e) && Combat.kind(e) != Combat.Kind.EXPLODES;
+        Optional<EntityView> mob = threat(world).filter(e -> Combat.kind(e) != Combat.Kind.EXPLODES);
         return mob.filter(m -> decision(world, m, notCreeper).fight());
     }
 
@@ -264,9 +271,9 @@ public final class FightOrFleeInterrupt implements Interrupt {
     }
 
     private Combat.Decision decision(WorldView world, EntityView mob, java.util.function.Predicate<EntityView> counted) {
-        int crowd = Combat.kind(mob.type()) == Combat.Kind.PROVOKED ? Combat.provokedCrowd(world, mob, counted)
+        int crowd = Combat.kind(mob) == Combat.Kind.PROVOKED ? Combat.provokedCrowd(world, mob, counted)
                 : Combat.crowd(world, counted);
-        return Combat.decide(mob.type(), Combat.gear(world), Math.max(1, crowd),
+        return Combat.decide(mob, Combat.gear(world), Math.max(1, crowd),
                 (int) Combat.shooters(world).stream().filter(this::seen).count(), world.health(), config.criticalFor());
     }
 
@@ -311,6 +318,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
                     new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note)));
         }
         Optional<EntityView> mob = threat(world);
+        if (mob.isPresent() && Combat.rider(mob.get())) return riderTask(world, hands, mob.get());
         if (mob.isPresent()) {
             Combat.Decision d = decision(world, mob.get());
             return switch (d.action()) {
@@ -345,6 +353,31 @@ public final class FightOrFleeInterrupt implements Interrupt {
         hands.notifyLocal(line);
     }
 
+    /**
+     * A rider: hit its mount first (on foot it's just a zombie); low on health, or no mount in sight,
+     * dig a 1-wide hole, too narrow for a horse.
+     */
+    private Task riderTask(WorldView world, Hands hands, EntityView rider) {
+        Optional<EntityView> mount = Combat.mountOf(world, rider);
+        boolean low = world.health() <= config.criticalFor() + Combat.FIGHT_MARGIN;
+        HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note);
+        if (low || mount.isEmpty()) {
+            tell(hands, "digging in because of " + Combat.a(Combat.label(rider)) + " " + away(world, rider)
+                    + (low ? " at health " + Math.round(world.health()) : "") + ": a horse can't fit in a 1-wide hole");
+            if (mount.isEmpty()) return hide;
+            // can't dig (a bridge, one block thick: live, 2026-11-18)? standing still takes the charge: hit the horse after all
+            return new Fallback(body::note, hide, new FightTask(hands, mount.get(), body::reportSwim,
+                    w -> w.nearby().stream().anyMatch(e -> java.util.Objects.equals(mount.get().uuid(), e.uuid()))));
+        }
+        tell(hands, "hitting the " + Combat.label(mount.get()) + " first: on foot, the "
+                + Combat.label(rider).replaceFirst(" on .*", "") + " is no match");
+        body.note("fighting " + Combat.label(mount.get()), "the mount of " + Combat.a(Combat.label(rider)) + "; with it down, the rider is on foot");
+        java.util.UUID id = mount.get().uuid();
+        return new Fallback(body::note, new FightTask(hands, mount.get(), body::reportSwim,
+                w -> w.health() > config.criticalFor() + Combat.FIGHT_MARGIN
+                        && w.nearby().stream().anyMatch(e -> id.equals(e.uuid()))), hide);
+    }
+
     private Task fight(Hands hands, EntityView mob) {
         return new FightTask(hands, mob, body::reportSwim, w -> alert(w).isEmpty()
                 && creeper(w).map(c -> creeperDecision(w, c).fight() || companyFirst(w, c).isPresent()).orElse(true)
@@ -377,7 +410,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
         // a creeper a step past fighting range still counts: turning back at 6 blocks walked straight
         // back into it, four times over (live, 2026-11-18)
         Optional<EntityView> c = w.nearby().stream()
-                .filter(e -> Combat.kind(e.type()) == Combat.Kind.EXPLODES && handled(e))
+                .filter(e -> Combat.kind(e) == Combat.Kind.EXPLODES && handled(e))
                 .filter(e -> Combat.distance(e.pos(), me) <= TURN_CLEAR_OF_CREEPER)
                 .min(Comparator.comparingDouble(e -> Combat.distance(e.pos(), me)));
         if (c.isPresent() && !creeperDecision(w, c.get()).fight() && companyFirst(w, c.get()).isEmpty()) return false;
@@ -418,7 +451,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
         java.util.List<EntityView> them = m.group(2).equals("shooters")
                 ? Combat.shooters(world).stream().filter(this::seen).toList()
                 : world.nearby().stream()
-                        .filter(e -> e.kind() == EntityView.Kind.HOSTILE && Combat.kind(e.type()) != Combat.Kind.LEAVE_ALONE)
+                        .filter(e -> e.kind() == EntityView.Kind.HOSTILE && Combat.kind(e) != Combat.Kind.LEAVE_ALONE)
                         .filter(this::seen)
                         .filter(e -> Combat.distance(e.pos(), me) <= Combat.CROWD_BLOCKS)
                         .toList();
@@ -432,7 +465,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
     }
 
     private static String name(EntityView e) {
-        return e.type() == null ? e.name() : e.type().replaceFirst("^minecraft:", "");
+        return e.type() == null ? e.name() : Combat.label(e);
     }
 
     /**
@@ -450,7 +483,7 @@ public final class FightOrFleeInterrupt implements Interrupt {
         HideTask hide = new HideTask(hands, FightOrFleeInterrupt::stillAfterUs, body::hiding).noting(body::note);
         CoverTask cover = new CoverTask(hands, Combat::shooters, body::reportSwim);
         if (walkerNear(world)) return new Fallback(body::note, cover, last);   // a hole is no cover from a zombie: it drops in too (live, 2026-11-18)
-        if (Combat.shooters(world).stream().noneMatch(e -> Combat.kind(e.type()) == Combat.Kind.FLYER)) {
+        if (Combat.shooters(world).stream().noneMatch(e -> Combat.kind(e) == Combat.Kind.FLYER)) {
             return new Fallback(body::note, cover, hide, last);
         }
         return new Fallback(body::note, new CoverTask(hands, Combat::shooters, body::reportSwim).within(FLYER_COVER_BLOCKS),
@@ -461,13 +494,18 @@ public final class FightOrFleeInterrupt implements Interrupt {
     static boolean walkerNear(WorldView world) {
         Vec3 me = world.position();
         return world.nearby().stream().filter(e -> e.kind() == EntityView.Kind.HOSTILE)
-                .filter(e -> switch (Combat.kind(e.type())) { case MELEE, STRONG, PROVOKED -> true; default -> false; })
+                .filter(e -> !e.has(EntityView.MOUNTED))                        // a horse can't follow us down
+                .filter(e -> switch (Combat.kind(e)) { case MELEE, STRONG, PROVOKED -> true; default -> false; })
                 .anyMatch(e -> Combat.distance(e.pos(), me) <= CLOSING_BLOCKS);
     }
 
     /** Something is still after us: a shooter in range, or a hostile close. */
     public static boolean stillAfterUs(WorldView world) {
-        return !Combat.shooters(world).isEmpty() || Combat.crowd(world) > 0;
+        Vec3 me = world.position();
+        // a rider circling at 12 blocks had it climb out and dig in again every 15 s (live, 2026-11-18)
+        boolean rider = world.nearby().stream().anyMatch(e -> e.kind() == EntityView.Kind.HOSTILE && Combat.rider(e)
+                && Combat.distance(e.pos(), me) <= CHASE_BLOCKS);
+        return rider || !Combat.shooters(world).isEmpty() || Combat.crowd(world) > 0;
     }
 
     private Task retreat(Hands hands, Vec3 first) {

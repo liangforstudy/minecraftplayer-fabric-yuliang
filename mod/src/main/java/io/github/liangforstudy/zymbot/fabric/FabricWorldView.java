@@ -269,6 +269,19 @@ final class FabricWorldView implements WorldView {
                 by == null ? null : new Vec3(by.getX(), by.getY(), by.getZ()), by == null ? null : by.getUUID()));
     }
 
+    /** What makes this one unlike others of its type: a baby, a spear in hand, riding something. */
+    private static Set<String> traits(LivingEntity e) {
+        Set<String> t = new java.util.HashSet<>();
+        if (e.isBaby()) t.add(EntityView.BABY);
+        if (BuiltInRegistries.ITEM.getKey(e.getMainHandItem().getItem()).getPath().endsWith("spear")) t.add(EntityView.SPEAR);
+        Entity v = e.getVehicle();
+        if (v != null) {
+            t.add(EntityView.MOUNTED);
+            t.add("on:" + BuiltInRegistries.ENTITY_TYPE.getKey(v.getType()));
+        }
+        return t;
+    }
+
     @Override
     public List<EntityView> nearby() {
         if (nearby == null) {
@@ -280,7 +293,8 @@ final class FabricWorldView implements WorldView {
                 EntityView.Kind kind = e instanceof Player ? EntityView.Kind.PLAYER
                         : e instanceof Enemy ? EntityView.Kind.HOSTILE : EntityView.Kind.PASSIVE;
                 out.add(new EntityView(e.getId(), e.getUUID(), e.getName().getString(),
-                        BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString(), kind, new Vec3(e.getX(), e.getY(), e.getZ())));
+                        BuiltInRegistries.ENTITY_TYPE.getKey(e.getType()).toString(), kind, new Vec3(e.getX(), e.getY(), e.getZ()),
+                        traits(living)));
             }
             nearby = List.copyOf(out);
         }

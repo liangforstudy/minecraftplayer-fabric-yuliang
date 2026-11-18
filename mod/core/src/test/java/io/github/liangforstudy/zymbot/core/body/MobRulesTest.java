@@ -109,13 +109,13 @@ class MobRulesTest {
         mob(w, 800, "zombie_villager", -2.5);
         ticks(b, w, 3);
         assertEquals(1, w.pings, log(b));
-        assertTrue(w.notices.stream().anyMatch(n -> n.contains("zombie_villager") && n.contains("alert list") && n.contains("/zbot approve")),
+        assertTrue(w.notices.stream().anyMatch(n -> n.contains("zombie villager") && n.contains("alert list") && n.contains("/zbot approve")),
                 String.join("\n", w.notices));
         assertTrue(w.attacked.isEmpty(), "not hit before approval:\n" + log(b));
         ticks(b, w, 20);
         assertEquals(1, w.pings, "pinged once per mob");
 
-        assertTrue(b.approve().get(0).startsWith("approved: zombie_villager"));
+        assertTrue(b.approve().get(0).startsWith("approved: zombie villager"));
         w.attackReady = true;
         for (int i = 0; i < 40 && w.attacked.isEmpty(); i++) {     // after its 20-tick pause the reflex looks again
             mob(w, 800, "zombie_villager", w.pos.x() - 1.5);
@@ -261,6 +261,39 @@ class MobRulesTest {
         assertFalse(w.attacked.contains(930), "skeletons shooting: cover, not the zombie\n" + log(b));
         assertFalse(log(b).contains("digging in"), "a zombie 5 blocks off would drop into the hole with us\n" + log(b));
         assertTrue(w.notices.stream().anyMatch(n -> n.startsWith("taking cover because of 3 skeletons")), String.join("\n", w.notices));
+    }
+
+    static void rider(FakeWorld w, double x) {
+        Vec3 at = new Vec3(x, 64, 0.5);
+        w.nearby.removeIf(o -> o.id() == 940 || o.id() == 941);
+        w.nearby.add(new EntityView(940, UUID.nameUUIDFromBytes("horse".getBytes()), "Zombie Horse", "minecraft:zombie_horse",
+                EntityView.Kind.PASSIVE, at));
+        w.nearby.add(new EntityView(941, UUID.nameUUIDFromBytes("rider".getBytes()), "Zombie", "minecraft:zombie",
+                EntityView.Kind.HOSTILE, new Vec3(x, 64.6, 0.5), java.util.Set.of(EntityView.SPEAR, EntityView.MOUNTED, "on:minecraft:zombie_horse")));
+    }
+
+    @Test
+    void aSpearRider_itsHorseIsHitFirst_andItDigsInWhenLow() {
+        FakeWorld w = armed();
+        Bot b = walking(w, new ZymbotConfig(), "9b9t.com");
+        w.attackReady = true;
+        for (int i = 0; i < 40 && !w.attacked.contains(940); i++) {
+            rider(w, w.pos.x() - 2);
+            ticks(b, w, 1);
+        }
+        assertTrue(w.attacked.contains(940), "the horse, first\n" + log(b));
+        assertFalse(w.attacked.contains(941), log(b));
+        assertTrue(w.notices.stream().anyMatch(n -> n.startsWith("hitting the zombie horse first")), String.join("\n", w.notices));
+
+        FakeWorld low = armed();
+        Bot b2 = walking(low, new ZymbotConfig(), "9b9t.com");
+        low.health = 14;                                            // at the fight margin: into a hole a horse can't follow
+        for (int i = 0; i < 10; i++) {
+            rider(low, low.pos.x() - 8);
+            ticks(b2, low, 1);
+        }
+        assertTrue(low.notices.stream().anyMatch(n -> n.startsWith("digging in because of a zombie with a spear on a zombie horse")),
+                String.join("\n", low.notices) + "\n" + log(b2));
     }
 
     @Test

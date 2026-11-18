@@ -59,7 +59,7 @@ public final class Combat {
         }
 
         /** How many melee mobs at once are still worth fighting. */
-        int crowd() { return this == GOOD ? 4 : this == BASIC ? 2 : 1; }
+        int crowd() { return this == GOOD ? 3 : this == BASIC ? 2 : 1; }   // 4 zombies took good armor to 11 (live, 2026-11-18)
 
         /**
          * How many shooters at once are still worth rushing: fewer than walkers — four skeletons took
@@ -125,6 +125,43 @@ public final class Combat {
     }
 
     /** Anything not listed (a modded mob, a new one) is backed away from. */
+    /**
+     * Its kind, as this one is: a mounted melee mob, or one with a spear, hits too hard (owner,
+     * 2026-11-18: a spear zombie on a zombie horse took us from 15 to 2 in one exchange).
+     */
+    public static Kind kind(EntityView e) {
+        return kind(e.type());
+    }
+
+    /**
+     * A melee mob riding something (a spear zombie on a zombie horse): it can't be outrun, and its
+     * charge took us from 15 to 2. Its mount is hit first, and a 1-wide hole is where it can't follow
+     * (owner, 2026-11-18).
+     */
+    public static boolean rider(EntityView e) {
+        return e.has(EntityView.MOUNTED) && kind(e.type()) == Kind.MELEE;
+    }
+
+    /** What {@code rider} sits on: the mob of its mount's type right under it. */
+    public static java.util.Optional<EntityView> mountOf(WorldView world, EntityView rider) {
+        String type = rider.mount().orElse(null);
+        if (type == null) return java.util.Optional.empty();
+        return world.nearby().stream()
+                .filter(e -> type.equals(e.type()) && !java.util.Objects.equals(e.uuid(), rider.uuid()))
+                .filter(e -> e.pos().horizontalDistance(rider.pos()) < 1 && e.pos().y() <= rider.pos().y())
+                .findFirst();
+    }
+
+    /** "baby zombie", "zombie with a spear on a zombie horse", "zombie". */
+    public static String label(EntityView e) {
+        String name = e.type() == null ? "mob" : e.type().replaceFirst("^[a-z0-9_.-]+:", "");
+        if (e.has(EntityView.BABY)) name = "baby " + name;
+        if (e.has(EntityView.SPEAR)) name += " with a spear";
+        String on = e.mount().map(m -> m.replaceFirst("^[a-z0-9_.-]+:", "").replace('_', ' ')).orElse(null);
+        if (on != null) name += " on " + a(on);
+        return name.replace('_', ' ');
+    }
+
     public static Kind kind(String type) {
         if (type == null) return Kind.STRONG;
         return KINDS.getOrDefault(type.replaceFirst("^minecraft:", ""), Kind.STRONG);
@@ -161,7 +198,7 @@ public final class Combat {
      */
     public static String names(List<EntityView> mobs) {
         Map<String, Long> byType = new java.util.LinkedHashMap<>();
-        mobs.stream().map(e -> e.type() == null ? "mob" : e.type().replaceFirst("^[a-z0-9_.-]+:", ""))
+        mobs.stream().map(Combat::label)
                 .forEach(t -> byType.merge(t, 1L, Long::sum));
         List<String> parts = byType.entrySet().stream()
                 .sorted((x, y) -> Long.compare(y.getValue(), x.getValue()))
@@ -192,10 +229,18 @@ public final class Combat {
      * @param shooters shooters in range of us ({@link #shooters})
      */
     public static Decision decide(String type, Gear gear, int crowd, int shooters, float health, int critical) {
-        String name = type == null ? "something" : type.replaceFirst("^minecraft:", "");
+        return decide(type == null ? "something" : type.replaceFirst("^minecraft:", ""), kind(type), gear, crowd, shooters, health, critical);
+    }
+
+    /** {@link #decide(String, Gear, int, int, float, int)} for this mob as it is (a spear, a mount). */
+    public static Decision decide(EntityView mob, Gear gear, int crowd, int shooters, float health, int critical) {
+        return decide(label(mob), kind(mob), gear, crowd, shooters, health, critical);
+    }
+
+    private static Decision decide(String name, Kind mobKind, Gear gear, int crowd, int shooters, float health, int critical) {
         String armor = gear.name().toLowerCase(java.util.Locale.ROOT) + " armor";
         boolean low = health <= critical + FIGHT_MARGIN && gear != Gear.GOOD;
-        return switch (kind(type)) {
+        return switch (mobKind) {
             case LEAVE_ALONE -> {                                    // each for its own reason: an enderman has no friends (owner, 2026-11-17)
                 String reason = switch (name) {
                     case "iron_golem" -> "hits too hard";      // a village's: the whole village turns on us
@@ -214,7 +259,7 @@ public final class Combat {
                         a(name) + " at low health (" + Math.round(health) + ")");
                 yield new Decision(Action.FIGHT, name + ", " + armor + " — hit it and step back");
             }
-            case STRONG -> new Decision(Action.BACK_OFF, name + " hits too hard", a(name) + " (hits too hard)");
+            case STRONG -> new Decision(Action.BACK_OFF, name + " hits too hard", a(name) + (name.contains(" on a") ? " (its charge hits too hard)" : " (hits too hard)"));
             case FLYER -> new Decision(Action.COVER, name + " shoots from the air — cover", a(name) + " shooting from the air");
             case SHOOTER -> {
                 int n = Math.max(1, shooters);
@@ -241,7 +286,7 @@ public final class Combat {
         Vec3 me = world.position();
         return world.nearby().stream()
                 .filter(e -> e.kind() == EntityView.Kind.HOSTILE)
-                .filter(e -> kind(e.type()) == Kind.SHOOTER || kind(e.type()) == Kind.FLYER)
+                .filter(e -> kind(e) == Kind.SHOOTER || kind(e) == Kind.FLYER)
                 .filter(e -> distance(e.pos(), me) <= reach(e.type()))
                 .toList();
     }
@@ -258,7 +303,7 @@ public final class Combat {
     public static int crowd(WorldView world, java.util.function.Predicate<EntityView> counted) {
         Vec3 me = world.position();
         return (int) world.nearby().stream()
-                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && kind(e.type()) != Kind.LEAVE_ALONE && kind(e.type()) != Kind.PROVOKED)
+                .filter(e -> e.kind() == EntityView.Kind.HOSTILE && kind(e) != Kind.LEAVE_ALONE && kind(e) != Kind.PROVOKED)
                 .filter(counted)
                 .filter(e -> distance(e.pos(), me) <= CROWD_BLOCKS)
                 .count();
